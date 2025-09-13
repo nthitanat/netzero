@@ -1,0 +1,310 @@
+@import "src/styles/main";
+
+.Container {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-3", 1px);
+  border-radius: 16px;
+  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  &.tree-theme {
+    @include border-color-palette("primary-color-3", 2px);
+    
+    .Header {
+      .Title {
+        @include text-color-palette("primary-color-1");
+      }
+      
+      .Count {
+        @include bg-color-palette("primary-color-3");
+        @include text-color-palette("white");
+      }
+    }
+  }
+
+  &.map-theme {
+    @include map-glassmorphism-card;
+    border: 1px solid var(--map-glass-border);
+    background: var(--map-glass-bg-strong);
+    backdrop-filter: blur(20px);
+    
+    .Header {
+      .Title {
+        color: var(--map-text);
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      
+      .Count {
+        background: var(--map-card-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        color: var(--map-text);
+        border: 1px solid var(--map-card-border);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .TreeItem {
+      background: var(--map-card-bg);
+      border: 1px solid var(--map-card-border);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+
+      &:hover {
+        background: var(--map-hover-bg);
+        border: 1px solid var(--map-glass-border);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      }
+
+      &.Selected {
+        background: var(--map-active-bg);
+        border: 2px solid var(--map-accent);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .TreeActions .ViewAllButton {
+      @include map-glassmorphism-button;
+      color: var(--map-text);
+
+      &:hover {
+        background: var(--map-hover-bg);
+      }
+    }
+
+    .LocationItem .ViewLocationButton {
+      @include map-glassmorphism-button;
+      color: var(--map-text);
+
+      &:hover {
+        background: var(--map-hover-bg);
+      }
+    }
+  }
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--map-glass-border);
+
+  .Title {
+    @include font-size-palette("headline-4");
+    color: var(--map-text);
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .Count {
+    @include font-size-palette("body-2");
+    background: var(--map-card-bg);
+    color: var(--map-text);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    border: 1px solid var(--map-card-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+.TreeList {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--map-card-bg);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--map-glass-border);
+    border-radius: 3px;
+    
+    &:hover {
+      background: var(--map-accent);
+    }
+  }
+}
+
+.TreeItem {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  gap: 12px;
+
+  &:hover {
+    @include shawdow-palette("primary-color-1", 0.15);
+    transform: translateY(-2px);
+    @include border-color-palette("primary-color-3", 1px);
+  }
+
+  &.Selected {
+    @include border-color-palette("primary-color-2", 2px);
+    @include bg-color-palette("primary-color-4");
+    @include shawdow-palette("primary-color-2", 0.2);
+  }
+}
+
+.TreeIcon {
+  position: relative;
+  flex-shrink: 0;
+
+  .Icon {
+    @include font-size-palette("headline-3");
+    display: block;
+  }
+
+  .TreeTypeBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    @include font-size-palette("body-4");
+    @include bg-color-palette("primary-color-3");
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.TreeInfo {
+  flex: 1;
+  min-width: 0;
+
+  .TreeName {
+    @include font-size-palette("headline-5");
+    color: var(--map-text);
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .TreeStats {
+    @include font-size-palette("body-3");
+    color: var(--map-text-secondary);
+    margin: 0 0 12px 0;
+    opacity: 0.9;
+  }
+}
+
+.LocationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.LocationItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--map-card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--map-card-border);
+
+  .LocationName {
+    @include font-size-palette("body-3");
+    color: var(--map-text);
+    flex: 1;
+  }
+
+  .LocationCount {
+    @include font-size-palette("body-4");
+    color: var(--map-text-secondary);
+    font-weight: 500;
+  }
+
+  .ViewLocationButton {
+    @include font-size-palette("body-4");
+    @include map-glassmorphism-button;
+    color: var(--map-text);
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--map-hover-bg);
+    }
+  }
+}
+
+.MoreLocations {
+  @include font-size-palette("body-3");
+  color: var(--map-text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 4px;
+  opacity: 0.8;
+}
+
+.TreeActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+
+  .ViewAllButton {
+    @include font-size-palette("body-3");
+    @include map-glassmorphism-button;
+    color: var(--map-text);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--map-hover-bg);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+.EmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+
+  .EmptyIcon {
+    @include font-size-palette("headline-1");
+    margin-bottom: 16px;
+    opacity: 0.5;
+    color: var(--map-text-secondary);
+  }
+
+  .EmptyText {
+    @include font-size-palette("body-2");
+    color: var(--map-text-secondary);
+    margin: 0;
+  }
+}

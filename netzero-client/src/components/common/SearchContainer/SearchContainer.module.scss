@@ -1,0 +1,101 @@
+@import "src/styles/main";
+
+.SearchContainerWrapper {
+  width: 100%;
+}
+
+.SearchContainer {
+  position: relative;
+  width: 100%;
+}
+
+.SearchInputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.SearchInput {
+  width: 100%;
+  @include font-size-palette("body-2");
+  padding: 12px 16px 12px 44px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  @include text-color-palette("primary-color-2");
+  transition: all 0.3s ease;
+  
+  &::placeholder {
+    @include text-color-palette("primary-color-2");
+    opacity: 0.6;
+  }
+  
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 12px rgba(17, 149, 94, 0.2);
+  }
+  
+  &:hover:not(:focus) {
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  @media (max-width: 768px) {
+    @include font-size-palette("body-3");
+    padding: 10px 14px 10px 40px;
+  }
+}
+
+.SearchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  @include font-size-palette("body-2");
+  opacity: 0.6;
+  pointer-events: none;
+  
+  @media (max-width: 768px) {
+    left: 12px;
+    @include font-size-palette("body-3");
+  }
+}
+
+.ClearButton {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  @include text-color-palette("primary-color-2");
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+  
+  @media (max-width: 768px) {
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+}

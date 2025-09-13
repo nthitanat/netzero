@@ -1,0 +1,121 @@
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Import all partials
+@import 'colors';
+@import 'typography';
+@import 'animations';
+
+// Global Reset
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', 'Sarabun', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background: var(--bg-color);
+  background-attachment: fixed;
+  @include text-color-palette("primary-color-2");
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+// Global Utilities
+.Container {
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.GlassCard {
+  @include glassmorphism-light;
+}
+
+.GlassCardHover {
+  @include glassmorphism-card;
+  @include glassmorphism-hover;
+}
+
+.OrganicShape {
+  @include organic-shape-1;
+}
+
+.FadeInUp {
+  @include fade-in-animation;
+}
+
+// Landing page specific utilities
+.LandingContainer {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(46, 125, 50, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 60%, rgba(129, 199, 132, 0.12) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// Floating Navbar Spacing Mixin
+// This mixin provides consistent top spacing for all pages to account for the fixed floating navbar
+// Usage: @include navbar-spacing; in your page .Container class
+@mixin navbar-spacing {
+  padding-top: 120px; // Default spacing for floating navbar
+  
+  @media (max-width: 768px) {
+    padding-top: 120px;
+  }
+  
+  @media (max-width: 480px) {
+    padding-top: 120px;
+  }
+}
+
+// Global Page Container with Navbar Spacing
+// Use this class for pages that need consistent navbar spacing
+.page-container {
+  @include navbar-spacing;
+  min-height: 100vh;
+  position: relative;
+}
+
+// Responsive Breakpoints
+$mobile: 768px;
+$tablet: 1024px;
+$desktop: 1440px;
+
+@mixin mobile {
+  @media (max-width: #{$mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$mobile}) and (max-width: #{$tablet - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$tablet}) {
+    @content;
+  }
+}

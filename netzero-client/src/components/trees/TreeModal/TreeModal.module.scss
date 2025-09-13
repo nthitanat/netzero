@@ -1,0 +1,474 @@
+@import "src/styles/main";
+
+.Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+  @include fade-in-animation(0.3s);
+}
+
+.Modal {
+  @include map-glassmorphism-card;
+  border-radius: 20px;
+  min-width: 1200px;
+  max-height: 70vh;
+  overflow: hidden;
+  @include expand-animation(0.3s, 0px, 900px);
+  display: flex;
+  flex-direction: column;
+
+  &.map-theme {
+    background: var(--map-glass-bg-strong);
+    border: 2px solid var(--map-glass-border);
+  }
+
+  @media (max-width: 768px) {
+    margin: 10px;
+    max-height: 95vh;
+  }
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  background: var(--map-card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 2px solid var(--map-glass-border);
+
+  @media (max-width: 768px) {
+    padding: 20px 24px;
+  }
+
+  .Modal.map-theme & {
+    background: var(--map-card-bg);
+    border-bottom: 2px solid var(--map-glass-border);
+  }
+}
+
+.TreeTitle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  .TreeIcon {
+    @include font-size-palette("headline-2");
+    color: var(--map-text);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  .TreeName {
+    @include font-size-palette("headline-3");
+    color: var(--map-text);
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    @media (max-width: 768px) {
+      @include font-size-palette("headline-4");
+    }
+  }
+
+  .Modal.map-theme & {
+    .TreeIcon {
+      color: var(--map-text);
+    }
+    
+    .TreeName {
+      color: var(--map-text);
+    }
+  }
+}
+
+.CloseButton {
+  @include map-glassmorphism-button;
+  color: var(--map-text);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  @include font-size-palette("headline-5");
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: var(--map-hover-bg);
+    transform: scale(1.1);
+  }
+
+  .Modal.map-theme & {
+    @include map-glassmorphism-button;
+    color: var(--map-text);
+    
+    &:hover {
+      background: var(--map-hover-bg);
+    }
+  }
+}
+
+.Content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--map-card-bg);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--map-glass-border);
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--map-accent);
+    }
+  }
+
+  .Modal.map-theme & {
+    &::-webkit-scrollbar-track {
+      background: var(--map-card-bg);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: var(--map-glass-border);
+      
+      &:hover {
+        background: var(--map-accent);
+      }
+    }
+  }
+}
+
+.TreeImageSection {
+  padding: 32px;
+  @include bg-color-palette("primary-color-4");
+
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
+}
+
+.ImageContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  @include shawdow-palette("primary-color-1", 0.2);
+
+  .TreeImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .ImageOverlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    padding: 20px;
+    display: flex;
+    justify-content: flex-end;
+
+    .TreeCategory {
+      @include bg-color-palette("primary-color-3");
+      @include text-color-palette("white");
+      @include font-size-palette("body-3");
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+  }
+}
+
+.Dashboard {
+  padding: 32px;
+
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
+}
+
+.StatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+}
+
+.StatCard {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 2px);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  @include shawdow-palette("primary-color-1", 0.1);
+
+  &:hover {
+    @include border-color-palette("primary-color-3", 2px);
+    @include shawdow-palette("primary-color-1", 0.2);
+    transform: translateY(-2px);
+  }
+
+  .StatIcon {
+    @include font-size-palette("headline-3");
+    margin-bottom: 8px;
+  }
+
+  .StatValue {
+    @include font-size-palette("headline-4");
+    @include text-color-palette("primary-color-1");
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+
+    @media (max-width: 768px) {
+      @include font-size-palette("headline-5");
+    }
+  }
+
+  .StatLabel {
+    @include font-size-palette("body-3");
+    @include text-color-palette("primary-color-2");
+    font-weight: 500;
+  }
+}
+
+.TreeInfo {
+  margin-bottom: 32px;
+
+  .SectionTitle {
+    @include font-size-palette("headline-4");
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: "🌿";
+      @include font-size-palette("headline-5");
+    }
+  }
+}
+
+.InfoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.InfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .InfoLabel {
+    @include font-size-palette("body-3");
+    @include text-color-palette("primary-color-2");
+    font-weight: 600;
+  }
+
+  .InfoValue {
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-1");
+    font-weight: 500;
+  }
+}
+
+.Description {
+  @include bg-color-palette("primary-color-4");
+  padding: 20px;
+  border-radius: 12px;
+  @include border-color-palette("primary-color-3", 1px);
+
+  p {
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-1");
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.LocationsSection {
+  .SectionTitle {
+    @include font-size-palette("headline-4");
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: "📍";
+      @include font-size-palette("headline-5");
+    }
+  }
+}
+
+.LocationsList {
+  display: grid;
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    @include bg-color-palette("primary-color-4");
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    @include bg-color-palette("primary-color-3");
+    border-radius: 3px;
+    
+    &:hover {
+      @include bg-color-palette("primary-color-2");
+    }
+  }
+}
+
+.LocationCard {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include shawdow-palette("primary-color-1", 0.1);
+
+  &:hover {
+    @include border-color-palette("primary-color-3", 1px);
+    @include shawdow-palette("primary-color-1", 0.15);
+    transform: translateY(-1px);
+  }
+}
+
+.LocationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  .LocationName {
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+  }
+
+  .LocationRank {
+    @include bg-color-palette("primary-color-3");
+    @include text-color-palette("white");
+    @include font-size-palette("body-4");
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+}
+
+.LocationStats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+
+  .LocationCount {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+
+    .CountValue {
+      @include font-size-palette("headline-5");
+      @include text-color-palette("primary-color-1");
+      font-weight: 700;
+    }
+
+    .CountLabel {
+      @include font-size-palette("body-3");
+      @include text-color-palette("primary-color-2");
+    }
+  }
+
+  .LocationPercentage {
+    @include font-size-palette("body-3");
+    @include text-color-palette("primary-color-2");
+    font-weight: 600;
+  }
+}
+
+.LocationBar {
+  height: 6px;
+  @include bg-color-palette("primary-color-4");
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 12px;
+
+  .LocationProgress {
+    height: 100%;
+    @include bg-color-palette("primary-color-3");
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+}
+
+.ViewOnMapButton {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  @include font-size-palette("body-3");
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+
+  &:hover {
+    @include bg-color-palette("primary-color-2");
+    transform: translateY(-1px);
+  }
+}

@@ -1,0 +1,409 @@
+@import "src/styles/main";
+
+.Container {
+  position: fixed;
+  min-width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  
+  @include fade-in-animation(0.3s);
+  
+  // Theme classes
+  &.market-theme {
+    @include market-theme;
+  }
+  
+  &.barter-theme {
+    @include barter-theme;
+  }
+  
+  &.willing-theme {
+    @include willing-theme;
+  }
+}
+
+.Overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;  
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.Dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+  // Default glassmorphism for market and barter
+  @include glassmorphism-card;
+  background: var(--theme-bg, white);
+  
+  // Theme-specific dialog styling
+  .Container.market-theme & {
+    @include market-glassmorphism-card;
+    border-radius: 24px;
+    border: 1px solid var(--market-glass-border);
+    background: var(--market-glass-bg);
+  }
+  
+  .Container.barter-theme & {
+    @include glassmorphism-card;
+    background: var(--theme-bg, white);
+    border-radius: 20px;
+  }
+  
+  .Container.willing-theme & {
+    @include willing-glassmorphism-card;
+    border-radius: 24px;
+    border: 1px solid var(--willing-glass-border);
+    background: var(--willing-glass-bg);
+  }
+  
+  @include expand-animation(0.4s, 0.8, 1);
+}
+
+.CloseButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  @include bg-color-palette("primary-color-3");
+  border: none;
+  border-radius: 50px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include text-color-palette("white");
+  transition: all 0.3s ease;
+  z-index: 1;
+
+  &:hover {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.05);
+  }
+}
+
+.DialogContent {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.Header {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.ProductName {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-2");
+  margin: 0;
+  font-weight: 500;
+}
+
+.ProductInfo {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  @include bg-color-palette("primary-color-4");
+  border-radius: 16px;
+  background: rgba(69, 206, 105, 0.1);
+}
+
+.ProductImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  @include border-color-palette("primary-color-3", 2px);
+}
+
+.ProductDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.PriceDisplay {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 700;
+}
+
+.StockInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+}
+
+.StockIcon {
+  @include text-color-palette("primary-color-3");
+}
+
+.QuantitySection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.QuantityLabel {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0;
+}
+
+.QuantityControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.QuantityButton {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(.Disabled) {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.05);
+  }
+
+  &.Disabled {
+    @include bg-color-palette("inactive");
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.QuantityInput {
+  width: 80px;
+  height: 40px;
+  text-align: center;
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  @include border-color-palette("primary-color-3", 2px);
+  border-radius: 8px;
+  background: white;
+  font-weight: 600;
+
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+
+  // Hide spinner arrows
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+.ErrorMessage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  @include font-size-palette("body-3");
+  @include text-color-palette("warning");
+  padding: 8px 12px;
+  @include bg-color-palette("warning");
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 8px;
+  @include border-color-palette("warning", 1px);
+}
+
+.TotalSection {
+  padding: 16px;
+  @include bg-color-palette("primary-color-4");
+  background: rgba(69, 206, 105, 0.1);
+  border-radius: 12px;
+  @include border-color-palette("primary-color-3", 1px);
+}
+
+.TotalDisplay {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.TotalLabel {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-2");
+  font-weight: 600;
+}
+
+.TotalAmount {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 700;
+}
+
+.ErrorAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("warning");
+  padding: 12px 16px;
+  @include bg-color-palette("warning");
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 12px;
+  @include border-color-palette("warning", 1px);
+}
+
+.ActionSection {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.CancelButton {
+  flex: 1;
+  padding: 12px 20px;
+  @include font-size-palette("body-1");
+  @include bg-color-palette("inactive");
+  @include text-color-palette("primary-color-1");
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    @include bg-color-palette("inactive");
+    background: rgba(158, 158, 158, 0.8);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ReserveButton {
+  flex: 2;
+  padding: 12px 20px;
+  @include font-size-palette("body-1");
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(.Disabled):not(:disabled) {
+    @include bg-color-palette("primary-color-2");
+    transform: translateY(-1px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+
+  &.Disabled,
+  &:disabled {
+    @include bg-color-palette("inactive");
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.LoadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .Dialog {
+    width: 95%;
+    max-width: none;
+    margin: 20px;
+  }
+  
+  .DialogContent {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .ProductInfo {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .ProductImage {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .QuantityControls {
+    gap: 12px;
+  }
+  
+  .QuantityInput {
+    width: 100px;
+  }
+  
+  .ActionSection {
+    flex-direction: column;
+  }
+}

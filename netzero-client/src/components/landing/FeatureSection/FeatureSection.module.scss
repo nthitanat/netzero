@@ -1,0 +1,283 @@
+@import "src/styles/main";
+
+.Container {
+  padding: 120px 60px;
+  position: relative;
+  
+  @include mobile {
+    padding: 80px 20px;
+  }
+}
+
+.ContentWrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.Header {
+  text-align: center;
+  margin-bottom: 80px;
+  
+  @include mobile {
+    margin-bottom: 60px;
+  }
+}
+
+.SectionTitle {
+  @include typography-headline-2;
+  @include text-color-palette("primary-color-1");
+  margin-bottom: 24px;
+  
+  @include mobile {
+    @include font-size-palette("headline-3");
+  }
+}
+
+.TitleAccent {
+  background: linear-gradient(135deg, var(--primary-color-2), var(--primary-color-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.SectionSubtitle {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.FeaturesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  margin-bottom: 100px;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 80px;
+  }
+}
+
+.FeatureCard {
+  @include glassmorphism-card;
+  @include hover-float-animation;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  @include slide-up-animation(0.6s);
+  
+  &:hover {
+    .FeatureBackground {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+    
+    .IconGlow {
+      transform: scale(1.2);
+      opacity: 0.6;
+    }
+    
+    .ArrowIcon {
+      transform: translateX(4px);
+    }
+  }
+  
+  @include mobile {
+    padding: 32px 24px;
+  }
+}
+
+.FeatureBackground {
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg, 
+    rgba(76, 175, 80, 0.1) 0%, 
+    rgba(46, 125, 50, 0.05) 100%
+  );
+  border-radius: 50%;
+  transition: all 0.6s ease;
+  z-index: 0;
+}
+
+.FeatureIcon {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.IconEmoji {
+  @include font-size-palette("headline-1");
+  position: relative;
+  z-index: 2;
+}
+
+.IconGlow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(76, 175, 80, 0.3) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  z-index: 1;
+}
+
+.FeatureContent {
+  position: relative;
+  z-index: 1;
+}
+
+.FeatureTitle {
+  @include typography-headline-4;
+  @include text-color-palette("primary-color-1");
+  margin-bottom: 16px;
+  @include font-weight-bold;
+}
+
+.FeatureDescription {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.FeatureDetails {
+  margin-bottom: 32px;
+}
+
+.FeatureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.FeatureListItem {
+  @include typography-body-2;
+  @include text-color-palette("primary-color-2");
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  opacity: 0.7;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.CheckIcon {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include font-size-palette("body-3");
+  @include font-weight-bold;
+  flex-shrink: 0;
+}
+
+.FeatureButton {
+  @include glassmorphism-light;
+  @include text-color-palette("primary-color-2");
+  @include typography-body-2;
+  @include font-weight-medium;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    @include border-color-palette("primary-color-3", 1px);
+  }
+}
+
+.ArrowIcon {
+  transition: transform 0.3s ease;
+  @include font-size-palette("body-1");
+}
+
+.CTASection {
+  display: flex;
+  justify-content: center;
+}
+
+.CTACard {
+  @include glassmorphism-card;
+  text-align: center;
+  padding: 60px;
+  max-width: 600px;
+  width: 100%;
+  
+  @include mobile {
+    padding: 40px 24px;
+  }
+}
+
+.CTATitle {
+  @include typography-headline-3;
+  @include text-color-palette("primary-color-1");
+  margin-bottom: 16px;
+  
+  @include mobile {
+    @include font-size-palette("headline-4");
+  }
+}
+
+.CTADescription {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.CTAButton {
+  @include glassmorphism-card;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include typography-body-1;
+  @include font-weight-medium;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(46, 125, 50, 0.3);
+  }
+  
+  @include mobile {
+    padding: 14px 32px;
+    width: 100%;
+  }
+}

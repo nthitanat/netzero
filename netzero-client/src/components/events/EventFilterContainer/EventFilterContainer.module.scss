@@ -1,0 +1,64 @@
+@import "src/styles/main";
+
+.Container {
+  width: 100%;
+  background-color: var(--primary-color-3);
+}
+
+.CategoryFilters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    gap: 6px;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0 16px;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.FilterButton {
+  @include font-size-palette("body-2");
+  @include font-weight-medium;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  @include text-color-palette("primary-color-2");
+  white-space: nowrap;
+  color: var(--white);
+  
+  &:hover {
+    @include bg-color-palette("white");
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.Active {
+    @include bg-color-palette("primary-color-2");
+    @include text-color-palette("white");
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+    
+    &:hover {
+      @include bg-color-palette("primary-color-1");
+    }
+  }
+  
+  @media (max-width: 768px) {
+    @include font-size-palette("body-3");
+    padding: 10px 16px;
+    min-width: fit-content;
+  }
+}

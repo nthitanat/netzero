@@ -1,0 +1,385 @@
+@import "src/styles/main";
+
+.Container {
+  @include map-theme;
+  @include navbar-spacing;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--theme-bg);
+  background-attachment: fixed;
+  
+  // Ensure the radial gradient covers the full viewport
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--theme-bg);
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  // Page fade-in animation
+  animation: fadeIn 0.8s ease-out;
+}
+
+.BackgroundDecoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+// Modern Tree Map Header
+.Header {
+  position: relative;
+  z-index: 10;
+  padding: 40px 24px 60px;
+  text-align: center;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    @include map-glassmorphism-header;
+    z-index: -1;
+  }
+}
+
+.HeaderContent {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.HeaderIcon {
+  margin-bottom: 20px;
+  
+  span {
+    color: var(--theme-text);
+    font-size: 48px;
+    display: inline-block;
+    @include fade-in-animation(0.6s);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  }
+}
+
+.PageTitle {
+  @include font-size-palette("headline-1");
+  color: var(--theme-text);
+  font-weight: 700;
+  margin-bottom: 12px;
+  @include slide-up-animation(0.7s, 0.2s);
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.PageSubtitle {
+  @include font-size-palette("body-1");
+  color: var(--theme-text-secondary);
+  margin: 0;
+  opacity: 0.9;
+  @include slide-up-animation(0.7s, 0.3s);
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.MainContent {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 200px);
+  gap: 24px;
+  padding: 0 24px 24px;
+  z-index: 1;
+  position: relative;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding: 0 16px 16px;
+    gap: 16px;
+    height: calc(100vh - 180px);
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 12px 12px;
+    gap: 12px;
+    height: calc(100vh - 160px);
+  }
+}
+
+.SidebarContainer {
+  flex: 0 0 380px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  @include map-glassmorphism-card;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 16px 48px var(--map-glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  
+  @media (max-width: 1024px) {
+    flex: 0 0 320px;
+  }
+  
+  @media (max-width: 768px) {
+    flex: none;
+    height: 40%;
+    border-radius: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 35%;
+    border-radius: 16px;
+  }
+}
+
+.TabContainer {
+  display: flex;
+  background: var(--map-card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--map-glass-border);
+  padding: 8px;
+}
+
+.TabButton {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--theme-text);
+  @include font-size-palette("body-2");
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  border-radius: 12px;
+
+  &:hover {
+    @include map-glassmorphism-button;
+    color: var(--theme-text);
+  }
+
+  &.Active {
+    @include map-glassmorphism-button;
+    background: var(--map-active-bg);
+    color: var(--theme-text);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .TabIcon {
+    span {
+      font-size: 20px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+  }
+}
+
+.TabContent {
+  flex: 1;
+  min-height: 0;
+  border-radius: 0 0 24px 24px;
+  overflow: hidden;
+  background: var(--map-glass-bg-subtle);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+.MapContainer {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  @include map-glassmorphism-card;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 16px 48px var(--map-glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  
+  @media (max-width: 768px) {
+    flex: none;
+    height: 60%;
+    border-radius: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 65%;
+    border-radius: 16px;
+  }
+}
+
+// Fade-in animation for page
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Loading states with glassmorphism
+.LoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  @include map-glassmorphism-overlay;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  border-radius: 0;
+  
+  .LoadingText {
+    @include font-size-palette("headline-5");
+    color: var(--theme-text);
+    font-weight: 600;
+    opacity: 0.9;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Enhanced responsive design
+@media (max-width: 1200px) {
+  .Header {
+    padding: 30px 20px 50px;
+  }
+  
+  .MainContent {
+    gap: 20px;
+    padding: 0 20px 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .Header {
+    padding: 24px 16px 40px;
+  }
+  
+  .HeaderIcon span {
+    font-size: 40px;
+  }
+  
+  .PageTitle {
+    @include font-size-palette("headline-2");
+  }
+  
+  .PageSubtitle {
+    @include font-size-palette("body-2");
+  }
+  
+  .SidebarContainer {
+    border-radius: 20px;
+  }
+  
+  .TabContainer {
+    border-radius: 16px 16px 0 0;
+    padding: 6px;
+  }
+  
+  .TabButton {
+    padding: 10px 12px;
+    border-radius: 10px;
+    
+    .TabIcon span {
+      font-size: 18px;
+    }
+  }
+  
+  .TabContent {
+    border-radius: 0 0 20px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Header {
+    padding: 20px 12px 36px;
+  }
+  
+  .HeaderIcon span {
+    font-size: 36px;
+  }
+  
+  .PageTitle {
+    @include font-size-palette("headline-3");
+  }
+  
+  .MainContent {
+    gap: 12px;
+    padding: 0 12px 12px;
+  }
+  
+  .SidebarContainer {
+    border-radius: 16px;
+  }
+  
+  .TabContainer {
+    border-radius: 12px 12px 0 0;
+    padding: 4px;
+  }
+  
+  .TabButton {
+    padding: 8px 10px;
+    border-radius: 8px;
+    gap: 6px;
+    
+    .TabIcon span {
+      font-size: 16px;
+    }
+  }
+  
+  .TabContent {
+    border-radius: 0 0 16px 16px;
+  }
+}
+
+// Mobile-first responsive design
+@media (max-width: 320px) {
+  .MainContent {
+    padding: 0 8px 8px;
+    gap: 8px;
+  }
+  
+  .SidebarContainer {
+    height: 30%;
+  }
+  
+  .MapContainer {
+    height: 70%;
+  }
+}

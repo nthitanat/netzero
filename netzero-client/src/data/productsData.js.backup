@@ -1,0 +1,191 @@
+export const productsData = [
+  {
+    id: 1,
+    title: "น้ำผึ้งแท้ดอกลิ้นจี่",
+    description: "น้ำผึ้งแท้ 100% จากดอกลิ้นจี่ ไร้การปนเปื้อน หวานหอมธรรมชาติ เก็บจากเกษตรกรเลี้ยงผึ้งเชียงใหม่",
+    price: 450,
+    images: [
+      "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1616624041393-c8b40f7e5b5a?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=300&fit=crop",
+    category: "น้ำผึ้ง",
+    region: "ภาคเหนือ",
+    inStock: true,
+    weight: "500g",
+    origin: "เชียงใหม่"
+  },
+  {
+    id: 2,
+    title: "ข้าวกล้องหอมมะลิอินทรีย์",
+    description: "ข้าวกล้องหอมมะลิคุณภาพเกรดเอ ปลูกแบบอินทรีย์ไม่ใช้สารเคมี มีคุณค่าทางโภชนาการสูง",
+    price: 180,
+    images: [
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop",
+    category: "ข้าว",
+    region: "ภาคอีสาน",
+    inStock: true,
+    weight: "2kg",
+    origin: "ยโสธร"
+  },
+  {
+    id: 3,
+    title: "น้ำมันมะพร้าวสกัดเย็น",
+    description: "น้ำมันมะพร้าวสกัดเย็น 100% ไร้สารเคมี เหมาะสำหรับประกอบอาหารและบำรุงผิวพรรณ",
+    price: 320,
+    images: [
+      "https://images.unsplash.com/photo-1520970114477-c7c7bc2e5811?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1505705694340-019e1e335916?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1520970114477-c7c7bc2e5811?w=400&h=300&fit=crop",
+    category: "น้ำมัน",
+    region: "ภาคใต้",
+    inStock: true,
+    weight: "300ml",
+    origin: "สุราษฎร์ธานี"
+  },
+  {
+    id: 4,
+    title: "สบู่สมุนไพรขมิ้นชัน",
+    description: "สบู่สมุนไพรจากขมิ้นชันแท้ ช่วยบำรุงผิว ลดการอักเสบ เหมาะสำหรับผิวที่มีปัญหา",
+    price: 95,
+    images: [
+      "https://images.unsplash.com/photo-1582515073490-39981397c445?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1595855759920-86582396756a?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1582515073490-39981397c445?w=400&h=300&fit=crop",
+    category: "ความงาม",
+    region: "ภาคเหนือ",
+    inStock: true,
+    weight: "100g",
+    origin: "น่าน"
+  },
+  {
+    id: 5,
+    title: "ชาใบมะรุมตากแห้ง",
+    description: "ชาใบมะรุมออร์แกนิค ตากแห้งตามธรรมชาติ เต็มไปด้วยวิตามินและแร่ธาตุ ดื่มเพื่อสุขภาพ",
+    price: 150,
+    images: [
+      "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=400&h=300&fit=crop",
+    category: "ชา",
+    region: "ภาคกลาง",
+    inStock: false,
+    weight: "50g",
+    origin: "ลพบุรี"
+  },
+  {
+    id: 6,
+    title: "กระเจี๊ยบแดงอบแห้ง",
+    description: "กระเจี๊ยบแดงอบแห้งธรรมชาติ รสชาติเปรี้ยวหวาน อุดมด้วยวิตามินซี เหมาะทำน้ำกระเจี๊ยบ",
+    price: 120,
+    images: [
+      "https://images.unsplash.com/photo-1619667864387-00c1c5ef3f14?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1619667864387-00c1c5ef3f14?w=400&h=300&fit=crop",
+    category: "ชา",
+    region: "ภาคกลาง",
+    inStock: true,
+    weight: "100g",
+    origin: "เพชรบูรณ์"
+  },
+  {
+    id: 7,
+    title: "น้ำตาลโตนดแท้",
+    description: "น้ำตาลโตนดแท้จากต้นตาลโบราณ รสชาติหวานหอมธรรมชาติ ไร้การฟอกขาวด้วยสารเคมี",
+    price: 95,
+    images: [
+      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop",
+    category: "เครื่องปรุง",
+    region: "ภาคกลาง",
+    inStock: true,
+    weight: "250g",
+    origin: "เพชรบุรี"
+  },
+  {
+    id: 8,
+    title: "เกลือบิ้นธรรมชาติ",
+    description: "เกลือบิ้นธรรมชาติจากเหมืองเกลือโบราณ ไร้สารกันเสีย มีแร่ธาตุตามธรรมชาติ",
+    price: 65,
+    images: [
+      "https://images.unsplash.com/photo-1615671524827-c1fe3973b648?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop"
+    ],
+    thumbnail: "https://images.unsplash.com/photo-1615671524827-c1fe3973b648?w=400&h=300&fit=crop",
+    category: "เครื่องปรุง",
+    region: "ภาคอีสาน",
+    inStock: true,
+    weight: "500g",
+    origin: "นครราชสีมา"
+  }
+];
+
+// Add sample advertisement data
+export const advertisementsData = [
+  {
+    id: 1,
+    title: "โปรโมชั่นพิเศษ - ลด 30%",
+    description: "สินค้าทั้งหมดจากเกษตรกรภาคเหนือ ส่วนลด 30% วันนี้เท่านั้น!",
+    image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=400&fit=crop",
+    link: "/market?region=ภาคเหนือ",
+    badge: "ลดราคา",
+    endDate: "2025-09-15"
+  },
+  {
+    id: 2,
+    title: "สินค้าใหม่จากภาคใต้",
+    description: "น้ำมันมะพร้าวและผลไม้ตากแห้งสดใหม่ จากเกษตรกรท้องถิ่น",
+    image: "https://images.unsplash.com/photo-1591019479261-1a103585c559?w=800&h=400&fit=crop",
+    link: "/market?region=ภาคใต้",
+    badge: "สินค้าใหม่",
+    endDate: "2025-09-30"
+  },
+  {
+    id: 3,
+    title: "ข้าวหอมมะลิคุณภาพพรีเมียม",
+    description: "ข้าวหอมมะลิเกรดเอ จากนาข้าวอินทรีย์ในภาคอีสาน ราคาพิเศษ",
+    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=400&fit=crop",
+    link: "/market?category=ข้าว",
+    badge: "คุณภาพพรีเมียม",
+    endDate: "2025-10-01"
+  }
+];
+
+export const getProductById = (id) => {
+  return productsData.find(product => product.id === parseInt(id));
+};
+
+export const getProductsByCategory = (category) => {
+  if (!category) return productsData;
+  return productsData.filter(product => product.category.toLowerCase() === category.toLowerCase());
+};
+
+export const getProductsByRegion = (region) => {
+  if (!region) return productsData;
+  return productsData.filter(product => product.region.toLowerCase() === region.toLowerCase());
+};
+
+export const getAvailableProducts = () => {
+  return productsData.filter(product => product.inStock);
+};
+
+export const formatPrice = (price) => {
+  return `${price.toLocaleString()} บาท`;
+};

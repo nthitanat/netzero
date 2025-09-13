@@ -1,0 +1,314 @@
+@import "src/styles/main";
+
+.Container {
+  padding: 120px 60px;
+  position: relative;
+  
+  @include mobile {
+    padding: 80px 20px;
+  }
+}
+
+.ContentWrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.Header {
+  text-align: center;
+  margin-bottom: 80px;
+  
+  @include mobile {
+    margin-bottom: 60px;
+  }
+}
+
+.SectionTitle {
+  @include typography-headline-2;
+  @include text-color-palette("primary-color-1");
+  margin-bottom: 24px;
+  
+  @include mobile {
+    @include font-size-palette("headline-3");
+  }
+}
+
+.TitleAccent {
+  background: linear-gradient(135deg, var(--primary-color-2), var(--primary-color-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.SectionSubtitle {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.TestimonialContainer {
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  @include mobile {
+    margin-bottom: 80px;
+  }
+}
+
+.TestimonialCard {
+  @include glassmorphism-card;
+  max-width: 800px;
+  width: 100%;
+  padding: 60px;
+  position: relative;
+  @include slide-up-animation(0.6s);
+  
+  @include mobile {
+    padding: 40px 24px;
+  }
+}
+
+.QuoteIcon {
+  @include font-size-palette("headline-1");
+  @include text-color-palette("primary-color-3");
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  opacity: 0.3;
+  
+  @include mobile {
+    top: 15px;
+    left: 20px;
+    @include font-size-palette("headline-2");
+  }
+}
+
+.TestimonialContent {
+  margin: 40px 0;
+  text-align: center;
+  
+  @include mobile {
+    margin: 32px 0;
+  }
+}
+
+.TestimonialText {
+  @include typography-headline-5;
+  @include text-color-palette("primary-color-1");
+  line-height: 1.6;
+  margin-bottom: 24px;
+  font-style: italic;
+  
+  @include mobile {
+    @include font-size-palette("body-1");
+  }
+}
+
+.Rating {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.Star {
+  @include font-size-palette("headline-5");
+}
+
+.AuthorSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  
+  @include mobile {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+}
+
+.AuthorAvatar {
+  flex-shrink: 0;
+}
+
+.AvatarPlaceholder {
+  width: 60px;
+  height: 60px;
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include typography-headline-4;
+  @include font-weight-bold;
+}
+
+.AuthorInfo {
+  flex: 1;
+}
+
+.AuthorName {
+  @include typography-headline-5;
+  @include text-color-palette("primary-color-1");
+  @include font-weight-bold;
+  margin-bottom: 4px;
+}
+
+.AuthorRole {
+  @include typography-body-2;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+}
+
+.Navigation {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 40px;
+  
+  @include mobile {
+    margin-top: 32px;
+    gap: 16px;
+  }
+}
+
+.NavButton {
+  @include glassmorphism-light;
+  @include text-color-palette("primary-color-2");
+  @include typography-headline-5;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+  
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  
+  @include mobile {
+    width: 40px;
+    height: 40px;
+    @include font-size-palette("body-1");
+  }
+}
+
+.Indicators {
+  display: flex;
+  gap: 12px;
+}
+
+.Indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(76, 175, 80, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &.Active {
+    @include bg-color-palette("primary-color-3");
+    transform: scale(1.2);
+  }
+  
+  &:hover {
+    @include bg-color-palette("primary-color-2");
+  }
+}
+
+.TestimonialGrid {
+  margin-top: 80px;
+  
+  @include mobile {
+    margin-top: 60px;
+  }
+}
+
+.GridTitle {
+  @include typography-headline-3;
+  @include text-color-palette("primary-color-1");
+  text-align: center;
+  margin-bottom: 50px;
+  
+  @include mobile {
+    @include font-size-palette("headline-4");
+    margin-bottom: 40px;
+  }
+}
+
+.SuccessCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.SuccessCard {
+  @include glassmorphism-card;
+  padding: 40px;
+  text-align: center;
+  @include hover-float-animation;
+  @include slide-up-animation(0.6s);
+  
+  @include mobile {
+    padding: 32px 20px;
+  }
+}
+
+.SuccessIcon {
+  @include font-size-palette("headline-1");
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.SuccessTitle {
+  @include typography-headline-5;
+  @include text-color-palette("primary-color-1");
+  @include font-weight-bold;
+  margin-bottom: 16px;
+}
+
+.SuccessText {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.SuccessStats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  span {
+    @include typography-body-2;
+    @include text-color-palette("primary-color-3");
+    @include font-weight-medium;
+    padding: 8px 16px;
+    @include glassmorphism-light;
+    border-radius: 12px;
+    background: rgba(76, 175, 80, 0.1);
+  }
+}

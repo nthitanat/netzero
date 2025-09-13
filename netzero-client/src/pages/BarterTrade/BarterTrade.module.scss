@@ -1,0 +1,287 @@
+@import "src/styles/main";
+
+.Container {
+  @include barter-theme;
+  @include navbar-spacing;
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--theme-bg);
+}
+
+.BackgroundDecoration {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.Header {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 40px 20px 20px;
+  @include bg-color-palette("primary-color-1");
+  margin-bottom: 30px;
+}
+
+.PageTitle {
+  @include font-size-palette("headline-1");
+  @include text-color-palette("white");
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.PageSubtitle {
+  @include font-size-palette("body-1");
+  @include text-color-palette("white");
+  margin: 0;
+  opacity: 0.9;
+}
+
+.TopSection {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  padding: 0 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Right Side - Advertisement Section
+.AdSection {
+  position: relative;
+  height: 450px;
+  border-radius: 16px;
+  overflow: hidden;
+  
+  // Advertisement carousel fills entire area
+  > :first-child {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.SearchOverlayContainer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 80%;
+  max-width: 600px;
+}
+
+.Content {
+  position: relative;
+  z-index: 2;
+  padding: 0 24px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ProductGrid {
+  display: grid;
+  gap: 24px;
+  
+  &.grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-auto-rows: minmax(500px, auto);
+    align-items: stretch;
+    justify-content: center;
+  }
+  
+  &.list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+    
+    .ProductItem {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+}
+
+.ProductItem {
+  @include fade-in-animation(0.4s);
+  height: 100%;
+}
+
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 20px;
+  @include text-color-palette("primary-color-2");
+  
+  p {
+    @include font-size-palette("body-1");
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.LoadingSpinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(46, 125, 50, 0.2);
+  border-top: 4px solid var(--primary-color-2);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.EmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 20px;
+  text-align: center;
+  @include text-color-palette("primary-color-2");
+  
+  h3 {
+    @include font-size-palette("headline-5");
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    margin: 0;
+    opacity: 0.8;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+}
+
+.EmptyIcon {
+  font-size: 64px;
+  opacity: 0.6;
+  margin-bottom: 8px;
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .TopSection {
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+  }
+  
+  .AdSection {
+    height: 280px;
+  }
+  
+  .SearchOverlayContainer {
+    bottom: 16px;
+    width: 85%;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .TopSection {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .AdSection {
+    height: 250px;
+    order: -1; // Move ads to top on mobile
+  }
+  
+  .SearchOverlayContainer {
+    bottom: 14px;
+    width: 90%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .Header {
+    padding: 20px 16px;
+  }
+  
+  .TopSection {
+    padding: 0 16px 24px;
+    gap: 20px;
+  }
+  
+  .AdSection {
+    height: 220px;
+  }
+  
+  .SearchOverlayContainer {
+    bottom: 12px;
+    width: 92%;
+    max-width: 280px;
+  }
+  
+  .Content {
+    padding: 0 16px 40px;
+  }
+  
+  .ProductGrid {
+    &.grid {
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-auto-rows: minmax(480px, auto);
+      gap: 20px;
+    }
+    
+    &.list {
+      gap: 16px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .Header {
+    padding: 16px 12px;
+  }
+  
+  .TopSection {
+    padding: 0 12px 20px;
+    gap: 16px;
+  }
+  
+  .AdSection {
+    height: 200px;
+  }
+  
+  .SearchOverlayContainer {
+    bottom: 10px;
+    width: 95%;
+    max-width: 260px;
+  }
+  
+  .Content {
+    padding: 0 12px 40px;
+  }
+  
+  .ProductGrid {
+    &.grid {
+      grid-template-columns: 1fr;
+      grid-auto-rows: minmax(450px, auto);
+      gap: 16px;
+    }
+  }
+  
+  .EmptyIcon {
+    font-size: 48px;
+  }
+}

@@ -1,0 +1,69 @@
+@import "src/styles/main";
+
+.Container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  
+  // Material Icons styles
+  span {
+    font-family: 'Material Icons', 'Material Symbols Outlined', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'liga';
+  }
+  
+  &:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+    color: var(--primary-color, #45CE69);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.small {
+  font-size: 18px;
+  
+  span {
+    font-size: 18px;
+  }
+}
+
+.medium {
+  font-size: 24px;
+  
+  span {
+    font-size: 24px;
+  }
+}
+
+.large {
+  font-size: 32px;
+  
+  span {
+    font-size: 32px;
+  }
+}
+
+.extraLarge {
+  font-size: 48px;
+  
+  span {
+    font-size: 48px;
+  }
+}

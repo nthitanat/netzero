@@ -1,0 +1,323 @@
+@import "src/styles/main";
+
+.Container {
+  @include navbar-spacing;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.RecommendedSection {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  padding: 0;
+  margin-bottom: 80px; // Add more space for the floating filter
+  z-index: 2;
+  box-sizing: border-box;
+  max-width: none;
+  overflow: visible; // Allow filter to show outside
+  
+  @include mobile {
+    margin-bottom: 70px;
+  }
+}
+
+.RecommendedContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px 20px;
+  
+  @include mobile {
+    padding: 30px 20px 15px;
+  }
+}
+
+.RecommendedTitle {
+  @include typography-headline-3;
+  @include text-color-palette("primary-color-2");
+  margin-bottom: 0;
+  text-align: center;
+  
+  @include mobile {
+    @include font-size-palette("headline-4");
+  }
+}
+
+.FilterSection {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: calc(100% - 40px);
+  max-width: 800px;
+  display: flex;
+  justify-content: center;
+  
+  @include mobile {
+    bottom: 80%;
+    width: calc(100% - 32px);
+    max-width: 100%;
+  }
+}
+
+.FilterSectionStandalone {
+  padding: 0 20px 40px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+  
+  @include mobile {
+    padding: 0 16px 30px;
+  }
+}
+
+.FilterContainer {
+  @include glassmorphism-light;
+  padding: 20px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: var(--primary-color-3);
+  
+  @include mobile {
+    padding: 16px;
+    border-radius: 20px;
+    gap: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.SearchComponent {
+  width: 100%;
+  max-width: 400px;
+  
+  @include mobile {
+    max-width: 100%;
+  }
+}
+
+.FilterComponent {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.MainContent {
+  padding: 0 20px 40px;
+  max-width: 80%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  
+  @include mobile {
+    padding: 0 20px 30px;
+    max-width: 100%;
+  }
+}
+
+.EventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 32px;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+.EventCardWrapper {
+  @include fade-in-animation(0.6s);
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.EmptyState {
+  text-align: center;
+  padding: 80px 20px;
+  @include glassmorphism-light;
+  max-width: 500px;
+  margin: 40px auto;
+  border-radius: 24px;
+  
+  @include mobile {
+    padding: 60px 20px;
+    margin: 30px auto;
+  }
+}
+
+.EmptyStateIcon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.7;
+  
+  @include mobile {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+}
+
+.EmptyStateTitle {
+  @include typography-headline-4;
+  @include text-color-palette("primary-color-2");
+  margin-bottom: 12px;
+  
+  @include mobile {
+    @include font-size-palette("headline-5");
+  }
+}
+
+.EmptyStateMessage {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  
+  @include mobile {
+    @include font-size-palette("body-2");
+  }
+}
+
+.ErrorState {
+  text-align: center;
+  padding: 80px 20px;
+  @include glassmorphism-light;
+  max-width: 500px;
+  margin: 40px auto;
+  border-radius: 24px;
+  border: 2px solid rgba(255, 149, 0, 0.3);
+  
+  @include mobile {
+    padding: 60px 20px;
+    margin: 30px auto;
+  }
+}
+
+.ErrorStateIcon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+  
+  @include mobile {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+}
+
+.ErrorStateTitle {
+  @include typography-headline-4;
+  @include text-color-palette("primary-color-2");
+  margin-bottom: 12px;
+  
+  @include mobile {
+    @include font-size-palette("headline-5");
+  }
+}
+
+.ErrorStateMessage {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  margin-bottom: 24px;
+  
+  @include mobile {
+    @include font-size-palette("body-2");
+    margin-bottom: 20px;
+  }
+}
+
+.RetryButton {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  padding: 12px 24px;
+  @include font-size-palette("body-1");
+  @include font-weight-medium;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+    @include bg-color-palette("primary-color-1");
+  }
+  
+  @include mobile {
+    padding: 10px 20px;
+    @include font-size-palette("body-2");
+  }
+}
+
+.LoadingState {
+  text-align: center;
+  padding: 80px 20px;
+  
+  @include mobile {
+    padding: 60px 20px;
+  }
+}
+
+.LoadingSpinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(46, 125, 50, 0.2);
+  border-top: 4px solid var(--primary-color-2);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: spin 1s linear infinite;
+  
+  @include mobile {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+    margin-bottom: 16px;
+  }
+}
+
+.LoadingText {
+  @include typography-body-1;
+  @include text-color-palette("primary-color-2");
+  opacity: 0.8;
+  
+  @include mobile {
+    @include font-size-palette("body-2");
+  }
+}
+
+@keyframes spin {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+
+// Add mobile breakpoint mixin if not defined
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 769px) and (max-width: 1024px) {
+    @content;
+  }
+}

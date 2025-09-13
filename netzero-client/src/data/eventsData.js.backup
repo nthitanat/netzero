@@ -1,0 +1,161 @@
+export const eventsData = [
+  {
+    id: 1,
+    thumbnail: "https://images.unsplash.com/photo-1560472355-536de3962603?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop"
+    ],
+    title: "เทศกาลผลไม้อินทรีย์เชียงใหม่",
+    description: "งานแสดงและจำหน่ายผลไม้อินทรีย์จากเกษตรกรท้องถิิ่นเชียงใหม่ พร้อมกิจกรรมเรียนรู้การปลูกผลไม้แบบอินทรีย์ และการแปรรูปผลิตภัณฑ์จากผลไม้",
+    date: "2025-09-15",
+    location: "ลานวัฒนธรรม มหาวิทยาลัยเชียงใหม่",
+    category: "เทศกาล",
+    isRecommended: true
+  },
+  {
+    id: 2,
+    thumbnail: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1607166452427-7e4477079cb9?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1595855759920-86582396756a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1582515073490-39981397c445?w=800&h=600&fit=crop"
+    ],
+    title: "workshop ทำสบู่สมุนไพรไทย",
+    description: "เรียนรู้การทำสบู่จากสมุนไพรไทยธรรมชาติ โดยครูผู้เชี่ยวชาญ พร้อมความรู้เรื่องคุณสมบัติของสมุนไพรแต่ละชนิด และเทคนิคการสกัดน้ำมันหอมระเหย",
+    date: "2025-09-22",
+    location: "ศูนย์การเรียนรู้สมุนไพรไทย กรุงเทพฯ",
+    category: "workshop",
+    isRecommended: false
+  },
+  {
+    id: 3,
+    thumbnail: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=800&h=600&fit=crop"
+    ],
+    title: "ตลาดนัดผักปลอดสารพิษ สวนจตุจักร",
+    description: "ตลาดนัดรวมเกษตรกรปลูกผักอินทรีย์และปลอดสารพิษจากทั่วประเทศ พร้อมกิจกรรมให้ความรู้เรื่องการเลือกซื้อผักปลอดภัย และการทำความสะอาดผักอย่างถูกต้อง",
+    date: "2025-09-28",
+    location: "สวนจตุจักร กรุงเทพฯ",
+    category: "ตลาดนัด",
+    isRecommended: true
+  },
+  {
+    id: 4,
+    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1615671524827-c1fe3973b648?w=800&h=600&fit=crop"
+    ],
+    title: "งานแสดงผลิตภัณฑ์น้ำผึ้งไทย",
+    description: "นำเสนอน้ำผึ้งธรรมชาติ 100% จากเกษตรกรผึ้งทั่วประเทศไทย พร้อมความรู้เรื่องการเลี้ยงผึ้ง คุณประโยชน์ของน้ำผึ้ง และผลิตภัณฑ์จากน้ำผึ้ง",
+    date: "2025-10-05",
+    location: "ศูนย์การค้าไอคอนสยาม กรุงเทพฯ",
+    category: "งานแสดง",
+    isRecommended: false
+  },
+  {
+    id: 5,
+    thumbnail: "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1556909918-f9e7e0f84aa2?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1599420186946-7b6fb4e297f0?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1593113616828-6f22bce81778?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&h=600&fit=crop"
+    ],
+    title: "class ทำอาหารไทยจากวัตถุดิบออร์แกนิค",
+    description: "เรียนรู้การทำอาหารไทยต้นตำรับโดยใช้วัตถุดิบออร์แกนิคที่ปลอดภัย พร้อมเทคนิคการเก็บรักษาและเลือกซื้อวัตถุดิบที่มีคุณภาพ",
+    date: "2025-10-12",
+    location: "โรงเรียนสอนทำอาหารไทย สีลม",
+    category: "คลาส",
+    isRecommended: true
+  },
+  {
+    id: 6,
+    thumbnail: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1615671524827-c1fe3973b648?w=800&h=600&fit=crop"
+    ],
+    title: "งานแสดงเครื่องปรุงรสธรรมชาติไทย",
+    description: "ค้นพบเครื่องปรุงรสธรรมชาติไทยโบราณ เช่น เกลือบิ้น น้ำตาลโตนด น้ำมันมะพร้าวธรรมชาติ พร้อมเทคนิคการใช้ในการปรุงอาหาร",
+    date: "2025-10-18",
+    location: "อิมแพ็ค เมืองทองธานี",
+    category: "งานแสดง",
+    isRecommended: false
+  },
+  {
+    id: 7,
+    thumbnail: "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1505144808419-1957a94ca61e?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1619667864387-00c1c5ef3f14?w=800&h=600&fit=crop"
+    ],
+    title: "งานชาออร์แกนิคและสมุนไพรไทย",
+    description: "นำเสนอชาจากสมุนไพรไทยออร์แกนิค ชาใบมะรุม ชากระเจี๊ยบ และชาสมุนไพรผสมต่างๆ พร้อมความรู้เรื่องคุณประโยชน์ต่อสุขภาพ",
+    date: "2025-10-25",
+    location: "เซ็นทรัล เวิร์ล กรุงเทพฯ",
+    category: "งานแสดง",
+    isRecommended: false
+  },
+  {
+    id: 8,
+    thumbnail: "https://images.unsplash.com/photo-1595855759920-86582396756a?w=400&h=300&fit=crop",
+    posterImage: "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=800&h=1200&fit=crop",
+    photos: [
+      "https://images.unsplash.com/photo-1595855759920-86582396756a?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1582515073490-39981397c445?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=600&fit=crop"
+    ],
+    title: "workshop ผลิตภัณฑ์ดูแลผิวจากธรรมชาติ",
+    description: "เรียนรู้การทำผลิตภัณฑ์ดูแลผิวจากวัตถุดิบธรรมชาติไทย เช่น มะขามป้อม ขมิ้นชัน ว่านหางจระเข้ และน้ำมันมะพร้าว พร้อมสูตรและเทคนิคการผลิต",
+    date: "2025-11-02",
+    location: "ศูนย์การเรียนรู้ธรรมชาติไทย อยุธยา",
+    category: "workshop",
+    isRecommended: true
+  }
+];
+
+export const getEventById = (id) => {
+  return eventsData.find(event => event.id === parseInt(id));
+};
+
+export const getRecommendedEvents = () => {
+  return eventsData.filter(event => event.isRecommended);
+};
+
+export const getEventsByCategory = (category) => {
+  if (!category) return eventsData;
+  return eventsData.filter(event => event.category.toLowerCase() === category.toLowerCase());
+};
+
+export const formatEventDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};

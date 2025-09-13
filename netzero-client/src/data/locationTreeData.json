@@ -1,0 +1,148 @@
+{
+  "locations": {
+    "Nam Pan": {
+      "id": "nam-pan",
+      "name": "Nam Pan",
+      "coordinates": { "lat": 19.0987, "lng": 101.1234 },
+      "district": "Nam Pan District",
+      "province": "Nan",
+      "description": "พื้นที่ป่าชุมชนที่มีความหลากหลายทางชีวภาพสูง",
+      "totalTrees": 1997
+    },
+    "Khamsaeng": {
+      "id": "khamsaeng",
+      "name": "Khamsaeng",
+      "coordinates": { "lat": 19.1234, "lng": 100.9876 },
+      "district": "Khamsaeng District", 
+      "province": "Nan",
+      "description": "พื้นที่ป่าเศรษฐกิจที่สำคัญของจังหวัดน่าน",
+      "totalTrees": 2050
+    },
+    "Khiri": {
+      "id": "khiri",
+      "name": "Khiri",
+      "coordinates": { "lat": 19.2345, "lng": 100.8765 },
+      "district": "Khiri District",
+      "province": "Nan", 
+      "description": "พื้นที่ป่าอนุรักษ์ที่มีการจัดการอย่างยั่งยืน",
+      "totalTrees": 3000
+    },
+    "Kham Mongkhon": {
+      "id": "kham-mongkhon",
+      "name": "Kham Mongkhon",
+      "coordinates": { "lat": 19.1876, "lng": 100.9543 },
+      "district": "Kham Mongkhon District",
+      "province": "Nan",
+      "description": "พื้นที่ป่าชุมชนที่มีการจัดการโดยชุมชนท้องถิ่น",
+      "totalTrees": 2400
+    },
+    "Nam Khae": {
+      "id": "nam-khae",
+      "name": "Nam Khae",
+      "coordinates": { "lat": 19.0654, "lng": 101.0987 },
+      "district": "Nam Khae District",
+      "province": "Nan",
+      "description": "พื้นที่ป่าริมน้ำที่เหมาะสำหรับการปลูกไม้ผล",
+      "totalTrees": 500
+    },
+    "Khun Nan": {
+      "id": "khun-nan", 
+      "name": "Khun Nan",
+      "coordinates": { "lat": 18.9876, "lng": 101.2345 },
+      "district": "Khun Nan District",
+      "province": "Nan",
+      "description": "พื้นที่ป่าภูเขาที่มีความสูงจากระดับน้ำทะเล",
+      "totalTrees": 2000
+    },
+    "Khun Sanan": {
+      "id": "khun-sanan",
+      "name": "Khun Sanan", 
+      "coordinates": { "lat": 19.1543, "lng": 101.0765 },
+      "district": "Khun Sanan District",
+      "province": "Nan",
+      "description": "พื้นที่ป่าเศรษฐกิจที่มีการปลูกไม้หายาก",
+      "totalTrees": 700
+    }
+  },
+  "trees": {
+    "teak": {
+      "id": "teak",
+      "name": "Teak",
+      "emoji": "🌲",
+      "scientificName": "Tectona grandis",
+      "category": "ไม้เศรษฐกิจ",
+      "type": "ไม้มีค่า",
+      "use": "เฟอร์นิเจอร์, งานก่อสร้าง",
+      "growthPeriod": "20-25 ปี",
+      "description": "สักเป็นไม้เนื้อแข็งที่มีคุณค่าสูง ทนทานต่อสภาพอากาศ และเป็นที่นิยมในการทำเฟอร์นิเจอร์และงานก่อสร้าง โครงการปลูกสักช่วยฟื้นฟูป่าไผ่และสร้างรายได้ให้ชุมชน",
+      "imageUrl": "/assets/images/trees/teak/main.jpg"
+    },
+    "siamese-rosewood": {
+      "id": "siamese-rosewood",
+      "name": "Siamese Rosewood",
+      "emoji": "🌳",
+      "scientificName": "Dalbergia cochinchinensis",
+      "category": "ไม้หายาก",
+      "type": "ไม้มีค่า",
+      "use": "เฟอร์นิเจอร์หรู, งานศิลปะ",
+      "growthPeriod": "30-50 ปี",
+      "description": "ไม้แดงเป็นไม้เนื้อแข็งหายากที่มีลวดลายสวยงาม ใช้ทำเฟอร์นิเจอร์หรูและงานศิลปะ การปลูกไม้แดงช่วยอนุรักษ์พันธุ์ไม้ที่ใกล้สูญพันธุ์",
+      "imageUrl": "/assets/images/trees/siamese-rosewood/main.jpg"
+    },
+    "padauk": {
+      "id": "padauk",
+      "name": "Padauk",
+      "emoji": "🌿",
+      "scientificName": "Pterocarpus macrocarpus",
+      "category": "ไม้เศรษฐกิจ",
+      "type": "ไม้มีค่า",
+      "use": "เฟอร์นิเจอร์, เครื่องดนตรี",
+      "growthPeriod": "25-30 ปี",
+      "description": "ประดู่เป็นไม้เนื้อแข็งที่มีสีสวยงาม ใช้ทำเฟอร์นิเจอร์และเครื่องดนตรี โครงการปลูกประดู่ช่วยสร้างมูลค่าเพิ่มให้พื้นที่ป่า",
+      "imageUrl": "/assets/images/trees/padauk/main.jpg"
+    },
+    "mango": {
+      "id": "mango",
+      "name": "Mango",
+      "emoji": "🥭",
+      "scientificName": "Mangifera indica",
+      "category": "ไม้ผล",
+      "type": "ไม้ผล",
+      "use": "ผลไม้, เงา, ไม้ใช้สอย",
+      "growthPeriod": "3-5 ปี",
+      "description": "มะม่วงเป็นไม้ผลเศรษฐกิจที่สำคัญ ให้ผลผลิตและร่มเงา โครงการปลูกมะม่วงช่วยสร้างรายได้และปรับปรุงสิ่งแวดล้อม",
+      "imageUrl": "/assets/images/trees/mango/main.jpg"
+    }
+  },
+  "locationTrees": {
+    "nam-pan": {
+      "teak": { "count": 887, "plantedDate": "2020-03-15", "status": "growing" },
+      "siamese-rosewood": { "count": 380, "plantedDate": "2019-11-20", "status": "mature" },
+      "padauk": { "count": 290, "plantedDate": "2021-05-10", "status": "growing" },
+      "mango": { "count": 440, "plantedDate": "2018-08-25", "status": "producing" }
+    },
+    "khamsaeng": {
+      "teak": { "count": 500, "plantedDate": "2019-12-01", "status": "growing" },
+      "siamese-rosewood": { "count": 500, "plantedDate": "2020-02-14", "status": "growing" },
+      "padauk": { "count": 500, "plantedDate": "2020-07-30", "status": "growing" },
+      "mango": { "count": 550, "plantedDate": "2018-04-15", "status": "producing" }
+    },
+    "khiri": {
+      "teak": { "count": 3000, "plantedDate": "2017-01-10", "status": "mature" }
+    },
+    "kham-mongkhon": {
+      "teak": { "count": 2400, "plantedDate": "2018-09-05", "status": "growing" }
+    },
+    "nam-khae": {
+      "teak": { "count": 500, "plantedDate": "2021-01-20", "status": "young" }
+    },
+    "khun-nan": {
+      "teak": { "count": 1200, "plantedDate": "2019-06-18", "status": "growing" },
+      "siamese-rosewood": { "count": 700, "plantedDate": "2020-03-22", "status": "growing" },
+      "padauk": { "count": 100, "plantedDate": "2021-08-12", "status": "young" }
+    },
+    "khun-sanan": {
+      "teak": { "count": 700, "plantedDate": "2020-10-08", "status": "growing" }
+    }
+  }
+}

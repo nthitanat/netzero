@@ -1,0 +1,389 @@
+@import "src/styles/main";
+
+.Container {
+  position: fixed;
+  min-width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  
+  @include fade-in-animation(0.3s);
+  
+  // Theme classes
+  &.market-theme {
+    @include market-theme;
+  }
+  
+  &.barter-theme {
+    @include barter-theme;
+  }
+  
+  &.willing-theme {
+    @include willing-theme;
+  }
+}
+
+.Overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;  
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.Modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 90%;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+  // Default glassmorphism for market and barter
+  @include glassmorphism-card;
+  background: var(--theme-bg, white);
+  
+  // Theme-specific modal styling
+  .Container.market-theme & {
+    @include market-glassmorphism-card;
+    border-radius: 32px;
+    border: 1px solid var(--market-glass-border);
+    background: var(--market-glass-bg);
+  }
+  
+  .Container.barter-theme & {
+    @include glassmorphism-card;
+    background: var(--theme-bg, white);
+  }
+  
+  .Container.willing-theme & {
+    @include willing-glassmorphism-card;
+    border-radius: 32px;
+    border: 1px solid var(--willing-glass-border);
+    background: var(--willing-glass-bg);
+  }
+  
+  @include expand-animation(0.4s, 0.8, 1);
+}
+
+.CloseButton {
+  background: var(--theme-primary, var(--primary-color-3));
+  border: none;
+  border-radius: 50px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: var(--theme-primary-hover, var(--primary-color-2));
+    transform: scale(1.05);
+  }
+}
+
+.ModalContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ImageSection {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ProductSlideshow {
+  width: 100%;
+  height: 100%;
+  min-height: 350px;
+  border-radius: 24px 0 0 24px;
+  object-fit: cover;
+}
+
+.BadgeContainer {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.CategoryBadge {
+  background-color: var(--theme-primary, var(--primary-color-2));
+  color: var(--white);
+  @include font-size-palette("body-3");
+  
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.StatusBadge {
+  @include font-size-palette("body-3");
+  
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  
+  &.OutOfStock {
+    background: var(--warning-bg, var(--warning));
+    color: var(--warning-text, white);
+  }
+}
+
+.InfoSection {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  min-height: 0;
+  
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--theme-primary, var(--primary-color-3));
+    border-radius: 3px;
+    opacity: 0.7;
+    
+    &:hover {
+      background: var(--theme-primary-hover, var(--primary-color-2));
+    }
+  }
+}
+
+.ProductHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ProductTitle {
+  @include font-size-palette("headline-3");
+  color: var(--theme-text, var(--primary-color-1));
+  
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.ProductPrice {
+  @include font-size-palette("headline-4");
+  color: var(--theme-primary, var(--secondary-color-1));
+  
+  font-weight: 700;
+  padding: 8px 16px;
+  background-color: var(--theme-secondary, var(--secondary-color-4));
+  border-radius: 16px;
+  white-space: nowrap;
+}
+
+.ProductDescription {
+  @include font-size-palette("body-1");
+  color: var(--theme-text, var(--primary-color-1));
+  
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.ProductSpecs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.SpecsTitle {
+  @include font-size-palette("headline-5");
+  color: var(--theme-text, var(--primary-color-1));
+  
+  margin: 0;
+  font-weight: 700;
+}
+
+.SpecsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.SpecItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  @include font-size-palette("body-2");
+}
+
+.SpecIcon {
+  color: var(--theme-primary, var(--primary-color-3));
+  flex-shrink: 0;
+}
+
+.SpecLabel {
+  color: var(--theme-primary, var(--primary-color-2));
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.SpecValue {
+  color: var(--theme-text, var(--primary-color-1));
+  font-weight: 500;
+  
+  &.InStock {
+    color: var(--theme-primary, var(--primary-color-3));
+  }
+  
+  &.OutOfStock {
+    color: var(--warning-text, var(--warning));
+  }
+}
+
+.ActionSection {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+  padding-top: 16px;
+}
+
+.ReserveButton {
+  background-color: var(--theme-primary);
+  color: var(--white);
+  @include font-size-palette("body-1");
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover:not(.Disabled) {
+    background-color: var(--theme-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:active:not(.Disabled) {
+    transform: translateY(0);
+  }
+  
+  &.Disabled {
+    background: var(--inactive-bg, var(--inactive));
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.LoadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .Modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .ModalContent {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  
+  .ProductSlideshow {
+    min-height: 280px;
+    border-radius: 24px 24px 0 0;
+  }
+  
+  .InfoSection {
+    padding: 24px;
+    gap: 20px;
+  }
+  
+  .ProductTitle {
+    @include font-size-palette("headline-4");
+  }
+  
+  .ProductPrice {
+    @include font-size-palette("headline-5");
+  }
+}
+
+@media (max-width: 480px) {
+  .Modal {
+    width: 98%;
+    max-height: 95vh;
+    margin: 8px;
+  }
+  
+  .InfoSection {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .ProductSlideshow {
+    min-height: 220px;
+  }
+  
+  .CloseButton {
+    width: 36px;
+    height: 36px;
+    top: 12px;
+    right: 12px;
+  }
+  
+  .SpecItem {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .SpecLabel {
+    min-width: auto;
+  }
+}
