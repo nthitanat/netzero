@@ -1,0 +1,5 @@
+# This file ensures that the files/events directory structure is maintained in git
+# Image files will be stored in subdirectories:
+# - thumbnail/
+# - posterImage/
+# - photos/
