@@ -1,9 +1,9 @@
-const LandingHandler = (stateLanding, setLanding) => {
+const LandingHandler = (stateLanding, setLanding, navigate) => {
   return {
     handleGetStarted: () => {
       console.log("Navigating to get started...");
       // Navigate to market or main features
-      window.location.href = "/market";
+      navigate("/market");
     },
 
     handleExploreFeatures: () => {
@@ -31,7 +31,7 @@ const LandingHandler = (stateLanding, setLanding) => {
 
     handleJoinCommunity: () => {
       console.log("Navigating to events...");
-      window.location.href = "/events";
+      navigate("/events");
     },
 
     handleLearnMore: () => {
@@ -44,22 +44,22 @@ const LandingHandler = (stateLanding, setLanding) => {
 
     handleNavigateToMarket: () => {
       console.log("Navigating to market...");
-      window.location.href = "/market";
+      navigate("/market");
     },
 
     handleNavigateToBarterTrade: () => {
       console.log("Navigating to barter trade...");
-      window.location.href = "/barther-trade";
+      navigate("/barther-trade");
     },
 
     handleNavigateToMap: () => {
       console.log("Navigating to map...");
-      window.location.href = "/map";
+      navigate("/map");
     },
 
     handleNavigateToEvents: () => {
       console.log("Navigating to events...");
-      window.location.href = "/events";
+      navigate("/events");
     },
 
     handleScrollToSection: (sectionId) => {
@@ -92,12 +92,12 @@ const LandingHandler = (stateLanding, setLanding) => {
 
     handleEventClick: (eventId) => {
       console.log("Navigating to event:", eventId);
-      window.location.href = `/events/${eventId}`;
+      navigate(`/events/${eventId}`);
     },
 
     handleNavigation: (path, label) => {
       console.log(`Landing received navigation request: ${label} (${path})`);
-      window.location.href = path;
+      navigate(path);
     }
   };
 };

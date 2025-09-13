@@ -1,4 +1,4 @@
-const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigate) => {
+const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigate, navigate) => {
   return {
     handleNavClick: (path, label) => {
       console.log("NavBar clicked:", path, label); // Debug log
@@ -7,8 +7,11 @@ const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigat
       if (onNavigate) {
         console.log("Calling onNavigate:", onNavigate); // Debug log
         onNavigate(path, label);
+      } else if (navigate) {
+        console.log("Using navigate function"); // Debug log
+        navigate(path);
       } else {
-        console.log("onNavigate is not defined"); // Debug log
+        console.log("No navigation function available"); // Debug log
       }
     },
 

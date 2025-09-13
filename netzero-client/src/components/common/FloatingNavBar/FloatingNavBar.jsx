@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./FloatingNavBar.module.scss";
 import useFloatingNavBar from "./useFloatingNavBar";
 import FloatingNavBarHandler from "./FloatingNavBarHandler";
@@ -10,9 +11,10 @@ export default function FloatingNavBar({
     theme = "default",
     className = "" 
 }) {
+    const navigate = useNavigate();
     const currentRoute = getCurrentRoute();
     const { stateFloatingNavBar, setFloatingNavBar } = useFloatingNavBar({ activeRoute: currentRoute });
-    const handlers = FloatingNavBarHandler(stateFloatingNavBar, setFloatingNavBar, onNavigate);
+    const handlers = FloatingNavBarHandler(stateFloatingNavBar, setFloatingNavBar, onNavigate, navigate);
     
     return (
         <div className={`${styles.Container} ${styles[`${theme}-theme`]} ${className}`}>

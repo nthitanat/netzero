@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Landing.module.scss";
 import useLanding from "./useLanding";
 import LandingHandler from "./LandingHandler";
@@ -13,8 +14,9 @@ import {
 import { OrganicDecoration, FloatingNavBar } from "../../components/common";
 
 export default function Landing() {
+  const navigate = useNavigate();
   const { stateLanding, setLanding } = useLanding();
-  const handlers = LandingHandler(stateLanding, setLanding);
+  const handlers = LandingHandler(stateLanding, setLanding, navigate);
 
   return (
     <div className={styles.Container}>
