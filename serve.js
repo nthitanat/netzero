@@ -11,7 +11,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'web', 'index.html'));
 });
 
-app.listen(port, () => {
+app.listen(port, '127.0.0.1', async () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
   console.log(`📁 Serving files from: ${path.join(__dirname, 'web')}`);
 });
