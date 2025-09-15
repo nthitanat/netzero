@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/net-zero/static/css/main.35ca96fa.css",
-    "main.js": "/net-zero/static/js/main.ca1c6055.js",
-    "index.html": "/net-zero/index.html",
-    "main.35ca96fa.css.map": "/net-zero/static/css/main.35ca96fa.css.map",
-    "main.ca1c6055.js.map": "/net-zero/static/js/main.ca1c6055.js.map"
+    "main.css": "/static/css/main.35ca96fa.css",
+    "main.js": "/static/js/main.6990d6dd.js",
+    "index.html": "/index.html",
+    "main.35ca96fa.css.map": "/static/css/main.35ca96fa.css.map",
+    "main.6990d6dd.js.map": "/static/js/main.6990d6dd.js.map"
   },
   "entrypoints": [
     "static/css/main.35ca96fa.css",
-    "static/js/main.ca1c6055.js"
+    "static/js/main.6990d6dd.js"
   ]
 }
