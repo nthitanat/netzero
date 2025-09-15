@@ -1,5 +1,6 @@
 #!/bin/bash
-
+#npx serve -s web -l 3000
+#sudo bash ./deploy.sh
 # Deployment script for NetZero React app
 # This script builds the React app, renames build folder to web, and moves it to netzero folder
 
