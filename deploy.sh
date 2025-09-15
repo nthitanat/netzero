@@ -12,7 +12,7 @@ echo "🚀 Starting deployment process..."
 cd netzero-client
 
 echo "📦 Building React application..."
-npm run build
+PUBLIC_URL=/net-zero npm run build
 
 # Check if build was successful
 if [ ! -d "build" ]; then
