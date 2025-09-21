@@ -81,12 +81,12 @@ export default function UserModal({ isOpen, onClose, onSuccess, userData }) {
             handlers.resetForms();
             clearError();
         }
-    }, [isOpen, clearError]);
+    }, [isOpen]);
 
     useEffect(() => {
         clearError();
         setFormErrors({});
-    }, [activeTab, clearError]);
+    }, [activeTab]);
 
     if (!isOpen) return null;
 

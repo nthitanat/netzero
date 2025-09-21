@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import AuthService from '../api/auth';
 import UserService from '../api/users';
 
@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
@@ -152,10 +152,10 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  };
+  }, []);
 
   // Register function
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
@@ -173,10 +173,10 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  };
+  }, []);
 
   // Logout function
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await AuthService.logout();
     } catch (error) {
@@ -184,10 +184,10 @@ export const AuthProvider = ({ children }) => {
     } finally {
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
-  };
+  }, []);
 
   // Update user profile function
-  const updateProfile = async (userData) => {
+  const updateProfile = useCallback(async (userData) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
@@ -204,10 +204,10 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  };
+  }, []);
 
   // Update password function
-  const updatePassword = async (passwordData) => {
+  const updatePassword = useCallback(async (passwordData) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
@@ -223,10 +223,10 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  };
+  }, []);
 
   // Delete account function
-  const deleteAccount = async (confirmationEmail) => {
+  const deleteAccount = useCallback(async (confirmationEmail) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
@@ -248,10 +248,10 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  };
+  }, [state.user?.email]);
 
   // Refresh user data function
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const response = await UserService.getCurrentUser();
       
@@ -265,32 +265,32 @@ export const AuthProvider = ({ children }) => {
       console.error('Refresh user error:', error);
       return { success: false, error: error.message };
     }
-  };
+  }, []);
 
   // Clear error function
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
-  };
+  }, []);
 
   // Check if user has specific role
-  const hasRole = (role) => {
+  const hasRole = useCallback((role) => {
     return state.user && state.user.role === role;
-  };
+  }, [state.user]);
 
   // Check if user is admin
-  const isAdmin = () => {
+  const isAdmin = useCallback(() => {
     return hasRole('admin');
-  };
+  }, [hasRole]);
 
   // Get user display name
-  const getDisplayName = () => {
+  const getDisplayName = useCallback(() => {
     return UserService.getDisplayName(state.user);
-  };
+  }, [state.user]);
 
   // Get user initials
-  const getUserInitials = () => {
+  const getUserInitials = useCallback(() => {
     return UserService.getUserInitials(state.user);
-  };
+  }, [state.user]);
 
   // Context value
   const value = {

@@ -23,22 +23,22 @@ fi
 echo "✅ Build completed successfully"
 
 # Navigate back to parent directory
-cd ..
+cd ../..
 
 # Remove existing web directory if it exists
-if [ -d "web" ]; then
+if [ -d "netzero" ]; then
     echo "🗑️  Removing existing web directory..."
-    rm -rf web
+    rm -rf netzero
 fi
 
 echo "📁 Renaming build folder to web and moving to netzero directory..."
 
 # Move and rename the build folder
-mv netzero-client/build web
+mv netzero-client/build netzero
 
 echo "✅ Deployment completed successfully!"
-echo "📍 Web files are now available in: $(pwd)/web"
+echo "📍 Web files are now available in: $(pwd)/netzero"
 
 # Optional: Show directory contents
 echo "📋 Web directory contents:"
-ls -la web/
+ls -la netzero/

@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const { pool } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
@@ -14,8 +14,15 @@ class User {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
-    const [result] = await db.execute(query, [
-      email, hashedPassword, firstName, lastName, role, profileImage, phoneNumber, address
+    const [result] = await pool.execute(query, [
+      email, 
+      hashedPassword, 
+      firstName, 
+      lastName, 
+      role, 
+      profileImage || null, 
+      phoneNumber || null, 
+      address || null
     ]);
     
     return result.insertId;
@@ -29,7 +36,7 @@ class User {
       WHERE email = ? AND isActive = TRUE
     `;
     
-    const [rows] = await db.execute(query, [email]);
+    const [rows] = await pool.execute(query, [email]);
     return rows[0] || null;
   }
 
@@ -41,7 +48,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [rows] = await db.execute(query, [id]);
+    const [rows] = await pool.execute(query, [id]);
     return rows[0] || null;
   }
 
@@ -53,7 +60,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [rows] = await db.execute(query, [id]);
+    const [rows] = await pool.execute(query, [id]);
     return rows[0] || null;
   }
 
@@ -66,8 +73,13 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await db.execute(query, [
-      firstName, lastName, profileImage, phoneNumber, address, id
+    const [result] = await pool.execute(query, [
+      firstName, 
+      lastName, 
+      profileImage || null, 
+      phoneNumber || null, 
+      address || null, 
+      id
     ]);
     
     return result.affectedRows > 0;
@@ -83,7 +95,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await db.execute(query, [hashedPassword, id]);
+    const [result] = await pool.execute(query, [hashedPassword, id]);
     return result.affectedRows > 0;
   }
 
@@ -94,7 +106,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await db.execute(query, [id]);
+    const [result] = await pool.execute(query, [id]);
     return result.affectedRows > 0;
   }
 
@@ -105,7 +117,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await db.execute(query, [id]);
+    const [result] = await pool.execute(query, [id]);
     return result.affectedRows > 0;
   }
 
@@ -122,7 +134,7 @@ class User {
       params.push(excludeId);
     }
     
-    const [rows] = await db.execute(query, params);
+    const [rows] = await pool.execute(query, params);
     return rows.length > 0;
   }
 
@@ -136,13 +148,13 @@ class User {
       LIMIT ? OFFSET ?
     `;
     
-    const [rows] = await db.execute(query, [limit, offset]);
+    const [rows] = await pool.execute(query, [limit, offset]);
     return rows;
   }
 
   static async getTotalCount() {
     const query = `SELECT COUNT(*) as count FROM users WHERE isActive = TRUE`;
-    const [rows] = await db.execute(query);
+    const [rows] = await pool.execute(query);
     return rows[0].count;
   }
 }

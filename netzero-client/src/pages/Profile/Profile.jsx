@@ -70,6 +70,16 @@ export default function Profile() {
         setShowUpdateModal(false);
     };
 
+    const handleModalSuccess = (message) => {
+        if (message) {
+            console.log('Success:', message);
+            // You could add a toast notification here if needed
+        }
+        // Reload profile data to reflect changes
+        loadProfileData();
+        setShowUpdateModal(false);
+    };
+
     const handleProfileUpdate = async (updatedData) => {
         setProfileData(updatedData);
         setShowUpdateModal(false);

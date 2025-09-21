@@ -1,14 +1,14 @@
-import { apiClient } from './client';
+import { axiosInstance } from './client';
 import AuthService from './auth';
 
 // User endpoints
 const USER_ENDPOINTS = {
-  GET_CURRENT_USER: '/users/me',
-  GET_ALL_USERS: '/users',
-  GET_USER_BY_ID: (id) => `/users/${id}`,
-  UPDATE_USER: (id) => `/users/${id}`,
-  UPDATE_PASSWORD: (id) => `/users/${id}/password`,
-  DELETE_USER: (id) => `/users/${id}`
+  GET_CURRENT_USER: '/api/v1/users/me',
+  GET_ALL_USERS: '/api/v1/users',
+  GET_USER_BY_ID: (id) => `/api/v1/users/${id}`,
+  UPDATE_USER: (id) => `/api/v1/users/${id}`,
+  UPDATE_PASSWORD: (id) => `/api/v1/users/${id}/password`,
+  DELETE_USER: (id) => `/api/v1/users/${id}`
 };
 
 class UserService {
@@ -16,7 +16,7 @@ class UserService {
   static async getCurrentUser() {
     try {
       const headers = AuthService.getAuthHeaders();
-      const response = await apiClient.get(USER_ENDPOINTS.GET_CURRENT_USER, { headers });
+      const response = await axiosInstance.get(USER_ENDPOINTS.GET_CURRENT_USER, { headers });
       
       if (response.data.success && response.data.data.user) {
         // Update stored user data
@@ -34,7 +34,7 @@ class UserService {
   static async getAllUsers(page = 1, limit = 20) {
     try {
       const headers = AuthService.getAuthHeaders();
-      const response = await apiClient.get(USER_ENDPOINTS.GET_ALL_USERS, {
+      const response = await axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS, {
         headers,
         params: { page, limit }
       });
@@ -50,7 +50,7 @@ class UserService {
   static async getUserById(userId) {
     try {
       const headers = AuthService.getAuthHeaders();
-      const response = await apiClient.get(USER_ENDPOINTS.GET_USER_BY_ID(userId), { headers });
+      const response = await axiosInstance.get(USER_ENDPOINTS.GET_USER_BY_ID(userId), { headers });
       
       return response.data;
     } catch (error) {
@@ -63,7 +63,7 @@ class UserService {
   static async updateUser(userId, userData) {
     try {
       const headers = AuthService.getAuthHeaders();
-      const response = await apiClient.put(USER_ENDPOINTS.UPDATE_USER(userId), userData, { headers });
+      const response = await axiosInstance.put(USER_ENDPOINTS.UPDATE_USER(userId), userData, { headers });
       
       // If updating current user, update stored data
       const currentUser = AuthService.getUserData();
@@ -82,7 +82,7 @@ class UserService {
   static async updatePassword(userId, passwordData) {
     try {
       const headers = AuthService.getAuthHeaders();
-      const response = await apiClient.put(
+      const response = await axiosInstance.put(
         USER_ENDPOINTS.UPDATE_PASSWORD(userId), 
         passwordData, 
         { headers }
@@ -99,7 +99,7 @@ class UserService {
   static async deleteUser(userId) {
     try {
       const headers = AuthService.getAuthHeaders();
-      const response = await apiClient.delete(USER_ENDPOINTS.DELETE_USER(userId), { headers });
+      const response = await axiosInstance.delete(USER_ENDPOINTS.DELETE_USER(userId), { headers });
       
       // If deleting current user, clear auth data
       const currentUser = AuthService.getUserData();

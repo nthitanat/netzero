@@ -1,19 +1,19 @@
-import { apiClient } from './client';
+import { axiosInstance } from './client';
 
 // Authentication endpoints
 const AUTH_ENDPOINTS = {
-  REGISTER: '/auth/register',
-  LOGIN: '/auth/login',
-  VERIFY: '/auth/verify',
-  REFRESH: '/auth/refresh',
-  LOGOUT: '/auth/logout'
+  REGISTER: '/api/v1/auth/register',
+  LOGIN: '/api/v1/auth/login',
+  VERIFY: '/api/v1/auth/verify',
+  REFRESH: '/api/v1/auth/refresh',
+  LOGOUT: '/api/v1/auth/logout'
 };
 
 class AuthService {
   // Register new user
   static async register(userData) {
     try {
-      const response = await apiClient.post(AUTH_ENDPOINTS.REGISTER, userData);
+      const response = await axiosInstance.post(AUTH_ENDPOINTS.REGISTER, userData);
       
       if (response.data.success && response.data.data.token) {
         // Store token in localStorage
@@ -32,7 +32,7 @@ class AuthService {
   // Login user
   static async login(credentials) {
     try {
-      const response = await apiClient.post(AUTH_ENDPOINTS.LOGIN, credentials);
+      const response = await axiosInstance.post(AUTH_ENDPOINTS.LOGIN, credentials);
       
       if (response.data.success && response.data.data.token) {
         // Store token in localStorage
@@ -48,19 +48,10 @@ class AuthService {
     }
   }
 
-  // Verify current token
+  // Verify token
   static async verifyToken() {
     try {
-      const token = this.getToken();
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await apiClient.get(AUTH_ENDPOINTS.VERIFY, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await axiosInstance.get(AUTH_ENDPOINTS.VERIFY);
       
       if (response.data.success && response.data.data.user) {
         // Update stored user data
@@ -84,7 +75,7 @@ class AuthService {
         throw new Error('No authentication token found');
       }
 
-      const response = await apiClient.post(AUTH_ENDPOINTS.REFRESH, {}, {
+      const response = await axiosInstance.post(AUTH_ENDPOINTS.REFRESH, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -112,7 +103,7 @@ class AuthService {
       
       if (token) {
         // Call logout endpoint (optional for token blacklisting)
-        await apiClient.post(AUTH_ENDPOINTS.LOGOUT, {}, {
+        await axiosInstance.post(AUTH_ENDPOINTS.LOGOUT, {}, {
           headers: {
             Authorization: `Bearer ${token}`
           }

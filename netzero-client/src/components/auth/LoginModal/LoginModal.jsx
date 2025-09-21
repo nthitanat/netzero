@@ -56,15 +56,35 @@ export default function LoginModal({ isOpen, onClose, onSuccess }) {
     // Clear form and errors when modal is closed or mode changes
     useEffect(() => {
         if (!isOpen) {
-            handlers.resetForm();
+            setFormData({
+                email: '',
+                password: '',
+                firstName: '',
+                lastName: '',
+                phoneNumber: '',
+                address: '',
+                confirmPassword: ''
+            });
+            setFormErrors({});
+            setIsSubmitting(false);
             clearError();
         }
-    }, [isOpen, clearError]);
+    }, [isOpen]);
 
     useEffect(() => {
-        handlers.resetForm();
+        setFormData({
+            email: '',
+            password: '',
+            firstName: '',
+            lastName: '',
+            phoneNumber: '',
+            address: '',
+            confirmPassword: ''
+        });
+        setFormErrors({});
+        setIsSubmitting(false);
         clearError();
-    }, [isRegisterMode, clearError]);
+    }, [isRegisterMode]);
 
     if (!isOpen) return null;
 
