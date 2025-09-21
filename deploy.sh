@@ -22,8 +22,8 @@ fi
 
 echo "✅ Build completed successfully"
 
-# Navigate back to parent directory
-cd ../..
+# Navigate back to project root directory
+cd ../../
 
 # Remove existing web directory if it exists
 if [ -d "netzero" ]; then
@@ -31,10 +31,10 @@ if [ -d "netzero" ]; then
     rm -rf netzero
 fi
 
-echo "📁 Renaming build folder to web and moving to netzero directory..."
+echo "📁 Renaming build folder to web..."
 
 # Move and rename the build folder
-mv netzero-client/build netzero
+mv netzero-deploy/netzero-client/build netzero
 
 echo "✅ Deployment completed successfully!"
 echo "📍 Web files are now available in: $(pwd)/netzero"
