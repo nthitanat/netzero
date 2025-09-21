@@ -1,4 +1,4 @@
-const BarterTradeHandler = (stateBarterTrade, setBarterTrade) => {
+const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate) => {
   
   return {
     handleCategoryChange: (category) => {
@@ -78,9 +78,8 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade) => {
     },
 
     handleNavigate: (path, label) => {
-      // Navigate to the specified route using window.location for now
-      // In a real app with React Router properly set up, this would use navigate(path)
-      window.location.href = path;
+      // Navigate using React Router's navigate function
+      navigate(path);
     },
 
     handleRefresh: () => {

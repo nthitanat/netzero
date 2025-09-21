@@ -1,6 +1,6 @@
 import styles from "./FeatureSection.module.scss";
 
-const FeatureSectionHandler = (stateFeatureSection, setFeatureSection) => {
+const FeatureSectionHandler = (stateFeatureSection, setFeatureSection, navigate) => {
   return {
     handleFeatureClick: (featureId) => {
       console.log("Feature clicked:", featureId);
@@ -9,16 +9,16 @@ const FeatureSectionHandler = (stateFeatureSection, setFeatureSection) => {
       // Navigate based on feature
       switch(featureId) {
         case 1:
-          window.location.href = "/market";
+          navigate("/market");
           break;
         case 2:
-          window.location.href = "/barther-trade";
+          navigate("/barther-trade");
           break;
         case 3:
-          window.location.href = "/map";
+          navigate("/map");
           break;
         case 4:
-          window.location.href = "/events";
+          navigate("/events");
           break;
         default:
           break;
@@ -27,7 +27,7 @@ const FeatureSectionHandler = (stateFeatureSection, setFeatureSection) => {
 
     handleStartJourney: () => {
       console.log("Start journey clicked");
-      window.location.href = "/market";
+      navigate("/market");
     },
 
     handleFeatureHover: (featureId) => {

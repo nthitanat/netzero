@@ -1,12 +1,14 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./RecommendedEventsSection.module.scss";
 import useRecommendedEventsSection from "./useRecommendedEventsSection";
 import RecommendedEventsSectionHandler from "./RecommendedEventsSectionHandler";
 import { RecommendedCarousel } from "../../events";
 
 export default function RecommendedEventsSection({ events, onEventClick }) {
+  const navigate = useNavigate();
   const { stateRecommendedEventsSection, setRecommendedEventsSection } = useRecommendedEventsSection({ events });
-  const handlers = RecommendedEventsSectionHandler(stateRecommendedEventsSection, setRecommendedEventsSection);
+  const handlers = RecommendedEventsSectionHandler(stateRecommendedEventsSection, setRecommendedEventsSection, navigate);
 
   // Filter recommended events
   const recommendedEvents = events?.filter(event => event.isRecommended) || [];

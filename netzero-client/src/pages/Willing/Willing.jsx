@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Willing.module.scss";
 import useWilling from "./useWilling";
 import WillingHandler from "./WillingHandler";
@@ -6,8 +7,9 @@ import { OrganicDecoration, FloatingNavBar, GoogleIcon } from "../../components/
 import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay } from "../../components/market";
 
 export default function Willing() {
+    const navigate = useNavigate();
     const { stateWilling, setWilling } = useWilling();
-    const handlers = WillingHandler(stateWilling, setWilling);
+    const handlers = WillingHandler(stateWilling, setWilling, navigate);
     
     return (
         <div className={styles.Container}>
