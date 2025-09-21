@@ -9,7 +9,7 @@ const getBaseURL = () => {
   
   // Auto-detect based on NODE_ENV
   if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000';
+    return 'http://localhost:3001';
   }
   
   // Production URL

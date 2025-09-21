@@ -24,7 +24,7 @@ const userRoutes = require('./src/routes/userRoutes');
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const API_PREFIX = process.env.API_PREFIX || '/api';
 const API_VERSION = process.env.API_VERSION || 'v1';
 
