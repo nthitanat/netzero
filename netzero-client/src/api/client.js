@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default configuration
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://161.200.199.67/node/',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://engagement.chula.ac.th/node',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -62,15 +62,38 @@ axiosInstance.interceptors.response.use(
     
     // Handle common error scenarios
     if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
+      // Unauthorized - clear auth data and dispatch event
       localStorage.removeItem('authToken');
-      // Handle unauthorized access without hard redirect
-      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      localStorage.removeItem('userData');
+      
+      // Dispatch custom event for auth context to handle
+      window.dispatchEvent(new CustomEvent('auth:unauthorized', {
+        detail: { 
+          message: error.response?.data?.message || 'Authentication required',
+          originalUrl: error.config?.url
+        }
+      }));
+    }
+    
+    if (error.response?.status === 403) {
+      // Forbidden - dispatch event for handling
+      window.dispatchEvent(new CustomEvent('auth:forbidden', {
+        detail: {
+          message: error.response?.data?.message || 'Access denied',
+          originalUrl: error.config?.url
+        }
+      }));
     }
     
     if (error.response?.status === 500) {
       // Server error - show user-friendly message
       console.error('Server error occurred. Please try again later.');
+      window.dispatchEvent(new CustomEvent('api:serverError', {
+        detail: {
+          message: 'Server error occurred. Please try again later.',
+          originalUrl: error.config?.url
+        }
+      }));
     }
     
     return Promise.reject(error);

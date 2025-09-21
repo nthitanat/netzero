@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Market.module.scss";
 import useMarket from "./useMarket";
 import MarketHandler from "./MarketHandler";
@@ -6,8 +7,9 @@ import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/
 import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ReserveDialog } from "../../components/market";
 
 export default function Market() {
+    const navigate = useNavigate();
     const { stateMarket, setMarket } = useMarket();
-    const handlers = MarketHandler(stateMarket, setMarket);
+    const handlers = MarketHandler(stateMarket, setMarket, navigate);
     
     return (
         <div className={styles.Container}>

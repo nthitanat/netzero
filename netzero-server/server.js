@@ -19,6 +19,8 @@ const {
 // Import routes
 const eventRoutes = require('./src/routes/eventRoutes');
 const connectionRoutes = require('./src/routes/connectionRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 
 // Initialize Express app
 const app = express();
@@ -88,6 +90,8 @@ app.get('/', (req, res) => {
     documentation: {
       events: `${API_PREFIX}/${API_VERSION}/events`,
       connection: `${API_PREFIX}/${API_VERSION}/connection`,
+      auth: `${API_PREFIX}/${API_VERSION}/auth`,
+      users: `${API_PREFIX}/${API_VERSION}/users`,
       health: '/health',
       apiInfo: '/'
     },
@@ -111,6 +115,21 @@ app.get('/', (req, res) => {
         softDelete: `PATCH ${API_PREFIX}/${API_VERSION}/events/:id/soft-delete`,
         updateParticipants: `PATCH ${API_PREFIX}/${API_VERSION}/events/:id/participants`,
         delete: `DELETE ${API_PREFIX}/${API_VERSION}/events/:id`
+      },
+      auth: {
+        register: `POST ${API_PREFIX}/${API_VERSION}/auth/register`,
+        login: `POST ${API_PREFIX}/${API_VERSION}/auth/login`,
+        verify: `GET ${API_PREFIX}/${API_VERSION}/auth/verify`,
+        refresh: `POST ${API_PREFIX}/${API_VERSION}/auth/refresh`,
+        logout: `POST ${API_PREFIX}/${API_VERSION}/auth/logout`
+      },
+      users: {
+        getCurrentUser: `GET ${API_PREFIX}/${API_VERSION}/users/me`,
+        getAllUsers: `GET ${API_PREFIX}/${API_VERSION}/users (Admin only)`,
+        getUserById: `GET ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`,
+        updateUser: `PUT ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`,
+        updatePassword: `PUT ${API_PREFIX}/${API_VERSION}/users/:id/password (Owner or Admin)`,
+        deleteUser: `DELETE ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`
       }
     },
     timestamp: new Date().toISOString()
@@ -154,6 +173,8 @@ app.get('/db-test', async (req, res) => {
 // API Routes
 app.use(`${API_PREFIX}/${API_VERSION}/events`, eventRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/connection`, connectionRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/auth`, authRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/users`, userRoutes);
 
 // 404 handler
 app.use(notFound);
@@ -188,6 +209,8 @@ const server = app.listen(PORT, '127.0.0.1', async () => {
   console.log(`🗄️  Database Test: http://127.0.0.1:${PORT}/db-test`);
   console.log(`📚 API Base: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}`);
   console.log(`📋 Events API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/events`);
+  console.log(`🔐 Auth API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/auth`);
+  console.log(`👤 Users API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/users`);
   console.log('═══════════════════════════════════════');
   
   // Test database connection on startup

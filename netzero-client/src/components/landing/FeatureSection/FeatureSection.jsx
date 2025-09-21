@@ -1,11 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./FeatureSection.module.scss";
 import useFeatureSection from "./useFeatureSection";
 import FeatureSectionHandler from "./FeatureSectionHandler";
 
 export default function FeatureSection() {
+  const navigate = useNavigate();
   const { stateFeatureSection, setFeatureSection } = useFeatureSection();
-  const handlers = FeatureSectionHandler(stateFeatureSection, setFeatureSection);
+  const handlers = FeatureSectionHandler(stateFeatureSection, setFeatureSection, navigate);
 
   return (
     <section className={styles.Container} id="features-section">

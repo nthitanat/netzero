@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./BarterTrade.module.scss";
 import useBarterTrade from "./useBarterTrade";
 import BarterTradeHandler from "./BarterTradeHandler";
@@ -6,8 +7,9 @@ import { OrganicDecoration, FloatingNavBar } from "../../components/common";
 import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay } from "../../components/market";
 
 export default function BarterTrade() {
+    const navigate = useNavigate();
     const { stateBarterTrade, setBarterTrade } = useBarterTrade();
-    const handlers = BarterTradeHandler(stateBarterTrade, setBarterTrade);
+    const handlers = BarterTradeHandler(stateBarterTrade, setBarterTrade, navigate);
     
     return (
         <div className={styles.Container}>

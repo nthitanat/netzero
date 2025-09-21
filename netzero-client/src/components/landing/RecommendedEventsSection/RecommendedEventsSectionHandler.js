@@ -1,4 +1,4 @@
-const RecommendedEventsSectionHandler = (stateRecommendedEventsSection, setRecommendedEventsSection) => {
+const RecommendedEventsSectionHandler = (stateRecommendedEventsSection, setRecommendedEventsSection, navigate) => {
   return {
     handleEventClick: (eventId, onEventClick) => {
       console.log("Event clicked:", eventId);
@@ -9,13 +9,13 @@ const RecommendedEventsSectionHandler = (stateRecommendedEventsSection, setRecom
         onEventClick(eventId);
       } else {
         // Default navigation to event detail
-        window.location.href = `/events/${eventId}`;
+        navigate(`/events/${eventId}`);
       }
     },
 
     handleViewAllEvents: () => {
       console.log("View all events clicked");
-      window.location.href = "/events";
+      navigate("/events");
     },
 
     handleEventHover: (eventId) => {
