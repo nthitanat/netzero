@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { eventsData } from "../../data/eventsData";
+import { getStaticImageUrl } from "../../utils/imageUtils";
 
 const useLanding = () => {
   const [stateLanding, setState] = useState({
@@ -19,7 +20,7 @@ const useLanding = () => {
         role: "เกษตรกรออร์แกนิค",
         content: "NetZero ช่วยให้ฉันสามารถขายผลผลิตออร์แกนิคได้โดยตรงและเป็นส่วนหนึ่งของการลดคาร์บอน",
         rating: 5,
-        image: "/assets/images/testimonials/user1.jpg"
+        image: getStaticImageUrl("/assets/images/testimonials/user1.jpg")
       },
       {
         id: 2,
@@ -27,7 +28,7 @@ const useLanding = () => {
         role: "นักธุรกิจสีเขียว",
         content: "แพลตฟอร์มนี้เปิดโอกาสให้เราแลกเปลี่ยนสินค้าและสร้างเครือข่ายชุมชนที่ยั่งยืน",
         rating: 5,
-        image: "/assets/images/testimonials/user2.jpg"
+        image: getStaticImageUrl("/assets/images/testimonials/user2.jpg")
       },
       {
         id: 3,
@@ -35,7 +36,7 @@ const useLanding = () => {
         role: "นักอนุรักษ์สิ่งแวดล้อม",
         content: "การติดตามป่าและการปลูกต้นไม้ผ่าน NetZero ทำให้เห็นผลลัพธ์ที่เป็นรูปธรรม",
         rating: 5,
-        image: "/assets/images/testimonials/user3.jpg"
+        image: getStaticImageUrl("/assets/images/testimonials/user3.jpg")
       }
     ],
     features: [

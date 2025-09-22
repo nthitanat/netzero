@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./HeroSection.module.scss";
 import useHeroSection from "./useHeroSection";
 import HeroSectionHandler from "./HeroSectionHandler";
+import { getStaticImageUrl } from "../../../utils/imageUtils";
 
 export default function HeroSection({ onGetStarted, onExploreFeatures }) {
   const { stateHeroSection, setHeroSection } = useHeroSection();
@@ -12,7 +13,7 @@ export default function HeroSection({ onGetStarted, onExploreFeatures }) {
       {/* Large Leaf Overlay from Right Corner */}
       <div className={styles.LargeLeafOverlay}>
         <img 
-          src="/assets/images/landing/landing.png" 
+          src={getStaticImageUrl("/assets/images/landing/landing.png")} 
           alt="Large Leaf Overlay"
           className={styles.LargeLeafImage}
         />

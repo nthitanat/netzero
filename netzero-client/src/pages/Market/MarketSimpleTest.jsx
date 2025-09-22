@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ReserveDialog } from '../../components/market';
+import { getStaticImageUrls } from '../../utils/imageUtils';
 
 export default function MarketSimpleTest() {
   const [showReserveDialog, setShowReserveDialog] = useState(false);
@@ -9,7 +10,7 @@ export default function MarketSimpleTest() {
     title: "Test Product",
     price: 850,
     quantity: 8,
-    images: ["/assets/images/products/product-1/image-1.jpg"],
+    images: getStaticImageUrls(["/assets/images/products/product-1/image-1.jpg"]),
     inStock: true,
     origin: "Bangkok",
     category: "Test"

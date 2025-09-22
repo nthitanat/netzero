@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ReserveDialog } from '../components/market';
+import { getStaticImageUrl, getStaticImageUrls } from '../utils/imageUtils';
 
 // Example product data for testing
 const sampleProduct = {
@@ -8,8 +9,8 @@ const sampleProduct = {
   description: "เสื้อผ้าทอมือแบบดั้งเดิมของชาวม๊ง จังหวัดน่าน",
   price: 850,
   quantity: 8,
-  images: ["/assets/images/products/product-1/image-1.jpg"],
-  thumbnail: "/assets/images/products/product-1/image-1.jpg",
+  images: getStaticImageUrls(["/assets/images/products/product-1/image-1.jpg"]),
+  thumbnail: getStaticImageUrl("/assets/images/products/product-1/image-1.jpg"),
   category: "เสื้อผ้า",
   region: "ภาคเหนือ",
   inStock: true,

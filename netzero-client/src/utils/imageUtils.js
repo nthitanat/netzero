@@ -4,6 +4,68 @@ import { eventsService } from '../api/events.js';
  * Event image utilities for working with API image endpoints
  */
 
+// Production base URL for static assets
+const PRODUCTION_BASE_URL = "https://engagement.chula.ac.th/netzero";
+
+/**
+ * Get the appropriate static image URL based on the current environment
+ * @param {string} imagePath - The relative image path (e.g., "/assets/images/landing/landing.png")
+ * @returns {string} - The complete image URL
+ */
+export const getStaticImageUrl = (imagePath) => {
+  // Ensure imagePath starts with /
+  const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  // In development or if NODE_ENV is not set, use original path
+  if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+    return normalizedPath;
+  }
+  
+  // In production, prepend the production base URL
+  return `${PRODUCTION_BASE_URL}${normalizedPath}`;
+};
+
+/**
+ * Process an array of static image paths
+ * @param {string[]} imagePaths - Array of image paths
+ * @returns {string[]} - Array of processed image URLs
+ */
+export const getStaticImageUrls = (imagePaths) => {
+  return imagePaths.map(path => getStaticImageUrl(path));
+};
+
+/**
+ * Process an object containing static image properties
+ * @param {Object} obj - Object that may contain image properties
+ * @param {string[]} imageFields - Array of field names that contain image paths
+ * @returns {Object} - Object with processed image URLs
+ */
+export const processStaticImageObject = (obj, imageFields = ['image', 'images', 'thumbnail', 'posterImage']) => {
+  const processed = { ...obj };
+  
+  imageFields.forEach(field => {
+    if (processed[field]) {
+      if (Array.isArray(processed[field])) {
+        processed[field] = getStaticImageUrls(processed[field]);
+      } else {
+        processed[field] = getStaticImageUrl(processed[field]);
+      }
+    }
+  });
+  
+  return processed;
+};
+
+/**
+ * Process an array of objects containing static image properties
+ * @param {Object[]} objects - Array of objects that may contain image properties
+ * @param {string[]} imageFields - Array of field names that contain image paths
+ * @returns {Object[]} - Array of objects with processed image URLs
+ */
+export const processStaticImageObjects = (objects, imageFields = ['image', 'images', 'thumbnail', 'posterImage']) => {
+  return objects.map(obj => processStaticImageObject(obj, imageFields));
+};
+
 // Get event thumbnail URL
 export const getEventThumbnailUrl = (eventId) => {
   if (!eventId) return null;
@@ -124,6 +186,10 @@ const imageUtils = {
   getEventImages,
   getEventPrimaryImage,
   getEventThumbnailImage,
+  getStaticImageUrl,
+  getStaticImageUrls,
+  processStaticImageObject,
+  processStaticImageObjects,
 };
 
 export default imageUtils;
