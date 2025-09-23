@@ -43,24 +43,26 @@ const useMarket = (initialProps = {}) => {
       try {
         setMarket("isLoading", true);
         
-        // Get products filtered by marketType "market"
-        const marketProductsResponse = await productsService.getProductsByMarketType("market");
+        // Get products filtered by type "market"
+        const marketProductsResponse = await productsService.getProductsByType("market");
         const marketProducts = marketProductsResponse.data;
         
-        // Get categories and regions
-        const categoriesResponse = await productsService.getProductCategories();
-        const regionsResponse = await productsService.getProductRegions();
+        // Extract unique categories and regions from products
+        const uniqueCategories = [...new Set(marketProducts.map(product => product.category))];
+        const uniqueRegions = [...new Set(marketProducts.map(product => product.address || 'Unknown'))];
         
-        // Get advertisements
-        const advertisementsResponse = await productsService.getAdvertisements();
+        // For advertisements, we'll use recommended products for now
+        // You may want to create a separate advertisements endpoint later
+        const advertisementsResponse = await productsService.getRecommendedProducts();
+        const advertisements = advertisementsResponse.data.slice(0, 5); // Limit to 5 for carousel
         
         setState(prevState => ({
           ...prevState,
           products: marketProducts,
           filteredProducts: marketProducts,
-          categories: categoriesResponse.data,
-          regions: regionsResponse.data,
-          advertisements: advertisementsResponse.data,
+          categories: uniqueCategories,
+          regions: uniqueRegions,
+          advertisements: advertisements,
           isLoading: false
         }));
       } catch (error) {
@@ -89,7 +91,7 @@ const useMarket = (initialProps = {}) => {
     // Apply region filter
     if (stateMarket.selectedRegion !== "all") {
       filtered = filtered.filter(product =>
-        product.region.toLowerCase() === stateMarket.selectedRegion.toLowerCase()
+        (product.address || 'Unknown').toLowerCase() === stateMarket.selectedRegion.toLowerCase()
       );
     }
     
@@ -97,7 +99,7 @@ const useMarket = (initialProps = {}) => {
     if (stateMarket.selectedCategory !== "all" && stateMarket.selectedRegion !== "all") {
       filtered = stateMarket.products.filter(product =>
         product.category.toLowerCase() === stateMarket.selectedCategory.toLowerCase() &&
-        product.region.toLowerCase() === stateMarket.selectedRegion.toLowerCase()
+        (product.address || 'Unknown').toLowerCase() === stateMarket.selectedRegion.toLowerCase()
       );
     }
     
@@ -108,8 +110,7 @@ const useMarket = (initialProps = {}) => {
         product.title.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
-        product.region.toLowerCase().includes(query) ||
-        product.origin.toLowerCase().includes(query)
+        (product.address || '').toLowerCase().includes(query)
       );
     }
     

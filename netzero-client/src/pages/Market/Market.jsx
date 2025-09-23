@@ -88,7 +88,7 @@ export default function Market() {
                 product={stateMarket.selectedProduct}
                 isOpen={stateMarket.showModal}
                 onClose={handlers.handleCloseModal}
-                onReserve={handlers.handleProductReserve}
+                //onReserve={handlers.handleProductReserve}
                 onReservationSuccess={handlers.handleReservationSuccess}
                 theme="market"
             />

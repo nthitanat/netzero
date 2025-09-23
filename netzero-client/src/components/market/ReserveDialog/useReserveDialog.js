@@ -4,9 +4,9 @@ const useReserveDialog = (initialProps) => {
   const { isOpen = false, product = null } = initialProps || {};
   
   const [stateReserveDialog, setState] = useState({
+    availableQuantity: product?.stock_quantity || 5, // Default to 5 if not provided
     isReserving: false,
     selectedQuantity: 1,
-    availableQuantity: product?.quantity || product?.stock || 5, // Default to 5 if no quantity in product
     quantityError: "",
     reservationError: "",
     isDialogOpen: isOpen
@@ -31,7 +31,7 @@ const useReserveDialog = (initialProps) => {
     setState({
       isReserving: false,
       selectedQuantity: 1,
-      availableQuantity: product?.quantity || product?.stock || 5,
+      availableQuantity: product?.stock_quantity || 5,
       quantityError: "",
       reservationError: "",
       isDialogOpen: false

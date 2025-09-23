@@ -15,7 +15,11 @@ const ProductCardHandler = (stateProductCard, setProductCard, product, onProduct
         event.stopPropagation(); // Prevent event bubbling to card click
       }
       
-      if (!product.inStock) {
+      // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
+      const isInStock = product?.stock_quantity > 0 || product?.inStock;
+      console.log("Reserve click - isInStock:", isInStock, "product:", product);
+      
+      if (!isInStock) {
         return;
       }
       

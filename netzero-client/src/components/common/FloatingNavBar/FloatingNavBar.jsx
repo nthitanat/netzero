@@ -39,6 +39,11 @@ export default function FloatingNavBar({
         navigate('/profile');
     };
 
+    const handleSellerDashboardClick = () => {
+        setShowUserMenu(false);
+        navigate('/seller-dashboard');
+    };
+
     const handleLogoutClick = async () => {
         setShowUserMenu(false);
         try {
@@ -128,6 +133,15 @@ export default function FloatingNavBar({
                                             <GoogleIcon iconType="person" size="small" />
                                             Profile
                                         </button>
+                                        {user?.role === 'seller' && (
+                                            <button 
+                                                className={styles.UserMenuItem}
+                                                onClick={handleSellerDashboardClick}
+                                            >
+                                                <GoogleIcon iconType="dashboard" size="small" />
+                                                Seller Dashboard
+                                            </button>
+                                        )}
                                         <button 
                                             className={styles.UserMenuItem}
                                             onClick={handleLogoutClick}

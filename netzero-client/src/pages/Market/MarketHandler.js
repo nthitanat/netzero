@@ -31,7 +31,10 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
     },
 
     handleReserveClick: (product) => {
-      if (!product.inStock) {
+      // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
+      const isInStock = product?.stock_quantity > 0 || product?.inStock;
+      console.log("Reserve click - isInStock:", isInStock, "product:", product);
+      if (!isInStock) {
         alert("สินค้านี้หมดแล้ว ไม่สามารถจองได้");
         return;
       }
@@ -50,20 +53,20 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
       });
     },
 
-    handleProductReserve: async (product) => {
-      // Simulate API call for reservation (legacy method - now handled by ReserveDialog)
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (product.inStock) {
-            console.log("Product reserved successfully:", product);
-            alert(`จองสินค้า "${product.title}" เรียบร้อยแล้ว!\nเราจะติดต่อกลับในเร็วๆ นี้`);
-            resolve(product);
-          } else {
-            reject(new Error("Product out of stock"));
-          }
-        }, 1000);
-      });
-    },
+    // handleProductReserve: async (product) => {
+    //   // Simulate API call for reservation (legacy method - now handled by ReserveDialog)
+    //   return new Promise((resolve, reject) => {
+    //     setTimeout(() => {
+    //       if (product.inStock) {
+    //         console.log("Product reserved successfully:", product);
+    //         alert(`จองสินค้า "${product.title}" เรียบร้อยแล้ว!\nเราจะติดต่อกลับในเร็วๆ นี้`);
+    //         resolve(product);
+    //       } else {
+    //         reject(new Error("Product out of stock"));
+    //       }
+    //     }, 1000);
+    //   });
+    // },
 
     handleReservationSuccess: (reservationData) => {
       // Handle successful reservation from ReserveDialog
@@ -126,10 +129,7 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
         filterTab: "category"
       });
       
-      // Simulate data refresh
-      setTimeout(() => {
-        setMarket("isLoading", false);
-      }, 800);
+     
     }
   };
 };

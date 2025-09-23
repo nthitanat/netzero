@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../../api";
+import { reservationsService } from "../../../api";
 
 const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess) => {
   return {
@@ -87,42 +87,34 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       setReserveDialog("reservationError", "");
 
       try {
-        // Create transaction data
-        const transactionData = {
-          productId: product.id,
-          productTitle: product.title,
+        // Create reservation using the proper API
+        const reservationData = {
+          product_id: product.id,
           quantity: quantity,
-          unitPrice: product.price,
-          totalPrice: product.price * quantity,
-          userId: 1, // This should come from auth context in real implementation
-          status: "reserved",
-          timestamp: new Date().toISOString(),
-          productOrigin: product.origin,
-          productCategory: product.category
+          note: `การจองสินค้า ${product.title} จำนวน ${quantity} ชิ้น`
         };
 
-        // Simulate API call to create product transaction
-        const response = await axiosInstance.post('/product-transactions', transactionData);
+        console.log('🔄 Creating reservation:', reservationData);
+        const response = await reservationsService.createReservation(reservationData);
         
         console.log('✅ Reservation created:', response.data);
 
-        // Simulate API call to update product quantity
-        const updatedProductData = {
+        // Calculate updated product info
+        const updatedProductInfo = {
           ...product,
-          quantity: stateReserveDialog.availableQuantity - quantity,
-          // Update stock status if quantity becomes 0
+          stock_quantity: stateReserveDialog.availableQuantity - quantity,
           inStock: (stateReserveDialog.availableQuantity - quantity) > 0
         };
 
-        await axiosInstance.put(`/products/${product.id}`, updatedProductData);
-        
-        console.log('✅ Product quantity updated');
-
-        // Call success callback
+        // Call success callback with the proper data structure
         if (onReservationSuccess) {
           onReservationSuccess({
-            transaction: response.data || transactionData,
-            updatedProduct: updatedProductData,
+            transaction: {
+              ...response.data,
+              totalPrice: product.price * quantity,
+              unitPrice: product.price
+            },
+            updatedProduct: updatedProductInfo,
             reservedQuantity: quantity
           });
         }
@@ -135,11 +127,14 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       } catch (error) {
         console.error("❌ Reservation failed:", error);
         
-        // Handle different types of errors
+        // Handle different types of errors based on our API structure
         if (error.response?.status === 400) {
-          setReserveDialog("reservationError", "ข้อมูลการจองไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง");
+          const errorMsg = error.response?.data?.message || "ข้อมูลการจองไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+          setReserveDialog("reservationError", errorMsg);
         } else if (error.response?.status === 409) {
           setReserveDialog("reservationError", "สินค้าถูกจองหมดแล้ว กรุณาลองใหม่อีกครั้ง");
+        } else if (error.response?.status === 404) {
+          setReserveDialog("reservationError", "ไม่พบสินค้าที่ต้องการจอง");
         } else if (error.response?.status === 500) {
           setReserveDialog("reservationError", "เกิดข้อผิดพลาดของระบบ กรุณาลองใหม่อีกครั้ง");
         } else {

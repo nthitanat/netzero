@@ -19,6 +19,16 @@ export default function ProductModal({
     const { stateProductModal, setProductModal } = useProductModal({ isOpen });
     const handlers = ProductModalHandler(stateProductModal, setProductModal, product, onClose, onReserve, onReservationSuccess);
     
+    // Create a product object with proper image URLs and field mappings
+    const productWithImages = product ? {
+        ...product,
+        images: [
+            productsService.getProductThumbnailUrl(product.id),
+            productsService.getProductCoverUrl(product.id)
+        ],
+        inStock: product.stock_quantity > 0 // Convert stock_quantity to inStock boolean
+    } : null;
+    
     // Add keyboard event listener for Escape key
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -38,7 +48,7 @@ export default function ProductModal({
         };
     }, [isOpen, handlers]);
     
-    if (!product || !isOpen) {
+    if (!productWithImages || !isOpen) {
         return null;
     }
     
@@ -57,16 +67,16 @@ export default function ProductModal({
                 <div className={styles.ModalContent}>
                     <div className={styles.ImageSection}>
                         <ImageSlideshow 
-                            images={product.images}
-                            alt={product.title}
+                            images={productWithImages.images}
+                            alt={productWithImages.title}
                             className={styles.ProductSlideshow}
                         />
                         
                         <div className={styles.BadgeContainer}>
                             <div className={`${styles.CategoryBadge}`}>
-                                {product.category}
+                                {productWithImages.category}
                             </div>
-                            {!product.inStock && (
+                            {!productWithImages.inStock && (
                                 <div className={`${styles.StatusBadge} ${styles.OutOfStock}`}>
                                     หมด
                                 </div>
@@ -76,14 +86,14 @@ export default function ProductModal({
                     
                     <div className={styles.InfoSection}>
                         <div className={styles.ProductHeader}>
-                            <h2 className={styles.ProductTitle}>{product.title}</h2>
+                            <h2 className={styles.ProductTitle}>{productWithImages.title}</h2>
                             <div className={styles.ProductPrice}>
-                                {productsService.formatPrice(product.price)}
+                                {productsService.formatPrice(productWithImages.price)}
                             </div>
                         </div>
                         
                         <p className={styles.ProductDescription}>
-                            {product.description}
+                            {productWithImages.description}
                         </p>
                         
                         <div className={styles.ProductSpecs}>
@@ -92,31 +102,37 @@ export default function ProductModal({
                             <div className={styles.SpecsList}>
                                 <div className={styles.SpecItem}>
                                     <GoogleIcon iconType="location_on" size="small" className={styles.SpecIcon} />
-                                    <span className={styles.SpecLabel}>แหล่งผลิต:</span>
-                                    <span className={styles.SpecValue}>{product.origin}</span>
+                                    <span className={styles.SpecLabel}>ที่อยู่:</span>
+                                    <span className={styles.SpecValue}>{productWithImages.address || 'ไม่ระบุ'}</span>
                                 </div>
                                 
                                 <div className={styles.SpecItem}>
                                     <GoogleIcon iconType="inventory" size="small" className={styles.SpecIcon} />
-                                    <span className={styles.SpecLabel}>น้ำหนัก:</span>
-                                    <span className={styles.SpecValue}>{product.weight}</span>
+                                    <span className={styles.SpecLabel}>คงเหลือ:</span>
+                                    <span className={styles.SpecValue}>{productWithImages.stock_quantity || 0} ชิ้น</span>
                                 </div>
                                 
                                 <div className={styles.SpecItem}>
                                     <GoogleIcon iconType="star" size="small" className={styles.SpecIcon} />
                                     <span className={styles.SpecLabel}>หมวดหมู่:</span>
-                                    <span className={styles.SpecValue}>{product.category}</span>
+                                    <span className={styles.SpecValue}>{productWithImages.category}</span>
+                                </div>
+                                
+                                <div className={styles.SpecItem}>
+                                    <GoogleIcon iconType="category" size="small" className={styles.SpecIcon} />
+                                    <span className={styles.SpecLabel}>ประเภท:</span>
+                                    <span className={styles.SpecValue}>{productWithImages.type}</span>
                                 </div>
                                 
                                 <div className={styles.SpecItem}>
                                     <GoogleIcon 
-                                        iconType={product.inStock ? "check_circle" : "warning"} 
+                                        iconType={productWithImages.inStock ? "check_circle" : "warning"} 
                                         size="small" 
                                         className={styles.SpecIcon} 
                                     />
                                     <span className={styles.SpecLabel}>สถานะ:</span>
-                                    <span className={`${styles.SpecValue} ${product.inStock ? styles.InStock : styles.OutOfStock}`}>
-                                        {product.inStock ? "มีสินค้า" : "สินค้าหมด"}
+                                    <span className={`${styles.SpecValue} ${productWithImages.inStock ? styles.InStock : styles.OutOfStock}`}>
+                                        {productWithImages.inStock ? "มีสินค้า" : "สินค้าหมด"}
                                     </span>
                                 </div>
                             </div>
@@ -124,16 +140,16 @@ export default function ProductModal({
                         
                         <div className={styles.ActionSection}>
                             <button
-                                className={`${styles.ReserveButton} ${!product.inStock ? styles.Disabled : ''}`}
+                                className={`${styles.ReserveButton} ${!productWithImages.inStock ? styles.Disabled : ''}`}
                                 onClick={handlers.handleReserve}
-                                disabled={!product.inStock || stateProductModal.isReserving}
+                                disabled={!productWithImages.inStock || stateProductModal.isReserving}
                             >
                                 {stateProductModal.isReserving ? (
                                     <>
                                         <div className={styles.LoadingSpinner} />
                                         กำลังจอง...
                                     </>
-                                ) : product.inStock ? (
+                                ) : productWithImages.inStock ? (
                                     <>
                                         <GoogleIcon iconType="shopping_cart" size="medium" />
                                         {actionLabel}
@@ -152,7 +168,7 @@ export default function ProductModal({
             
             {/* Reserve Dialog */}
             <ReserveDialog
-                product={product}
+                product={productWithImages}
                 isOpen={stateProductModal.showReserveDialog}
                 onClose={handlers.handleCloseReserveDialog}
                 onReservationSuccess={handlers.handleReservationSuccess}

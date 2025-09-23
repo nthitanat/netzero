@@ -1,0 +1,370 @@
+// Reservation Management Panel Styles
+.Container {
+  width: 100%;
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  
+  .Title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+}
+
+.RefreshButton {
+  padding: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6c757d;
+  
+  &:hover {
+    background: #e9ecef;
+    color: #495057;
+    transform: rotate(90deg);
+  }
+}
+
+// Loading State
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  
+  .LoadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
+  
+  p {
+    color: #6c757d;
+    font-size: 1rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Empty State
+.EmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  
+  .EmptyIcon {
+    color: #6c757d;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    color: #495057;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: #6c757d;
+    margin-bottom: 25px;
+    font-size: 1rem;
+  }
+}
+
+// Content
+.Content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Stats Bar
+.StatsBar {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.StatItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .StatLabel {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+  
+  .StatValue {
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    
+    &.pending {
+      background: rgba(255, 152, 0, 0.1);
+      color: #ff9800;
+    }
+    
+    &.confirmed {
+      background: rgba(76, 175, 80, 0.1);
+      color: #4caf50;
+    }
+    
+    &.cancelled {
+      background: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+    }
+  }
+}
+
+// Reservations List
+.ReservationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ReservationCard {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.ReservationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.ReservationInfo {
+  flex: 1;
+  
+  .ProductTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+  
+  .CustomerInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+}
+
+.StatusBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  
+  &.orange {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+  }
+  
+  &.green {
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+  
+  &.red {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+  }
+  
+  &.gray {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+  }
+}
+
+.ReservationDetails {
+  margin-bottom: 16px;
+}
+
+.DetailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.DetailItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.TotalPrice {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.Note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 12px;
+  
+  span {
+    font-size: 0.9rem;
+    color: #495057;
+    line-height: 1.4;
+  }
+}
+
+.ReservationActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.CancelButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #ffeaea;
+    color: #dc3545;
+    border-color: #f5c6cb;
+  }
+}
+
+.ConfirmButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+}
+
+.ConfirmedInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 8px;
+  color: #4caf50;
+  font-size: 0.85rem;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .StatsBar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .ReservationHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .DetailRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .ReservationActions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .CancelButton, .ConfirmButton {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .ReservationCard {
+    padding: 16px;
+    margin: 0 5px;
+  }
+  
+  .Header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .ProductTitle {
+    font-size: 1.1rem;
+  }
+}

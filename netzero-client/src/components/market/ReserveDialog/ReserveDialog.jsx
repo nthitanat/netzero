@@ -59,7 +59,7 @@ export default function ReserveDialog({
                     
                     <div className={styles.ProductInfo}>
                         <img 
-                            src={product.images?.[0] || product.thumbnail} 
+                            src={productsService.getProductThumbnailUrl(product.id)} 
                             alt={product.title}
                             className={styles.ProductImage}
                         />
@@ -71,7 +71,7 @@ export default function ReserveDialog({
                             
                             <div className={styles.StockInfo}>
                                 <GoogleIcon iconType="inventory" size="small" className={styles.StockIcon} />
-                                <span>คงเหลือ: {stateReserveDialog.availableQuantity} ชิ้น</span>
+                                <span>คงเหลือ: {product.stock_quantity} ชิ้น</span>
                             </div>
                         </div>
                     </div>

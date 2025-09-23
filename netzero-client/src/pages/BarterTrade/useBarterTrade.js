@@ -16,7 +16,7 @@ const useBarterTrade = (initialProps = {}) => {
     searchQuery: "",
     filterTab: "category", // category or region
     advertisements: [],
-    marketType: "barther-trade",
+    marketType: "barter",
     ...initialProps
   });
 
@@ -41,24 +41,25 @@ const useBarterTrade = (initialProps = {}) => {
       try {
         setBarterTrade("isLoading", true);
         
-        // Get products filtered by marketType "barther-trade"
-        const barterProductsResponse = await productsService.getProductsByMarketType("barther-trade");
+        // Get products filtered by type "barter" (note: using "barter" instead of "barther-trade")
+        const barterProductsResponse = await productsService.getProductsByType("barter");
         const barterProducts = barterProductsResponse.data;
         
-        // Get categories and regions
-        const categoriesResponse = await productsService.getProductCategories();
-        const regionsResponse = await productsService.getProductRegions();
+        // Extract unique categories and regions from products
+        const uniqueCategories = [...new Set(barterProducts.map(product => product.category))];
+        const uniqueRegions = [...new Set(barterProducts.map(product => product.address || 'Unknown'))];
         
-        // Get advertisements
-        const advertisementsResponse = await productsService.getAdvertisements();
+        // For advertisements, we'll use recommended products for now
+        const advertisementsResponse = await productsService.getRecommendedProducts();
+        const advertisements = advertisementsResponse.data.slice(0, 5); // Limit to 5 for carousel
         
         setState(prevState => ({
           ...prevState,
           products: barterProducts,
           filteredProducts: barterProducts,
-          categories: categoriesResponse.data,
-          regions: regionsResponse.data,
-          advertisements: advertisementsResponse.data,
+          categories: uniqueCategories,
+          regions: uniqueRegions,
+          advertisements: advertisements,
           isLoading: false
         }));
       } catch (error) {
@@ -87,7 +88,7 @@ const useBarterTrade = (initialProps = {}) => {
     // Apply region filter
     if (stateBarterTrade.selectedRegion !== "all") {
       filtered = filtered.filter(product =>
-        product.region.toLowerCase() === stateBarterTrade.selectedRegion.toLowerCase()
+        (product.address || 'Unknown').toLowerCase() === stateBarterTrade.selectedRegion.toLowerCase()
       );
     }
     
@@ -95,7 +96,7 @@ const useBarterTrade = (initialProps = {}) => {
     if (stateBarterTrade.selectedCategory !== "all" && stateBarterTrade.selectedRegion !== "all") {
       filtered = stateBarterTrade.products.filter(product =>
         product.category.toLowerCase() === stateBarterTrade.selectedCategory.toLowerCase() &&
-        product.region.toLowerCase() === stateBarterTrade.selectedRegion.toLowerCase()
+        (product.address || 'Unknown').toLowerCase() === stateBarterTrade.selectedRegion.toLowerCase()
       );
     }
     
@@ -106,8 +107,7 @@ const useBarterTrade = (initialProps = {}) => {
         product.title.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
-        product.region.toLowerCase().includes(query) ||
-        product.origin.toLowerCase().includes(query)
+        (product.address || '').toLowerCase().includes(query)
       );
     }
     

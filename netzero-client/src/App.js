@@ -9,6 +9,7 @@ import Willing from './pages/Willing/Willing';
 import BarterTrade from './pages/BarterTrade/BarterTrade';
 import Map from './pages/Map/Map';
 import Profile from './pages/Profile/Profile';
+import SellerDashboard from './pages/SellerDashboard/SellerDashboard';
 import './styles/main.scss';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Route path="/map" element={<Map />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
+            <Route path="/seller-dashboard" element={<SellerDashboard />} />
           </Routes>
         </div>
       </Router>

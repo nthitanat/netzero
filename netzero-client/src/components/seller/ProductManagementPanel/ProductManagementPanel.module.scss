@@ -1,0 +1,414 @@
+// Product Management Panel Styles
+.Container {
+  width: 100%;
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  
+  .Title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+}
+
+.HeaderActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.RefreshButton {
+  padding: 10px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6c757d;
+  
+  &:hover {
+    background: #e9ecef;
+    color: #495057;
+    transform: rotate(90deg);
+  }
+}
+
+.CreateButton, .CreateFirstButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  }
+}
+
+// Loading State
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  
+  .LoadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
+  
+  p {
+    color: #6c757d;
+    font-size: 1rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Empty State
+.EmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  
+  .EmptyIcon {
+    color: #6c757d;
+    margin-bottom: 20px;
+    opacity: 0.7;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    color: #495057;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: #6c757d;
+    margin-bottom: 25px;
+    font-size: 1rem;
+  }
+}
+
+// Products Grid
+.ProductsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.ProductCard {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.ProductImage {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.ProductBadges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.TypeBadge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  
+  &.market {
+    background: #4CAF50;
+  }
+  
+  &.willing {
+    background: #2196F3;
+  }
+  
+  &.barter {
+    background: #FF9800;
+  }
+}
+
+.OutOfStockBadge {
+  padding: 4px 8px;
+  background: #f44336;
+  color: white;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.RecommendBadge {
+  padding: 4px 8px;
+  background: #9C27B0;
+  color: white;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ProductInfo {
+  padding: 16px;
+}
+
+.ProductTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.ProductDescription {
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0 0 16px 0;
+}
+
+.ProductMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.MetaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #495057;
+  
+  span {
+    font-weight: 500;
+  }
+}
+
+.ProductActions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.EditButton, .DeleteButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.EditButton {
+  background: rgba(33, 150, 243, 0.9);
+  color: white;
+  
+  &:hover {
+    background: #2196F3;
+    transform: scale(1.05);
+  }
+}
+
+.DeleteButton {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  
+  &:hover {
+    background: #f44336;
+    transform: scale(1.05);
+  }
+}
+
+// Delete Modal
+.ModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.DeleteModal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.DeleteModalHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  
+  .WarningIcon {
+    color: #ff9800;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+  }
+}
+
+.DeleteModalContent {
+  margin-bottom: 24px;
+  
+  p {
+    color: #6c757d;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+  }
+  
+  .ProductName {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+  }
+  
+  .WarningText {
+    color: #dc3545;
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+}
+
+.DeleteModalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.CancelButton {
+  padding: 10px 20px;
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #e9ecef;
+    color: #495057;
+  }
+}
+
+.ConfirmDeleteButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .ProductsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .Header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .HeaderActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .ProductCard {
+    margin: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ProductsGrid {
+    margin: 0 5px;
+  }
+  
+  .CreateButton, .CreateFirstButton {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  
+  .DeleteModal {
+    padding: 20px;
+    margin: 20px;
+  }
+}

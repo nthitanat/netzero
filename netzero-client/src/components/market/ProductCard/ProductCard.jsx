@@ -16,13 +16,21 @@ export default function ProductCard({
     const { stateProductCard, setProductCard } = useProductCard();
     const productHandlers = ProductCardHandler(stateProductCard, setProductCard, product, onProductClick, onReserveClick);
     
+    // Create a product object with proper image URLs for the ItemCard
+    const productWithImages = {
+        ...product,
+        thumbnail: productsService.getProductThumbnailUrl(product.id),
+        images: [productsService.getProductThumbnailUrl(product.id)],
+        inStock: product.stock_quantity > 0 // Convert stock_quantity to inStock boolean
+    };
+    
     // Debug: Check what handlers are available
     console.log("ProductCard handlers:", Object.keys(productHandlers || {}));
     
     const productBadges = [];
     
     // Add out of stock badge if not in stock
-    if (!product.inStock) {
+    if (!productWithImages.inStock) {
         productBadges.push({
             text: "หมด",
             position: "TopRight",
@@ -53,11 +61,11 @@ export default function ProductCard({
             <div className={styles.ProductDetails}>
                 <div className={styles.DetailItem}>
                     <GoogleIcon iconType="location_on" size="small" className={styles.DetailIcon} />
-                    <span>{item.origin}</span>
+                    <span>{item.address || 'ไม่ระบุ'}</span>
                 </div>
                 <div className={styles.DetailItem}>
                     <GoogleIcon iconType="inventory" size="small" className={styles.DetailIcon} />
-                    <span>{item.weight}</span>
+                    <span>คงเหลือ: {item.stock_quantity || 0}</span>
                 </div>
             </div>
             
@@ -94,7 +102,7 @@ export default function ProductCard({
     
     return (
         <ItemCard
-            item={product}
+            item={productWithImages}
             onItemClick={productHandlers.handleProductClick}
             config={{
                 showThumbnail: true,

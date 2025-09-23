@@ -41,24 +41,25 @@ const useWilling = (initialProps = {}) => {
       try {
         setWilling("isLoading", true);
         
-        // Get products filtered by marketType "willing"
-        const willingProductsResponse = await productsService.getProductsByMarketType("willing");
+        // Get products filtered by type "willing"
+        const willingProductsResponse = await productsService.getProductsByType("willing");
         const willingProducts = willingProductsResponse.data;
         
-        // Get categories and regions
-        const categoriesResponse = await productsService.getProductCategories();
-        const regionsResponse = await productsService.getProductRegions();
+        // Extract unique categories and regions from products
+        const uniqueCategories = [...new Set(willingProducts.map(product => product.category))];
+        const uniqueRegions = [...new Set(willingProducts.map(product => product.address || 'Unknown'))];
         
-        // Get advertisements
-        const advertisementsResponse = await productsService.getAdvertisements();
+        // For advertisements, we'll use recommended products for now
+        const advertisementsResponse = await productsService.getRecommendedProducts();
+        const advertisements = advertisementsResponse.data.slice(0, 5); // Limit to 5 for carousel
         
         setState(prevState => ({
           ...prevState,
           products: willingProducts,
           filteredProducts: willingProducts,
-          categories: categoriesResponse.data,
-          regions: regionsResponse.data,
-          advertisements: advertisementsResponse.data,
+          categories: uniqueCategories,
+          regions: uniqueRegions,
+          advertisements: advertisements,
           isLoading: false
         }));
       } catch (error) {
@@ -87,7 +88,7 @@ const useWilling = (initialProps = {}) => {
     // Apply region filter
     if (stateWilling.selectedRegion !== "all") {
       filtered = filtered.filter(product =>
-        product.region.toLowerCase() === stateWilling.selectedRegion.toLowerCase()
+        (product.address || 'Unknown').toLowerCase() === stateWilling.selectedRegion.toLowerCase()
       );
     }
     
@@ -95,7 +96,7 @@ const useWilling = (initialProps = {}) => {
     if (stateWilling.selectedCategory !== "all" && stateWilling.selectedRegion !== "all") {
       filtered = stateWilling.products.filter(product =>
         product.category.toLowerCase() === stateWilling.selectedCategory.toLowerCase() &&
-        product.region.toLowerCase() === stateWilling.selectedRegion.toLowerCase()
+        (product.address || 'Unknown').toLowerCase() === stateWilling.selectedRegion.toLowerCase()
       );
     }
     
@@ -106,8 +107,7 @@ const useWilling = (initialProps = {}) => {
         product.title.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
         product.category.toLowerCase().includes(query) ||
-        product.region.toLowerCase().includes(query) ||
-        product.origin.toLowerCase().includes(query)
+        (product.address || '').toLowerCase().includes(query)
       );
     }
     

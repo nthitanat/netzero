@@ -1,6 +1,7 @@
 // Import for internal use
 import { eventsService } from './events.js';
 import { productsService } from './products.js';
+import { reservationsService } from './reservations.js';
 import { treesService } from './trees.js';
 import { locationTreesService } from './locationTrees.js';
 import AuthService from './auth.js';
@@ -10,6 +11,7 @@ import UserService from './users.js';
 export { axiosInstance } from './client.js';
 export { eventsService, EventsService } from './events.js';
 export { productsService, ProductsService } from './products.js';
+export { reservationsService, ReservationsService } from './reservations.js';
 export { treesService, TreesService } from './trees.js';
 export { locationTreesService, LocationTreesService } from './locationTrees.js';
 export { default as AuthService } from './auth.js';
@@ -28,6 +30,7 @@ export {
 export const api = {
   events: eventsService,
   products: productsService,
+  reservations: reservationsService,
   trees: treesService,
   locationTrees: locationTreesService,
   auth: AuthService,

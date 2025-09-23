@@ -16,7 +16,10 @@ const ProductModalHandler = (stateProductModal, setProductModal, product, onClos
     },
 
     handleReserve: async () => {
-      if (!product.inStock || stateProductModal.isReserving) {
+      // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
+      const isInStock = product?.stock_quantity > 0 || product?.inStock;
+      
+      if (!isInStock || stateProductModal.isReserving) {
         return;
       }
       
