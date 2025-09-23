@@ -11,6 +11,9 @@ const useWilling = (initialProps = {}) => {
     selectedRegion: "all", 
     selectedProduct: null,
     showModal: false,
+    productToReserve: null,
+    showReserveDialog: false,
+    showLoginModal: false,
     isLoading: true,
     viewMode: "grid", // grid or list
     searchQuery: "",

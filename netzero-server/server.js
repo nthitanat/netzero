@@ -21,6 +21,8 @@ const eventRoutes = require('./src/routes/eventRoutes');
 const connectionRoutes = require('./src/routes/connectionRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const productRoutes = require('./src/routes/productRoutes');
+const reservationRoutes = require('./src/routes/reservationRoutes');
 
 // Initialize Express app
 const app = express();
@@ -92,6 +94,8 @@ app.get('/', (req, res) => {
       connection: `${API_PREFIX}/${API_VERSION}/connection`,
       auth: `${API_PREFIX}/${API_VERSION}/auth`,
       users: `${API_PREFIX}/${API_VERSION}/users`,
+      products: `${API_PREFIX}/${API_VERSION}/products`,
+      reservations: `${API_PREFIX}/${API_VERSION}/reservations`,
       health: '/health',
       apiInfo: '/'
     },
@@ -130,6 +134,33 @@ app.get('/', (req, res) => {
         updateUser: `PUT ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`,
         updatePassword: `PUT ${API_PREFIX}/${API_VERSION}/users/:id/password (Owner or Admin)`,
         deleteUser: `DELETE ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`
+      },
+      products: {
+        getAll: `GET ${API_PREFIX}/${API_VERSION}/products`,
+        getById: `GET ${API_PREFIX}/${API_VERSION}/products/:id`,
+        getByType: `GET ${API_PREFIX}/${API_VERSION}/products/type/:type`,
+        getRecommended: `GET ${API_PREFIX}/${API_VERSION}/products/recommended`,
+        search: `GET ${API_PREFIX}/${API_VERSION}/products/search/:searchTerm`,
+        getMy: `GET ${API_PREFIX}/${API_VERSION}/products/my (Auth required)`,
+        create: `POST ${API_PREFIX}/${API_VERSION}/products (Auth required)`,
+        update: `PUT ${API_PREFIX}/${API_VERSION}/products/:id (Owner or Admin)`,
+        delete: `DELETE ${API_PREFIX}/${API_VERSION}/products/:id (Owner or Admin)`,
+        uploadThumbnail: `POST ${API_PREFIX}/${API_VERSION}/products/:id/upload/thumbnail (Owner or Admin)`,
+        uploadCover: `POST ${API_PREFIX}/${API_VERSION}/products/:id/upload/cover (Owner or Admin)`,
+        uploadImages: `POST ${API_PREFIX}/${API_VERSION}/products/:id/upload/images (Owner or Admin)`
+      },
+      reservations: {
+        getAll: `GET ${API_PREFIX}/${API_VERSION}/reservations (Auth required)`,
+        getById: `GET ${API_PREFIX}/${API_VERSION}/reservations/:id (Auth required)`,
+        getMy: `GET ${API_PREFIX}/${API_VERSION}/reservations/my (Auth required)`,
+        getMyProducts: `GET ${API_PREFIX}/${API_VERSION}/reservations/my-products (Auth required)`,
+        getStats: `GET ${API_PREFIX}/${API_VERSION}/reservations/stats (Auth required)`,
+        create: `POST ${API_PREFIX}/${API_VERSION}/reservations (Auth required)`,
+        update: `PUT ${API_PREFIX}/${API_VERSION}/reservations/:id (Auth required)`,
+        delete: `DELETE ${API_PREFIX}/${API_VERSION}/reservations/:id (Auth required)`,
+        confirm: `POST ${API_PREFIX}/${API_VERSION}/reservations/:id/confirm (Product Owner)`,
+        cancel: `POST ${API_PREFIX}/${API_VERSION}/reservations/:id/cancel (Auth required)`,
+        updateStatus: `PUT ${API_PREFIX}/${API_VERSION}/reservations/:id/status (Product Owner)`
       }
     },
     timestamp: new Date().toISOString()
@@ -175,6 +206,8 @@ app.use(`${API_PREFIX}/${API_VERSION}/events`, eventRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/connection`, connectionRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/auth`, authRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/users`, userRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/products`, productRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/reservations`, reservationRoutes);
 
 // 404 handler
 app.use(notFound);
@@ -211,6 +244,8 @@ const server = app.listen(PORT, '127.0.0.1', async () => {
   console.log(`📋 Events API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/events`);
   console.log(`🔐 Auth API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/auth`);
   console.log(`👤 Users API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/users`);
+  console.log(`🛍️  Products API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/products`);
+  console.log(`📝 Reservations API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/reservations`);
   console.log('═══════════════════════════════════════');
   
   // Test database connection on startup

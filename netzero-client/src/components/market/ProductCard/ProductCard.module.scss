@@ -1,20 +1,158 @@
 @import "src/styles/main";
 
 .Container {
-  // Theme classes will be applied by parent components
+  border-radius: 24px;
+  cursor: pointer;
+  overflow: hidden;
+  margin-bottom: 24px;
+  position: relative;
+  border: 1px solid rgba(46, 125, 50, 0.1);
+  height: 100%;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0px 0px;
+
+  // Default glassmorphism
+  @include glassmorphism-light;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(46, 125, 50, 0.2);
+    border-color: rgba(46, 125, 50, 0.3);
+  }
+
+  // Theme classes
   &.market-theme {
     @include market-theme;
+    @include market-glassmorphism-card;
+    border: 1px solid var(--market-glass-border);
+    
+    &:hover {
+      @include glassmorphism-hover-lift;
+      border-color: rgba(255, 152, 0, 0.4);
+    }
   }
   
   &.barter-theme {
     @include barter-theme;
+    @include glassmorphism-light;
+    
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(46, 125, 50, 0.2);
+      border-color: rgba(46, 125, 50, 0.3);
+    }
   }
   
   &.willing-theme {
     @include willing-theme;
+    @include willing-glassmorphism-card;
+    border: 1px solid var(--willing-glass-border);
+    
+    &:hover {
+      @include glassmorphism-hover-lift;
+      border-color: rgba(236, 64, 122, 0.3);
+    }
   }
+  
+  @include mobile {
+    margin-bottom: 16px;
+    border-radius: 20px;
+    
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+}
 
-  padding: 0px 0px;
+.ThumbnailContainer {
+  position: relative;
+  height: 240px;
+  border-radius: 24px 24px 0 0;
+  
+  @include mobile {
+    height: 200px;
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.ProductSlideshow {
+  width: 100%;
+  height: 100%;
+}
+
+.Badge {
+  position: absolute;
+  @include font-size-palette("body-3");
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+  
+  @include mobile {
+    @include font-size-palette("body-4");
+    padding: 6px 10px;
+    gap: 2px;
+  }
+}
+
+.BadgeTopRight {
+  top: 16px;
+  right: 16px;
+  
+  @include mobile {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+.BadgeTopLeft {
+  top: 16px;
+  left: 16px;
+  
+  @include mobile {
+    top: 12px;
+    left: 12px;
+  }
+}
+
+.BadgeBottomRight {
+  bottom: 16px;
+  right: 16px;
+  
+  @include mobile {
+    bottom: 12px;
+    right: 12px;
+  }
+}
+
+.BadgeBottomLeft {
+  bottom: 16px;
+  left: 16px;
+  
+  @include mobile {
+    bottom: 12px;
+    left: 12px;
+  }
+}
+
+.ContentContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  
+  @include mobile {
+    padding: 16px;
+  }
 }
 
 .CategoryBadge {

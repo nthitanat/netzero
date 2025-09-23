@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import styles from "./ProductModal.module.scss";
-import useProductModal from "./useProductModal";
 import ProductModalHandler from "./ProductModalHandler";
 import { ImageSlideshow, GoogleIcon } from "../../common";
 import { ReserveDialog } from "../";
@@ -14,10 +13,24 @@ export default function ProductModal({
     onReservationSuccess,
     actionLabel = "จองสินค้า",
     theme = "market",
-    className = "" 
+    className = "",
+    // Stateless props that replace the useProductModal hook
+    showReserveDialog = false,
+    onShowReserveDialog,
+    onCloseReserveDialog,
+    isReserving = false
 }) {
-    const { stateProductModal, setProductModal } = useProductModal({ isOpen });
-    const handlers = ProductModalHandler(stateProductModal, setProductModal, product, onClose, onReserve, onReservationSuccess);
+    // Create handlers using ProductModalHandler without state
+    const handlers = ProductModalHandler(
+        product, 
+        onClose, 
+        onReserve, 
+        onReservationSuccess, 
+        showReserveDialog, 
+        onShowReserveDialog, 
+        onCloseReserveDialog, 
+        isReserving
+    );
     
     // Create a product object with proper image URLs and field mappings
     const productWithImages = product ? {
@@ -142,9 +155,9 @@ export default function ProductModal({
                             <button
                                 className={`${styles.ReserveButton} ${!productWithImages.inStock ? styles.Disabled : ''}`}
                                 onClick={handlers.handleReserve}
-                                disabled={!productWithImages.inStock || stateProductModal.isReserving}
+                                disabled={!productWithImages.inStock || isReserving}
                             >
-                                {stateProductModal.isReserving ? (
+                                {isReserving ? (
                                     <>
                                         <div className={styles.LoadingSpinner} />
                                         กำลังจอง...
@@ -166,14 +179,7 @@ export default function ProductModal({
                 </div>
             </div>
             
-            {/* Reserve Dialog */}
-            <ReserveDialog
-                product={productWithImages}
-                isOpen={stateProductModal.showReserveDialog}
-                onClose={handlers.handleCloseReserveDialog}
-                onReservationSuccess={handlers.handleReservationSuccess}
-                theme={theme}
-            />
+           
         </div>
     );
 }

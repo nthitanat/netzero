@@ -39,7 +39,7 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
         return;
       }
       
-      // Open the reserve dialog with the selected product
+      // Unified: use the main ReserveDialog for both ProductCard and ProductModal
       setMarket({
         productToReserve: product,
         showReserveDialog: true
@@ -51,6 +51,22 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
         productToReserve: null,
         showReserveDialog: false
       });
+    },
+
+    handleShowLoginModal: () => {
+      console.log('🔐 Opening login modal for reservation');
+      setMarket("showLoginModal", true);
+    },
+
+    handleCloseLoginModal: () => {
+      setMarket("showLoginModal", false);
+    },
+
+    handleLoginSuccess: (userData) => {
+      console.log('✅ Login successful:', userData);
+      setMarket("showLoginModal", false);
+      // After successful login, you might want to reopen the reserve dialog
+      // or show a success message
     },
 
     // handleProductReserve: async (product) => {

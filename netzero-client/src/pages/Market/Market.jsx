@@ -5,6 +5,7 @@ import useMarket from "./useMarket";
 import MarketHandler from "./MarketHandler";
 import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
 import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ReserveDialog } from "../../components/market";
+import { LoginModal } from "../../components/auth";
 
 export default function Market() {
     const navigate = useNavigate();
@@ -90,6 +91,10 @@ export default function Market() {
                 onClose={handlers.handleCloseModal}
                 //onReserve={handlers.handleProductReserve}
                 onReservationSuccess={handlers.handleReservationSuccess}
+                showReserveDialog={false}
+                onShowReserveDialog={handlers.handleReserveClick}
+                onCloseReserveDialog={() => {}}
+                isReserving={false}
                 theme="market"
             />
             
@@ -98,7 +103,14 @@ export default function Market() {
                 isOpen={stateMarket.showReserveDialog}
                 onClose={handlers.handleCloseReserveDialog}
                 onReservationSuccess={handlers.handleReservationSuccess}
+                onShowLogin={handlers.handleShowLoginModal}
                 theme="market"
+            />
+            
+            <LoginModal
+                isOpen={stateMarket.showLoginModal}
+                onClose={handlers.handleCloseLoginModal}
+                onSuccess={handlers.handleLoginSuccess}
             />
             
             <FloatingNavBar

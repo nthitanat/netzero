@@ -4,17 +4,20 @@ import useReserveDialog from "./useReserveDialog";
 import ReserveDialogHandler from "./ReserveDialogHandler";
 import { GoogleIcon } from "../../common";
 import { productsService } from "../../../api";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ReserveDialog({ 
     product, 
     isOpen = false,
     onClose,
     onReservationSuccess,
+    onShowLogin,
     theme = "market",
     className = "" 
 }) {
+    const { isAuthenticated } = useAuth();
     const { stateReserveDialog, setReserveDialog } = useReserveDialog({ isOpen, product });
-    const handlers = ReserveDialogHandler(stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess);
+    const handlers = ReserveDialogHandler(stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated);
     
     // Add keyboard event listener for Escape key
     useEffect(() => {

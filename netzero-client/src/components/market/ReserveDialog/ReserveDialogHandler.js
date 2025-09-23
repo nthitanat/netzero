@@ -1,6 +1,6 @@
 import { reservationsService } from "../../../api";
 
-const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess) => {
+const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated) => {
   return {
     handleClose: () => {
       setReserveDialog("reservationError", "");
@@ -70,6 +70,15 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
     },
 
     handleConfirmReservation: async () => {
+      // Check authentication first
+      if (!isAuthenticated) {
+        console.log('🔒 User not authenticated, showing login modal');
+        if (onShowLogin) {
+          onShowLogin();
+        }
+        return;
+      }
+
       // Validate quantity before proceeding
       const quantity = stateReserveDialog.selectedQuantity;
       

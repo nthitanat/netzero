@@ -1,4 +1,4 @@
-const ProductCardHandler = (stateProductCard, setProductCard, product, onProductClick, onReserveClick) => {
+const ProductCardHandler = (product, onProductClick, onReserveClick) => {
   return {
     handleProductClick: (itemId, item, event) => {
       // The ItemCard passes (itemId, item) as parameters, event might be undefined
@@ -17,7 +17,6 @@ const ProductCardHandler = (stateProductCard, setProductCard, product, onProduct
       
       // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
       const isInStock = product?.stock_quantity > 0 || product?.inStock;
-      console.log("Reserve click - isInStock:", isInStock, "product:", product);
       
       if (!isInStock) {
         return;
@@ -27,14 +26,6 @@ const ProductCardHandler = (stateProductCard, setProductCard, product, onProduct
       if (onReserveClick) {
         onReserveClick(product);
       }
-    },
-
-    handleMouseEnter: () => {
-      setProductCard("isHovered", true);
-    },
-
-    handleMouseLeave: () => {
-      setProductCard("isHovered", false);
     }
   };
 };

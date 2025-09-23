@@ -1,0 +1,289 @@
+@import "src/styles/main";
+
+.Container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+  
+  &.market-theme {
+    @include market-theme;
+    --dialog-accent: var(--theme-primary);
+    --dialog-accent-hover: var(--theme-primary-hover);
+  }
+  
+  &.barter-theme {
+    @include barter-theme;
+    --dialog-accent: var(--theme-primary);
+    --dialog-accent-hover: var(--theme-primary-hover);
+  }
+  
+  &.willing-theme {
+    @include willing-theme;
+    --dialog-accent: var(--theme-primary);
+    --dialog-accent-hover: var(--theme-primary-hover);
+  }
+}
+
+.Overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.Dialog {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+.CloseButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: white;
+    transform: scale(1.1);
+  }
+  
+  .material-symbols-outlined {
+    color: var(--theme-text-secondary, #666);
+  }
+}
+
+.DialogContent {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+.Header {
+  text-align: center;
+  margin-bottom: 24px;
+  
+  .Title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--theme-text, #333);
+    margin: 0 0 8px 0;
+  }
+  
+  .ProductName {
+    font-size: 16px;
+    color: var(--theme-text-secondary, #666);
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.ProductInfo {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  
+  .ProductImage {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .ProductDetails {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .ExchangeValue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .Label {
+      font-size: 14px;
+      color: var(--theme-text-secondary, #666);
+    }
+    
+    .Value {
+      font-size: 16px;
+      color: var(--dialog-accent);
+      font-weight: 600;
+    }
+  }
+  
+  .StockInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--theme-text-secondary, #666);
+    
+    .StockIcon {
+      color: var(--theme-text-secondary, #999);
+    }
+  }
+}
+
+.ExchangeSection {
+  margin-bottom: 24px;
+  
+  .PlaceholderContent {
+    text-align: center;
+    padding: 32px 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 12px;
+    border: 2px dashed var(--dialog-accent);
+    
+    .ExchangeIcon {
+      margin-bottom: 16px;
+      
+      .material-symbols-outlined {
+        color: var(--dialog-accent);
+        font-size: 48px;
+      }
+    }
+    
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--theme-text, #333);
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 16px;
+      color: var(--theme-text-secondary, #666);
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+    
+    .SubText {
+      font-size: 14px;
+      color: var(--theme-text-secondary, #999);
+      font-style: italic;
+    }
+  }
+}
+
+.ActionSection {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  
+  button {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+  }
+  
+  .CancelButton {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--theme-text-secondary, #666);
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+  
+  .ExchangeButton {
+    background: var(--dialog-accent);
+    color: white;
+    
+    &:hover {
+      background: var(--dialog-accent-hover);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Mobile responsive adjustments
+@media (max-width: 768px) {
+  .Dialog {
+    width: 95vw;
+    max-height: 90vh;
+  }
+  
+  .DialogContent {
+    padding: 20px;
+  }
+  
+  .ProductInfo {
+    flex-direction: column;
+    text-align: center;
+    
+    .ProductImage {
+      align-self: center;
+    }
+  }
+  
+  .ActionSection {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

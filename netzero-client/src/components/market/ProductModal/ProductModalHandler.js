@@ -1,4 +1,4 @@
-const ProductModalHandler = (stateProductModal, setProductModal, product, onClose, onReserve, onReservationSuccess) => {
+const ProductModalHandler = (product, onClose, onReserve, onReservationSuccess, showReserveDialog, onShowReserveDialog, onCloseReserveDialog, isReserving) => {
   return {
     handleClose: () => {
       if (onClose) {
@@ -19,21 +19,27 @@ const ProductModalHandler = (stateProductModal, setProductModal, product, onClos
       // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
       const isInStock = product?.stock_quantity > 0 || product?.inStock;
       
-      if (!isInStock || stateProductModal.isReserving) {
+      if (!isInStock || isReserving) {
         return;
       }
       
       // Open the reserve dialog instead of directly calling the reservation
-      setProductModal("showReserveDialog", true);
+      if (onShowReserveDialog) {
+        onShowReserveDialog(product); // Pass the product to the handler
+      }
     },
 
     handleCloseReserveDialog: () => {
-      setProductModal("showReserveDialog", false);
+      if (onCloseReserveDialog) {
+        onCloseReserveDialog();
+      }
     },
 
     handleReservationSuccess: (reservationData) => {
       // Close the reserve dialog
-      setProductModal("showReserveDialog", false);
+      if (onCloseReserveDialog) {
+        onCloseReserveDialog();
+      }
       
       // Call the parent callback if provided
       if (onReservationSuccess) {

@@ -2,14 +2,25 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Configure storage
+// Configure storage for both events and products
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const eventId = req.params.id;
+    const id = req.params.id;
     const imageType = req.params.imageType || 'photos'; // default to photos
     
-    // Create directory path based on image type and event ID
-    const uploadPath = path.join(process.cwd(), 'files', 'events', imageType, eventId);
+    // Determine if this is for events or products based on the route
+    const isEventRoute = req.originalUrl.includes('/events/');
+    const isProductRoute = req.originalUrl.includes('/products/');
+    
+    let uploadPath;
+    if (isEventRoute) {
+      uploadPath = path.join(process.cwd(), 'files', 'events', imageType, id);
+    } else if (isProductRoute) {
+      uploadPath = path.join(process.cwd(), 'files', 'products', imageType, id);
+    } else {
+      // Default to events for backward compatibility
+      uploadPath = path.join(process.cwd(), 'files', 'events', imageType, id);
+    }
     
     // Create directory if it doesn't exist
     fs.mkdirSync(uploadPath, { recursive: true });
@@ -98,10 +109,22 @@ const handleUploadError = (error, req, res, next) => {
   });
 };
 
-// Helper function to generate file URL
+// Helper function to generate file URL for events and products
 const generateFileUrl = (req, relativePath) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
-  return `${baseUrl}/api/v1/events/images/${relativePath}`;
+  
+  // Determine if this is for events or products
+  const isEventRoute = req.originalUrl.includes('/events/');
+  const isProductRoute = req.originalUrl.includes('/products/');
+  
+  if (isEventRoute) {
+    return `${baseUrl}/api/v1/events/images/${relativePath}`;
+  } else if (isProductRoute) {
+    return `${baseUrl}/api/v1/products/images/${relativePath}`;
+  } else {
+    // Default to events for backward compatibility
+    return `${baseUrl}/api/v1/events/images/${relativePath}`;
+  }
 };
 
 // Helper function to get relative path from absolute path

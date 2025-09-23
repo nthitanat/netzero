@@ -12,6 +12,7 @@ const useMarket = (initialProps = {}) => {
     selectedProduct: null,
     showModal: false,
     showReserveDialog: false,
+    showLoginModal: false,
     productToReserve: null,
     isLoading: true,
     viewMode: "grid", // grid or list

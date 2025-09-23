@@ -5,62 +5,30 @@ const User = require('../models/User');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 
 // Authentication middleware - verifies JWT token
-const authenticateToken = async (req, res, next) => {
-  try {
-    // Get token from Authorization header
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. No token provided'
-      });
-    }
-
-    // Verify token
-    const decoded = jwt.verify(token, JWT_SECRET);
-    
-    // Check if user still exists and is active
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. User not found'
-      });
-    }
-
-    // Add user info to request object
-    req.user = {
-      userId: decoded.userId,
-      email: decoded.email,
-      role: decoded.role
-    };
-
-    next();
-
-  } catch (error) {
-    console.error('Authentication error:', error);
-
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. Invalid token'
-      });
-    }
-
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. Token expired'
-      });
-    }
-
-    res.status(500).json({
+  if (!token) {
+    return res.status(401).json({
       success: false,
-      message: 'Internal server error during authentication'
+      message: 'Access token required',
+      timestamp: new Date().toISOString()
     });
   }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid or expired token',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    req.user = user;
+    next();
+  });
 };
 
 // Authorization middleware - checks user roles

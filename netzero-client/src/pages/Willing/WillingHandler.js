@@ -31,16 +31,63 @@ const WillingHandler = (stateWilling, setWilling, navigate) => {
     },
 
     handleReserveClick: (product) => {
-      if (!product.inStock) {
+      // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
+      const isInStock = product?.stock_quantity > 0 || product?.inStock;
+      console.log("Reserve click - isInStock:", isInStock, "product:", product);
+      if (!isInStock) {
         alert("สินค้านี้หมดแล้ว ไม่สามารถรับได้");
         return;
       }
       
-      // Show success message for free items
-      alert(`ขอรับสินค้า "${product.title}" เรียบร้อยแล้ว!\nเราจะติดต่อกลับในเร็วๆ นี้`);
+      // Use the ReserveDialog for free items too
+      setWilling({
+        productToReserve: product,
+        showReserveDialog: true
+      });
+    },
+
+    handleCloseReserveDialog: () => {
+      setWilling({
+        productToReserve: null,
+        showReserveDialog: false
+      });
+    },
+
+    handleShowLoginModal: () => {
+      console.log('🔐 Opening login modal for reservation');
+      setWilling("showLoginModal", true);
+    },
+
+    handleCloseLoginModal: () => {
+      setWilling("showLoginModal", false);
+    },
+
+    handleLoginSuccess: (userData) => {
+      console.log('✅ Login successful:', userData);
+      setWilling("showLoginModal", false);
+      // After successful login, you might want to reopen the reserve dialog
+      // or show a success message
+    },
+
+    handleReservationSuccess: (reservationData) => {
+      // Handle successful reservation from ReserveDialog for free items
+      const { transaction, updatedProduct, reservedQuantity } = reservationData;
       
-      // Log reservation (in real app, this would be an API call)
-      console.log("Free product requested:", product);
+      console.log("✅ Free item request successful:", {
+        transaction,
+        updatedProduct,
+        reservedQuantity
+      });
+      
+      // Show success message for free items
+      alert(`ขอรับสินค้าฟรี "${updatedProduct.productTitle || updatedProduct.title}" จำนวน ${reservedQuantity} ชิ้น เรียบร้อยแล้ว!\n` +
+            `เราจะติดต่อกลับในเร็วๆ นี้`);
+      
+      // Close the reserve dialog
+      setWilling({
+        productToReserve: null,
+        showReserveDialog: false
+      });
     },
 
     handleProductReserve: async (product) => {

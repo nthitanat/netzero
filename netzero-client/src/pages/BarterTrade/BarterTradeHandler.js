@@ -31,16 +31,46 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate) => {
     },
 
     handleReserveClick: (product) => {
-      if (!product.inStock) {
+      // Check if product is in stock - use stock_quantity from database or inStock field for legacy data
+      const isInStock = product?.stock_quantity > 0 || product?.inStock;
+      console.log("Exchange click - isInStock:", isInStock, "product:", product);
+      if (!isInStock) {
         alert("สินค้านี้หมดแล้ว ไม่สามารถแลกเปลี่ยนได้");
         return;
       }
       
-      // Show success message for barter trade
-      alert(`ขอแลกเปลี่ยนสินค้า "${product.title}" เรียบร้อยแล้ว!\nเราจะติดต่อกลับในเร็วๆ นี้`);
+      // Use the ExchangeDialog for barter trade
+      setBarterTrade({
+        productToExchange: product,
+        showExchangeDialog: true
+      });
+    },
+
+    handleCloseExchangeDialog: () => {
+      setBarterTrade({
+        productToExchange: null,
+        showExchangeDialog: false
+      });
+    },
+
+    handleExchangeSuccess: (exchangeData) => {
+      // Handle successful exchange from ExchangeDialog
+      const { product, exchangeData: data } = exchangeData;
       
-      // Log reservation (in real app, this would be an API call)
-      console.log("Barter trade requested:", product);
+      console.log("✅ Exchange request successful:", {
+        product,
+        exchangeData: data
+      });
+      
+      // Show success message for exchange
+      alert(`ส่งคำขอแลกเปลี่ยนสินค้า "${product.title}" เรียบร้อยแล้ว!\n` +
+            `เราจะติดต่อกลับเพื่อหารือรายละเอียดการแลกเปลี่ยนในเร็วๆ นี้`);
+      
+      // Close the exchange dialog
+      setBarterTrade({
+        productToExchange: null,
+        showExchangeDialog: false
+      });
     },
 
     handleProductReserve: async (product) => {

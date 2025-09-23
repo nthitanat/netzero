@@ -4,7 +4,7 @@ import styles from "./BarterTrade.module.scss";
 import useBarterTrade from "./useBarterTrade";
 import BarterTradeHandler from "./BarterTradeHandler";
 import { OrganicDecoration, FloatingNavBar } from "../../components/common";
-import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay } from "../../components/market";
+import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ExchangeDialog } from "../../components/market";
 
 export default function BarterTrade() {
     const navigate = useNavigate();
@@ -13,6 +13,7 @@ export default function BarterTrade() {
     
     return (
         <div className={styles.Container}>
+            <OrganicDecoration className={styles.BackgroundDecoration} />
 
             
             <div className={styles.TopSection}>
@@ -86,8 +87,21 @@ export default function BarterTrade() {
                 product={stateBarterTrade.selectedProduct}
                 isOpen={stateBarterTrade.showModal}
                 onClose={handlers.handleCloseModal}
-                onReserve={handlers.handleProductReserve}
+                //onReserve={handlers.handleProductReserve}
+                onReservationSuccess={handlers.handleExchangeSuccess}
+                showReserveDialog={false}
+                onShowReserveDialog={handlers.handleReserveClick}
+                onCloseReserveDialog={() => {}}
+                isReserving={false}
                 actionLabel="แลกเปลี่ยน"
+                theme="barter"
+            />
+            
+            <ExchangeDialog
+                product={stateBarterTrade.productToExchange}
+                isOpen={stateBarterTrade.showExchangeDialog}
+                onClose={handlers.handleCloseExchangeDialog}
+                onExchangeSuccess={handlers.handleExchangeSuccess}
                 theme="barter"
             />
             

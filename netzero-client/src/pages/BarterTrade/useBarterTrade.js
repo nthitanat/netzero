@@ -11,6 +11,8 @@ const useBarterTrade = (initialProps = {}) => {
     selectedRegion: "all", 
     selectedProduct: null,
     showModal: false,
+    productToExchange: null,
+    showExchangeDialog: false,
     isLoading: true,
     viewMode: "grid", // grid or list
     searchQuery: "",

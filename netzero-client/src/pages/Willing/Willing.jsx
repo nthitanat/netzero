@@ -4,7 +4,8 @@ import styles from "./Willing.module.scss";
 import useWilling from "./useWilling";
 import WillingHandler from "./WillingHandler";
 import { OrganicDecoration, FloatingNavBar, GoogleIcon } from "../../components/common";
-import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay } from "../../components/market";
+import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ReserveDialog } from "../../components/market";
+import { LoginModal } from "../../components/auth";
 
 export default function Willing() {
     const navigate = useNavigate();
@@ -89,9 +90,29 @@ export default function Willing() {
                 product={stateWilling.selectedProduct}
                 isOpen={stateWilling.showModal}
                 onClose={handlers.handleCloseModal}
-                onReserve={handlers.handleProductReserve}
+                //onReserve={handlers.handleProductReserve}
+                onReservationSuccess={handlers.handleReservationSuccess}
+                showReserveDialog={false}
+                onShowReserveDialog={handlers.handleReserveClick}
+                onCloseReserveDialog={() => {}}
+                isReserving={false}
                 actionLabel="รับฟรี"
                 theme="willing"
+            />
+            
+            <ReserveDialog
+                product={stateWilling.productToReserve}
+                isOpen={stateWilling.showReserveDialog}
+                onClose={handlers.handleCloseReserveDialog}
+                onReservationSuccess={handlers.handleReservationSuccess}
+                onShowLogin={handlers.handleShowLoginModal}
+                theme="willing"
+            />
+            
+            <LoginModal
+                isOpen={stateWilling.showLoginModal}
+                onClose={handlers.handleCloseLoginModal}
+                onSuccess={handlers.handleLoginSuccess}
             />
             
             <FloatingNavBar
