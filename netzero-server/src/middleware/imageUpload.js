@@ -6,7 +6,22 @@ const fs = require('fs');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const id = req.params.id;
-    const imageType = req.params.imageType || 'photos'; // default to photos
+    
+    // Extract image type from the URL path
+    let imageType = 'photos'; // default
+    
+    if (req.originalUrl.includes('/upload/thumbnail')) {
+      imageType = 'thumbnail';
+    } else if (req.originalUrl.includes('/upload/cover')) {
+      imageType = 'cover';
+    } else if (req.originalUrl.includes('/upload/images')) {
+      imageType = 'images';
+    } else if (req.originalUrl.includes('/upload/posterImage')) {
+      imageType = 'posterImage';
+    } else if (req.params.imageType) {
+      // Fallback to route parameter if available
+      imageType = req.params.imageType;
+    }
     
     // Determine if this is for events or products based on the route
     const isEventRoute = req.originalUrl.includes('/events/');
