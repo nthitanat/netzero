@@ -40,13 +40,6 @@ export default function SellerStatsPanel({
             icon: "check_circle",
             color: "purple",
             description: "การจองที่ยืนยันแล้ว"
-        },
-        {
-            title: "รายได้รวม",
-            value: productsService.formatPrice(totalRevenue),
-            icon: "monetization_on",
-            color: "orange",
-            description: "จากการจองที่ยืนยันแล้ว"
         }
     ];
     
