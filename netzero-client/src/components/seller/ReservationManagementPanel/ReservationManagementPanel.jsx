@@ -99,7 +99,9 @@ export default function ReservationManagementPanel({
                     <div className={styles.ReservationsList}>
                         {reservations.map((reservation) => {
                             const statusInfo = getStatusInfo(reservation.status);
-                            const totalPrice = reservation.product_price * reservation.quantity;
+                            const productPrice = reservation.product_price || 0;
+                            const quantity = reservation.quantity || 0;
+                            const totalPrice = productPrice * quantity;
                             
                             return (
                                 <div key={reservation.reservation_id} className={styles.ReservationCard}>
@@ -128,7 +130,7 @@ export default function ReservationManagementPanel({
                                             </div>
                                             <div className={styles.DetailItem}>
                                                 <GoogleIcon iconType="monetization_on" size="small" />
-                                                <span>ราคาต่อชิ้น: {productsService.formatPrice(reservation.product_price)}</span>
+                                                <span>ราคาต่อชิ้น: {productsService.formatPrice(productPrice)}</span>
                                             </div>
                                         </div>
                                         

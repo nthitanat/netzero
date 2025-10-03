@@ -440,7 +440,10 @@ class ProductsService {
 
   // Format price utility
   formatPrice(price) {
-    return `${price.toLocaleString()} บาท`;
+    if (price === null || price === undefined || isNaN(price)) {
+      return '0 บาท';
+    }
+    return `${Number(price).toLocaleString()} บาท`;
   }
 
   // Clear cache
