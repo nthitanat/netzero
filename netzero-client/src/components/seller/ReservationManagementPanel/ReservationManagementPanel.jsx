@@ -144,12 +144,45 @@ export default function ReservationManagementPanel({
                                             </div>
                                         </div>
                                         
-                                        {reservation.shipping_address && (
+                                        <div className={styles.DetailRow}>
+                                            <div className={styles.DetailItem}>
+                                                <GoogleIcon iconType={reservation.option_of_delivery === 'pickup' ? 'store' : 'local_shipping'} size="small" />
+                                                <span>{reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 'จัดส่งถึงที่อยู่'}</span>
+                                            </div>
+                                            {reservation.option_of_delivery === 'pickup' && reservation.pickup_date && (
+                                                <div className={styles.DetailItem}>
+                                                    <GoogleIcon iconType="schedule" size="small" />
+                                                    <span>วันที่รับ: {formatDate(reservation.pickup_date)}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        {reservation.option_of_delivery === 'delivery' && reservation.shipping_address && (
                                             <div className={styles.ShippingAddress}>
                                                 <GoogleIcon iconType="location_on" size="small" />
                                                 <div className={styles.AddressContent}>
                                                     <span className={styles.AddressLabel}>ที่อยู่จัดส่ง:</span>
                                                     <span className={styles.AddressText}>{reservation.shipping_address}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {reservation.user_note && (
+                                            <div className={styles.UserNote}>
+                                                <GoogleIcon iconType="person" size="small" />
+                                                <div className={styles.NoteContent}>
+                                                    <span className={styles.NoteLabel}>หมายเหตุจากลูกค้า:</span>
+                                                    <span className={styles.NoteText}>{reservation.user_note}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {reservation.seller_note && (
+                                            <div className={styles.SellerNote}>
+                                                <GoogleIcon iconType="store" size="small" />
+                                                <div className={styles.NoteContent}>
+                                                    <span className={styles.NoteLabel}>หมายเหตุจากผู้ขาย:</span>
+                                                    <span className={styles.NoteText}>{reservation.seller_note}</span>
                                                 </div>
                                             </div>
                                         )}

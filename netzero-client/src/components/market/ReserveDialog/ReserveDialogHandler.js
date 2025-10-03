@@ -1,11 +1,13 @@
 import { reservationsService } from "../../../api";
 
-const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress) => {
+const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress, validateUserNote, validatePickupDate) => {
   return {
     handleClose: () => {
       setReserveDialog("reservationError", "");
       setReserveDialog("quantityError", "");
       setReserveDialog("shippingAddressError", "");
+      setReserveDialog("userNoteError", "");
+      setReserveDialog("pickupDateError", "");
       if (onClose) {
         onClose();
       }
@@ -88,6 +90,49 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       }
     },
 
+    handleDeliveryOptionChange: (event) => {
+      const value = event.target.value;
+      setReserveDialog("optionOfDelivery", value);
+      
+      // Clear pickup date if switching to delivery
+      if (value === 'delivery') {
+        setReserveDialog("pickupDate", "");
+        setReserveDialog("pickupDateError", "");
+      }
+    },
+
+    handleUserNoteChange: (event) => {
+      const value = event.target.value;
+      setReserveDialog("userNote", value);
+      
+      // Clear previous error
+      setReserveDialog("userNoteError", "");
+      
+      // Validate user note
+      if (validateUserNote) {
+        const error = validateUserNote(value);
+        if (error) {
+          setReserveDialog("userNoteError", error);
+        }
+      }
+    },
+
+    handlePickupDateChange: (event) => {
+      const value = event.target.value;
+      setReserveDialog("pickupDate", value);
+      
+      // Clear previous error
+      setReserveDialog("pickupDateError", "");
+      
+      // Validate pickup date
+      if (validatePickupDate) {
+        const error = validatePickupDate(value, stateReserveDialog.optionOfDelivery);
+        if (error) {
+          setReserveDialog("pickupDateError", error);
+        }
+      }
+    },
+
     handleConfirmReservation: async () => {
       // Check authentication first
       if (!isAuthenticated) {
@@ -111,12 +156,34 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         return;
       }
 
-      // Validate shipping address
+      // Validate shipping address (only for delivery option)
       const shippingAddress = stateReserveDialog.shippingAddress;
-      if (validateShippingAddress) {
+      const optionOfDelivery = stateReserveDialog.optionOfDelivery;
+      
+      if (optionOfDelivery === 'delivery' && validateShippingAddress) {
         const addressError = validateShippingAddress(shippingAddress);
         if (addressError) {
           setReserveDialog("shippingAddressError", addressError);
+          return;
+        }
+      }
+
+      // Validate user note
+      const userNote = stateReserveDialog.userNote;
+      if (validateUserNote) {
+        const noteError = validateUserNote(userNote);
+        if (noteError) {
+          setReserveDialog("userNoteError", noteError);
+          return;
+        }
+      }
+
+      // Validate pickup date (only for pickup option)
+      const pickupDate = stateReserveDialog.pickupDate;
+      if (validatePickupDate) {
+        const dateError = validatePickupDate(pickupDate, optionOfDelivery);
+        if (dateError) {
+          setReserveDialog("pickupDateError", dateError);
           return;
         }
       }
@@ -130,7 +197,10 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
           product_id: product.id,
           quantity: quantity,
           note: `การจองสินค้า ${product.title} จำนวน ${quantity} ชิ้น`,
-          shipping_address: shippingAddress.trim()
+          shipping_address: optionOfDelivery === 'delivery' ? shippingAddress.trim() : null,
+          option_of_delivery: optionOfDelivery,
+          user_note: userNote.trim() || null,
+          pickup_date: optionOfDelivery === 'pickup' ? pickupDate : null
         };
 
         console.log('🔄 Creating reservation:', reservationData);

@@ -8,6 +8,10 @@ class ProductReservation {
     this.quantity = data.quantity;
     this.note = data.note;
     this.shipping_address = data.shipping_address;
+    this.option_of_delivery = data.option_of_delivery;
+    this.user_note = data.user_note;
+    this.seller_note = data.seller_note;
+    this.pickup_date = data.pickup_date;
     this.status = data.status;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
@@ -21,12 +25,15 @@ class ProductReservation {
       quantity,
       note,
       shipping_address,
+      option_of_delivery = 'delivery',
+      user_note,
+      pickup_date,
       status = 'pending'
     } = reservationData;
 
     const query = `
-      INSERT INTO product_reservations (user_id, product_id, quantity, note, shipping_address, status)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO product_reservations (user_id, product_id, quantity, note, shipping_address, option_of_delivery, user_note, pickup_date, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.execute(query, [
@@ -35,6 +42,9 @@ class ProductReservation {
       quantity,
       note || null,
       shipping_address || null,
+      option_of_delivery,
+      user_note || null,
+      pickup_date || null,
       status
     ]);
 
@@ -214,7 +224,16 @@ class ProductReservation {
 
   // Update reservation details
   static async updateById(reservationId, updateData, userId) {
-    const { quantity, note, shipping_address, status } = updateData;
+    const { 
+      quantity, 
+      note, 
+      shipping_address, 
+      option_of_delivery,
+      user_note,
+      seller_note,
+      pickup_date,
+      status 
+    } = updateData;
 
     // First check if the reservation belongs to the user or if user is the product owner
     const reservation = await ProductReservation.findById(reservationId);
@@ -229,7 +248,7 @@ class ProductReservation {
 
     const query = `
       UPDATE product_reservations 
-      SET quantity = ?, note = ?, shipping_address = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+      SET quantity = ?, note = ?, shipping_address = ?, option_of_delivery = ?, user_note = ?, seller_note = ?, pickup_date = ?, status = ?, updated_at = CURRENT_TIMESTAMP
       WHERE reservation_id = ?
     `;
 
@@ -237,6 +256,10 @@ class ProductReservation {
       quantity,
       note || null,
       shipping_address || null,
+      option_of_delivery || 'delivery',
+      user_note || null,
+      seller_note || null,
+      pickup_date || null,
       status,
       reservationId
     ]);
@@ -379,6 +402,10 @@ class ProductReservation {
       quantity: this.quantity,
       note: this.note,
       shipping_address: this.shipping_address,
+      option_of_delivery: this.option_of_delivery,
+      user_note: this.user_note,
+      seller_note: this.seller_note,
+      pickup_date: this.pickup_date,
       status: this.status,
       created_at: this.created_at,
       updated_at: this.updated_at

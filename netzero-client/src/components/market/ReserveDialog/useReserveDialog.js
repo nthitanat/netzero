@@ -11,7 +11,12 @@ const useReserveDialog = (initialProps) => {
     reservationError: "",
     isDialogOpen: isOpen,
     shippingAddress: "",
-    shippingAddressError: ""
+    shippingAddressError: "",
+    optionOfDelivery: "delivery",
+    userNote: "",
+    userNoteError: "",
+    pickupDate: "",
+    pickupDateError: ""
   });
 
   const setReserveDialog = (field, value) => {
@@ -38,7 +43,12 @@ const useReserveDialog = (initialProps) => {
       reservationError: "",
       isDialogOpen: false,
       shippingAddress: "",
-      shippingAddressError: ""
+      shippingAddressError: "",
+      optionOfDelivery: "delivery",
+      userNote: "",
+      userNoteError: "",
+      pickupDate: "",
+      pickupDateError: ""
     });
   };
 
@@ -72,6 +82,32 @@ const useReserveDialog = (initialProps) => {
     return "";
   };
 
+  const validateUserNote = (note) => {
+    if (note && note.trim().length > 1000) {
+      return "หมายเหตุยาวเกินไป (ไม่เกิน 1000 ตัวอักษร)";
+    }
+    
+    return "";
+  };
+
+  const validatePickupDate = (date, optionOfDelivery) => {
+    if (optionOfDelivery === 'pickup') {
+      if (!date || date.trim().length === 0) {
+        return "กรุณาเลือกวันที่รับสินค้า";
+      }
+      
+      const selectedDate = new Date(date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        return "วันที่รับสินค้าต้องไม่เป็นวันในอดีต";
+      }
+    }
+    
+    return "";
+  };
+
   return {
     stateReserveDialog,
     setReserveDialog,
@@ -79,6 +115,8 @@ const useReserveDialog = (initialProps) => {
     resetReserveDialog,
     validateQuantity,
     validateShippingAddress,
+    validateUserNote,
+    validatePickupDate,
   };
 };
 

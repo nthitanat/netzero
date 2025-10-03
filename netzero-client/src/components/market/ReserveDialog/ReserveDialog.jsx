@@ -16,8 +16,8 @@ export default function ReserveDialog({
     className = "" 
 }) {
     const { isAuthenticated } = useAuth();
-    const { stateReserveDialog, setReserveDialog, validateShippingAddress } = useReserveDialog({ isOpen, product });
-    const handlers = ReserveDialogHandler(stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress);
+    const { stateReserveDialog, setReserveDialog, validateShippingAddress, validateUserNote, validatePickupDate } = useReserveDialog({ isOpen, product });
+    const handlers = ReserveDialogHandler(stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress, validateUserNote, validatePickupDate);
     
     // Add keyboard event listener for Escape key
     useEffect(() => {
@@ -117,29 +117,113 @@ export default function ReserveDialog({
                         )}
                     </div>
                     
-                    <div className={styles.ShippingSection}>
-                        <label className={styles.ShippingLabel}>ที่อยู่จัดส่ง</label>
+                    <div className={styles.DeliverySection}>
+                        <label className={styles.DeliveryLabel}>วิธีการรับสินค้า</label>
+                        
+                        <div className={styles.DeliveryOptions}>
+                            <label className={styles.DeliveryOption}>
+                                <input
+                                    type="radio"
+                                    name="deliveryOption"
+                                    value="delivery"
+                                    checked={stateReserveDialog.optionOfDelivery === 'delivery'}
+                                    onChange={handlers.handleDeliveryOptionChange}
+                                    className={styles.DeliveryRadio}
+                                />
+                                <div className={styles.DeliveryOptionContent}>
+                                    <GoogleIcon iconType="local_shipping" size="small" />
+                                    <span>จัดส่งถึงที่อยู่</span>
+                                </div>
+                            </label>
+                            
+                            <label className={styles.DeliveryOption}>
+                                <input
+                                    type="radio"
+                                    name="deliveryOption"
+                                    value="pickup"
+                                    checked={stateReserveDialog.optionOfDelivery === 'pickup'}
+                                    onChange={handlers.handleDeliveryOptionChange}
+                                    className={styles.DeliveryRadio}
+                                />
+                                <div className={styles.DeliveryOptionContent}>
+                                    <GoogleIcon iconType="store" size="small" />
+                                    <span>รับที่ร้าน</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {stateReserveDialog.optionOfDelivery === 'delivery' && (
+                        <div className={styles.ShippingSection}>
+                            <label className={styles.ShippingLabel}>ที่อยู่จัดส่ง</label>
+                            
+                            <textarea
+                                value={stateReserveDialog.shippingAddress}
+                                onChange={handlers.handleShippingAddressChange}
+                                placeholder="กรุณาระบุที่อยู่สำหรับจัดส่งสินค้า เช่น บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"
+                                className={`${styles.ShippingInput} ${stateReserveDialog.shippingAddressError ? styles.Error : ''}`}
+                                rows={3}
+                                maxLength={500}
+                            />
+                            
+                            {stateReserveDialog.shippingAddressError && (
+                                <div className={styles.ErrorMessage}>
+                                    <GoogleIcon iconType="warning" size="small" />
+                                    {stateReserveDialog.shippingAddressError}
+                                </div>
+                            )}
+                            
+                            <div className={styles.ShippingNote}>
+                                <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
+                                <span>กรุณาระบุที่อยู่ให้ครบถ้วนและชัดเจนเพื่อให้การจัดส่งเป็นไปอย่างถูกต้อง</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {stateReserveDialog.optionOfDelivery === 'pickup' && (
+                        <div className={styles.PickupSection}>
+                            <label className={styles.PickupLabel}>วันที่ต้องการรับสินค้า</label>
+                            
+                            <input
+                                type="date"
+                                value={stateReserveDialog.pickupDate}
+                                onChange={handlers.handlePickupDateChange}
+                                min={new Date().toISOString().split('T')[0]}
+                                className={`${styles.PickupDateInput} ${stateReserveDialog.pickupDateError ? styles.Error : ''}`}
+                            />
+                            
+                            {stateReserveDialog.pickupDateError && (
+                                <div className={styles.ErrorMessage}>
+                                    <GoogleIcon iconType="warning" size="small" />
+                                    {stateReserveDialog.pickupDateError}
+                                </div>
+                            )}
+                            
+                            <div className={styles.PickupNote}>
+                                <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
+                                <span>กรุณาเลือกวันที่ต้องการมารับสินค้าที่ร้าน</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className={styles.UserNoteSection}>
+                        <label className={styles.UserNoteLabel}>หมายเหตุเพิ่มเติม (ไม่บังคับ)</label>
                         
                         <textarea
-                            value={stateReserveDialog.shippingAddress}
-                            onChange={handlers.handleShippingAddressChange}
-                            placeholder="กรุณาระบุที่อยู่สำหรับจัดส่งสินค้า เช่น บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"
-                            className={`${styles.ShippingInput} ${stateReserveDialog.shippingAddressError ? styles.Error : ''}`}
-                            rows={3}
-                            maxLength={500}
+                            value={stateReserveDialog.userNote}
+                            onChange={handlers.handleUserNoteChange}
+                            placeholder="ข้อมูลเพิ่มเติมหรือคำขอพิเศษ เช่น ช่วงเวลาที่สะดวกติดต่อ หรือข้อกำหนดพิเศษ"
+                            className={`${styles.UserNoteInput} ${stateReserveDialog.userNoteError ? styles.Error : ''}`}
+                            rows={2}
+                            maxLength={1000}
                         />
                         
-                        {stateReserveDialog.shippingAddressError && (
+                        {stateReserveDialog.userNoteError && (
                             <div className={styles.ErrorMessage}>
                                 <GoogleIcon iconType="warning" size="small" />
-                                {stateReserveDialog.shippingAddressError}
+                                {stateReserveDialog.userNoteError}
                             </div>
                         )}
-                        
-                        <div className={styles.ShippingNote}>
-                            <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
-                            <span>กรุณาระบุที่อยู่ให้ครบถ้วนและชัดเจนเพื่อให้การจัดส่งเป็นไปอย่างถูกต้อง</span>
-                        </div>
                     </div>
                     
                     <div className={styles.TotalSection}>
@@ -168,9 +252,21 @@ export default function ReserveDialog({
                         </button>
                         
                         <button
-                            className={`${styles.ReserveButton} ${stateReserveDialog.selectedQuantity <= 0 || stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity || !stateReserveDialog.shippingAddress.trim() ? styles.Disabled : ''}`}
+                            className={`${styles.ReserveButton} ${
+                                stateReserveDialog.selectedQuantity <= 0 || 
+                                stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity ||
+                                (stateReserveDialog.optionOfDelivery === 'delivery' && !stateReserveDialog.shippingAddress.trim()) ||
+                                (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim())
+                                ? styles.Disabled : ''
+                            }`}
                             onClick={handlers.handleConfirmReservation}
-                            disabled={stateReserveDialog.isReserving || stateReserveDialog.selectedQuantity <= 0 || stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity || !stateReserveDialog.shippingAddress.trim()}
+                            disabled={
+                                stateReserveDialog.isReserving || 
+                                stateReserveDialog.selectedQuantity <= 0 || 
+                                stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity ||
+                                (stateReserveDialog.optionOfDelivery === 'delivery' && !stateReserveDialog.shippingAddress.trim()) ||
+                                (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim())
+                            }
                         >
                             {stateReserveDialog.isReserving ? (
                                 <>

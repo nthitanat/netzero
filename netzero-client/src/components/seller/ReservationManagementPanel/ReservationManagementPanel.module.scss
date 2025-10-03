@@ -279,6 +279,72 @@
   }
 }
 
+.UserNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(76, 175, 80, 0.08);
+  border-radius: 8px;
+  margin-top: 12px;
+  border-left: 3px solid #4caf50;
+  
+  .NoteContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    
+    .NoteLabel {
+      font-size: 0.8rem;
+      color: #4caf50;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .NoteText {
+      font-size: 0.9rem;
+      color: #495057;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+  }
+}
+
+.SellerNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 193, 7, 0.08);
+  border-radius: 8px;
+  margin-top: 12px;
+  border-left: 3px solid #ffc107;
+  
+  .NoteContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    
+    .NoteLabel {
+      font-size: 0.8rem;
+      color: #ffc107;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .NoteText {
+      font-size: 0.9rem;
+      color: #495057;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+  }
+}
+
 .Note {
   display: flex;
   align-items: flex-start;

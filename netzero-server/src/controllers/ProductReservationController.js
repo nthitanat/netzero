@@ -103,7 +103,10 @@ class ProductReservationController {
         product_id,
         quantity,
         note,
-        shipping_address
+        shipping_address,
+        option_of_delivery,
+        user_note,
+        pickup_date
       } = req.body;
 
       // Validation
@@ -111,6 +114,24 @@ class ProductReservationController {
         return res.status(400).json({
           success: false,
           message: 'Required fields: product_id, quantity',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate option_of_delivery
+      if (option_of_delivery && !['pickup', 'delivery'].includes(option_of_delivery)) {
+        return res.status(400).json({
+          success: false,
+          message: 'option_of_delivery must be either "pickup" or "delivery"',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate pickup_date if option is pickup
+      if (option_of_delivery === 'pickup' && !pickup_date) {
+        return res.status(400).json({
+          success: false,
+          message: 'pickup_date is required when option_of_delivery is "pickup"',
           timestamp: new Date().toISOString()
         });
       }
@@ -157,6 +178,9 @@ class ProductReservationController {
         quantity: parseInt(quantity),
         note,
         shipping_address,
+        option_of_delivery: option_of_delivery || 'delivery',
+        user_note,
+        pickup_date: pickup_date ? new Date(pickup_date) : null,
         status: 'pending'
       };
 
@@ -194,7 +218,16 @@ class ProductReservationController {
         });
       }
 
-      const { quantity, note, shipping_address, status } = req.body;
+      const { 
+        quantity, 
+        note, 
+        shipping_address, 
+        option_of_delivery,
+        user_note,
+        seller_note,
+        pickup_date,
+        status 
+      } = req.body;
 
       // Validate quantity if provided
       if (quantity !== undefined && (isNaN(quantity) || quantity <= 0)) {
@@ -214,10 +247,23 @@ class ProductReservationController {
         });
       }
 
+      // Validate option_of_delivery if provided
+      if (option_of_delivery && !['pickup', 'delivery'].includes(option_of_delivery)) {
+        return res.status(400).json({
+          success: false,
+          message: 'option_of_delivery must be either "pickup" or "delivery"',
+          timestamp: new Date().toISOString()
+        });
+      }
+
       const updateData = {};
       if (quantity !== undefined) updateData.quantity = parseInt(quantity);
       if (note !== undefined) updateData.note = note;
       if (shipping_address !== undefined) updateData.shipping_address = shipping_address;
+      if (option_of_delivery !== undefined) updateData.option_of_delivery = option_of_delivery;
+      if (user_note !== undefined) updateData.user_note = user_note;
+      if (seller_note !== undefined) updateData.seller_note = seller_note;
+      if (pickup_date !== undefined) updateData.pickup_date = pickup_date ? new Date(pickup_date) : null;
       if (status) updateData.status = status;
 
       const success = await ProductReservation.updateById(reservationId, updateData, userId);
