@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./ProductManagementPanel.module.scss";
 import { GoogleIcon } from "../../common";
+import { ProductModal } from "../";
 import { productsService } from "../../../api";
 
 export default function ProductManagementPanel({ 
@@ -9,6 +10,8 @@ export default function ProductManagementPanel({
     selectedProduct = null,
     showProductModal = false,
     showDeleteConfirm = false,
+    productModalMode = "create",
+    isSubmittingProduct = false,
     onCreateProduct,
     onEditProduct,
     onDeleteProduct,
@@ -180,8 +183,15 @@ export default function ProductManagementPanel({
                 </div>
             )}
             
-            {/* Product Modal would be implemented separately */}
-            {/* This would be a complex form component for creating/editing products */}
+            {/* Product Modal */}
+            <ProductModal
+                isOpen={showProductModal}
+                mode={productModalMode}
+                product={selectedProduct}
+                onClose={onCloseModal}
+                onSave={onProductSaved}
+                isLoading={isSubmittingProduct}
+            />
         </div>
     );
 }

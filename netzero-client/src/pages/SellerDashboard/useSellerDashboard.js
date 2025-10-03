@@ -15,6 +15,8 @@ const useSellerDashboard = (initialProps = {}) => {
     showProductModal: false,
     showDeleteConfirm: false,
     productToDelete: null,
+    productModalMode: "create", // "create" or "edit"
+    isSubmittingProduct: false,
     
     // Reservations data
     reservations: [],

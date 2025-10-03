@@ -85,6 +85,8 @@ export default function SellerDashboard() {
                         selectedProduct={stateSellerDashboard.selectedProduct}
                         showProductModal={stateSellerDashboard.showProductModal}
                         showDeleteConfirm={stateSellerDashboard.showDeleteConfirm}
+                        productModalMode={stateSellerDashboard.productModalMode}
+                        isSubmittingProduct={stateSellerDashboard.isSubmittingProduct}
                         onCreateProduct={handlers.handleCreateProduct}
                         onEditProduct={handlers.handleEditProduct}
                         onDeleteProduct={handlers.handleDeleteProduct}

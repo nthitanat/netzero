@@ -102,7 +102,8 @@ class ProductReservationController {
       const {
         product_id,
         quantity,
-        note
+        note,
+        shipping_address
       } = req.body;
 
       // Validation
@@ -155,6 +156,7 @@ class ProductReservationController {
         product_id: parseInt(product_id),
         quantity: parseInt(quantity),
         note,
+        shipping_address,
         status: 'pending'
       };
 
@@ -192,7 +194,7 @@ class ProductReservationController {
         });
       }
 
-      const { quantity, note, status } = req.body;
+      const { quantity, note, shipping_address, status } = req.body;
 
       // Validate quantity if provided
       if (quantity !== undefined && (isNaN(quantity) || quantity <= 0)) {
@@ -215,6 +217,7 @@ class ProductReservationController {
       const updateData = {};
       if (quantity !== undefined) updateData.quantity = parseInt(quantity);
       if (note !== undefined) updateData.note = note;
+      if (shipping_address !== undefined) updateData.shipping_address = shipping_address;
       if (status) updateData.status = status;
 
       const success = await ProductReservation.updateById(reservationId, updateData, userId);

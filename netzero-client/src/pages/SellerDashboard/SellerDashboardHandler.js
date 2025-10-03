@@ -14,6 +14,7 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
     handleCreateProduct: () => {
       setSellerDashboard({
         selectedProduct: null,
+        productModalMode: "create",
         showProductModal: true
       });
     },
@@ -21,6 +22,7 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
     handleEditProduct: (product) => {
       setSellerDashboard({
         selectedProduct: product,
+        productModalMode: "edit",
         showProductModal: true
       });
     },
@@ -72,27 +74,65 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
     handleCloseProductModal: () => {
       setSellerDashboard({
         selectedProduct: null,
-        showProductModal: false
+        showProductModal: false,
+        isSubmittingProduct: false
       });
     },
 
-    handleProductSaved: async (savedProduct) => {
+    handleProductSaved: async (productData, imageFiles) => {
       try {
+        setSellerDashboard("isSubmittingProduct", true);
+        
         // Determine if this was a create or update operation
         const isNewProduct = !stateSellerDashboard.selectedProduct;
         
+        let savedProduct;
+        
         if (isNewProduct) {
+          // Create new product
+          console.log("🔄 Creating new product...");
+          const response = await productsService.createProduct(productData);
+          savedProduct = response.data;
+          
+          // Upload images if provided
+          if (imageFiles.thumbnail) {
+            await productsService.uploadProductThumbnail(savedProduct.id, imageFiles.thumbnail);
+          }
+          if (imageFiles.cover) {
+            await productsService.uploadProductCover(savedProduct.id, imageFiles.cover);
+          }
+          if (imageFiles.additionalImages && imageFiles.additionalImages.length > 0) {
+            await productsService.uploadProductImages(savedProduct.id, imageFiles.additionalImages);
+          }
+          
           // Add new product to local state
           setSellerDashboard({
             products: [...stateSellerDashboard.products, savedProduct],
             selectedProduct: null,
-            showProductModal: false
+            showProductModal: false,
+            isSubmittingProduct: false
           });
           
-          console.log("✅ New product added to list");
+          console.log("✅ New product created successfully");
           alert(`เพิ่มสินค้า "${savedProduct.title}" เรียบร้อยแล้ว`);
           
         } else {
+          // Update existing product
+          console.log("🔄 Updating product...");
+          const response = await productsService.updateProduct(stateSellerDashboard.selectedProduct.id, productData);
+          savedProduct = response.data;
+          
+          // Upload images if provided
+          if (imageFiles.thumbnail) {
+            await productsService.uploadProductThumbnail(savedProduct.id, imageFiles.thumbnail);
+          }
+          if (imageFiles.cover) {
+            await productsService.uploadProductCover(savedProduct.id, imageFiles.cover);
+          }
+          if (imageFiles.additionalImages && imageFiles.additionalImages.length > 0) {
+            await productsService.uploadProductImages(savedProduct.id, imageFiles.additionalImages);
+          }
+          
           // Update existing product in local state
           const updatedProducts = stateSellerDashboard.products.map(p =>
             p.id === savedProduct.id ? savedProduct : p
@@ -101,15 +141,19 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
           setSellerDashboard({
             products: updatedProducts,
             selectedProduct: null,
-            showProductModal: false
+            showProductModal: false,
+            isSubmittingProduct: false
           });
           
-          console.log("✅ Product updated in list");
+          console.log("✅ Product updated successfully");
           alert(`อัปเดตสินค้า "${savedProduct.title}" เรียบร้อยแล้ว`);
         }
         
       } catch (error) {
-        console.error("❌ Error handling saved product:", error);
+        console.error("❌ Error saving product:", error);
+        setSellerDashboard("isSubmittingProduct", false);
+        alert(`ไม่สามารถบันทึกสินค้าได้: ${error.message}`);
+        throw error; // Let the modal handle the error display
       }
     },
 

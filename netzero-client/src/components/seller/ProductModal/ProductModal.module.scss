@@ -1,0 +1,435 @@
+@import "src/styles/main";
+
+.ModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.Container {
+  @include bg-color-palette("white");
+  border-radius: 12px;
+  @include shawdow-palette("black", 0.15);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  
+  @include fade-in-animation(0.3s);
+}
+
+.Header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  border-bottom: 2px solid var(--primary-color-1);
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.CloseButton {
+  background: none;
+  border: none;
+  @include text-color-palette("black");
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(27, 94, 32, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.Form {
+  padding: 0 24px 24px;
+}
+
+.FormGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.FormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.Label {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.Required {
+  @include text-color-palette("secondary-color-1");
+  margin-left: 4px;
+}
+
+.Input,
+.Select,
+.Textarea {
+  @include font-size-palette("body-2");
+  padding: 12px;
+  @include border-color-palette("primary-color-1", 1px);
+  border-radius: 8px;
+  @include bg-color-palette("white");
+  @include text-color-palette("black");
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+    @include shawdow-palette("primary-color-2", 0.2);
+  }
+
+  &:disabled {
+    background-color: rgba(27, 94, 32, 0.05);
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.Textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.PriceInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.PriceUnit {
+  position: absolute;
+  right: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  @include font-size-palette("body-2");
+  pointer-events: none;
+}
+
+.HelperText {
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-2");
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.ImageSection {
+  margin: 32px 0;
+  padding: 24px;
+  @include border-color-palette("primary-color-1", 1px);
+  border-radius: 8px;
+  background-color: rgba(27, 94, 32, 0.02);
+}
+
+.ImageUploadGroup {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.ImageLabel {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+  font-weight: 500;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.ImageUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.HiddenInput {
+  display: none;
+}
+
+.UploadButton {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.ImagePreview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  overflow: hidden;
+  @include border-color-palette("primary-color-1", 1px);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.MultipleImagePreviews {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.RemoveImageButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  @include bg-color-palette("secondary-color-1");
+  @include text-color-palette("white");
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include font-size-palette("body-4");
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include bg-color-palette("secondary-color-2");
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.CheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+}
+
+.Checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color-2);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.CheckboxText {
+  font-weight: 500;
+}
+
+.ErrorMessage {
+  background-color: rgba(102, 187, 106, 0.1);
+  @include border-color-palette("secondary-color-1", 1px);
+  @include text-color-palette("secondary-color-1");
+  padding: 12px;
+  border-radius: 8px;
+  @include font-size-palette("body-3");
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.FormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid var(--primary-color-1);
+}
+
+.CancelButton {
+  @include bg-color-palette("white");
+  color: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  padding: 12px 24px;
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    @include text-color-palette("black");
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.SubmitButton {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  justify-content: center;
+
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-1px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.LoadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .ModalOverlay {
+    padding: 10px;
+  }
+
+  .Container {
+    max-height: 95vh;
+  }
+
+  .Header {
+    padding: 16px;
+  }
+
+  .Form {
+    padding: 0 16px 16px;
+  }
+
+  .FormGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ImageSection {
+    padding: 16px;
+    margin: 24px 0;
+  }
+
+  .MultipleImagePreviews {
+    gap: 8px;
+  }
+
+  .ImagePreview {
+    width: 100px;
+    height: 100px;
+  }
+
+  .FormActions {
+    flex-direction: column;
+    
+    .CancelButton,
+    .SubmitButton {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .Title {
+    @include font-size-palette("headline-5");
+  }
+
+  .FormActions {
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+}
