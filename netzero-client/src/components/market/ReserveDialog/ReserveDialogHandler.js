@@ -1,10 +1,11 @@
 import { reservationsService } from "../../../api";
 
-const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated) => {
+const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress) => {
   return {
     handleClose: () => {
       setReserveDialog("reservationError", "");
       setReserveDialog("quantityError", "");
+      setReserveDialog("shippingAddressError", "");
       if (onClose) {
         onClose();
       }
@@ -15,6 +16,7 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       if (event.target === event.currentTarget) {
         setReserveDialog("reservationError", "");
         setReserveDialog("quantityError", "");
+        setReserveDialog("shippingAddressError", "");
         if (onClose) {
           onClose();
         }
@@ -25,6 +27,7 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       if (event.key === "Escape") {
         setReserveDialog("reservationError", "");
         setReserveDialog("quantityError", "");
+        setReserveDialog("shippingAddressError", "");
         if (onClose) {
           onClose();
         }
@@ -69,6 +72,22 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       }
     },
 
+    handleShippingAddressChange: (event) => {
+      const value = event.target.value;
+      setReserveDialog("shippingAddress", value);
+      
+      // Clear previous error
+      setReserveDialog("shippingAddressError", "");
+      
+      // Validate on blur or when user stops typing
+      if (validateShippingAddress && value.trim().length > 0) {
+        const error = validateShippingAddress(value);
+        if (error) {
+          setReserveDialog("shippingAddressError", error);
+        }
+      }
+    },
+
     handleConfirmReservation: async () => {
       // Check authentication first
       if (!isAuthenticated) {
@@ -92,6 +111,16 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         return;
       }
 
+      // Validate shipping address
+      const shippingAddress = stateReserveDialog.shippingAddress;
+      if (validateShippingAddress) {
+        const addressError = validateShippingAddress(shippingAddress);
+        if (addressError) {
+          setReserveDialog("shippingAddressError", addressError);
+          return;
+        }
+      }
+
       setReserveDialog("isReserving", true);
       setReserveDialog("reservationError", "");
 
@@ -100,7 +129,8 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         const reservationData = {
           product_id: product.id,
           quantity: quantity,
-          note: `การจองสินค้า ${product.title} จำนวน ${quantity} ชิ้น`
+          note: `การจองสินค้า ${product.title} จำนวน ${quantity} ชิ้น`,
+          shipping_address: shippingAddress.trim()
         };
 
         console.log('🔄 Creating reservation:', reservationData);
@@ -144,6 +174,8 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
           setReserveDialog("reservationError", "สินค้าถูกจองหมดแล้ว กรุณาลองใหม่อีกครั้ง");
         } else if (error.response?.status === 404) {
           setReserveDialog("reservationError", "ไม่พบสินค้าที่ต้องการจอง");
+        } else if (error.response?.status === 429) {
+          setReserveDialog("reservationError", "มีการร้องขอมากเกินไป กรุณารอสักครู่แล้วลองใหม่");
         } else if (error.response?.status === 500) {
           setReserveDialog("reservationError", "เกิดข้อผิดพลาดของระบบ กรุณาลองใหม่อีกครั้ง");
         } else {

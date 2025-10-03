@@ -175,6 +175,67 @@
   gap: 12px;
 }
 
+.ShippingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ShippingLabel {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0;
+}
+
+.ShippingInput {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 16px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+  @include border-color-palette("primary-color-3", 2px);
+  border-radius: 12px;
+  background: white;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  
+  &::placeholder {
+    @include text-color-palette("inactive");
+    opacity: 0.7;
+  }
+  
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+  
+  &.Error {
+    @include border-color-palette("warning", 2px);
+    background: rgba(244, 67, 54, 0.05);
+  }
+}
+
+.ShippingNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-2");
+  padding: 8px 12px;
+  background: rgba(69, 206, 105, 0.05);
+  border-radius: 8px;
+  line-height: 1.4;
+}
+
+.InfoIcon {
+  @include text-color-palette("primary-color-3");
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
 .QuantityLabel {
   @include font-size-palette("body-1");
   @include text-color-palette("primary-color-1");

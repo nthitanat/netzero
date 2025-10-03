@@ -246,6 +246,39 @@
   color: #333;
 }
 
+.ShippingAddress {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(33, 150, 243, 0.08);
+  border-radius: 8px;
+  margin-top: 12px;
+  border-left: 3px solid #2196f3;
+  
+  .AddressContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    
+    .AddressLabel {
+      font-size: 0.8rem;
+      color: #2196f3;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .AddressText {
+      font-size: 0.9rem;
+      color: #495057;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+  }
+}
+
 .Note {
   display: flex;
   align-items: flex-start;

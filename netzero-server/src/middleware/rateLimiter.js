@@ -1,9 +1,9 @@
 const rateLimit = require('express-rate-limit');
 
-// General API rate limiting
+// General API rate limiting - more lenient in development
 const apiLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 1000 : (parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100), // 1000 for dev, 100 for prod
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.',
@@ -13,10 +13,10 @@ const apiLimiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
-// Strict rate limiting for creation endpoints
+// Strict rate limiting for creation endpoints - more lenient in development
 const createLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // limit each IP to 10 requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 100 : 10, // 100 for dev, 10 for prod
   message: {
     success: false,
     message: 'Too many creation requests from this IP, please try again later.',

@@ -144,6 +144,16 @@ export default function ReservationManagementPanel({
                                             </div>
                                         </div>
                                         
+                                        {reservation.shipping_address && (
+                                            <div className={styles.ShippingAddress}>
+                                                <GoogleIcon iconType="location_on" size="small" />
+                                                <div className={styles.AddressContent}>
+                                                    <span className={styles.AddressLabel}>ที่อยู่จัดส่ง:</span>
+                                                    <span className={styles.AddressText}>{reservation.shipping_address}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {reservation.note && (
                                             <div className={styles.Note}>
                                                 <GoogleIcon iconType="sticky_note_2" size="small" />

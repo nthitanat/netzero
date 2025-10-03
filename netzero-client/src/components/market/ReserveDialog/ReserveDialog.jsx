@@ -16,8 +16,8 @@ export default function ReserveDialog({
     className = "" 
 }) {
     const { isAuthenticated } = useAuth();
-    const { stateReserveDialog, setReserveDialog } = useReserveDialog({ isOpen, product });
-    const handlers = ReserveDialogHandler(stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated);
+    const { stateReserveDialog, setReserveDialog, validateShippingAddress } = useReserveDialog({ isOpen, product });
+    const handlers = ReserveDialogHandler(stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress);
     
     // Add keyboard event listener for Escape key
     useEffect(() => {
@@ -117,6 +117,31 @@ export default function ReserveDialog({
                         )}
                     </div>
                     
+                    <div className={styles.ShippingSection}>
+                        <label className={styles.ShippingLabel}>ที่อยู่จัดส่ง</label>
+                        
+                        <textarea
+                            value={stateReserveDialog.shippingAddress}
+                            onChange={handlers.handleShippingAddressChange}
+                            placeholder="กรุณาระบุที่อยู่สำหรับจัดส่งสินค้า เช่น บ้านเลขที่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"
+                            className={`${styles.ShippingInput} ${stateReserveDialog.shippingAddressError ? styles.Error : ''}`}
+                            rows={3}
+                            maxLength={500}
+                        />
+                        
+                        {stateReserveDialog.shippingAddressError && (
+                            <div className={styles.ErrorMessage}>
+                                <GoogleIcon iconType="warning" size="small" />
+                                {stateReserveDialog.shippingAddressError}
+                            </div>
+                        )}
+                        
+                        <div className={styles.ShippingNote}>
+                            <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
+                            <span>กรุณาระบุที่อยู่ให้ครบถ้วนและชัดเจนเพื่อให้การจัดส่งเป็นไปอย่างถูกต้อง</span>
+                        </div>
+                    </div>
+                    
                     <div className={styles.TotalSection}>
                         <div className={styles.TotalDisplay}>
                             <span className={styles.TotalLabel}>ยอดรวม:</span>
@@ -143,9 +168,9 @@ export default function ReserveDialog({
                         </button>
                         
                         <button
-                            className={`${styles.ReserveButton} ${stateReserveDialog.selectedQuantity <= 0 || stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity ? styles.Disabled : ''}`}
+                            className={`${styles.ReserveButton} ${stateReserveDialog.selectedQuantity <= 0 || stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity || !stateReserveDialog.shippingAddress.trim() ? styles.Disabled : ''}`}
                             onClick={handlers.handleConfirmReservation}
-                            disabled={stateReserveDialog.isReserving || stateReserveDialog.selectedQuantity <= 0 || stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity}
+                            disabled={stateReserveDialog.isReserving || stateReserveDialog.selectedQuantity <= 0 || stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity || !stateReserveDialog.shippingAddress.trim()}
                         >
                             {stateReserveDialog.isReserving ? (
                                 <>

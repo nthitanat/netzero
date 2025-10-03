@@ -9,7 +9,9 @@ const useReserveDialog = (initialProps) => {
     selectedQuantity: 1,
     quantityError: "",
     reservationError: "",
-    isDialogOpen: isOpen
+    isDialogOpen: isOpen,
+    shippingAddress: "",
+    shippingAddressError: ""
   });
 
   const setReserveDialog = (field, value) => {
@@ -34,7 +36,9 @@ const useReserveDialog = (initialProps) => {
       availableQuantity: product?.stock_quantity || 5,
       quantityError: "",
       reservationError: "",
-      isDialogOpen: false
+      isDialogOpen: false,
+      shippingAddress: "",
+      shippingAddressError: ""
     });
   };
 
@@ -52,12 +56,29 @@ const useReserveDialog = (initialProps) => {
     return "";
   };
 
+  const validateShippingAddress = (address) => {
+    if (!address || address.trim().length === 0) {
+      return "กรุณาระบุที่อยู่จัดส่ง";
+    }
+    
+    if (address.trim().length < 10) {
+      return "กรุณาระบุที่อยู่จัดส่งให้ครบถ้วน (อย่างน้อย 10 ตัวอักษร)";
+    }
+    
+    if (address.trim().length > 500) {
+      return "ที่อยู่จัดส่งยาวเกินไป (ไม่เกิน 500 ตัวอักษร)";
+    }
+    
+    return "";
+  };
+
   return {
     stateReserveDialog,
     setReserveDialog,
     toggleReserveDialogField,
     resetReserveDialog,
     validateQuantity,
+    validateShippingAddress,
   };
 };
 
