@@ -249,4 +249,6 @@ class AuthService {
   }
 }
 
+// Export instance and class
+export const authService = new AuthService();
 export default AuthService;

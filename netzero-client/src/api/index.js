@@ -4,7 +4,8 @@ import { productsService } from './products.js';
 import { reservationsService } from './reservations.js';
 import { treesService } from './trees.js';
 import { locationTreesService } from './locationTrees.js';
-import AuthService from './auth.js';
+import { chatService } from './chat.js';
+import AuthService, { authService } from './auth.js';
 import UserService from './users.js';
 
 // API Services Export
@@ -14,7 +15,8 @@ export { productsService, ProductsService } from './products.js';
 export { reservationsService, ReservationsService } from './reservations.js';
 export { treesService, TreesService } from './trees.js';
 export { locationTreesService, LocationTreesService } from './locationTrees.js';
-export { default as AuthService } from './auth.js';
+export { chatService } from './chat.js';
+export { authService, default as AuthService } from './auth.js';
 export { default as UserService } from './users.js';
 export { 
   ApiResponse, 
@@ -33,6 +35,7 @@ export const api = {
   reservations: reservationsService,
   trees: treesService,
   locationTrees: locationTreesService,
-  auth: AuthService,
+  chat: chatService,
+  auth: authService,
   users: UserService,
 };

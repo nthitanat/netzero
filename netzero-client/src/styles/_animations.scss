@@ -1,23 +1,23 @@
 // Animation Mixins
 @mixin fade-in-animation($duration: 0.5s, $delay: 0s) {
-  animation: fadeIn $duration ease-in-out $delay forwards;
+  animation: fadeIn #{$duration} ease-in-out #{$delay} forwards;
   opacity: 0;
 }
 
 @mixin fade-out-animation($duration: 0.3s, $delay: 0s) {
-  animation: fadeOut $duration ease-in-out $delay forwards;
+  animation: fadeOut #{$duration} ease-in-out #{$delay} forwards;
 }
 
 @mixin expand-animation($duration: 0.3s, $from: 200px, $to: 300px, $delay: 0s) {
-  animation: expand $duration ease-out $delay forwards;
+  animation: expand #{$duration} ease-out #{$delay} forwards;
 }
 
 @mixin shrink-animation($duration: 0.2s, $delay: 0s) {
-  animation: shrink $duration ease-in $delay forwards;
+  animation: shrink #{$duration} ease-in #{$delay} forwards;
 }
 
 @mixin slide-up-animation($duration: 0.6s, $delay: 0s) {
-  animation: slideUp $duration ease-out $delay forwards;
+  animation: slideUp #{$duration} ease-out #{$delay} forwards;
   opacity: 0;
   transform: translateY(30px);
 }

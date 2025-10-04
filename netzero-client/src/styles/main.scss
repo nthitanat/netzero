@@ -78,14 +78,14 @@ body {
 // This mixin provides consistent top spacing for all pages to account for the fixed floating navbar
 // Usage: @include navbar-spacing; in your page .Container class
 @mixin navbar-spacing {
-  padding-top: 120px; // Default spacing for floating navbar
+  padding-top: 150px; // Default spacing for floating navbar
   
   @media (max-width: 768px) {
-    padding-top: 120px;
+    padding-top: 150px;
   }
   
   @media (max-width: 480px) {
-    padding-top: 120px;
+    padding-top: 150px;
   }
 }
 

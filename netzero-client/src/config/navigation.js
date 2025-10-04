@@ -4,6 +4,7 @@ export const navItems = [
     { path: "/market", icon: "store", label: "Market" },
     { path: "/willing", icon: "volunteer_activism", label: "Willing" },
     { path: "/barther-trade", icon: "swap_horiz", label: "Barther Trade" },
+    { path: "/chat", icon: "chat", label: "Chat" },
     { path: "/map", icon: "map", label: "แผนที่" }
 ];
 

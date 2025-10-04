@@ -1,0 +1,537 @@
+@import "src/styles/main";
+
+.Container {
+  @include bg-color-palette("white");
+  min-height: 100vh;
+  padding: 24px;
+  @include navbar-spacing;
+}
+
+.ContentWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+
+
+
+.Header {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-1", 1px);
+  border-radius: 12px;
+  @include shawdow-palette("primary-color-1", 0.1);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.HeaderContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.HeaderInfo {
+  flex: 1;
+}
+
+.TitleSection {
+  flex: 1;
+}
+
+.PageTitle {
+  @include font-size-palette("headline-3");
+  @include text-color-palette("primary-color-1");
+  @include font-weight-bold;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.PageSubtitle {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  margin: 0;
+}
+
+.Title {
+  @include font-size-palette("headline-3");
+  @include text-color-palette("primary-color-1");
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.Subtitle {
+  @include font-size-palette("body-2");
+  @include text-color-palette("inactive");
+}
+
+.HeaderActions {
+  display: flex;
+  gap: 12px;
+}
+
+.RefreshButton {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-1", 1px);
+  @include text-color-palette("primary-color-1");
+  @include font-size-palette("body-2");
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+  }
+}
+
+.CreateButton {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include font-size-palette("body-2");
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+  }
+}
+
+
+
+.FiltersCard {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  @include shawdow-palette("primary-color-1", 0.05);
+}
+
+.FiltersContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.SearchInput {
+  @include border-color-palette("primary-color-4", 1px);
+  @include font-size-palette("body-2");
+  padding: 12px 16px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+  transition: all 0.2s ease;
+
+  &:focus {
+    @include border-color-palette("primary-color-2", 2px);
+    outline: none;
+    @include shawdow-palette("primary-color-2", 0.2);
+  }
+
+  &::placeholder {
+    @include text-color-palette("inactive");
+  }
+}
+
+.FilterButtons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.FilterButton {
+  @include font-size-palette("body-3");
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &.Active {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+    @include border-color-palette("primary-color-2", 1px);
+  }
+
+  &:not(.Active) {
+    @include bg-color-palette("white");
+    @include text-color-palette("inactive");
+    @include border-color-palette("inactive", 1px);
+
+    &:hover {
+      @include bg-color-palette("primary-color-4");
+      @include text-color-palette("primary-color-1");
+    }
+  }
+}
+
+.ErrorCard {
+  @include bg-color-palette("warning");
+  @include border-color-palette("warning", 1px);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.ErrorContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ErrorIcon {
+  @include font-size-palette("headline-5");
+  flex-shrink: 0;
+}
+
+.ErrorInfo {
+  flex: 1;
+}
+
+.ErrorTitle {
+  @include font-size-palette("body-1");
+  @include text-color-palette("black");
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ErrorMessage {
+  @include font-size-palette("body-2");
+  @include text-color-palette("black");
+}
+
+.LoadingContainer {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 64px;
+  text-align: center;
+}
+
+.LoadingSpinner {
+  @include border-color-palette("primary-color-2", 4px);
+  border-top-color: transparent;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  @include fade-in-animation(2s);
+}
+
+.LoadingText {
+  @include font-size-palette("body-2");
+  @include text-color-palette("inactive");
+}
+
+.EmptyState {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 64px;
+  text-align: center;
+}
+
+.EmptyIcon {
+  @include font-size-palette("headline-1");
+  margin-bottom: 16px;
+  display: block;
+}
+
+.EmptyTitle {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.EmptyDescription {
+  @include font-size-palette("body-2");
+  @include text-color-palette("inactive");
+  margin-bottom: 24px;
+}
+
+.EmptyAction {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include font-size-palette("body-1");
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+}
+
+.ChatGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.ChatCard {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 20px;
+  @include shawdow-palette("primary-color-1", 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include border-color-palette("primary-color-2", 1px);
+    @include shawdow-palette("primary-color-1", 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.ChatHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.ChatTitleSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.ChatTitle {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ProductName {
+  @include font-size-palette("body-3");
+  @include text-color-palette("inactive");
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.StatusBadge {
+  @include font-size-palette("body-4");
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid;
+
+  &.Active {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+    @include border-color-palette("primary-color-2", 1px);
+  }
+
+  &.Closed {
+    @include bg-color-palette("warning");
+    @include text-color-palette("black");
+    @include border-color-palette("warning", 1px);
+  }
+
+  &.Archived {
+    @include bg-color-palette("inactive");
+    @include text-color-palette("white");
+    @include border-color-palette("inactive", 1px);
+  }
+}
+
+.ChatDescription {
+  @include font-size-palette("body-3");
+  @include text-color-palette("inactive");
+  margin-bottom: 16px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.OwnerInfo {
+  @include font-size-palette("body-3");
+  @include text-color-palette("inactive");
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ChatFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid;
+  @include border-color-palette("primary-color-4", 1px);
+}
+
+.ChatDate {
+  @include font-size-palette("body-3");
+  @include text-color-palette("inactive");
+}
+
+.ChatAction {
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-3");
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include text-color-palette("primary-color-1");
+  }
+}
+
+// Authentication required state
+.AuthRequired {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 64px;
+  text-align: center;
+}
+
+.AuthMessage {
+  @include font-size-palette("body-1");
+  @include text-color-palette("inactive");
+}
+
+// Create Modal Styles
+.CreateModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.CreateModalContent {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.CreateModalTitle {
+  @include font-size-palette("headline-5");
+  @include font-weight-medium;
+  margin-bottom: 1rem;
+  @include text-color-palette("primary-color-1");
+}
+
+.CreateModalDescription {
+  @include text-color-palette("primary-color-2");
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.CreateModalButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  @include bg-color-palette("primary-color-2");
+  color: white;
+  border: none;
+  border-radius: 12px;
+  @include font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .Container {
+    padding: 0.75rem;
+  }
+
+  .PageTitle {
+    font-size: 1.5rem;
+  }
+
+  .Statistics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .FiltersContent {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+
+    .FilterButtons {
+      justify-content: stretch;
+      
+      .FilterButton {
+        flex: 1;
+        font-size: 0.875rem;
+        padding: 0.75rem 0.5rem;
+      }
+    }
+  }
+
+  .ChatGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .CreateModalContent {
+    padding: 1rem;
+    margin: 1rem;
+  }
+}

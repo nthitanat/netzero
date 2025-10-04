@@ -125,6 +125,40 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
             case "article":
                 return <span className={baseClass}>article</span>;
             
+            // Communication & Chat
+            case "chat":
+                return <span className={baseClass}>chat</span>;
+            case "message":
+                return <span className={baseClass}>message</span>;
+            case "forum":
+                return <span className={baseClass}>forum</span>;
+            case "question_answer":
+                return <span className={baseClass}>question_answer</span>;
+            case "chat_bubble":
+                return <span className={baseClass}>chat_bubble</span>;
+            case "mark_chat_unread":
+                return <span className={baseClass}>mark_chat_unread</span>;
+            case "support_agent":
+                return <span className={baseClass}>support_agent</span>;
+            case "search":
+                return <span className={baseClass}>search</span>;
+            case "filter_list":
+                return <span className={baseClass}>filter_list</span>;
+            case "refresh":
+                return <span className={baseClass}>refresh</span>;
+            case "add":
+                return <span className={baseClass}>add</span>;
+            case "archive":
+                return <span className={baseClass}>archive</span>;
+            case "lock":
+                return <span className={baseClass}>lock</span>;
+            case "check":
+                return <span className={baseClass}>check</span>;
+            case "person":
+                return <span className={baseClass}>person</span>;
+            case "calendar_today":
+                return <span className={baseClass}>calendar_today</span>;
+            
             // Food & Health
             case "restaurant":
                 return <span className={baseClass}>restaurant</span>;

@@ -7,6 +7,7 @@ import Market from './pages/Market/Market';
 import MarketSimpleTest from './pages/Market/MarketSimpleTest';
 import Willing from './pages/Willing/Willing';
 import BarterTrade from './pages/BarterTrade/BarterTrade';
+import Chat from './pages/Chat/index';
 import Map from './pages/Map/Map';
 import Profile from './pages/Profile/Profile';
 import SellerDashboard from './pages/SellerDashboard/SellerDashboard';
@@ -24,6 +25,7 @@ function App() {
             <Route path="/market-test" element={<MarketSimpleTest />} />
             <Route path="/willing" element={<Willing />} />
             <Route path="/barther-trade" element={<BarterTrade />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="/map" element={<Map />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
