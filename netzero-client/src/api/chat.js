@@ -14,7 +14,7 @@ const getChatServerURL = () => {
   }
   
   // Production URL - adjust this to your production chat server URL
-  return 'https://engagement.chula.ac.th/chat/api/v1/chat';
+  return 'https://engagement.chula.ac.th/netzero-api-chat/api/v1/chat';
 };
 
 class ChatService {

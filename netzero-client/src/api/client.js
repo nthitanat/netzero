@@ -13,7 +13,7 @@ const getBaseURL = () => {
   }
   
   // Production URL
-  return 'https://engagement.chula.ac.th/node/';
+  return 'https://engagement.chula.ac.th/netzero-api/';
 };
 
 // Create axios instance with default configuration
