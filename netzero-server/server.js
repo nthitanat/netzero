@@ -23,6 +23,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const reservationRoutes = require('./src/routes/reservationRoutes');
+const chatAppRoutes = require('./src/routes/chatAppRoutes');
 
 // Initialize Express app
 const app = express();
@@ -208,6 +209,7 @@ app.use(`${API_PREFIX}/${API_VERSION}/auth`, authRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/users`, userRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/products`, productRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/reservations`, reservationRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/chatapps`, chatAppRoutes);
 
 // 404 handler
 app.use(notFound);

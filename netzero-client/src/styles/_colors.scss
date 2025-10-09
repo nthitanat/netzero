@@ -55,24 +55,24 @@
   --willing-glass-border: rgba(236, 64, 122, 0.2);
   --willing-glass-shadow: rgba(236, 64, 122, 0.15);
 
-  // Map/Tree Theme Colors (Modern Dark Green Glassmorphism AI Learning)
-  --map-primary: #1b4d20;
-  --map-primary-hover: #0f2a13;
-  --map-secondary: #2e7d32;
-  --map-accent: #4caf50;
-  --map-bg: radial-gradient(ellipse 120% 100% at 50% 30%, #1a3b1c 0%, #1e4a22 40%, #1b4d20 70%, #0f2a13 100%);
-  --map-text: #ffffff;
-  --map-text-secondary: #c8e6c9;
-  --map-light: #2e7d32;
-  --map-glass-bg: rgba(255, 255, 255, 0.1);
-  --map-glass-border: rgba(255, 255, 255, 0.2);
-  --map-glass-shadow: rgba(0, 0, 0, 0.3);
-  --map-glass-bg-strong: rgba(255, 255, 255, 0.15);
-  --map-glass-bg-subtle: rgba(255, 255, 255, 0.08);
-  --map-card-bg: rgba(46, 125, 50, 0.15);
+  // Map/Tree Theme Colors (Lighter Theme with Darker Text)
+  --map-primary: #4caf50;
+  --map-primary-hover: #388e3c;
+  --map-secondary: #81c784;
+  --map-accent: #2e7d32;
+  --map-bg: radial-gradient(ellipse 120% 100% at 50% 30%, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 70%, #81c784 100%);
+  --map-text: #1b4d20;
+  --map-text-secondary: #388e3c;
+  --map-light: #c8e6c9;
+  --map-glass-bg: rgba(255, 255, 255, 0.7);
+  --map-glass-border: rgba(76, 175, 80, 0.2);
+  --map-glass-shadow: rgba(76, 175, 80, 0.15);
+  --map-glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --map-glass-bg-subtle: rgba(255, 255, 255, 0.5);
+  --map-card-bg: rgba(200, 230, 201, 0.7);
   --map-card-border: rgba(76, 175, 80, 0.3);
-  --map-hover-bg: rgba(76, 175, 80, 0.2);
-  --map-active-bg: rgba(129, 199, 132, 0.25);
+  --map-hover-bg: rgba(129, 199, 132, 0.3);
+  --map-active-bg: rgba(76, 175, 80, 0.25);
 
   // Glassmorphism Colors
   --glass-bg: rgba(255, 255, 255, 0.5);

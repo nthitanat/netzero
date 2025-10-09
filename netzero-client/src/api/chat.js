@@ -1,10 +1,26 @@
 import { axiosInstance } from './client';
 import { ApiResponse, ApiError, API_ERROR_TYPES, API_STATUS } from './types';
 
+// Determine chat server URL based on environment
+const getChatServerURL = () => {
+  // Check if we have an environment variable set
+  if (process.env.REACT_APP_CHAT_SERVER_URL) {
+    return process.env.REACT_APP_CHAT_SERVER_URL;
+  }
+  
+  // Auto-detect based on NODE_ENV
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3004/api/v1/chat';
+  }
+  
+  // Production URL - adjust this to your production chat server URL
+  return 'https://engagement.chula.ac.th/chat/api/v1/chat';
+};
+
 class ChatService {
   constructor() {
     this.baseUrl = '/api/v1/chatapps';
-    this.chatServerUrl = process.env.REACT_APP_CHAT_SERVER_URL || 'http://127.0.0.1:3004/api/v1/chat';
+    this.chatServerUrl = getChatServerURL();
   }
 
   // ==========================================
