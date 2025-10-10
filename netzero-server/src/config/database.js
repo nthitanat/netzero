@@ -28,7 +28,7 @@ const testConnection = async () => {
   }
 };
 
-// Execute query function
+// Execute query function for SELECT operations (returns rows only)
 const executeQuery = async (query, params = []) => {
   try {
     const [rows] = await pool.execute(query, params);
@@ -36,6 +36,40 @@ const executeQuery = async (query, params = []) => {
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
+  }
+};
+
+// Execute command function for INSERT, UPDATE, DELETE operations (returns full result)
+const executeCommand = async (query, params = []) => {
+  try {
+    const result = await pool.execute(query, params);
+    return result;
+  } catch (error) {
+    console.error('Database command error:', error);
+    throw error;
+  }
+};
+
+// Execute transaction function for multiple operations
+const executeTransaction = async (operations) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    
+    const results = [];
+    for (const { query, params = [] } of operations) {
+      const result = await connection.execute(query, params);
+      results.push(result);
+    }
+    
+    await connection.commit();
+    return results;
+  } catch (error) {
+    await connection.rollback();
+    console.error('Database transaction error:', error);
+    throw error;
+  } finally {
+    connection.release();
   }
 };
 
@@ -63,6 +97,8 @@ module.exports = {
   pool,
   testConnection,
   executeQuery,
+  executeCommand,
+  executeTransaction,
   getConnection,
   closePool,
   dbConfig

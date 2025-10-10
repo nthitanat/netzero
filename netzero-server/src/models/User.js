@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+const { executeQuery, executeCommand } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
@@ -14,7 +14,7 @@ class User {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
-    const [result] = await pool.execute(query, [
+    const [result] = await executeCommand(query, [
       email, 
       hashedPassword, 
       firstName, 
@@ -36,7 +36,7 @@ class User {
       WHERE email = ? AND isActive = TRUE
     `;
     
-    const [rows] = await pool.execute(query, [email]);
+    const rows = await executeQuery(query, [email]);
     return rows[0] || null;
   }
 
@@ -48,7 +48,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [rows] = await pool.execute(query, [id]);
+    const rows = await executeQuery(query, [id]);
     return rows[0] || null;
   }
 
@@ -60,7 +60,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [rows] = await pool.execute(query, [id]);
+    const rows = await executeQuery(query, [id]);
     return rows[0] || null;
   }
 
@@ -73,7 +73,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await pool.execute(query, [
+    const [result] = await executeCommand(query, [
       firstName, 
       lastName, 
       profileImage || null, 
@@ -95,7 +95,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await pool.execute(query, [hashedPassword, id]);
+    const [result] = await executeCommand(query, [hashedPassword, id]);
     return result.affectedRows > 0;
   }
 
@@ -106,7 +106,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await pool.execute(query, [id]);
+    const [result] = await executeCommand(query, [id]);
     return result.affectedRows > 0;
   }
 
@@ -117,7 +117,7 @@ class User {
       WHERE id = ? AND isActive = TRUE
     `;
     
-    const [result] = await pool.execute(query, [id]);
+    const [result] = await executeCommand(query, [id]);
     return result.affectedRows > 0;
   }
 
@@ -134,7 +134,7 @@ class User {
       params.push(excludeId);
     }
     
-    const [rows] = await pool.execute(query, params);
+    const rows = await executeQuery(query, params);
     return rows.length > 0;
   }
 
@@ -148,13 +148,13 @@ class User {
       LIMIT ? OFFSET ?
     `;
     
-    const [rows] = await pool.execute(query, [limit, offset]);
+    const rows = await executeQuery(query, [limit, offset]);
     return rows;
   }
 
   static async getTotalCount() {
     const query = `SELECT COUNT(*) as count FROM users WHERE isActive = TRUE`;
-    const [rows] = await pool.execute(query);
+    const rows = await executeQuery(query);
     return rows[0].count;
   }
 }
