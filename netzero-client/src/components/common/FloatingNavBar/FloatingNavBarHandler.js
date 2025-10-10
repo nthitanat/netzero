@@ -1,4 +1,4 @@
-const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigate, navigate) => {
+const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigate, navigate, logout) => {
   return {
     handleNavClick: (path, label) => {
       console.log("NavBar clicked:", path, label); // Debug log
@@ -39,6 +39,57 @@ const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigat
 
     setActiveRoute: (route) => {
       setFloatingNavBar("activeRoute", route);
+    },
+
+    // Authentication-related handlers
+    handleLoginClick: () => {
+      setFloatingNavBar("showLoginModal", true);
+    },
+
+    handleLoginSuccess: (userData) => {
+      setFloatingNavBar("showLoginModal", false);
+      console.log('User logged in:', userData);
+    },
+
+    handleUserClick: () => {
+      setFloatingNavBar("showUserMenu", !stateFloatingNavBar.showUserMenu);
+    },
+
+    handleProfileClick: () => {
+      setFloatingNavBar("showUserMenu", false);
+      if (navigate) {
+        navigate('/profile');
+      }
+    },
+
+    handleSellerDashboardClick: () => {
+      setFloatingNavBar("showUserMenu", false);
+      if (navigate) {
+        navigate('/seller-dashboard');
+      }
+    },
+
+    handleLogoutClick: async () => {
+      setFloatingNavBar("showUserMenu", false);
+      try {
+        if (logout) {
+          await logout();
+          console.log('User logged out successfully');
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    },
+
+    handleUserMenuBlur: (e) => {
+      // Close menu when clicking outside
+      if (!e.currentTarget.contains(e.relatedTarget)) {
+        setFloatingNavBar("showUserMenu", false);
+      }
+    },
+
+    handleCloseLoginModal: () => {
+      setFloatingNavBar("showLoginModal", false);
     }
   };
 };

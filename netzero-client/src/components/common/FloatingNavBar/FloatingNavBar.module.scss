@@ -40,52 +40,27 @@
   backdrop-filter: blur(25px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  background-color: var(--theme-primary, var(--primary-color-2));
+  @include bg-color-palette("primary-color-2");
   
   // Theme-specific styling
   .Container.market-theme & {
     @include market-glassmorphism-card;
-    background: linear-gradient(135deg, 
-      rgba(255, 152, 0, 0.95) 0%, 
-      rgba(255, 183, 77, 0.9) 100%);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 152, 0, 0.3);
-    box-shadow: 
-      0 12px 40px rgba(255, 152, 0, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    @include bg-color-palette("market-primary");
   }
   
   .Container.barter-theme & {
     @include glassmorphism-card;
-    backdrop-filter: blur(25px);
-    background-color: var(--theme-primary, var(--primary-color-2));
+    @include bg-color-palette("barter-primary");
   }
   
   .Container.willing-theme & {
     @include willing-glassmorphism-card;
-    background: linear-gradient(135deg, 
-      rgba(236, 64, 122, 0.95) 0%, 
-      rgba(244, 143, 177, 0.9) 100%);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(236, 64, 122, 0.3);
-    box-shadow: 
-      0 12px 40px rgba(236, 64, 122, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    @include bg-color-palette("willing-primary");
   }
   
   .Container.map-theme & {
     @include map-glassmorphism-card;
-    background: linear-gradient(135deg, 
-      rgba(45, 125, 50, 0.95) 0%, 
-      rgba(76, 175, 80, 0.9) 100%);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(45, 125, 50, 0.3);
-    box-shadow: 
-      0 12px 40px rgba(45, 125, 50, 0.25),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    @include bg-color-palette("map-primary");
   }
   
   @include fade-in-animation(0.3s);
@@ -228,8 +203,8 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  color: white;
-  font-size: 14px;
+  @include text-color-palette("white");
+  @include font-size-palette("body-2");
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -247,11 +222,11 @@
 }
 
 .LoginIcon {
-  color: white;
+  @include text-color-palette("white");
 }
 
 .LoginLabel {
-  color: white;
+  @include text-color-palette("white");
   font-weight: 500;
 }
 
@@ -294,8 +269,8 @@
 }
 
 .UserInitials {
-  color: white;
-  font-size: 14px;
+  @include text-color-palette("white");
+  @include font-size-palette("body-2");
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -305,7 +280,7 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 220px;
-  background: white;
+  @include bg-color-palette("white");
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -323,7 +298,10 @@
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 8px solid white;
+    @include border-color-palette("white", 8px);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom-style: solid;
   }
 }
 
@@ -344,20 +322,21 @@
 }
 
 .UserName {
-  font-size: 16px;
+  @include font-size-palette("body-1");
   font-weight: 600;
-  color: #1f2937;
+  @include text-color-palette("black");
   margin-bottom: 2px;
 }
 
 .UserEmail {
-  font-size: 14px;
-  color: #6b7280;
+  @include font-size-palette("body-2");
+  @include text-color-palette("inactive");
 }
 
 .UserMenuDivider {
   height: 1px;
-  background: #e5e7eb;
+  @include bg-color-palette("inactive");
+  opacity: 0.3;
   margin: 8px 0;
 }
 
@@ -370,24 +349,26 @@
   background: none;
   border: none;
   border-radius: 8px;
-  color: #374151;
-  font-size: 14px;
+  @include text-color-palette("black");
+  @include font-size-palette("body-2");
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
 
   &:hover {
-    background: #f3f4f6;
-    color: #1f2937;
+    @include bg-color-palette("secondary-color-4");
+    opacity: 0.8;
+    @include text-color-palette("black");
   }
 
   &:active {
-    background: #e5e7eb;
+    @include bg-color-palette("secondary-color-3");
+    opacity: 0.9;
   }
 
   svg {
-    color: #6b7280;
+    @include text-color-palette("inactive");
   }
 }
 

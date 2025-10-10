@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./FloatingNavBar.module.scss";
 import useFloatingNavBar from "./useFloatingNavBar";
@@ -16,50 +16,10 @@ export default function FloatingNavBar({
     const navigate = useNavigate();
     const currentRoute = getCurrentRoute();
     const { stateFloatingNavBar, setFloatingNavBar } = useFloatingNavBar({ activeRoute: currentRoute });
-    const handlers = FloatingNavBarHandler(stateFloatingNavBar, setFloatingNavBar, onNavigate, navigate);
     const { isAuthenticated, user, getDisplayName, getUserInitials, logout } = useAuth();
-    const [showLoginModal, setShowLoginModal] = useState(false);
-    const [showUserMenu, setShowUserMenu] = useState(false);
+    const handlers = FloatingNavBarHandler(stateFloatingNavBar, setFloatingNavBar, onNavigate, navigate, logout);
 
-    const handleLoginClick = () => {
-        setShowLoginModal(true);
-    };
 
-    const handleLoginSuccess = (userData) => {
-        setShowLoginModal(false);
-        console.log('User logged in:', userData);
-    };
-
-    const handleUserClick = () => {
-        setShowUserMenu(!showUserMenu);
-    };
-
-    const handleProfileClick = () => {
-        setShowUserMenu(false);
-        navigate('/profile');
-    };
-
-    const handleSellerDashboardClick = () => {
-        setShowUserMenu(false);
-        navigate('/seller-dashboard');
-    };
-
-    const handleLogoutClick = async () => {
-        setShowUserMenu(false);
-        try {
-            await logout();
-            console.log('User logged out successfully');
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-    };
-
-    const handleUserMenuBlur = (e) => {
-        // Close menu when clicking outside
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-            setShowUserMenu(false);
-        }
-    };
 
     return (
         <>
@@ -98,12 +58,12 @@ export default function FloatingNavBar({
                         {isAuthenticated ? (
                             <div 
                                 className={styles.UserMenu}
-                                onBlur={handleUserMenuBlur}
+                                onBlur={handlers.handleUserMenuBlur}
                                 tabIndex={-1}
                             >
                                 <button
                                     className={styles.UserButton}
-                                    onClick={handleUserClick}
+                                    onClick={handlers.handleUserClick}
                                     aria-label="User menu"
                                 >
                                     {user?.profileImage ? (
@@ -119,7 +79,7 @@ export default function FloatingNavBar({
                                     )}
                                 </button>
                                 
-                                {showUserMenu && (
+                                {stateFloatingNavBar.showUserMenu && (
                                     <div className={styles.UserDropdown}>
                                         <div className={styles.UserInfo}>
                                             <div className={styles.UserName}>{getDisplayName()}</div>
@@ -128,7 +88,7 @@ export default function FloatingNavBar({
                                         <div className={styles.UserMenuDivider}></div>
                                         <button 
                                             className={styles.UserMenuItem}
-                                            onClick={handleProfileClick}
+                                            onClick={handlers.handleProfileClick}
                                         >
                                             <GoogleIcon iconType="person" size="small" />
                                             Profile
@@ -136,7 +96,7 @@ export default function FloatingNavBar({
                                         {user?.role === 'seller' && (
                                             <button 
                                                 className={styles.UserMenuItem}
-                                                onClick={handleSellerDashboardClick}
+                                                onClick={handlers.handleSellerDashboardClick}
                                             >
                                                 <GoogleIcon iconType="dashboard" size="small" />
                                                 Seller Dashboard
@@ -144,7 +104,7 @@ export default function FloatingNavBar({
                                         )}
                                         <button 
                                             className={styles.UserMenuItem}
-                                            onClick={handleLogoutClick}
+                                            onClick={handlers.handleLogoutClick}
                                         >
                                             <GoogleIcon iconType="logout" size="small" />
                                             Logout
@@ -155,7 +115,7 @@ export default function FloatingNavBar({
                         ) : (
                             <button
                                 className={styles.LoginButton}
-                                onClick={handleLoginClick}
+                                onClick={handlers.handleLoginClick}
                                 aria-label="Login"
                             >
                                 <GoogleIcon 
@@ -172,9 +132,9 @@ export default function FloatingNavBar({
 
             {/* Login Modal */}
             <LoginModal
-                isOpen={showLoginModal}
-                onClose={() => setShowLoginModal(false)}
-                onSuccess={handleLoginSuccess}
+                isOpen={stateFloatingNavBar.showLoginModal}
+                onClose={handlers.handleCloseLoginModal}
+                onSuccess={handlers.handleLoginSuccess}
             />
         </>
     );

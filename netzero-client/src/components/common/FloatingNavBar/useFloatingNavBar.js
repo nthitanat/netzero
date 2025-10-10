@@ -6,6 +6,8 @@ const useFloatingNavBar = (initialProps = {}) => {
     hoveredIndex: null,
     isVisible: true,
     lastScrollY: 0,
+    showLoginModal: false,
+    showUserMenu: false,
     ...initialProps
   });
 
