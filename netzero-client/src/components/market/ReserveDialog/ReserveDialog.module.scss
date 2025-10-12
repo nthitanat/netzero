@@ -41,8 +41,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 500px;
+  min-width: 800px;
+  max-width: 800px;
   max-height: 90vh;
   overflow: hidden;
   display: flex;

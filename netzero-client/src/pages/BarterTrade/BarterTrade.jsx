@@ -4,12 +4,20 @@ import styles from "./BarterTrade.module.scss";
 import useBarterTrade from "./useBarterTrade";
 import BarterTradeHandler from "./BarterTradeHandler";
 import { OrganicDecoration, FloatingNavBar } from "../../components/common";
-import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ExchangeDialog } from "../../components/market";
+import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ExchangeDialog } from "../../components/market";
 
 export default function BarterTrade() {
     const navigate = useNavigate();
-    const { stateBarterTrade, setBarterTrade } = useBarterTrade();
-    const handlers = BarterTradeHandler(stateBarterTrade, setBarterTrade, navigate);
+    const { 
+        stateBarterTrade, 
+        setBarterTrade, 
+        performSearch, 
+        isSearching,
+        loadMore,
+        hasMore,
+        isLoadingMore 
+    } = useBarterTrade();
+    const handlers = BarterTradeHandler(stateBarterTrade, setBarterTrade, navigate, performSearch);
     
     return (
         <div className={styles.Container}>
@@ -38,11 +46,16 @@ export default function BarterTrade() {
                         theme="barter"
                     />
                     
-                    {/* Search Bar Overlaid at Center Bottom of Advertisement */}
-                    <div className={styles.SearchOverlayContainer}>
-                        <SearchOverlay
+                    {/* Product Search Overlaid at Center Bottom of Advertisement */}
+                    <div className={styles.ProductSearchContainer}>
+                        <ProductSearch
+                            searchInputValue={stateBarterTrade.searchInputValue}
+                            onSearchInputChange={handlers.handleSearchInputChange}
+                            onSearchSubmit={handlers.handleSearchSubmit}
+                            onClearSearch={handlers.handleClearSearch}
+                            isSearching={isSearching}
+                            isSearchMode={stateBarterTrade.isSearchMode}
                             searchQuery={stateBarterTrade.searchQuery}
-                            onSearchChange={handlers.handleSearchChange}
                             viewMode={stateBarterTrade.viewMode}
                             onViewModeChange={handlers.handleViewModeChange}
                             placeholder="ค้นหาสินค้าแลกเปลี่ยน..."
@@ -53,10 +66,10 @@ export default function BarterTrade() {
             </div>
             
             <div className={styles.Content}>
-                {stateBarterTrade.isLoading ? (
+                {stateBarterTrade.isLoading || isSearching ? (
                     <div className={styles.LoadingContainer}>
                         <div className={styles.LoadingSpinner} />
-                        <p>กำลังโหลดสินค้า...</p>
+                        <p>{isSearching ? 'กำลังค้นหาสินค้า...' : 'กำลังโหลดสินค้า...'}</p>
                     </div>
                 ) : (
                     <div className={`${styles.ProductGrid} ${styles[stateBarterTrade.viewMode]}`}>
@@ -74,11 +87,53 @@ export default function BarterTrade() {
                     </div>
                 )}
                 
-                {!stateBarterTrade.isLoading && stateBarterTrade.filteredProducts.length === 0 && (
+                {!stateBarterTrade.isLoading && !isSearching && stateBarterTrade.filteredProducts.length === 0 && (
                     <div className={styles.EmptyState}>
                         <div className={styles.EmptyIcon}>🔄</div>
-                        <h3>ไม่มีสินค้าแลกเปลี่ยนในหมวดหมู่นี้</h3>
-                        <p>ลองเลือกหมวดหมู่อื่น หรือกลับมาดูใหม่ในภายหลัง</p>
+                        {stateBarterTrade.isSearchMode ? (
+                            <>
+                                <h3>ไม่พบสินค้าที่ค้นหา</h3>
+                                <p>ไม่พบสินค้าแลกเปลี่ยนที่ตรงกับ "{stateBarterTrade.searchQuery}"</p>
+                                <p>ลองใช้คำค้นหาอื่น หรือเคลียร์การค้นหาเพื่อดูสินค้าทั้งหมด</p>
+                                <button 
+                                    onClick={handlers.handleClearSearch}
+                                    className={styles.ClearSearchButton}
+                                >
+                                    เคลียร์การค้นหา
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h3>ไม่มีสินค้าแลกเปลี่ยนในหมวดหมู่นี้</h3>
+                                <p>ลองเลือกหมวดหมู่อื่น หรือกลับมาดูใหม่ในภายหลัง</p>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {/* Search Results Info */}
+                {stateBarterTrade.isSearchMode && stateBarterTrade.filteredProducts.length > 0 && (
+                    <div className={styles.SearchResultsInfo}>
+                        <p>🔍 ผลการค้นหา "{stateBarterTrade.searchQuery}": พบ {stateBarterTrade.filteredProducts.length} รายการ</p>
+                        <button 
+                            onClick={handlers.handleClearSearch}
+                            className={styles.ClearSearchButton}
+                        >
+                            เคลียร์การค้นหา
+                        </button>
+                    </div>
+                )}
+
+                {/* Load More Button - Only show in browse mode, not search mode */}
+                {!stateBarterTrade.isSearchMode && !stateBarterTrade.isLoading && hasMore && stateBarterTrade.filteredProducts.length > 0 && (
+                    <div className={styles.LoadMoreContainer}>
+                        <button 
+                            onClick={() => handlers.handleLoadMore(loadMore)}
+                            disabled={isLoadingMore}
+                            className={styles.LoadMoreButton}
+                        >
+                            {isLoadingMore ? 'กำลังโหลด...' : 'โหลดสินค้าเพิ่มเติม'}
+                        </button>
                     </div>
                 )}
             </div>

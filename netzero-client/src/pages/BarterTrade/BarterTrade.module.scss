@@ -67,7 +67,7 @@
   }
 }
 
-.SearchOverlayContainer {
+.ProductSearchContainer {
   position: absolute;
   bottom: 20px;
   left: 50%;
@@ -187,7 +187,7 @@
     height: 280px;
   }
   
-  .SearchOverlayContainer {
+  .ProductSearchContainer {
     bottom: 16px;
     width: 85%;
     max-width: 350px;
@@ -205,7 +205,7 @@
     order: -1; // Move ads to top on mobile
   }
   
-  .SearchOverlayContainer {
+  .ProductSearchContainer {
     bottom: 14px;
     width: 90%;
     max-width: 300px;
@@ -226,7 +226,7 @@
     height: 220px;
   }
   
-  .SearchOverlayContainer {
+  .ProductSearchContainer {
     bottom: 12px;
     width: 92%;
     max-width: 280px;
@@ -263,7 +263,7 @@
     height: 200px;
   }
   
-  .SearchOverlayContainer {
+  .ProductSearchContainer {
     bottom: 10px;
     width: 95%;
     max-width: 260px;

@@ -4,13 +4,21 @@ import styles from "./Willing.module.scss";
 import useWilling from "./useWilling";
 import WillingHandler from "./WillingHandler";
 import { OrganicDecoration, FloatingNavBar, GoogleIcon } from "../../components/common";
-import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ReserveDialog } from "../../components/market";
+import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ReserveDialog } from "../../components/market";
 import { LoginModal } from "../../components/auth";
 
 export default function Willing() {
     const navigate = useNavigate();
-    const { stateWilling, setWilling } = useWilling();
-    const handlers = WillingHandler(stateWilling, setWilling, navigate);
+    const { 
+        stateWilling, 
+        setWilling, 
+        performSearch, 
+        isSearching,
+        loadMore,
+        hasMore,
+        isLoadingMore 
+    } = useWilling();
+    const handlers = WillingHandler(stateWilling, setWilling, navigate, performSearch);
     
     return (
         <div className={styles.Container}>
@@ -39,11 +47,16 @@ export default function Willing() {
                         theme="willing"
                     />
                     
-                    {/* Search Bar Overlaid at Center Bottom of Advertisement */}
-                    <div className={styles.SearchOverlayContainer}>
-                        <SearchOverlay
+                    {/* Product Search Overlaid at Center Bottom of Advertisement */}
+                    <div className={styles.ProductSearchContainer}>
+                        <ProductSearch
+                            searchInputValue={stateWilling.searchInputValue}
+                            onSearchInputChange={handlers.handleSearchInputChange}
+                            onSearchSubmit={handlers.handleSearchSubmit}
+                            onClearSearch={handlers.handleClearSearch}
+                            isSearching={isSearching}
+                            isSearchMode={stateWilling.isSearchMode}
                             searchQuery={stateWilling.searchQuery}
-                            onSearchChange={handlers.handleSearchChange}
                             viewMode={stateWilling.viewMode}
                             onViewModeChange={handlers.handleViewModeChange}
                             placeholder="ค้นหาสินค้าฟรี..."
@@ -54,10 +67,10 @@ export default function Willing() {
             </div>
             
             <div className={styles.Content}>
-                {stateWilling.isLoading ? (
+                {stateWilling.isLoading || isSearching ? (
                     <div className={styles.LoadingContainer}>
                         <div className={styles.LoadingSpinner} />
-                        <p>กำลังโหลดสินค้า...</p>
+                        <p>{isSearching ? 'กำลังค้นหาสินค้า...' : 'กำลังโหลดสินค้า...'}</p>
                     </div>
                 ) : (
                     <div className={`${styles.ProductGrid} ${styles[stateWilling.viewMode]}`}>
@@ -75,13 +88,55 @@ export default function Willing() {
                     </div>
                 )}
                 
-                {!stateWilling.isLoading && stateWilling.filteredProducts.length === 0 && (
+                {!stateWilling.isLoading && !isSearching && stateWilling.filteredProducts.length === 0 && (
                     <div className={styles.EmptyState}>
                         <div className={styles.EmptyIcon}>
                             <GoogleIcon iconType="volunteer_activism" size="large" />
                         </div>
-                        <h3>ไม่มีสินค้าฟรีในหมวดหมู่นี้</h3>
-                        <p>ลองเลือกหมวดหมู่อื่น หรือกลับมาดูใหม่ในภายหลัง</p>
+                        {stateWilling.isSearchMode ? (
+                            <>
+                                <h3>ไม่พบสินค้าที่ค้นหา</h3>
+                                <p>ไม่พบสินค้าฟรีที่ตรงกับ "{stateWilling.searchQuery}"</p>
+                                <p>ลองใช้คำค้นหาอื่น หรือเคลียร์การค้นหาเพื่อดูสินค้าทั้งหมด</p>
+                                <button 
+                                    onClick={handlers.handleClearSearch}
+                                    className={styles.ClearSearchButton}
+                                >
+                                    เคลียร์การค้นหา
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h3>ไม่มีสินค้าฟรีในหมวดหมู่นี้</h3>
+                                <p>ลองเลือกหมวดหมู่อื่น หรือกลับมาดูใหม่ในภายหลัง</p>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {/* Search Results Info */}
+                {stateWilling.isSearchMode && stateWilling.filteredProducts.length > 0 && (
+                    <div className={styles.SearchResultsInfo}>
+                        <p>🔍 ผลการค้นหา "{stateWilling.searchQuery}": พบ {stateWilling.filteredProducts.length} รายการ</p>
+                        <button 
+                            onClick={handlers.handleClearSearch}
+                            className={styles.ClearSearchButton}
+                        >
+                            เคลียร์การค้นหา
+                        </button>
+                    </div>
+                )}
+
+                {/* Load More Button - Only show in browse mode, not search mode */}
+                {!stateWilling.isSearchMode && !stateWilling.isLoading && hasMore && stateWilling.filteredProducts.length > 0 && (
+                    <div className={styles.LoadMoreContainer}>
+                        <button 
+                            onClick={() => handlers.handleLoadMore(loadMore)}
+                            disabled={isLoadingMore}
+                            className={styles.LoadMoreButton}
+                        >
+                            {isLoadingMore ? 'กำลังโหลด...' : 'โหลดสินค้าเพิ่มเติม'}
+                        </button>
                     </div>
                 )}
             </div>

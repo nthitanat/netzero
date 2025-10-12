@@ -1,4 +1,4 @@
-const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate) => {
+const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate, performSearch) => {
   
   return {
     handleCategoryChange: (category) => {
@@ -95,6 +95,66 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate) => {
       });
     },
 
+    handleSearchInputChange: (value) => {
+      setBarterTrade("searchInputValue", value);
+    },
+
+    handleSearchSubmit: async () => {
+      const searchTerm = stateBarterTrade.searchInputValue.trim();
+      
+      if (performSearch && typeof performSearch === 'function') {
+        // Set searchQuery for tracking purposes
+        setBarterTrade("searchQuery", searchTerm);
+        // Perform server-side search
+        await performSearch(searchTerm);
+      } else {
+        console.warn("performSearch function not provided to BarterTradeHandler");
+      }
+    },
+
+    handleClearSearch: () => {
+      setBarterTrade({
+        searchInputValue: "",
+        searchQuery: "",
+        isSearchMode: false,
+        searchResults: []
+      });
+      // Perform empty search to return to normal view
+      if (performSearch && typeof performSearch === 'function') {
+        performSearch("");
+      }
+    },
+
+    handleSearchInputChange: (value) => {
+      setBarterTrade("searchInputValue", value);
+    },
+
+    handleSearchSubmit: async () => {
+      const searchTerm = stateBarterTrade.searchInputValue.trim();
+      
+      if (performSearch && typeof performSearch === 'function') {
+        // Set searchQuery for tracking purposes
+        setBarterTrade("searchQuery", searchTerm);
+        // Perform server-side search
+        await performSearch(searchTerm);
+      } else {
+        console.warn("performSearch function not provided to BarterTradeHandler");
+      }
+    },
+
+    handleClearSearch: () => {
+      setBarterTrade({
+        searchInputValue: "",
+        searchQuery: "",
+        isSearchMode: false,
+        searchResults: []
+      });
+      // Perform empty search to return to normal view
+      if (performSearch && typeof performSearch === 'function') {
+        performSearch("");
+      }
+    },
+
     handleSearchChange: (query) => {
       setBarterTrade("searchQuery", query);
     },
@@ -118,13 +178,20 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate) => {
         selectedCategory: "all",
         selectedRegion: "all",
         searchQuery: "",
-        filterTab: "category"
+        searchInputValue: "",
+        isSearchMode: false,
+        searchResults: [],
+        filterTab: "category",
+        currentPage: 1,
+        hasMore: true
       });
-      
-      // Simulate data refresh
-      setTimeout(() => {
-        setBarterTrade("isLoading", false);
-      }, 800);
+    },
+
+    handleLoadMore: (loadMoreFn) => {
+      // Call the loadMore function from useBarterTrade hook
+      if (loadMoreFn && typeof loadMoreFn === 'function') {
+        loadMoreFn();
+      }
     }
   };
 };

@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+const { executeQuery, executeCommand } = require('../config/database');
 
 class Product {
   constructor(data) {
@@ -42,7 +42,7 @@ class Product {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const [result] = await pool.execute(query, [
+    const [result] = await executeCommand(query, [
       project_id || null,
       title,
       description,
@@ -95,17 +95,31 @@ class Product {
 
     query += ' ORDER BY p.created_at DESC';
 
+    // Fix: Properly validate and convert limit/offset to integers
     if (filters.limit) {
-      query += ' LIMIT ?';
-      params.push(filters.limit);
+      console.log('Filters before parsing limit/offset:', filters.limit, filters.offset);
+      const limit = parseInt(filters.limit);
+      if (isNaN(limit) || limit <= 0) {
+        throw new Error('Invalid limit parameter: must be a positive integer');
+      }
+      query += ` LIMIT ${limit}`;
 
       if (filters.offset) {
-        query += ' OFFSET ?';
-        params.push(filters.offset);
+        const offset = parseInt(filters.offset);
+        if (isNaN(offset) || offset < 0) {
+          throw new Error('Invalid offset parameter: must be a non-negative integer');
+        }
+        query += ` OFFSET ${offset}`;
       }
     }
 
-    const [rows] = await pool.execute(query, params);
+    // Debug logging to understand the parameter mismatch
+    console.log('SQL Query:', query);
+    console.log('Parameters:', params);
+    console.log('Parameter count:', params.length);
+    console.log('Query placeholders count:', (query.match(/\?/g) || []).length);
+
+    const rows = await executeQuery(query, params);
     return rows.map(row => new Product(row));
   }
 
@@ -118,7 +132,7 @@ class Product {
       WHERE p.id = ?
     `;
 
-    const [rows] = await pool.execute(query, [id]);
+    const rows = await executeQuery(query, [id]);
     
     if (rows.length === 0) {
       return null;
@@ -149,7 +163,7 @@ class Product {
 
     query += ' ORDER BY p.created_at DESC';
 
-    const [rows] = await pool.execute(query, params);
+    const rows = await executeQuery(query, params);
     return rows.map(row => new Product(row));
   }
 
@@ -179,7 +193,7 @@ class Product {
 
     query += ' ORDER BY p.created_at DESC';
 
-    const [rows] = await pool.execute(query, params);
+    const rows = await executeQuery(query, params);
     return rows.map(row => new Product(row));
   }
 
@@ -193,7 +207,7 @@ class Product {
       ORDER BY p.created_at DESC
     `;
 
-    const [rows] = await pool.execute(query);
+    const rows = await executeQuery(query);
     return rows.map(row => new Product(row));
   }
 
@@ -226,7 +240,7 @@ class Product {
       WHERE id = ? AND user_id = ?
     `;
 
-    const [result] = await pool.execute(query, [
+    const [result] = await executeCommand(query, [
       project_id || null,
       title,
       description,
@@ -255,7 +269,7 @@ class Product {
     }
 
     const query = 'DELETE FROM products WHERE id = ?';
-    const [result] = await pool.execute(query, [id]);
+    const [result] = await executeCommand(query, [id]);
 
     return result.affectedRows > 0;
   }
@@ -268,7 +282,7 @@ class Product {
       WHERE id = ?
     `;
 
-    const [result] = await pool.execute(query, [quantity, id]);
+    const [result] = await executeCommand(query, [quantity, id]);
     return result.affectedRows > 0;
   }
 
@@ -280,7 +294,7 @@ class Product {
       WHERE id = ? AND stock_quantity >= ?
     `;
 
-    const [result] = await pool.execute(query, [quantity, id, quantity]);
+    const [result] = await executeCommand(query, [quantity, id, quantity]);
     return result.affectedRows > 0;
   }
 
@@ -294,7 +308,7 @@ class Product {
       ORDER BY p.created_at DESC
     `;
 
-    const [rows] = await pool.execute(query, [type]);
+    const rows = await executeQuery(query, [type]);
     return rows.map(row => new Product(row));
   }
 

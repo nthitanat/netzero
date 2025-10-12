@@ -22,8 +22,32 @@ class ProductController {
       if (type) filters.type = type;
       if (isRecommend !== undefined) filters.isRecommend = isRecommend === 'true';
       if (inStock === 'true') filters.inStock = true;
-      if (limit) filters.limit = parseInt(limit);
-      if (offset) filters.offset = parseInt(offset);
+      
+      // Validate and set limit with proper error handling
+      if (limit) {
+        const parsedLimit = parseInt(limit);
+        if (isNaN(parsedLimit) || parsedLimit <= 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid limit parameter: must be a positive integer',
+            timestamp: new Date().toISOString()
+          });
+        }
+        filters.limit = parsedLimit;
+      }
+      
+      // Validate and set offset with proper error handling
+      if (offset) {
+        const parsedOffset = parseInt(offset);
+        if (isNaN(parsedOffset) || parsedOffset < 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid offset parameter: must be a non-negative integer',
+            timestamp: new Date().toISOString()
+          });
+        }
+        filters.offset = parsedOffset;
+      }
 
       const products = await Product.findAll(filters);
       

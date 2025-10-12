@@ -24,6 +24,8 @@ class ProductsService {
       // Apply filters
       if (options.category) params.category = options.category;
       if (options.type) params.type = options.type;
+      if (options.region) params.region = options.region;
+      if (options.address) params.address = options.address; // Alternative to region
       if (options.isRecommend !== undefined) params.isRecommend = options.isRecommend;
       if (options.inStock) params.inStock = options.inStock;
       if (options.limit) params.limit = options.limit;
@@ -174,6 +176,7 @@ class ProductsService {
       const params = {};
       if (options.category) params.category = options.category;
       if (options.type) params.type = options.type;
+      if (options.region) params.region = options.region;
       if (options.inStock) params.inStock = options.inStock;
 
       const response = await axiosInstance.get(`${this.baseUrl}/search/${encodeURIComponent(searchTerm)}`, { params });
@@ -204,6 +207,7 @@ class ProductsService {
       const params = {};
       if (options.category) params.category = options.category;
       if (options.type) params.type = options.type;
+      if (options.region) params.region = options.region;
 
       const response = await axiosInstance.get(`${this.baseUrl}/my`, { params });
 

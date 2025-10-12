@@ -4,13 +4,21 @@ import styles from "./Market.module.scss";
 import useMarket from "./useMarket";
 import MarketHandler from "./MarketHandler";
 import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
-import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, SearchOverlay, ReserveDialog } from "../../components/market";
+import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ReserveDialog } from "../../components/market";
 import { LoginModal } from "../../components/auth";
 
 export default function Market() {
     const navigate = useNavigate();
-    const { stateMarket, setMarket } = useMarket();
-    const handlers = MarketHandler(stateMarket, setMarket, navigate);
+    const { 
+        stateMarket, 
+        setMarket, 
+        performSearch, 
+        isSearching,
+        loadMore,
+        hasMore,
+        isLoadingMore 
+    } = useMarket();
+    const handlers = MarketHandler(stateMarket, setMarket, navigate, performSearch);
     
     return (
         <div className={styles.Container}>
@@ -39,11 +47,16 @@ export default function Market() {
                         theme="market"
                     />
                     
-                    {/* Search Bar Overlaid at Center Bottom of Advertisement */}
-                    <div className={styles.SearchOverlayContainer}>
-                        <SearchOverlay
+                    {/* Product Search Overlaid at Center Bottom of Advertisement */}
+                    <div className={styles.ProductSearchContainer}>
+                        <ProductSearch
+                            searchInputValue={stateMarket.searchInputValue}
+                            onSearchInputChange={handlers.handleSearchInputChange}
+                            onSearchSubmit={handlers.handleSearchSubmit}
+                            onClearSearch={handlers.handleClearSearch}
+                            isSearching={isSearching}
+                            isSearchMode={stateMarket.isSearchMode}
                             searchQuery={stateMarket.searchQuery}
-                            onSearchChange={handlers.handleSearchChange}
                             viewMode={stateMarket.viewMode}
                             onViewModeChange={handlers.handleViewModeChange}
                             placeholder="ค้นหาสินค้า..."
@@ -54,10 +67,10 @@ export default function Market() {
             </div>
             
             <div className={styles.Content}>
-                {stateMarket.isLoading ? (
+                {stateMarket.isLoading || isSearching ? (
                     <div className={styles.LoadingContainer}>
                         <div className={styles.LoadingSpinner} />
-                        <p>กำลังโหลดสินค้า...</p>
+                        <p>{isSearching ? 'กำลังค้นหาสินค้า...' : 'กำลังโหลดสินค้า...'}</p>
                     </div>
                 ) : (
                     <div className={`${styles.ProductGrid} ${styles[stateMarket.viewMode]}`}>
@@ -74,13 +87,55 @@ export default function Market() {
                     </div>
                 )}
                 
-                {!stateMarket.isLoading && stateMarket.filteredProducts.length === 0 && (
+                {!stateMarket.isLoading && !isSearching && stateMarket.filteredProducts.length === 0 && (
                     <div className={styles.EmptyState}>
                         <div className={styles.EmptyIcon}>
                             <GoogleIcon iconType="store" size="large" />
                         </div>
-                        <h3>ไม่มีสินค้าในหมวดหมู่นี้</h3>
-                        <p>ลองเลือกหมวดหมู่อื่น หรือกลับมาดูใหม่ในภายหลัง</p>
+                        {stateMarket.isSearchMode ? (
+                            <>
+                                <h3>ไม่พบสินค้าที่ค้นหา</h3>
+                                <p>ไม่พบสินค้าที่ตรงกับ "{stateMarket.searchQuery}"</p>
+                                <p>ลองใช้คำค้นหาอื่น หรือเคลียร์การค้นหาเพื่อดูสินค้าทั้งหมด</p>
+                                <button 
+                                    onClick={handlers.handleClearSearch}
+                                    className={styles.ClearSearchButton}
+                                >
+                                    เคลียร์การค้นหา
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h3>ไม่มีสินค้าในหมวดหมู่นี้</h3>
+                                <p>ลองเลือกหมวดหมู่อื่น หรือกลับมาดูใหม่ในภายหลัง</p>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {/* Search Results Info */}
+                {stateMarket.isSearchMode && stateMarket.filteredProducts.length > 0 && (
+                    <div className={styles.SearchResultsInfo}>
+                        <p>🔍 ผลการค้นหา "{stateMarket.searchQuery}": พบ {stateMarket.filteredProducts.length} รายการ</p>
+                        <button 
+                            onClick={handlers.handleClearSearch}
+                            className={styles.ClearSearchButton}
+                        >
+                            เคลียร์การค้นหา
+                        </button>
+                    </div>
+                )}
+
+                {/* Load More Button - Only show in browse mode, not search mode */}
+                {!stateMarket.isSearchMode && !stateMarket.isLoading && hasMore && stateMarket.filteredProducts.length > 0 && (
+                    <div className={styles.LoadMoreContainer}>
+                        <button 
+                            onClick={() => handlers.handleLoadMore(loadMore)}
+                            disabled={isLoadingMore}
+                            className={styles.LoadMoreButton}
+                        >
+                            {isLoadingMore ? 'กำลังโหลด...' : 'โหลดสินค้าเพิ่มเติม'}
+                        </button>
                     </div>
                 )}
             </div>

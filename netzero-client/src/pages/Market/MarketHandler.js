@@ -1,4 +1,4 @@
-const MarketHandler = (stateMarket, setMarket, navigate) => {
+const MarketHandler = (stateMarket, setMarket, navigate, performSearch) => {
   
   return {
     handleCategoryChange: (category) => {
@@ -119,8 +119,34 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
       });
     },
 
-    handleSearchChange: (query) => {
-      setMarket("searchQuery", query);
+    handleSearchInputChange: (value) => {
+      setMarket("searchInputValue", value);
+    },
+
+    handleSearchSubmit: async () => {
+      const searchTerm = stateMarket.searchInputValue.trim();
+      
+      if (performSearch && typeof performSearch === 'function') {
+        // Set searchQuery for tracking purposes
+        setMarket("searchQuery", searchTerm);
+        // Perform server-side search
+        await performSearch(searchTerm);
+      } else {
+        console.warn("performSearch function not provided to MarketHandler");
+      }
+    },
+
+    handleClearSearch: () => {
+      setMarket({
+        searchInputValue: "",
+        searchQuery: "",
+        isSearchMode: false,
+        searchResults: []
+      });
+      // Perform empty search to return to normal view
+      if (performSearch && typeof performSearch === 'function') {
+        performSearch("");
+      }
     },
 
     handleAdClick: (ad) => {
@@ -142,10 +168,20 @@ const MarketHandler = (stateMarket, setMarket, navigate) => {
         selectedCategory: "all",
         selectedRegion: "all",
         searchQuery: "",
-        filterTab: "category"
+        searchInputValue: "",
+        isSearchMode: false,
+        searchResults: [],
+        filterTab: "category",
+        currentPage: 1,
+        hasMore: true
       });
-      
-     
+    },
+
+    handleLoadMore: (loadMoreFn) => {
+      // Call the loadMore function from useMarket hook
+      if (loadMoreFn && typeof loadMoreFn === 'function') {
+        loadMoreFn();
+      }
     }
   };
 };

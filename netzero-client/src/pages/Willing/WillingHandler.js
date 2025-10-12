@@ -1,4 +1,4 @@
-const WillingHandler = (stateWilling, setWilling, navigate) => {
+const WillingHandler = (stateWilling, setWilling, navigate, performSearch) => {
   
   return {
     handleCategoryChange: (category) => {
@@ -112,6 +112,36 @@ const WillingHandler = (stateWilling, setWilling, navigate) => {
       });
     },
 
+    handleSearchInputChange: (value) => {
+      setWilling("searchInputValue", value);
+    },
+
+    handleSearchSubmit: async () => {
+      const searchTerm = stateWilling.searchInputValue.trim();
+      
+      if (performSearch && typeof performSearch === 'function') {
+        // Set searchQuery for tracking purposes
+        setWilling("searchQuery", searchTerm);
+        // Perform server-side search
+        await performSearch(searchTerm);
+      } else {
+        console.warn("performSearch function not provided to WillingHandler");
+      }
+    },
+
+    handleClearSearch: () => {
+      setWilling({
+        searchInputValue: "",
+        searchQuery: "",
+        isSearchMode: false,
+        searchResults: []
+      });
+      // Perform empty search to return to normal view
+      if (performSearch && typeof performSearch === 'function') {
+        performSearch("");
+      }
+    },
+
     handleSearchChange: (query) => {
       setWilling("searchQuery", query);
     },
@@ -135,13 +165,20 @@ const WillingHandler = (stateWilling, setWilling, navigate) => {
         selectedCategory: "all",
         selectedRegion: "all",
         searchQuery: "",
-        filterTab: "category"
+        searchInputValue: "",
+        isSearchMode: false,
+        searchResults: [],
+        filterTab: "category",
+        currentPage: 1,
+        hasMore: true
       });
-      
-      // Simulate data refresh
-      setTimeout(() => {
-        setWilling("isLoading", false);
-      }, 800);
+    },
+
+    handleLoadMore: (loadMoreFn) => {
+      // Call the loadMore function from useWilling hook
+      if (loadMoreFn && typeof loadMoreFn === 'function') {
+        loadMoreFn();
+      }
     }
   };
 };

@@ -1,0 +1,325 @@
+@import "src/styles/main";
+
+.ProductSearch {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 20px;
+  padding: 20px;
+  
+  // Default styling for market, barter, and willing themes
+  @include glassmorphism-light;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  // Theme mixins
+  &.market {
+    @include market-theme;
+    @include market-glassmorphism-overlay;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      transform: translateX(-50%) translateY(-2px);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+    }
+  }
+  
+  &.barter {
+    @include barter-theme;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      transform: translateX(-50%) translateY(-2px);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+    }
+  }
+  
+  &.willing {
+    @include willing-theme;
+    @include willing-glassmorphism-overlay;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      transform: translateX(-50%) translateY(-2px);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+    }
+  }
+}
+
+.ProductSearchContent {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.SearchWrapper {
+  flex: 1;
+}
+
+.SearchInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--theme-bg, white);
+  border-radius: 16px;
+  padding: 4px 8px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  
+  &.Focused {
+    border-color: var(--theme-primary, var(--primary-color-2));
+    box-shadow: 
+      inset 0 2px 6px rgba(0, 0, 0, 0.1),
+      0 0 0 3px rgba(var(--theme-primary-rgb, 33, 150, 243), 0.1);
+  }
+  
+  &:hover {
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.SearchIcon {
+  font-size: 16px;
+  color: var(--theme-text-secondary, rgba(0, 0, 0, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  transition: color 0.3s ease;
+  
+  .Focused & {
+    color: var(--theme-primary, var(--primary-color-2));
+  }
+}
+
+.SearchInput {
+  flex: 1;
+  padding: 14px 12px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--theme-text, var(--primary-color-2));
+  outline: none;
+  font-weight: 500;
+  
+  &::placeholder {
+    color: var(--theme-text-secondary, rgba(0, 0, 0, 0.5));
+    font-weight: 400;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.SearchButton {
+  padding: 12px 16px;
+  background: var(--theme-primary, var(--primary-color-2));
+  color: var(--theme-primary-text, white);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  &:hover:not(:disabled) {
+    background: var(--theme-primary-hover, var(--primary-color-1));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  &.Loading {
+    animation: pulse 1.5s infinite;
+  }
+}
+
+.ClearButton {
+  padding: 10px 12px;
+  background: var(--theme-secondary, #6c757d);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  
+  &:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+  }
+}
+
+.SearchStatus {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--theme-text-secondary, rgba(0, 0, 0, 0.6));
+  text-align: center;
+  font-weight: 500;
+}
+
+.ViewToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--theme-bg, white);
+  border-radius: 12px;
+  padding: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ToggleButton {
+  @include font-size-palette("body-3");
+  color: var(--theme-text, var(--primary-color-2));
+  
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  
+  &:hover {
+    color: var(--theme-text-hover, var(--primary-color-1));
+    background: rgba(var(--theme-primary-rgb, 33, 150, 243), 0.1);
+  }
+  
+  &.Active {
+    background: var(--theme-primary, var(--primary-color-2));
+    color: var(--theme-primary-text, white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .ProductSearch {
+    width: 95%;
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  .ProductSearchContent {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .SearchInputContainer {
+    padding: 4px 6px;
+    border-radius: 14px;
+  }
+  
+  .SearchInput {
+    padding: 12px 10px;
+    font-size: 15px;
+  }
+  
+  .SearchButton {
+    padding: 10px 14px;
+    min-width: 42px;
+    border-radius: 10px;
+  }
+  
+  .ClearButton {
+    padding: 8px 10px;
+    min-width: 32px;
+    border-radius: 8px;
+  }
+  
+  .ViewToggle {
+    align-self: center;
+  }
+  
+  .ToggleButton {
+    padding: 6px 12px;
+    @include font-size-palette("body-4");
+  }
+}
+
+@media (max-width: 480px) {
+  .ProductSearch {
+    width: 98%;
+    padding: 12px;
+    border-radius: 12px;
+  }
+  
+  .ProductSearchContent {
+    gap: 12px;
+  }
+  
+  .SearchInputContainer {
+    gap: 6px;
+    padding: 3px 5px;
+    border-radius: 12px;
+  }
+  
+  .SearchInput {
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+  
+  .SearchButton {
+    padding: 8px 12px;
+    min-width: 38px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+  
+  .ClearButton {
+    padding: 6px 8px;
+    min-width: 28px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+  
+  .ToggleButton {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .SearchStatus {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+}
