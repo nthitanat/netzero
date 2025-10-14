@@ -1,0 +1,459 @@
+@import "src/styles/main";
+
+.Container {
+  width: 100%;
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  @include glassmorphism-light;
+  padding: 1.5rem;
+  border-radius: 20px;
+  
+  .Title {
+    @include font-size-palette("headline-3");
+    @include text-color-palette("primary-color-1");
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.RefreshButton {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  padding: 0.75rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include font-size-palette("body-1");
+
+  &:hover {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.1);
+  }
+}
+
+// Loading State
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  gap: 1rem;
+  
+  .LoadingSpinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    @include border-color-palette("primary-color-2");
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    @include text-color-palette("primary-color-2");
+    @include font-size-palette("body-1");
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Empty State
+.EmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  @include glassmorphism-light;
+  border-radius: 20px;
+  gap: 1rem;
+  
+  .EmptyIcon {
+    @include text-color-palette("primary-color-3");
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    @include font-size-palette("headline-4");
+    @include text-color-palette("primary-color-1");
+    margin: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-2");
+    margin: 0;
+    max-width: 400px;
+  }
+}
+
+// Content
+.Content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Stats Bar
+.StatsBar {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  @include glassmorphism-light;
+  border-radius: 16px;
+  margin-bottom: 1.25rem;
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+.StatItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  .StatLabel {
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-2");
+    font-weight: 500;
+  }
+  
+  .StatValue {
+    @include font-size-palette("body-1");
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    
+    &.pending {
+      @include bg-color-palette("warning");
+      @include text-color-palette("white");
+    }
+    
+    &.confirmed {
+      @include bg-color-palette("active-300");
+      @include text-color-palette("white");
+    }
+    
+    &.cancelled {
+      background-color: #ff5252;
+      @include text-color-palette("white");
+    }
+  }
+}
+
+// Reservations List
+.ReservationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ReservationCard {
+  @include glassmorphism-card;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    @include shawdow-palette("primary-color-2", 0.2);
+  }
+}
+
+.ReservationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.ReservationInfo {
+  flex: 1;
+  
+  .ProductTitle {
+    @include font-size-palette("headline-5");
+    @include text-color-palette("primary-color-1");
+    margin: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .CustomerInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    @include text-color-palette("primary-color-2");
+    @include font-size-palette("body-2");
+  }
+}
+
+.ReservationId {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  font-weight: 500;
+}
+
+.StatusBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  @include font-size-palette("body-3");
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  &.orange {
+    @include bg-color-palette("warning");
+    @include text-color-palette("white");
+  }
+  
+  &.green {
+    @include bg-color-palette("active-300");
+    @include text-color-palette("white");
+  }
+  
+  &.red {
+    background-color: #ff5252;
+    @include text-color-palette("white");
+  }
+  
+  &.gray {
+    @include bg-color-palette("inactive");
+    @include text-color-palette("white");
+  }
+}
+
+.ReservationDetails {
+  margin-bottom: 1.5rem;
+}
+
+.DetailRow {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.DetailItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+}
+
+.TotalPrice {
+  @include font-size-palette("body-1");
+  font-weight: 600;
+  @include text-color-palette("primary-color-1");
+}
+
+.ShippingAddress {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  @include bg-color-palette("secondary-color-4");
+  border-radius: 12px;
+  margin-top: 0.75rem;
+  border-left: 4px solid;
+  @include border-color-palette("primary-color-3");
+  
+  .AddressContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    
+    .AddressLabel {
+      @include font-size-palette("body-3");
+      @include text-color-palette("primary-color-2");
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .AddressText {
+      @include font-size-palette("body-2");
+      @include text-color-palette("primary-color-1");
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+  }
+}
+
+.UserNote,
+.SellerNote,
+.Note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  @include bg-color-palette("secondary-color-4");
+  border-radius: 12px;
+  margin-top: 0.75rem;
+  border-left: 4px solid;
+  @include border-color-palette("primary-color-3");
+  
+  .NoteContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    
+    .NoteLabel {
+      @include font-size-palette("body-3");
+      @include text-color-palette("primary-color-2");
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .NoteText {
+      @include font-size-palette("body-2");
+      @include text-color-palette("primary-color-1");
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+  }
+  
+  span {
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-1");
+    line-height: 1.4;
+  }
+}
+
+.ReservationActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+  }
+}
+
+.CancelButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  @include bg-color-palette("white");
+  @include text-color-palette("primary-color-1");
+  border: 2px solid;
+  @include border-color-palette("primary-color-1");
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #ff5252;
+    @include text-color-palette("white");
+    border-color: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 82, 82, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 640px) {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+.ConfirmButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-2px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+  
+  @media (max-width: 640px) {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+.ConfirmedInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  @include bg-color-palette("secondary-color-4");
+  border-radius: 12px;
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-3");
+}
+
+// Additional responsive adjustments
+@media (max-width: 480px) {
+  .Container {
+    padding: 0.5rem;
+  }
+  
+  .Header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .ReservationCard {
+    padding: 1rem;
+    margin: 0;
+  }
+}

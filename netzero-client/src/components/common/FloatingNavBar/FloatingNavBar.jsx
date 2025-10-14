@@ -93,6 +93,13 @@ export default function FloatingNavBar({
                                             <GoogleIcon iconType="person" size="small" />
                                             Profile
                                         </button>
+                                        <button 
+                                            className={styles.UserMenuItem}
+                                            onClick={handlers.handleMyOrdersClick}
+                                        >
+                                            <GoogleIcon iconType="shopping_cart" size="small" />
+                                            My Orders
+                                        </button>
                                         {user?.role === 'seller' && (
                                             <button 
                                                 className={styles.UserMenuItem}

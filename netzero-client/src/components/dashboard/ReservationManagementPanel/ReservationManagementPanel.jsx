@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./ReservationManagementPanel.module.scss";
 import { GoogleIcon } from "../../common";
-import { productsService } from "../../../api";
 
 export default function ReservationManagementPanel({ 
     reservations = [],
@@ -9,8 +8,11 @@ export default function ReservationManagementPanel({
     onConfirmReservation,
     onCancelReservation,
     onRefresh,
+    mode = "seller", // "seller" or "customer"
     theme = "seller",
-    className = "" 
+    className = "",
+    showStats = true,
+    showActions = true 
 }) {
     
     const formatDate = (dateString) => {
@@ -22,6 +24,12 @@ export default function ReservationManagementPanel({
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+    
+    const formatPrice = (price) => {
+        if (!price) return '฿0';
+        const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+        return `฿${numPrice.toLocaleString('th-TH')}`;
     };
     
     const getStatusInfo = (status) => {
@@ -55,7 +63,9 @@ export default function ReservationManagementPanel({
     return (
         <div className={`${styles.Container} ${styles[`${theme}-theme`]} ${className}`}>
             <div className={styles.Header}>
-                <h2 className={styles.Title}>จัดการการจอง</h2>
+                <h2 className={styles.Title}>
+                    {mode === "customer" ? "การจองของฉัน" : "จัดการการจอง"}
+                </h2>
                 <button 
                     className={styles.RefreshButton}
                     onClick={onRefresh}
@@ -71,35 +81,42 @@ export default function ReservationManagementPanel({
                         <GoogleIcon iconType="shopping_cart" size="large" />
                     </div>
                     <h3>ยังไม่มีการจอง</h3>
-                    <p>เมื่อมีลูกค้าจองสินค้าของคุณ รายการจะแสดงที่นี่</p>
+                    <p>
+                        {mode === "customer" 
+                            ? "เมื่อคุณจองสินค้า รายการจะแสดงที่นี่" 
+                            : "เมื่อมีลูกค้าจองสินค้าของคุณ รายการจะแสดงที่นี่"
+                        }
+                    </p>
                 </div>
             ) : (
                 <div className={styles.Content}>
-                    <div className={styles.StatsBar}>
-                        <div className={styles.StatItem}>
-                            <span className={styles.StatLabel}>รอยืนยัน:</span>
-                            <span className={`${styles.StatValue} ${styles.pending}`}>
-                                {pendingReservations.length}
-                            </span>
+                    {showStats && (
+                        <div className={styles.StatsBar}>
+                            <div className={styles.StatItem}>
+                                <span className={styles.StatLabel}>รอยืนยัน:</span>
+                                <span className={`${styles.StatValue} ${styles.pending}`}>
+                                    {pendingReservations.length}
+                                </span>
+                            </div>
+                            <div className={styles.StatItem}>
+                                <span className={styles.StatLabel}>ยืนยันแล้ว:</span>
+                                <span className={`${styles.StatValue} ${styles.confirmed}`}>
+                                    {confirmedReservations.length}
+                                </span>
+                            </div>
+                            <div className={styles.StatItem}>
+                                <span className={styles.StatLabel}>ยกเลิก:</span>
+                                <span className={`${styles.StatValue} ${styles.cancelled}`}>
+                                    {cancelledReservations.length}
+                                </span>
+                            </div>
                         </div>
-                        <div className={styles.StatItem}>
-                            <span className={styles.StatLabel}>ยืนยันแล้ว:</span>
-                            <span className={`${styles.StatValue} ${styles.confirmed}`}>
-                                {confirmedReservations.length}
-                            </span>
-                        </div>
-                        <div className={styles.StatItem}>
-                            <span className={styles.StatLabel}>ยกเลิก:</span>
-                            <span className={`${styles.StatValue} ${styles.cancelled}`}>
-                                {cancelledReservations.length}
-                            </span>
-                        </div>
-                    </div>
+                    )}
                     
                     <div className={styles.ReservationsList}>
                         {reservations.map((reservation) => {
                             const statusInfo = getStatusInfo(reservation.status);
-                            const productPrice = reservation.product_price || 0;
+                            const productPrice = reservation.product?.price ? parseFloat(reservation.product.price) : 0;
                             const quantity = reservation.quantity || 0;
                             const totalPrice = productPrice * quantity;
                             
@@ -108,12 +125,23 @@ export default function ReservationManagementPanel({
                                     <div className={styles.ReservationHeader}>
                                         <div className={styles.ReservationInfo}>
                                             <h3 className={styles.ProductTitle}>
-                                                {reservation.product_title}
+                                                {reservation.product?.title || 'ไม่ระบุชื่อสินค้า'}
                                             </h3>
-                                            <div className={styles.CustomerInfo}>
-                                                <GoogleIcon iconType="person" size="small" />
-                                                <span>{reservation.user_name || `ลูกค้า #${reservation.user_id}`}</span>
-                                            </div>
+                                            {mode === "customer" ? (
+                                                <div className={styles.ReservationId}>
+                                                    ID: #{reservation.reservation_id}
+                                                </div>
+                                            ) : (
+                                                <div className={styles.CustomerInfo}>
+                                                    <GoogleIcon iconType="person" size="small" />
+                                                    <span>
+                                                        {reservation.customer ? 
+                                                            `${reservation.customer.firstName} ${reservation.customer.lastName}` : 
+                                                            `ลูกค้า #${reservation.user_id}`
+                                                        }
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                         
                                         <div className={`${styles.StatusBadge} ${styles[statusInfo.color]}`}>
@@ -130,7 +158,7 @@ export default function ReservationManagementPanel({
                                             </div>
                                             <div className={styles.DetailItem}>
                                                 <GoogleIcon iconType="monetization_on" size="small" />
-                                                <span>ราคาต่อชิ้น: {productsService.formatPrice(productPrice)}</span>
+                                                <span>ราคาต่อชิ้น: {formatPrice(productPrice)}</span>
                                             </div>
                                         </div>
                                         
@@ -140,22 +168,46 @@ export default function ReservationManagementPanel({
                                                 <span>วันที่จอง: {formatDate(reservation.created_at)}</span>
                                             </div>
                                             <div className={styles.TotalPrice}>
-                                                <span>ยอดรวม: {productsService.formatPrice(totalPrice)}</span>
+                                                <span>ยอดรวม: {formatPrice(totalPrice)}</span>
                                             </div>
                                         </div>
                                         
-                                        <div className={styles.DetailRow}>
-                                            <div className={styles.DetailItem}>
-                                                <GoogleIcon iconType={reservation.option_of_delivery === 'pickup' ? 'store' : 'local_shipping'} size="small" />
-                                                <span>{reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 'จัดส่งถึงที่อยู่'}</span>
+                                        {mode === "customer" && (
+                                            <div className={styles.DetailRow}>
+                                                <div className={styles.DetailItem}>
+                                                    <GoogleIcon iconType="store" size="small" />
+                                                    <span>ผู้ขาย: {reservation.owner ? `${reservation.owner.firstName} ${reservation.owner.lastName}` : 'ไม่ระบุ'}</span>
+                                                </div>
+                                                <div className={styles.DetailItem}>
+                                                    <GoogleIcon iconType={reservation.option_of_delivery === 'pickup' ? 'store' : 'local_shipping'} size="small" />
+                                                    <span>{reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 'จัดส่งถึงที่อยู่'}</span>
+                                                </div>
                                             </div>
-                                            {reservation.option_of_delivery === 'pickup' && reservation.pickup_date && (
+                                        )}
+                                        
+                                        {mode === "seller" && (
+                                            <div className={styles.DetailRow}>
+                                                <div className={styles.DetailItem}>
+                                                    <GoogleIcon iconType={reservation.option_of_delivery === 'pickup' ? 'store' : 'local_shipping'} size="small" />
+                                                    <span>{reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 'จัดส่งถึงที่อยู่'}</span>
+                                                </div>
+                                                {reservation.option_of_delivery === 'pickup' && reservation.pickup_date && (
+                                                    <div className={styles.DetailItem}>
+                                                        <GoogleIcon iconType="schedule" size="small" />
+                                                        <span>วันที่รับ: {formatDate(reservation.pickup_date)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        
+                                        {mode === "customer" && reservation.option_of_delivery === 'pickup' && reservation.pickup_date && (
+                                            <div className={styles.DetailRow}>
                                                 <div className={styles.DetailItem}>
                                                     <GoogleIcon iconType="schedule" size="small" />
                                                     <span>วันที่รับ: {formatDate(reservation.pickup_date)}</span>
                                                 </div>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
                                         
                                         {reservation.option_of_delivery === 'delivery' && reservation.shipping_address && (
                                             <div className={styles.ShippingAddress}>
@@ -195,24 +247,37 @@ export default function ReservationManagementPanel({
                                         )}
                                     </div>
                                     
-                                    {reservation.status === 'pending' && (
+                                    {showActions && reservation.status === 'pending' && (
                                         <div className={styles.ReservationActions}>
-                                            <button 
-                                                className={styles.CancelButton}
-                                                onClick={() => onCancelReservation(reservation)}
-                                                title="ยกเลิกการจอง"
-                                            >
-                                                <GoogleIcon iconType="cancel" size="small" />
-                                                ยกเลิก
-                                            </button>
-                                            <button 
-                                                className={styles.ConfirmButton}
-                                                onClick={() => onConfirmReservation(reservation)}
-                                                title="ยืนยันการจอง"
-                                            >
-                                                <GoogleIcon iconType="check_circle" size="small" />
-                                                ยืนยัน
-                                            </button>
+                                            {mode === "seller" ? (
+                                                <>
+                                                    <button 
+                                                        className={styles.CancelButton}
+                                                        onClick={() => onCancelReservation(reservation)}
+                                                        title="ยกเลิกการจอง"
+                                                    >
+                                                        <GoogleIcon iconType="cancel" size="small" />
+                                                        ยกเลิก
+                                                    </button>
+                                                    <button 
+                                                        className={styles.ConfirmButton}
+                                                        onClick={() => onConfirmReservation(reservation)}
+                                                        title="ยืนยันการจอง"
+                                                    >
+                                                        <GoogleIcon iconType="check_circle" size="small" />
+                                                        ยืนยัน
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <button 
+                                                    className={styles.CancelButton}
+                                                    onClick={() => onCancelReservation(reservation.reservation_id)}
+                                                    title="ยกเลิกการจอง"
+                                                >
+                                                    <GoogleIcon iconType="cancel" size="small" />
+                                                    ยกเลิกการจอง
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                     

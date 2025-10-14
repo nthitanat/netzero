@@ -163,17 +163,21 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
         
         const response = await reservationsService.confirmReservation(reservation.reservation_id);
         
-        // Update reservation in local state
-        const updatedReservations = stateSellerDashboard.reservations.map(r =>
-          r.reservation_id === reservation.reservation_id 
-            ? { ...r, status: 'confirmed' }
-            : r
-        );
+        console.log('Confirm Reservation Response:', response);
         
-        setSellerDashboard("reservations", updatedReservations);
-        
-        console.log("✅ Reservation confirmed successfully");
-        alert(`ยืนยันการจอง "${reservation.product_title}" เรียบร้อยแล้ว`);
+        // Update reservation in local state if response exists
+        if (response) {
+          const updatedReservations = stateSellerDashboard.reservations.map(r =>
+            r.reservation_id === reservation.reservation_id 
+              ? { ...r, status: 'confirmed', confirmed_at: new Date().toISOString() }
+              : r
+          );
+          
+          setSellerDashboard("reservations", updatedReservations);
+          
+          console.log("✅ Reservation confirmed successfully");
+          alert(`ยืนยันการจอง "${reservation.product?.title || 'สินค้า'}" เรียบร้อยแล้ว`);
+        }
         
       } catch (error) {
         console.error("❌ Error confirming reservation:", error);
@@ -187,17 +191,21 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
         
         const response = await reservationsService.cancelReservation(reservation.reservation_id);
         
-        // Update reservation in local state
-        const updatedReservations = stateSellerDashboard.reservations.map(r =>
-          r.reservation_id === reservation.reservation_id 
-            ? { ...r, status: 'cancelled' }
-            : r
-        );
+        console.log('Cancel Reservation Response:', response);
         
-        setSellerDashboard("reservations", updatedReservations);
-        
-        console.log("✅ Reservation cancelled successfully");
-        alert(`ยกเลิกการจอง "${reservation.product_title}" เรียบร้อยแล้ว`);
+        // Update reservation in local state if response exists
+        if (response) {
+          const updatedReservations = stateSellerDashboard.reservations.map(r =>
+            r.reservation_id === reservation.reservation_id 
+              ? { ...r, status: 'cancelled' }
+              : r
+          );
+          
+          setSellerDashboard("reservations", updatedReservations);
+          
+          console.log("✅ Reservation cancelled successfully");
+          alert(`ยกเลิกการจอง "${reservation.product?.title || 'สินค้า'}" เรียบร้อยแล้ว`);
+        }
         
       } catch (error) {
         console.error("❌ Error cancelling reservation:", error);
@@ -246,10 +254,20 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
         
         const response = await reservationsService.getMyProductReservations();
         
-        setSellerDashboard({
-          reservations: response.data,
-          isLoading: false
-        });
+        console.log('Refresh Reservations Response:', response);
+        
+        // Handle response data properly
+        if (response && response.data) {
+          setSellerDashboard({
+            reservations: response.data,
+            isLoading: false
+          });
+        } else {
+          setSellerDashboard({
+            reservations: [],
+            isLoading: false
+          });
+        }
         
         console.log("✅ Reservations refreshed");
         

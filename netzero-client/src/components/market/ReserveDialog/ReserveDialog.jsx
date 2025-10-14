@@ -268,6 +268,7 @@ export default function ReserveDialog({
                                 (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim())
                             }
                         >
+                            
                             {stateReserveDialog.isReserving ? (
                                 <>
                                     <div className={styles.LoadingSpinner} />

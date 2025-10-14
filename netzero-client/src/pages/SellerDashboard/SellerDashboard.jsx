@@ -4,7 +4,7 @@ import styles from "./SellerDashboard.module.scss";
 import useSellerDashboard from "./useSellerDashboard";
 import SellerDashboardHandler from "./SellerDashboardHandler";
 import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
-import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel } from "../../components/seller";
+import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel } from "../../components/dashboard";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function SellerDashboard() {

@@ -1,4 +1,5 @@
-// Seller Stats Panel Styles
+@import "src/styles/main";
+
 .Container {
   width: 100%;
 }
@@ -7,27 +8,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
+  @include glassmorphism-light;
+  padding: 1.5rem;
+  border-radius: 20px;
   
   .Title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #333;
+    @include font-size-palette("headline-3");
+    @include text-color-palette("primary-color-1");
     margin: 0;
+    font-weight: 600;
   }
 }
 
 .RefreshButton {
-  padding: 10px;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  padding: 0.75rem;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #6c757d;
-  
+  @include font-size-palette("body-1");
+
   &:hover {
-    background: #e9ecef;
+    @include bg-color-palette("primary-color-2");
     color: #495057;
     transform: rotate(90deg);
   }

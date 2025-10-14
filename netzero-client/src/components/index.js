@@ -5,3 +5,4 @@ export * from './common';
 export * from './events';
 export * from './market';
 export * from './trees';
+export * from './dashboard';

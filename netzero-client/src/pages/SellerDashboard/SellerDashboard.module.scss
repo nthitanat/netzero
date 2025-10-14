@@ -1,10 +1,11 @@
-// Seller Dashboard Styles
+@import "src/styles/main";
+
 .Container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #333;
-  padding: 20px;
-  padding-bottom: 120px; // Space for floating nav
+  background: var(--map-bg);
+  @include text-color-palette("primary-color-1");
+  padding: 1.25rem;
+  padding-bottom: 7.5rem; // Space for floating nav
   position: relative;
   overflow: hidden;
 }
@@ -22,21 +23,21 @@
 // Header Styles
 .Header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
   position: relative;
   z-index: 1;
   
   .Title {
-    font-size: 2.5rem;
+    @include font-size-palette("headline-1");
+    @include text-color-palette("primary-color-1");
     font-weight: 700;
-    color: white;
-    margin-bottom: 10px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.625rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .Subtitle {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
+    @include font-size-palette("headline-5");
+    @include text-color-palette("primary-color-2");
     margin: 0;
   }
 }
@@ -45,52 +46,49 @@
 .TabContainer {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
   position: relative;
   z-index: 1;
 }
 
 .TabButtons {
   display: flex;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 6px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  @include glassmorphism-light;
+  border-radius: 16px;
+  padding: 0.5rem;
+  gap: 0.5rem;
 }
 
 .TabButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
   border: none;
   border-radius: 12px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-1");
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+  &:hover:not(.Active) {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
   }
   
   &.Active {
-    background: white;
-    color: #667eea;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    @include bg-color-palette("primary-color-2");
+    @include text-color-palette("white");
+    @include shawdow-palette("primary-color-2", 0.3);
   }
 }
 
 // Content Area
 .Content {
-  background: white;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  @include glassmorphism-card;
+  padding: 2rem;
   position: relative;
   z-index: 1;
   min-height: 600px;
@@ -104,60 +102,63 @@
   justify-content: center;
   min-height: 70vh;
   text-align: center;
-  color: white;
+  @include glassmorphism-card;
+  padding: 3rem;
+  gap: 1.5rem;
   
   .WarningIcon {
-    color: #ffd700;
-    margin-bottom: 20px;
+    @include text-color-palette("warning");
+    margin-bottom: 1.25rem;
   }
   
   h2 {
-    font-size: 2rem;
-    margin-bottom: 15px;
+    @include font-size-palette("headline-2");
+    @include text-color-palette("primary-color-1");
+    margin: 0;
     font-weight: 600;
   }
   
   p {
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-    opacity: 0.9;
+    @include font-size-palette("headline-5");
+    @include text-color-palette("primary-color-2");
+    margin: 0;
   }
 }
 
 .BackButton {
-  padding: 12px 24px;
-  background: white;
-  color: #667eea;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
   border: none;
+  padding: 0.75rem 1.5rem;
   border-radius: 12px;
-  font-size: 1rem;
+  @include font-size-palette("body-1");
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.9);
+    @include bg-color-palette("primary-color-1");
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    @include shawdow-palette("primary-color-2", 0.3);
   }
 }
 
 // Responsive Design
 @media (max-width: 768px) {
   .Container {
-    padding: 15px;
-    padding-bottom: 100px;
+    padding: 1rem;
+    padding-bottom: 6.25rem;
   }
   
   .Header {
-    margin-bottom: 30px;
+    margin-bottom: 2rem;
     
     .Title {
-      font-size: 2rem;
+      @include font-size-palette("headline-2");
     }
     
     .Subtitle {
-      font-size: 1rem;
+      @include font-size-palette("body-1");
     }
   }
   
@@ -173,23 +174,41 @@
   }
   
   .Content {
-    padding: 20px;
-    margin: 0 10px;
+    padding: 1.25rem;
+    margin: 0;
+  }
+  
+  .UnauthorizedContainer {
+    padding: 2rem;
+    margin: 0 0.5rem;
   }
 }
 
 @media (max-width: 480px) {
   .Container {
-    padding: 10px;
-    padding-bottom: 90px;
+    padding: 0.625rem;
+    padding-bottom: 5.625rem;
   }
   
   .Header .Title {
-    font-size: 1.8rem;
+    @include font-size-palette("headline-3");
   }
   
   .Content {
-    padding: 15px;
-    margin: 0 5px;
+    padding: 1rem;
+    margin: 0;
+  }
+  
+  .UnauthorizedContainer {
+    padding: 1.5rem;
+    margin: 0;
+    
+    h2 {
+      @include font-size-palette("headline-3");
+    }
+    
+    p {
+      @include font-size-palette("body-1");
+    }
   }
 }

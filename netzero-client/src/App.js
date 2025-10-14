@@ -10,6 +10,7 @@ import Chat from './pages/Chat/index';
 import Map from './pages/Map/Map';
 import Profile from './pages/Profile/Profile';
 import SellerDashboard from './pages/SellerDashboard/SellerDashboard';
+import MyOrders from './pages/MyOrders/MyOrders';
 import './styles/main.scss';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:userId" element={<Profile />} />
             <Route path="/seller-dashboard" element={<SellerDashboard />} />
+            <Route path="/my-orders" element={<MyOrders />} />
           </Routes>
         </div>
       </Router>
