@@ -35,7 +35,12 @@ const MarketHandler = (stateMarket, setMarket, navigate, performSearch) => {
       const isInStock = product?.stock_quantity > 0 || product?.inStock;
       console.log("Reserve click - isInStock:", isInStock, "product:", product);
       if (!isInStock) {
-        alert("สินค้านี้หมดแล้ว ไม่สามารถจองได้");
+        // Show error alert instead of browser alert
+        setMarket({
+          alertVisible: true,
+          alertType: "error",
+          alertMessage: "สินค้านี้หมดแล้ว ไม่สามารถจองได้"
+        });
         return;
       }
       
@@ -86,7 +91,7 @@ const MarketHandler = (stateMarket, setMarket, navigate, performSearch) => {
 
     handleReservationSuccess: (reservationData) => {
       // Handle successful reservation from ReserveDialog
-      const { transaction, updatedProduct, reservedQuantity } = reservationData;
+      const { transaction, updatedProduct, reservedQuantity, successMessage } = reservationData;
       
       console.log("✅ Reservation successful:", {
         transaction,
@@ -94,15 +99,12 @@ const MarketHandler = (stateMarket, setMarket, navigate, performSearch) => {
         reservedQuantity
       });
       
-      // Show success message
-      alert(`จองสินค้า "${updatedProduct.productTitle || updatedProduct.title}" จำนวน ${reservedQuantity} ชิ้น เรียบร้อยแล้ว!\n` +
-            `ยอดรวม: ${transaction.totalPrice?.toLocaleString() || 'N/A'} บาท\n` +
-            `เราจะติดต่อกลับในเร็วๆ นี้`);
-      
-      // Close the reserve dialog
+      // Show success modal at page level instead of alert
       setMarket({
         productToReserve: null,
-        showReserveDialog: false
+        showReserveDialog: false,
+        showReservationSuccessModal: true,
+        reservationData: reservationData
       });
       
       // Here you could also:
@@ -110,6 +112,13 @@ const MarketHandler = (stateMarket, setMarket, navigate, performSearch) => {
       // - Add the transaction to a user's reservation history
       // - Send analytics events
       // - Update the UI state if needed
+    },
+
+    handleCloseReservationSuccessModal: () => {
+      setMarket({
+        showReservationSuccessModal: false,
+        reservationData: null
+      });
     },
 
     handleCloseModal: () => {
@@ -182,6 +191,13 @@ const MarketHandler = (stateMarket, setMarket, navigate, performSearch) => {
       if (loadMoreFn && typeof loadMoreFn === 'function') {
         loadMoreFn();
       }
+    },
+
+    handleAlertClose: () => {
+      setMarket({
+        alertVisible: false,
+        alertMessage: ""
+      });
     }
   };
 };

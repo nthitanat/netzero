@@ -489,19 +489,6 @@
   font-weight: 700;
 }
 
-.ErrorAlert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  @include font-size-palette("body-2");
-  @include text-color-palette("warning");
-  padding: 12px 16px;
-  @include bg-color-palette("warning");
-  background: rgba(244, 67, 54, 0.1);
-  border-radius: 12px;
-  @include border-color-palette("warning", 1px);
-}
-
 .ActionSection {
   display: flex;
   gap: 12px;

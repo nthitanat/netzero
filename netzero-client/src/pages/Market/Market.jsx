@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Market.module.scss";
 import useMarket from "./useMarket";
 import MarketHandler from "./MarketHandler";
-import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
-import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ReserveDialog } from "../../components/market";
+import { FloatingNavBar, GoogleIcon, OrganicDecoration, Alert } from "../../components/common";
+import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ReserveDialog, ReservationSuccessModal } from "../../components/market";
 import { LoginModal } from "../../components/auth";
 
 export default function Market() {
@@ -24,6 +24,14 @@ export default function Market() {
         <div className={styles.Container}>
             <OrganicDecoration className={styles.BackgroundDecoration} />
             
+            <Alert
+                type={stateMarket.alertType}
+                message={stateMarket.alertMessage}
+                isVisible={stateMarket.alertVisible && stateMarket.alertType === "error"}
+                onClose={handlers.handleAlertClose}
+                autoClose={true}
+                autoCloseDelay={40000}
+            />
           
             <div className={styles.TopSection}>
                 {/* Left Side - Filter Container */}
@@ -166,6 +174,13 @@ export default function Market() {
                 isOpen={stateMarket.showLoginModal}
                 onClose={handlers.handleCloseLoginModal}
                 onSuccess={handlers.handleLoginSuccess}
+            />
+            
+            <ReservationSuccessModal
+                isOpen={stateMarket.showReservationSuccessModal}
+                reservationData={stateMarket.reservationData}
+                onClose={handlers.handleCloseReservationSuccessModal}
+                theme="market"
             />
             
             <FloatingNavBar

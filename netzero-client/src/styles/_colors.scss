@@ -24,13 +24,26 @@
   --black: #2E7D32; // Use forest green instead of pure black
   --white: #FFFFFF;
 
+  // Alert Colors
+  --error-light: #ffebee; // Light red background
+  --error-dark: #c62828; // Dark red text
+  --success-light: #e8f5e9; // Light green background
+  --success-dark: #2e7d32; // Dark green text
+
+  // Text Colors
+  --text-primary: #062708; // Dark Forest Green
+  --text-secondary: #4CAF50; // Light Forest Green
+  --text-placeholder: #A5D6A7; // Medium Light Green
+  --text-inverse: #FFFFFF; // White for dark backgrounds
+
   // Market Theme Colors (Modern Orange & Green Farmer's Market)
   --market-primary: #ff9800;
+  --market-dark: #2E7D32;
   --market-primary-hover: #f57c00;
   --market-secondary: #4caf50;
   --market-accent: #2e7d32;
   --market-bg: radial-gradient(ellipse 120% 100% at 50% 30%, #fff8e1 0%, #ffecb3 40%, #ffe082 70%, #ffcc02 100%);
-  --market-text: #e65100;
+  --market-text: #541800;
   --market-light: #fff3e0;
   --market-glass-bg: rgba(255, 248, 225, 0.85);
   --market-glass-border: rgba(255, 152, 0, 0.25);
@@ -41,14 +54,14 @@
   --barter-primary-hover: #1B5E20;
   --barter-secondary: #C8E6C9;
   --barter-bg: #E8F5E8;
-  --barter-text: #1B5E20;
+  --barter-text: #0e3110;
 
   // Willing Theme (Modern White-Pink Glassmorphism)
   --willing-primary: #ec407a;
   --willing-primary-hover: #d81b60;
   --willing-secondary: #fce4ec;
   --willing-bg: radial-gradient(ellipse 120% 100% at 50% 40%, #ffffff 0%, #ffffff 35%, #fce4ec 65%, #f8aed3 100%);
-  --willing-text: #880e4f;
+  --willing-text: #370520;
   --willing-accent: #f48fb1;
   --willing-light: #fce4ec;
   --willing-glass-bg: rgba(255, 255, 255, 0.85);
@@ -109,11 +122,12 @@
 // Theme-specific mixins
 @mixin market-theme {
   --theme-primary: var(--market-primary);
+  --theme-dark: var(--market-dark);
   --theme-primary-hover: var(--market-primary-hover);
   --theme-secondary: var(--market-secondary);
   --theme-bg: var(--market-bg);
   --theme-text: var(--market-text);
-  --theme-primary-text: white;
+  --theme-primary-text:var(--market-text);
   --theme-text-hover: #bf360c;
   --theme-shadow: var(--market-glass-shadow);
   --theme-accent: var(--market-accent);
@@ -126,11 +140,12 @@
 
 @mixin barter-theme {
   --theme-primary: var(--barter-primary);
+  --theme-dark: var(--barter-primary);
   --theme-primary-hover: var(--barter-primary-hover);
   --theme-secondary: var(--barter-secondary);
   --theme-bg: var(--barter-bg);
   --theme-text: var(--barter-text);
-  --theme-primary-text: white;
+  --theme-primary-text: var(--barter-text);
   --theme-text-hover: #1B5E20;
   --theme-shadow: rgba(46, 125, 50, 0.3);
   --theme-accent: #A5D6A7;
@@ -141,11 +156,12 @@
 
 @mixin willing-theme {
   --theme-primary: var(--willing-primary);
+  --theme-dark: var(--willing-primary);
   --theme-primary-hover: var(--willing-primary-hover);
   --theme-secondary: var(--willing-secondary);
   --theme-bg: var(--willing-bg);
   --theme-text: var(--willing-text);
-  --theme-primary-text: white;
+  --theme-primary-text: var(--willing-text);
   --theme-text-hover: #ad1457;
   --theme-shadow: var(--willing-glass-shadow);
   --theme-accent: var(--willing-accent);

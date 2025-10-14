@@ -35,7 +35,12 @@ const WillingHandler = (stateWilling, setWilling, navigate, performSearch) => {
       const isInStock = product?.stock_quantity > 0 || product?.inStock;
       console.log("Reserve click - isInStock:", isInStock, "product:", product);
       if (!isInStock) {
-        alert("สินค้านี้หมดแล้ว ไม่สามารถรับได้");
+        // Show error alert instead of browser alert
+        setWilling({
+          alertVisible: true,
+          alertType: "error",
+          alertMessage: "สินค้านี้หมดแล้ว ไม่สามารถรับได้"
+        });
         return;
       }
       
@@ -70,8 +75,8 @@ const WillingHandler = (stateWilling, setWilling, navigate, performSearch) => {
     },
 
     handleReservationSuccess: (reservationData) => {
-      // Handle successful reservation from ReserveDialog for free items
-      const { transaction, updatedProduct, reservedQuantity } = reservationData;
+      // Handle successful free item request from ReserveDialog
+      const { transaction, updatedProduct, reservedQuantity, successMessage } = reservationData;
       
       console.log("✅ Free item request successful:", {
         transaction,
@@ -79,14 +84,13 @@ const WillingHandler = (stateWilling, setWilling, navigate, performSearch) => {
         reservedQuantity
       });
       
-      // Show success message for free items
-      alert(`ขอรับสินค้าฟรี "${updatedProduct.productTitle || updatedProduct.title}" จำนวน ${reservedQuantity} ชิ้น เรียบร้อยแล้ว!\n` +
-            `เราจะติดต่อกลับในเร็วๆ นี้`);
-      
-      // Close the reserve dialog
+      // Show success alert at page level
       setWilling({
         productToReserve: null,
-        showReserveDialog: false
+        showReserveDialog: false,
+        alertVisible: true,
+        alertType: "success",
+        alertMessage: successMessage || `ขอรับสินค้าฟรี "${updatedProduct.productTitle || updatedProduct.title}" จำนวน ${reservedQuantity} ชิ้น เรียบร้อยแล้ว! เราจะติดต่อกลับในเร็วๆ นี้`
       });
     },
 
@@ -96,7 +100,12 @@ const WillingHandler = (stateWilling, setWilling, navigate, performSearch) => {
         setTimeout(() => {
           if (product.inStock) {
             console.log("Free product requested successfully:", product);
-            alert(`ขอรับสินค้า "${product.title}" เรียบร้อยแล้ว!\nเราจะติดต่อกลับในเร็วๆ นี้`);
+            // Show success alert via state instead of browser alert
+            setWilling({
+              alertVisible: true,
+              alertType: "success",
+              alertMessage: `ขอรับสินค้า "${product.title}" เรียบร้อยแล้ว! เราจะติดต่อกลับในเร็วๆ นี้`
+            });
             resolve(product);
           } else {
             reject(new Error("Product out of stock"));
@@ -179,6 +188,13 @@ const WillingHandler = (stateWilling, setWilling, navigate, performSearch) => {
       if (loadMoreFn && typeof loadMoreFn === 'function') {
         loadMoreFn();
       }
+    },
+
+    handleAlertClose: () => {
+      setWilling({
+        alertVisible: false,
+        alertMessage: ""
+      });
     }
   };
 };

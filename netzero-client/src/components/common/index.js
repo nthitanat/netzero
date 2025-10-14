@@ -1,3 +1,4 @@
+export { default as Alert } from './Alert/Alert';
 export { default as BaseSlideshow } from './BaseSlideshow/BaseSlideshow';
 export { default as FloatingNavBar } from './FloatingNavBar/FloatingNavBar';
 export { default as GoogleIcon } from './GoogleIcon/GoogleIcon';

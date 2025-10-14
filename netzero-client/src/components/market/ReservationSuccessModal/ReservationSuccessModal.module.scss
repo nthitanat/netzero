@@ -1,0 +1,408 @@
+@import "src/styles/main";
+
+.Container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+
+  // Theme variations
+  &.market-theme {
+    @include market-theme;
+  }
+
+  &.barter-theme {
+    @include barter-theme;
+  }
+
+  &.willing-theme {
+    @include willing-theme;
+  }
+
+  &.map-theme {
+    @include map-theme;
+  }
+}
+
+.Overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  // @include bg-color-palette("black");
+  // opacity: 0.6;
+  // backdrop-filter: blur(8px);
+  // -webkit-backdrop-filter: blur(8px);
+  // @include fade-in-animation(0.3s);
+}
+
+.Modal {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: auto;
+  @include glassmorphism-card;
+  @include bg-color-palette("white");
+  @include fade-in-animation(0.4s);
+  animation: modalEnter 0.3s ease-out forwards;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    @include bg-color-palette("secondary-color-4");
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @include bg-color-palette("primary-color-3");
+    border-radius: 4px;
+    
+    &:hover {
+      @include bg-color-palette("primary-color-2");
+    }
+  }
+
+  // Theme-specific styling
+  .Container.market-theme & {
+    @include market-glassmorphism-card;
+  }
+
+  .Container.willing-theme & {
+    @include willing-glassmorphism-card;
+  }
+
+  .Container.map-theme & {
+    @include map-glassmorphism-card;
+  }
+}
+
+.ModalContent {
+  padding: 32px;
+  
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 20px;
+  }
+}
+
+.SuccessHeader {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.SuccessIconContainer {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.SuccessIcon {
+  @include text-color-palette("success-dark");
+  @include font-size-palette("headline-1");
+  animation: successBounce 0.6s ease-out;
+  filter: drop-shadow(0 4px 12px rgba(46, 125, 50, 0.3));
+}
+
+@keyframes successBounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.SuccessTitle {
+  @include font-size-palette("headline-3");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+.SuccessMessage {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-2");
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.ReservationDetails {
+  margin-bottom: 32px;
+}
+
+.DetailsTitle {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:before {
+    content: "";
+    width: 4px;
+    height: 20px;
+    @include bg-color-palette("primary-color-3");
+    border-radius: 2px;
+  }
+}
+
+.DetailsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.DetailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 16px;
+  @include bg-color-palette("secondary-color-4");
+  border-radius: 12px;
+  @include border-color-palette("secondary-color-3", 1px);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    @include bg-color-palette("secondary-color-3");
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
+  }
+  
+  &.TotalPrice {
+    @include bg-color-palette("primary-color-4");
+    @include border-color-palette("primary-color-3", 2px);
+    font-weight: 600;
+    
+    .DetailLabel span,
+    .DetailValue {
+      @include text-color-palette("primary-color-1");
+      font-weight: 600;
+    }
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.DetailLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  font-weight: 500;
+  min-width: 0;
+  flex: 1;
+  
+  span {
+    line-height: 1.4;
+  }
+}
+
+.DetailValue {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+  max-width: 60%;
+  
+  @media (max-width: 480px) {
+    text-align: left;
+    max-width: 100%;
+  }
+}
+
+.NextStepsSection {
+  margin-bottom: 32px;
+  padding: 20px;
+  @include bg-color-palette("success-light");
+  @include border-color-palette("success-dark", 1px);
+  border-radius: 16px;
+}
+
+.NextStepsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  
+  h4 {
+    @include font-size-palette("headline-5");
+    @include text-color-palette("success-dark");
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.InfoIcon {
+  @include text-color-palette("success-dark");
+}
+
+.NextStepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.NextStep {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("success-dark");
+  line-height: 1.5;
+  
+  span {
+    flex: 1;
+  }
+}
+
+.ActionSection {
+  display: flex;
+  justify-content: center;
+}
+
+.CloseButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  @include font-size-palette("body-1");
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  justify-content: center;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-2");
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+  }
+
+  // Theme-specific button styling
+  .Container.market-theme & {
+    background: var(--theme-primary);
+    
+    &:hover {
+      background: var(--theme-primary-hover);
+      box-shadow: 0 6px 20px var(--theme-shadow);
+    }
+  }
+
+  .Container.willing-theme & {
+    background: var(--theme-primary);
+    
+    &:hover {
+      background: var(--theme-primary-hover);
+      box-shadow: 0 6px 20px var(--theme-shadow);
+    }
+  }
+
+  .Container.map-theme & {
+    background: var(--theme-primary);
+    
+    &:hover {
+      background: var(--theme-primary-hover);
+      box-shadow: 0 6px 20px var(--theme-shadow);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .Modal {
+    max-width: 95vw;
+    margin: 10px;
+  }
+  
+  .ModalContent {
+    padding: 20px;
+  }
+  
+  .SuccessHeader {
+    margin-bottom: 24px;
+  }
+  
+  .ReservationDetails,
+  .NextStepsSection {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Container {
+    padding: 10px;
+  }
+  
+  .Modal {
+    max-width: 100vw;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 95vh;
+  }
+  
+  .SuccessTitle {
+    @include font-size-palette("headline-4");
+  }
+  
+  .DetailsTitle {
+    @include font-size-palette("body-1");
+  }
+  
+  .CloseButton {
+    width: 100%;
+    padding: 16px 24px;
+  }
+}
+
+// Keyframes for modal entrance animation
+@keyframes modalEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

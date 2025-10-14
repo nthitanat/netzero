@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Willing.module.scss";
 import useWilling from "./useWilling";
 import WillingHandler from "./WillingHandler";
-import { OrganicDecoration, FloatingNavBar, GoogleIcon } from "../../components/common";
+import { OrganicDecoration, FloatingNavBar, GoogleIcon, Alert } from "../../components/common";
 import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ReserveDialog } from "../../components/market";
 import { LoginModal } from "../../components/auth";
 
@@ -24,6 +24,14 @@ export default function Willing() {
         <div className={styles.Container}>
             <OrganicDecoration className={styles.BackgroundDecoration} />
             
+            <Alert
+                type={stateWilling.alertType}
+                message={stateWilling.alertMessage}
+                isVisible={stateWilling.alertVisible}
+                onClose={handlers.handleAlertClose}
+                autoClose={true}
+                autoCloseDelay={4000}
+            />
             
             <div className={styles.TopSection}>
                 {/* Left Side - Filter Container */}

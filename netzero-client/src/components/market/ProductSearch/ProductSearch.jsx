@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./ProductSearch.module.scss";
 import useProductSearch from "./useProductSearch";
 import ProductSearchHandler from "./ProductSearchHandler";
+import { GoogleIcon } from "../../common";
 
 export default function ProductSearch({ 
     // New server-side search props
@@ -67,7 +68,9 @@ export default function ProductSearch({
                     <div className={`${styles.SearchInputContainer} ${
                         stateProductSearch.isFocused ? styles.Focused : ''
                     }`}>
-                        <span className={styles.SearchIcon}>🔍</span>
+                        <span className={styles.SearchIcon}>
+                            <GoogleIcon iconType="search" size="small" />
+                        </span>
                         
                         <input
                             type="text"
@@ -97,24 +100,28 @@ export default function ProductSearch({
                                 className={`${styles.SearchButton} ${isSearching ? styles.Loading : ''}`}
                                 title="ค้นหา"
                             >
-                                {isSearching ? '⏳' : '🔍'}
+                                {isSearching ? (
+                                    <GoogleIcon iconType="refresh" size="small" />
+                                ) : (
+                                    <GoogleIcon iconType="search" size="small" />
+                                )}
                             </button>
                         )}
                         
                         {/* Clear Button */}
-                        {showClearButton && (searchInputValue || legacySearchQuery) && (
+                        {showClearButton && (isControlledMode ? searchInputValue : stateProductSearch.currentQuery) && (
                             <button
                                 onClick={() => {
-                                    if (onClearSearch) {
+                                    if (isControlledMode && onClearSearch) {
                                         onClearSearch();
-                                    } else if (legacyOnSearchChange) {
-                                        legacyOnSearchChange('');
+                                    } else if (!isControlledMode) {
+                                        handlers.handleClearSearch();
                                     }
                                 }}
                                 className={styles.ClearButton}
                                 title="เคลียร์การค้นหา"
                             >
-                                ✕
+                                <GoogleIcon iconType="close" size="small" />
                             </button>
                         )}
                     </div>

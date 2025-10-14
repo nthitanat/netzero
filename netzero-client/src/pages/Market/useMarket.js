@@ -13,7 +13,9 @@ const useMarket = (initialProps = {}) => {
     showModal: false,
     showReserveDialog: false,
     showLoginModal: false,
+    showReservationSuccessModal: false,
     productToReserve: null,
+    reservationData: null,
     isLoading: true,
     viewMode: "grid", // grid or list
     searchQuery: "",
@@ -31,6 +33,10 @@ const useMarket = (initialProps = {}) => {
     isSearchMode: false, // Whether showing search results
     isSearching: false, // Search loading state
     searchResults: [], // Search results from server
+    // Alert state
+    alertVisible: false,
+    alertType: "error",
+    alertMessage: "",
     ...initialProps
   });
 

@@ -224,7 +224,8 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
               unitPrice: product.price
             },
             updatedProduct: updatedProductInfo,
-            reservedQuantity: quantity
+            reservedQuantity: quantity,
+            successMessage: `จองสินค้า "${product.title}" จำนวน ${quantity} ชิ้น เรียบร้อยแล้ว! เราจะติดต่อกลับในเร็วๆ นี้`
           });
         }
 
@@ -236,21 +237,23 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
       } catch (error) {
         console.error("❌ Reservation failed:", error);
         
+        let errorMsg = "ไม่สามารถจองสินค้าได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
+        
         // Handle different types of errors based on our API structure
         if (error.response?.status === 400) {
-          const errorMsg = error.response?.data?.message || "ข้อมูลการจองไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
-          setReserveDialog("reservationError", errorMsg);
+          errorMsg = error.response?.data?.message || "ข้อมูลการจองไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
         } else if (error.response?.status === 409) {
-          setReserveDialog("reservationError", "สินค้าถูกจองหมดแล้ว กรุณาลองใหม่อีกครั้ง");
+          errorMsg = "สินค้าถูกจองหมดแล้ว กรุณาลองใหม่อีกครั้ง";
         } else if (error.response?.status === 404) {
-          setReserveDialog("reservationError", "ไม่พบสินค้าที่ต้องการจอง");
+          errorMsg = "ไม่พบสินค้าที่ต้องการจอง";
         } else if (error.response?.status === 429) {
-          setReserveDialog("reservationError", "มีการร้องขอมากเกินไป กรุณารอสักครู่แล้วลองใหม่");
+          errorMsg = "มีการร้องขอมากเกินไป กรุณารอสักครู่แล้วลองใหม่";
         } else if (error.response?.status === 500) {
-          setReserveDialog("reservationError", "เกิดข้อผิดพลาดของระบบ กรุณาลองใหม่อีกครั้ง");
-        } else {
-          setReserveDialog("reservationError", "ไม่สามารถจองสินค้าได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง");
+          errorMsg = "เกิดข้อผิดพลาดของระบบ กรุณาลองใหม่อีกครั้ง";
         }
+        
+        // Set error for display in dialog
+        setReserveDialog("reservationError", errorMsg);
       } finally {
         setReserveDialog("isReserving", false);
       }

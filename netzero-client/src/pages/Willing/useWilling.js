@@ -31,6 +31,10 @@ const useWilling = (initialProps = {}) => {
     isSearchMode: false, // Whether showing search results
     isSearching: false, // Search loading state
     searchResults: [], // Search results from server
+    // Alert state
+    alertVisible: false,
+    alertType: "error",
+    alertMessage: "",
     ...initialProps
   });
 

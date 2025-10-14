@@ -236,8 +236,8 @@ export default function ReserveDialog({
                     </div>
                     
                     {stateReserveDialog.reservationError && (
-                        <div className={styles.ErrorAlert}>
-                            <GoogleIcon iconType="error" size="medium" />
+                        <div className={styles.ErrorMessage}>
+                            <GoogleIcon iconType="error" size="small" />
                             <span>{stateReserveDialog.reservationError}</span>
                         </div>
                     )}

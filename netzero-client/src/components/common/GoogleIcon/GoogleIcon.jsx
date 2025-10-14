@@ -148,6 +148,8 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
                 return <span className={baseClass}>refresh</span>;
             case "add":
                 return <span className={baseClass}>add</span>;
+            case "remove":
+                return <span className={baseClass}>remove</span>;
             case "archive":
                 return <span className={baseClass}>archive</span>;
             case "lock":

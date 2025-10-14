@@ -199,12 +199,11 @@
 
 .ProductPrice {
   @include font-size-palette("headline-5");
-  color: var(--theme-primary, var(--secondary-color-1));
-  
+  color: var(--theme-primary-text);
   font-weight: 700;
   white-space: nowrap;
   padding: 4px 12px;
-  background-color: var(--theme-secondary, var(--secondary-color-4));
+  background-color: var(--theme-accent-light);
   border-radius: 12px;
 }
 
@@ -237,7 +236,7 @@
   align-items: center;
   gap: 6px;
   @include font-size-palette("body-3");
-  color: var(--theme-primary, var(--primary-color-2));
+  color: var(--theme-text);
   
   font-weight: 500;
 }
@@ -254,8 +253,8 @@
 }
 
 .ReserveButton {
-  background-color: var(--theme-primary, var(--primary-color-2));
-  color: var(--theme-primary-text, white);
+  background-color: var(--theme-dark);
+  color: var(--text-inverse);
   @include font-size-palette("body-2");
   
   display: flex;

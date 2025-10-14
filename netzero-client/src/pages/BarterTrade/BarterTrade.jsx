@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./BarterTrade.module.scss";
 import useBarterTrade from "./useBarterTrade";
 import BarterTradeHandler from "./BarterTradeHandler";
-import { OrganicDecoration, FloatingNavBar } from "../../components/common";
+import { OrganicDecoration, FloatingNavBar, Alert } from "../../components/common";
 import { ProductCard, ProductModal, AdvertisementCarousel, FilterContainer, ProductSearch, ExchangeDialog } from "../../components/market";
 
 export default function BarterTrade() {
@@ -23,6 +23,14 @@ export default function BarterTrade() {
         <div className={styles.Container}>
             <OrganicDecoration className={styles.BackgroundDecoration} />
 
+            <Alert
+                type={stateBarterTrade.alertType}
+                message={stateBarterTrade.alertMessage}
+                isVisible={stateBarterTrade.alertVisible}
+                onClose={handlers.handleAlertClose}
+                autoClose={true}
+                autoCloseDelay={4000}
+            />
             
             <div className={styles.TopSection}>
                 {/* Left Side - Filter Container */}

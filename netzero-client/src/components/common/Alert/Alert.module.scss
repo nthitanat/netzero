@@ -1,0 +1,126 @@
+@import "src/styles/main";
+
+.Container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 500px;
+  width: auto;
+  border-radius: 12px;
+  @include glassmorphism-strong;
+  @include fade-in-animation(0.3s);
+  
+  &.error-type {
+    @include bg-color-palette("error-light");
+    @include border-color-palette("error-dark", 1px);
+    @include text-color-palette("error-dark");
+    
+    .AlertIcon {
+      @include text-color-palette("error-dark");
+    }
+  }
+  
+  &.success-type {
+    @include bg-color-palette("success-light");
+    @include border-color-palette("success-dark", 1px);
+    @include text-color-palette("success-dark");
+    
+    .AlertIcon {
+      @include text-color-palette("success-dark");
+    }
+  }
+}
+
+.Content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  width: 100%;
+}
+
+.IconContainer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MessageContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.Message {
+  @include font-size-palette("body-1");
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+.CloseButton {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &:focus {
+    outline: none;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .Container {
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    transform: none;
+    max-width: none;
+    width: auto;
+  }
+  
+  .Content {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  
+  .Message {
+    @include font-size-palette("body-2");
+  }
+}
+
+@media (max-width: 480px) {
+  .Container {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+  }
+  
+  .Content {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+}

@@ -35,7 +35,12 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate, performS
       const isInStock = product?.stock_quantity > 0 || product?.inStock;
       console.log("Exchange click - isInStock:", isInStock, "product:", product);
       if (!isInStock) {
-        alert("สินค้านี้หมดแล้ว ไม่สามารถแลกเปลี่ยนได้");
+        // Show error alert instead of browser alert
+        setBarterTrade({
+          alertVisible: true,
+          alertType: "error",
+          alertMessage: "สินค้านี้หมดแล้ว ไม่สามารถแลกเปลี่ยนได้"
+        });
         return;
       }
       
@@ -62,14 +67,13 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate, performS
         exchangeData: data
       });
       
-      // Show success message for exchange
-      alert(`ส่งคำขอแลกเปลี่ยนสินค้า "${product.title}" เรียบร้อยแล้ว!\n` +
-            `เราจะติดต่อกลับเพื่อหารือรายละเอียดการแลกเปลี่ยนในเร็วๆ นี้`);
-      
-      // Close the exchange dialog
+      // Show success alert at page level
       setBarterTrade({
         productToExchange: null,
-        showExchangeDialog: false
+        showExchangeDialog: false,
+        alertVisible: true,
+        alertType: "success",
+        alertMessage: `ส่งคำขอแลกเปลี่ยนสินค้า "${product.title}" เรียบร้อยแล้ว! เราจะติดต่อกลับเพื่อหารือรายละเอียดการแลกเปลี่ยนในเร็วๆ นี้`
       });
     },
 
@@ -79,7 +83,12 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate, performS
         setTimeout(() => {
           if (product.inStock) {
             console.log("Barter trade requested successfully:", product);
-            alert(`ขอแลกเปลี่ยนสินค้า "${product.title}" เรียบร้อยแล้ว!\nเราจะติดต่อกลับในเร็วๆ นี้`);
+            // Show success alert via state instead of browser alert
+            setBarterTrade({
+              alertVisible: true,
+              alertType: "success",
+              alertMessage: `ขอแลกเปลี่ยนสินค้า "${product.title}" เรียบร้อยแล้ว! เราจะติดต่อกลับในเร็วๆ นี้`
+            });
             resolve(product);
           } else {
             reject(new Error("Product out of stock"));
@@ -192,6 +201,13 @@ const BarterTradeHandler = (stateBarterTrade, setBarterTrade, navigate, performS
       if (loadMoreFn && typeof loadMoreFn === 'function') {
         loadMoreFn();
       }
+    },
+
+    handleAlertClose: () => {
+      setBarterTrade({
+        alertVisible: false,
+        alertMessage: ""
+      });
     }
   };
 };
