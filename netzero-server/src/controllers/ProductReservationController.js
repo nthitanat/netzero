@@ -183,7 +183,40 @@ class ProductReservationController {
         });
       }
 
-      // Check stock availability
+      // Check stock availability based on delivery method
+      if (option_of_delivery === 'event' && event_id) {
+        // For event delivery, check event_product stock
+        const EventProduct = require('../models/EventProduct');
+        const eventProduct = await EventProduct.findByEventAndProduct(event_id, product_id);
+        
+        if (!eventProduct) {
+          return res.status(404).json({
+            success: false,
+            message: 'Product is not available for this event',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        if (eventProduct.stock_quantity < quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient event stock. Available: ${eventProduct.stock_quantity}`,
+            timestamp: new Date().toISOString()
+          });
+        }
+      } else {
+        // For pickup/delivery, check unassigned stock
+        const unassignedStock = product.unassigned_stock_quantity || 0;
+        if (unassignedStock < quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient unassigned stock. Available: ${unassignedStock}`,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+
+      // Also check total stock as a safety measure
       if (product.stock_quantity < quantity) {
         return res.status(400).json({
           success: false,

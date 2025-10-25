@@ -27,6 +27,10 @@ router.post('/', authenticateToken, checkEventOwnership, EventProductController.
 // Uses checkEventOwnership middleware to check if user can confirm the product
 router.put('/:id', authenticateToken, checkEventOwnership, EventProductController.updateEventProduct);
 
+// PATCH /api/v1/event-products/:id - Update event product with stock calculation
+// Only requires authentication (ownership checked in controller/model)
+router.patch('/:id', authenticateToken, EventProductController.patchEventProduct);
+
 // DELETE /api/v1/event-products/:id - Delete event product
 router.delete('/:id', authenticateToken, EventProductController.deleteEventProduct);
 

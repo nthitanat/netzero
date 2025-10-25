@@ -409,14 +409,16 @@ class ProductReservation {
         ['confirmed', reservationId]
       );
 
-      // Reduce product stock
+      // Reduce product stock (always)
       await connection.execute(
         'UPDATE products SET stock_quantity = stock_quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
         [reservation.quantity, reservation.product_id]
       );
 
-      // If reservation is for an event, also reduce event_product stock_quantity
+      // If reservation is for an event, reduce event_product stock_quantity
+      // If NOT for an event, reduce unassigned_stock_quantity
       if (reservation.event_id) {
+        // Event delivery - reduce event product stock
         const [eventProductRows] = await connection.execute(
           'SELECT stock_quantity FROM event_products WHERE event_id = ? AND product_id = ?',
           [reservation.event_id, reservation.product_id]
@@ -435,7 +437,15 @@ class ProductReservation {
             'UPDATE event_products SET stock_quantity = stock_quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE event_id = ? AND product_id = ?',
             [reservation.quantity, reservation.event_id, reservation.product_id]
           );
+        } else {
+          throw new Error('Event product assignment not found');
         }
+      } else {
+        // Pickup or delivery - reduce unassigned stock
+        await connection.execute(
+          'UPDATE products SET unassigned_stock_quantity = unassigned_stock_quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+          [reservation.quantity, reservation.product_id]
+        );
       }
 
       await connection.commit();

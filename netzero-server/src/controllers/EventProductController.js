@@ -446,6 +446,99 @@ class EventProductController {
     }
   }
 
+  // PATCH /api/v1/event-products/:id - Update event product with stock calculation
+  // Updates both event_products and products tables in a transaction
+  static async patchEventProduct(req, res) {
+    try {
+      const eventProductId = req.params.id;
+      const userId = req.user.userId || req.user.id;
+
+      if (!eventProductId || isNaN(eventProductId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid event product ID provided',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      const { event_price, stock_quantity } = req.body;
+
+      // Validate at least one field is provided
+      if (event_price === undefined && stock_quantity === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'At least one field (event_price or stock_quantity) must be provided',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate event_price if provided
+      if (event_price !== undefined && (isNaN(event_price) || event_price < 0)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Event price must be a valid positive number',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate stock_quantity if provided
+      if (stock_quantity !== undefined && (isNaN(stock_quantity) || stock_quantity < 0)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Stock quantity must be a valid non-negative number',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      const updateData = {};
+      if (event_price !== undefined) updateData.event_price = parseFloat(event_price);
+      if (stock_quantity !== undefined) updateData.stock_quantity = parseInt(stock_quantity);
+
+      // Call the model method that handles transaction and stock calculation
+      const updatedEventProduct = await EventProduct.updateEventProduct(
+        eventProductId,
+        updateData,
+        userId
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Event product updated successfully',
+        data: {
+          id: updatedEventProduct.id,
+          event_id: updatedEventProduct.event_id,
+          product_id: updatedEventProduct.product_id,
+          event_price: parseFloat(updatedEventProduct.event_price),
+          stock_quantity: updatedEventProduct.stock_quantity,
+          status: updatedEventProduct.status,
+          event_title: updatedEventProduct.event_title,
+          event_date: updatedEventProduct.event_date,
+          event_location: updatedEventProduct.event_location,
+          product_title: updatedEventProduct.product_title,
+          product_stock_quantity: updatedEventProduct.product_stock_quantity,
+          product_unassigned_stock_quantity: updatedEventProduct.product_unassigned_stock_quantity,
+          created_at: updatedEventProduct.created_at,
+          updated_at: updatedEventProduct.updated_at
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error in patchEventProduct:', error);
+      
+      // Handle specific error messages
+      const statusCode = error.message.includes('not found') ? 404 :
+                        error.message.includes('Access denied') ? 403 :
+                        error.message.includes('Insufficient') ? 400 : 500;
+      
+      res.status(statusCode).json({
+        success: false,
+        message: 'Failed to update event product',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
   // DELETE /api/v1/event-products/:id - Delete event product
   static async deleteEventProduct(req, res) {
     try {

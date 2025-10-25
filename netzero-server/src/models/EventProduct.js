@@ -224,6 +224,104 @@ class EventProduct {
     return result.affectedRows > 0;
   }
 
+  // Update event product with stock calculation (updates both event_products and products tables)
+  static async updateEventProduct(id, updateData, userId) {
+    await EventProduct.ensureTable();
+    
+    const pool = require('../config/database').pool;
+    const connection = await pool.getConnection();
+    
+    try {
+      await connection.beginTransaction();
+
+      // Get current event product details
+      const [eventProductRows] = await connection.execute(
+        'SELECT * FROM event_products WHERE id = ?',
+        [id]
+      );
+
+      if (eventProductRows.length === 0) {
+        throw new Error('Event product not found');
+      }
+
+      const currentEventProduct = eventProductRows[0];
+
+      // Get product details to verify ownership
+      const [productRows] = await connection.execute(
+        'SELECT user_id, unassigned_stock_quantity FROM products WHERE id = ?',
+        [currentEventProduct.product_id]
+      );
+
+      if (productRows.length === 0) {
+        throw new Error('Product not found');
+      }
+
+      const product = productRows[0];
+
+      // Verify ownership (only product owner can update)
+      if (product.user_id !== userId) {
+        throw new Error('Access denied. Only product owner can update event products');
+      }
+
+      const oldStockQuantity = currentEventProduct.stock_quantity;
+      const newEventPrice = updateData.event_price !== undefined ? updateData.event_price : currentEventProduct.event_price;
+      const newStockQuantity = updateData.stock_quantity !== undefined ? updateData.stock_quantity : currentEventProduct.stock_quantity;
+
+      // Calculate stock difference
+      const stockDifference = newStockQuantity - oldStockQuantity;
+
+      // Check if product has sufficient unassigned stock for increase
+      if (stockDifference > 0) {
+        const currentUnassignedStock = product.unassigned_stock_quantity || 0;
+        if (currentUnassignedStock < stockDifference) {
+          throw new Error(`Insufficient unassigned stock. Available: ${currentUnassignedStock}, Requested: ${stockDifference}`);
+        }
+      }
+
+      // Update event_products table
+      await connection.execute(
+        `UPDATE event_products 
+         SET event_price = ?, stock_quantity = ?, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = ?`,
+        [newEventPrice, newStockQuantity, id]
+      );
+
+      // Update products table (adjust unassigned_stock_quantity by difference)
+      // If stockDifference is positive: reduce unassigned stock (moving to event)
+      // If stockDifference is negative: increase unassigned stock (returning from event)
+      await connection.execute(
+        `UPDATE products 
+         SET unassigned_stock_quantity = unassigned_stock_quantity - ?, updated_at = CURRENT_TIMESTAMP 
+         WHERE id = ?`,
+        [stockDifference, currentEventProduct.product_id]
+      );
+
+      await connection.commit();
+
+      // Fetch and return updated event product
+      const [updatedRows] = await connection.execute(
+        `SELECT ep.*, 
+                e.title AS event_title, e.event_date, e.location AS event_location, e.status AS event_status,
+                p.title AS product_title, p.description AS product_description, p.category AS product_category,
+                p.stock_quantity AS product_stock_quantity,
+                p.unassigned_stock_quantity AS product_unassigned_stock_quantity
+         FROM event_products ep
+         LEFT JOIN events e ON ep.event_id = e.id
+         LEFT JOIN products p ON ep.product_id = p.id
+         WHERE ep.id = ?`,
+        [id]
+      );
+
+      return updatedRows[0];
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
+
   // Delete event product
   static async deleteById(id) {
     await EventProduct.ensureTable();
