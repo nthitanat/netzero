@@ -1,10 +1,20 @@
 import { useState, useEffect } from "react";
-import { userEventsService } from "../../../api";
+import { userEventsService, eventProductsService } from "../../../api";
 
 const useAddProductToEventDialog = (product = null, isOpen = false) => {
   const [stateAddProductToEventDialog, setState] = useState({
     // Event assignments
     eventAssignments: [], // Array of {event_id, event_price, stock_quantity, event_title}
+    
+    // Existing event products
+    existingEventProducts: [], // Array of already assigned event products
+    isLoadingExisting: false,
+    existingError: null,
+    
+    // Edit mode for existing event products
+    editingEventProductId: null,
+    editEventPrice: "",
+    editStockQuantity: "",
     
     // Available events
     availableEvents: [],
@@ -30,6 +40,7 @@ const useAddProductToEventDialog = (product = null, isOpen = false) => {
   useEffect(() => {
     if (isOpen) {
       loadUserEvents();
+      loadExistingEventProducts();
       
       // Initialize max quantity from product
       if (product) {
@@ -117,6 +128,35 @@ const useAddProductToEventDialog = (product = null, isOpen = false) => {
     }
   };
 
+  const loadExistingEventProducts = async () => {
+    if (!product || !product.id) return;
+
+    try {
+      setAddProductToEventDialog({
+        isLoadingExisting: true,
+        existingError: null
+      });
+
+      const response = await eventProductsService.getEventsByProductId(product.id);
+      const existingProducts = response.data || [];
+      
+      console.log("📦 Existing event products:", existingProducts);
+
+      setAddProductToEventDialog({
+        existingEventProducts: existingProducts,
+        isLoadingExisting: false
+      });
+
+    } catch (error) {
+      console.error("Error loading existing event products:", error);
+      setAddProductToEventDialog({
+        existingError: "ไม่สามารถโหลดรายการสินค้าในอีเวนต์ได้",
+        isLoadingExisting: false,
+        existingEventProducts: []
+      });
+    }
+  };
+
   const setSelectedEvent = (eventId) => {
     setAddProductToEventDialog("selectedEventId", eventId);
   };
@@ -127,6 +167,30 @@ const useAddProductToEventDialog = (product = null, isOpen = false) => {
 
   const setSelectedEventQuantity = (quantity) => {
     setAddProductToEventDialog("selectedEventQuantity", quantity);
+  };
+
+  const setEditingEventProduct = (eventProductId, eventPrice, stockQuantity) => {
+    setAddProductToEventDialog({
+      editingEventProductId: eventProductId,
+      editEventPrice: eventPrice,
+      editStockQuantity: stockQuantity
+    });
+  };
+
+  const cancelEditEventProduct = () => {
+    setAddProductToEventDialog({
+      editingEventProductId: null,
+      editEventPrice: "",
+      editStockQuantity: ""
+    });
+  };
+
+  const setEditEventPrice = (price) => {
+    setAddProductToEventDialog("editEventPrice", price);
+  };
+
+  const setEditStockQuantity = (quantity) => {
+    setAddProductToEventDialog("editStockQuantity", quantity);
   };
 
   const addEventAssignment = () => {
@@ -205,6 +269,12 @@ const useAddProductToEventDialog = (product = null, isOpen = false) => {
   const resetState = () => {
     setState({
       eventAssignments: [],
+      existingEventProducts: [],
+      isLoadingExisting: false,
+      existingError: null,
+      editingEventProductId: null,
+      editEventPrice: "",
+      editStockQuantity: "",
       availableEvents: [],
       isLoadingEvents: false,
       eventsError: null,
@@ -225,12 +295,17 @@ const useAddProductToEventDialog = (product = null, isOpen = false) => {
     setSelectedEvent,
     setSelectedEventPrice,
     setSelectedEventQuantity,
+    setEditingEventProduct,
+    cancelEditEventProduct,
+    setEditEventPrice,
+    setEditStockQuantity,
     addEventAssignment,
     removeEventAssignment,
     setError,
     clearError,
     resetState,
-    loadUserEvents
+    loadUserEvents,
+    loadExistingEventProducts
   };
 };
 

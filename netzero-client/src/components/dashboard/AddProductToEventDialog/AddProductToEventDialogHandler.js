@@ -11,10 +11,15 @@ const AddProductToEventDialogHandler = (
     setSelectedEvent,
     setSelectedEventPrice,
     setSelectedEventQuantity,
+    setEditingEventProduct,
+    cancelEditEventProduct,
+    setEditEventPrice,
+    setEditStockQuantity,
     addEventAssignment,
     removeEventAssignment,
     setError,
-    clearError
+    clearError,
+    loadExistingEventProducts
   } = hookFunctions;
 
   return {
@@ -98,6 +103,95 @@ const AddProductToEventDialogHandler = (
     handleCancel: () => {
       clearError();
       onClose();
+    },
+
+    // Existing event product handlers
+    handleStartEditEventProduct: (eventProduct) => {
+      setEditingEventProduct(
+        eventProduct.event_product_id,
+        eventProduct.event_price,
+        eventProduct.stock_quantity
+      );
+      clearError();
+    },
+
+    handleCancelEditEventProduct: () => {
+      cancelEditEventProduct();
+      clearError();
+    },
+
+    handleEditEventPriceChange: (price) => {
+      setEditEventPrice(price);
+      clearError();
+    },
+
+    handleEditStockQuantityChange: (quantity) => {
+      setEditStockQuantity(quantity);
+      clearError();
+    },
+
+    handleSaveEventProductPrice: async (eventProductId) => {
+      try {
+        const newPrice = parseFloat(stateAddProductToEventDialog.editEventPrice);
+        
+        if (isNaN(newPrice) || newPrice < 0) {
+          setError("กรุณากรอกราคาที่ถูกต้อง");
+          return;
+        }
+
+        console.log(`💰 Updating event product ${eventProductId} price to ${newPrice}`);
+
+        await eventProductsService.patchEventProduct(eventProductId, {
+          event_price: newPrice
+        });
+
+        console.log("✅ Event product price updated successfully");
+        
+        // Reload existing event products
+        await loadExistingEventProducts();
+        
+        cancelEditEventProduct();
+        clearError();
+        
+      } catch (error) {
+        console.error("❌ Error updating event product price:", error);
+        const errorMessage = error.response?.data?.message || error.message || "ไม่สามารถอัปเดตราคาได้";
+        setError(errorMessage);
+      }
+    },
+
+    handleSaveEventProductStock: async (eventProductId) => {
+      try {
+        const newStock = parseInt(stateAddProductToEventDialog.editStockQuantity);
+        
+        if (isNaN(newStock) || newStock < 0) {
+          setError("กรุณากรอกจำนวนที่ถูกต้อง");
+          return;
+        }
+
+        console.log(`📦 Updating event product ${eventProductId} stock to ${newStock}`);
+
+        const response = await eventProductsService.patchEventProduct(eventProductId, {
+          stock_quantity: newStock
+        });
+
+        console.log("✅ Event product stock updated successfully");
+        console.log("📊 Updated unassigned stock:", response.data.product_unassigned_stock_quantity);
+        
+        // Reload existing event products to refresh the list
+        await loadExistingEventProducts();
+        
+        cancelEditEventProduct();
+        clearError();
+        
+        // Show success message with stock info
+        alert(`อัปเดตจำนวนสินค้าสำเร็จ\nสต็อกที่ยังไม่ได้กำหนดอีเวนต์: ${response.data.product_unassigned_stock_quantity}\nสต็อกรวมทั้งหมด: ${response.data.product_stock_quantity}`);
+        
+      } catch (error) {
+        console.error("❌ Error updating event product stock:", error);
+        const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || "ไม่สามารถอัปเดตจำนวนได้";
+        setError(errorMessage);
+      }
     }
   };
 };

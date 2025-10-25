@@ -135,10 +135,208 @@
 }
 
 .AddEventSection,
-.AssignmentsSection {
+.AssignmentsSection,
+.ExistingSection {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.ExistingSection {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--primary-color-4);
+}
+
+.ExistingList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ExistingCard {
+  @include bg-color-palette("white");
+  border: 1px solid var(--primary-color-4);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.ExistingInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ExistingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ExistingTitle {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.StatusBadge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  @include font-size-palette("body-3");
+  font-weight: 500;
+  
+  &.confirmed {
+    @include bg-color-palette("semantic-success-light");
+    @include text-color-palette("semantic-success");
+  }
+  
+  &.pending {
+    @include bg-color-palette("semantic-warning-light");
+    @include text-color-palette("semantic-warning");
+  }
+}
+
+.ExistingDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.DetailRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.DetailLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-2");
+}
+
+.EditableField {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  @include bg-color-palette("primary-color-5");
+  border-radius: 8px;
+}
+
+.FieldLabel {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.FieldValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.Value {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+}
+
+.EditButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  @include bg-color-palette("primary-color-1");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.EditInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  
+  .Input {
+    flex: 1;
+    padding: 8px 12px;
+  }
+  
+  .Unit {
+    @include text-color-palette("primary-color-3");
+    @include font-size-palette("body-2");
+  }
+}
+
+.SaveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  @include bg-color-palette("semantic-success");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.CancelEditButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-2");
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-3");
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .SectionTitle {

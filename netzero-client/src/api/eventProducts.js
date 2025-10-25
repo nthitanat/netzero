@@ -78,6 +78,18 @@ class EventProductsService {
   }
 
   /**
+   * Update event product with stock calculation (PATCH)
+   * Updates both event_products and products tables with proper stock calculations
+   * @param {number} id - Event product ID
+   * @param {Object} updateData - { event_price?, stock_quantity? }
+   * @returns {Promise} API response with updated event product and product stock info
+   */
+  async patchEventProduct(id, updateData) {
+    const response = await axiosInstance.patch(`${API_BASE}/${id}`, updateData);
+    return response.data;
+  }
+
+  /**
    * Delete an event product
    * @param {number} id - Event product ID
    * @returns {Promise} API response

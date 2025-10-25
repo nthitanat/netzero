@@ -16,20 +16,30 @@ export default function AddProductToEventDialog({
     setSelectedEvent,
     setSelectedEventPrice,
     setSelectedEventQuantity,
+    setEditingEventProduct,
+    cancelEditEventProduct,
+    setEditEventPrice,
+    setEditStockQuantity,
     addEventAssignment,
     removeEventAssignment,
     setError,
-    clearError
+    clearError,
+    loadExistingEventProducts
   } = useAddProductToEventDialog(product, isOpen);
 
   const hookFunctions = {
     setSelectedEvent,
     setSelectedEventPrice,
     setSelectedEventQuantity,
+    setEditingEventProduct,
+    cancelEditEventProduct,
+    setEditEventPrice,
+    setEditStockQuantity,
     addEventAssignment,
     removeEventAssignment,
     setError,
-    clearError
+    clearError,
+    loadExistingEventProducts
   };
 
   const handlers = AddProductToEventDialogHandler(
@@ -77,6 +87,138 @@ export default function AddProductToEventDialog({
         </div>
 
         <form className={styles.Form} onSubmit={handlers.handleSubmit}>
+          {/* Existing Event Products Section */}
+          {stateAddProductToEventDialog.existingEventProducts.length > 0 && (
+            <div className={styles.ExistingSection}>
+              <h3 className={styles.SectionTitle}>
+                <GoogleIcon iconType="event_available" size="small" />
+                อีเวนต์ที่เพิ่มสินค้าแล้ว ({stateAddProductToEventDialog.existingEventProducts.length})
+              </h3>
+              
+              <div className={styles.ExistingList}>
+                {stateAddProductToEventDialog.existingEventProducts.map((eventProduct) => {
+                  const isEditing = stateAddProductToEventDialog.editingEventProductId === eventProduct.event_product_id;
+                  
+                  return (
+                    <div key={eventProduct.event_product_id} className={styles.ExistingCard}>
+                      <div className={styles.ExistingInfo}>
+                        <div className={styles.ExistingHeader}>
+                          <div className={styles.ExistingTitle}>
+                            <GoogleIcon iconType="event" size="small" />
+                            {eventProduct.event_title}
+                          </div>
+                          <span className={`${styles.StatusBadge} ${styles[eventProduct.event_product_status]}`}>
+                            {eventProduct.event_product_status === 'confirmed' ? 'ยืนยันแล้ว' : 'รอยืนยัน'}
+                          </span>
+                        </div>
+                        
+                        <div className={styles.ExistingDetails}>
+                          <div className={styles.DetailRow}>
+                            <span className={styles.DetailLabel}>
+                              <GoogleIcon iconType="location_on" size="small" />
+                              {eventProduct.location}
+                            </span>
+                            <span className={styles.DetailLabel}>
+                              <GoogleIcon iconType="calendar_today" size="small" />
+                              {new Date(eventProduct.event_date).toLocaleDateString('th-TH')}
+                            </span>
+                          </div>
+                          
+                          {/* Event Price */}
+                          <div className={styles.EditableField}>
+                            <span className={styles.FieldLabel}>ราคาในอีเวนต์:</span>
+                            {isEditing ? (
+                              <div className={styles.EditInput}>
+                                <input
+                                  type="number"
+                                  className={styles.Input}
+                                  value={stateAddProductToEventDialog.editEventPrice}
+                                  onChange={(e) => handlers.handleEditEventPriceChange(e.target.value)}
+                                  step="0.01"
+                                  min="0"
+                                />
+                                <span className={styles.Unit}>บาท</span>
+                                <button
+                                  type="button"
+                                  className={styles.SaveButton}
+                                  onClick={() => handlers.handleSaveEventProductPrice(eventProduct.event_product_id)}
+                                >
+                                  <GoogleIcon iconType="check" size="small" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.CancelEditButton}
+                                  onClick={handlers.handleCancelEditEventProduct}
+                                >
+                                  <GoogleIcon iconType="close" size="small" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className={styles.FieldValue}>
+                                <span className={styles.Value}>{eventProduct.event_price} บาท</span>
+                                <button
+                                  type="button"
+                                  className={styles.EditButton}
+                                  onClick={() => handlers.handleStartEditEventProduct(eventProduct)}
+                                  title="แก้ไขราคา"
+                                >
+                                  <GoogleIcon iconType="edit" size="small" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Stock Quantity */}
+                          <div className={styles.EditableField}>
+                            <span className={styles.FieldLabel}>จำนวน:</span>
+                            {isEditing ? (
+                              <div className={styles.EditInput}>
+                                <input
+                                  type="number"
+                                  className={styles.Input}
+                                  value={stateAddProductToEventDialog.editStockQuantity}
+                                  onChange={(e) => handlers.handleEditStockQuantityChange(e.target.value)}
+                                  min="0"
+                                />
+                                <span className={styles.Unit}>ชิ้น</span>
+                                <button
+                                  type="button"
+                                  className={styles.SaveButton}
+                                  onClick={() => handlers.handleSaveEventProductStock(eventProduct.event_product_id)}
+                                >
+                                  <GoogleIcon iconType="check" size="small" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.CancelEditButton}
+                                  onClick={handlers.handleCancelEditEventProduct}
+                                >
+                                  <GoogleIcon iconType="close" size="small" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className={styles.FieldValue}>
+                                <span className={styles.Value}>{eventProduct.stock_quantity} ชิ้น</span>
+                                <button
+                                  type="button"
+                                  className={styles.EditButton}
+                                  onClick={() => handlers.handleStartEditEventProduct(eventProduct)}
+                                  title="แก้ไขจำนวน"
+                                >
+                                  <GoogleIcon iconType="edit" size="small" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Add Event Section */}
           <div className={styles.AddEventSection}>
             <h3 className={styles.SectionTitle}>เพิ่มอีเวนต์</h3>
