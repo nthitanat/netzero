@@ -10,10 +10,11 @@ class ProductReservation {
         reservation_id: 'INT AUTO_INCREMENT PRIMARY KEY',
         user_id: 'INT NOT NULL',
         product_id: 'INT NOT NULL',
+        event_id: 'INT NULL COMMENT \'Event where product was reserved, if applicable\'',
         quantity: 'INT NOT NULL',
         note: 'TEXT NULL',
         shipping_address: 'TEXT NULL',
-        option_of_delivery: "ENUM('pickup','delivery') NOT NULL DEFAULT 'delivery'",
+        option_of_delivery: "ENUM('pickup','delivery','event') NOT NULL DEFAULT 'delivery'",
         user_note: 'TEXT NULL',
         seller_note: 'TEXT NULL',
         pickup_date: 'DATETIME NULL',
@@ -23,11 +24,13 @@ class ProductReservation {
       },
       foreignKeys: [
         'FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
-        'FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE'
+        'FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE',
+        'FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE SET NULL'
       ],
       indexes: [
         'INDEX idx_reservations_user_id (user_id)',
         'INDEX idx_reservations_product_id (product_id)',
+        'INDEX idx_reservations_event_id (event_id)',
         'INDEX idx_reservations_status (status)',
         'INDEX idx_reservations_created_at (created_at)',
         'INDEX idx_pickup_date (pickup_date)',

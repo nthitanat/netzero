@@ -17,6 +17,7 @@ class Product {
         address: 'TEXT NULL',
         coordinate: "VARCHAR(255) NULL COMMENT 'Stored as comma-separated lat,lng values'",
         stock_quantity: 'INT DEFAULT 0',
+        unassigned_stock_quantity: 'INT DEFAULT 0 COMMENT \'Stock available for assignment to events\'',
         isRecommend: 'BOOLEAN DEFAULT FALSE',
         user_id: 'INT NOT NULL',
         created_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',

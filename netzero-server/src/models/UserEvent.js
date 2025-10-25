@@ -159,6 +159,11 @@ class UserEvent {
     }
   }
 
+  // Alias for findByUserAndEvent (event first, user second)
+  static async findByEventAndUser(eventId, userId) {
+    return UserEvent.findByUserAndEvent(userId, eventId);
+  }
+
   // Convert to JSON for API response
   toJSON() {
     return {

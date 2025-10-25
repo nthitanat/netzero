@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const UserEvent = require('../models/UserEvent');
+const EventProduct = require('../models/EventProduct');
 
 // JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
@@ -181,11 +183,62 @@ const authRateLimit = (req, res, next) => {
   next();
 };
 
+// Middleware to check if user owns the event
+const checkEventOwnership = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Access denied. User not authenticated'
+      });
+    }
+
+    const userId = req.user.userId || req.user.id;
+    let eventId;
+
+    // Get event_id from different sources
+    if (req.body.event_id) {
+      eventId = req.body.event_id;
+    } else if (req.params.eventId) {
+      eventId = req.params.eventId;
+    } else if (req.params.id) {
+      // If updating/deleting an event product, get event_id from the event product
+      const eventProduct = await EventProduct.findById(req.params.id);
+      if (eventProduct) {
+        eventId = eventProduct.event_id;
+      }
+    }
+
+    if (!eventId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Event ID not found in request'
+      });
+    }
+
+    // Check if user owns this event
+    const userEvent = await UserEvent.findByEventAndUser(eventId, userId);
+    
+    // Set flag on request object
+    req.userOwnsEvent = !!userEvent;
+    
+    next();
+
+  } catch (error) {
+    console.error('Event ownership check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error during event ownership check'
+    });
+  }
+};
+
 module.exports = {
   authenticateToken,
   authorizeRoles,
   authorizeOwnerOrAdmin,
   optionalAuth,
   validateUserIdParam,
-  authRateLimit
+  authRateLimit,
+  checkEventOwnership
 };
