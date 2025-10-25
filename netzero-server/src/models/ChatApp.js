@@ -1,6 +1,40 @@
 const { pool } = require('../config/database');
+const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class ChatApp {
+  // Database schema definition
+  static getSchema() {
+    return {
+      tableName: 'chatApps',
+      columns: {
+        id: 'VARCHAR(255) PRIMARY KEY',
+        owner_id: 'INT NOT NULL',
+        product_id: 'INT NULL',
+        title: 'VARCHAR(255) NOT NULL',
+        description: 'TEXT NULL',
+        status: "ENUM('active', 'closed', 'archived') DEFAULT 'active'",
+        isActive: 'BOOLEAN DEFAULT TRUE',
+        createdAt: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+        updatedAt: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+      },
+      foreignKeys: [
+        'FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE',
+        'FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL'
+      ],
+      indexes: [
+        'INDEX idx_chatApps_owner_id (owner_id)',
+        'INDEX idx_chatApps_product_id (product_id)',
+        'INDEX idx_chatApps_status (status)',
+        'INDEX idx_chatApps_isActive (isActive)',
+        'INDEX idx_chatApps_createdAt (createdAt)'
+      ]
+    };
+  }
+
+  // Ensure table exists before any operations
+  static async ensureTable() {
+    return await ensureModelTable(ChatApp.getSchema());
+  }
   constructor(data = {}) {
     this.id = data.id || null;
     this.owner_id = data.owner_id || null;
@@ -16,6 +50,9 @@ class ChatApp {
   // Get all chat applications
   static async getAll(filters = {}) {
     try {
+      // Ensure table exists
+      await ChatApp.ensureTable();
+      
       // Simplified query without JOINs
       let query = `
         SELECT 
@@ -74,6 +111,9 @@ class ChatApp {
   // Get chat application by ID
   static async getById(id) {
     try {
+      // Ensure table exists
+      await ChatApp.ensureTable();
+      
       const query = `
         SELECT 
           c.id,
@@ -142,6 +182,9 @@ class ChatApp {
   // Create new chat application
   async create() {
     try {
+      // Ensure table exists
+      await ChatApp.ensureTable();
+      
       const query = `
         INSERT INTO chatApps (
           id, owner_id, product_id, title, description, status, isActive

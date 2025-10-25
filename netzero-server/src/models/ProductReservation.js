@@ -1,6 +1,45 @@
 const { pool } = require('../config/database');
+const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class ProductReservation {
+  // Database schema definition
+  static getSchema() {
+    return {
+      tableName: 'product_reservations',
+      columns: {
+        reservation_id: 'INT AUTO_INCREMENT PRIMARY KEY',
+        user_id: 'INT NOT NULL',
+        product_id: 'INT NOT NULL',
+        quantity: 'INT NOT NULL',
+        note: 'TEXT NULL',
+        shipping_address: 'TEXT NULL',
+        option_of_delivery: "ENUM('pickup','delivery') NOT NULL DEFAULT 'delivery'",
+        user_note: 'TEXT NULL',
+        seller_note: 'TEXT NULL',
+        pickup_date: 'DATETIME NULL',
+        status: "ENUM('pending','confirmed','cancelled') DEFAULT 'pending'",
+        created_at: 'DATETIME DEFAULT CURRENT_TIMESTAMP',
+        updated_at: 'DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+      },
+      foreignKeys: [
+        'FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE',
+        'FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE'
+      ],
+      indexes: [
+        'INDEX idx_reservations_user_id (user_id)',
+        'INDEX idx_reservations_product_id (product_id)',
+        'INDEX idx_reservations_status (status)',
+        'INDEX idx_reservations_created_at (created_at)',
+        'INDEX idx_pickup_date (pickup_date)',
+        'INDEX idx_option_of_delivery (option_of_delivery)'
+      ]
+    };
+  }
+
+  // Ensure table exists before any operations
+  static async ensureTable() {
+    return await ensureModelTable(ProductReservation.getSchema());
+  }
   constructor(data) {
     this.reservation_id = data.reservation_id;
     this.user_id = data.user_id;
@@ -19,6 +58,9 @@ class ProductReservation {
 
   // Create a new reservation
   static async create(reservationData) {
+    // Ensure table exists
+    await ProductReservation.ensureTable();
+    
     const {
       user_id,
       product_id,
@@ -53,6 +95,9 @@ class ProductReservation {
 
   // Find all reservations with optional filters
   static async findAll(filters = {}) {
+    // Ensure table exists
+    await ProductReservation.ensureTable();
+    
     let query = `
       SELECT 
         pr.*,

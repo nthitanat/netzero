@@ -30,7 +30,26 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
     
-    // Allow all origins for now, but you can restrict this later
+    // In development, allow common local development origins
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001'
+    ];
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    // In production, check against allowed origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow all for now, but log the origin for debugging
+    console.log('🔍 CORS request from origin:', origin);
     callback(null, true);
   },
   credentials: true,
@@ -45,7 +64,9 @@ const corsOptions = {
     'X-File-Name'
   ],
   exposedHeaders: ['X-Request-ID'],
-  maxAge: 86400 // 24 hours
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 200
 };
 
 // Security headers middleware

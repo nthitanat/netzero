@@ -1,6 +1,44 @@
 const { executeQuery, executeCommand } = require('../config/database');
+const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class Product {
+  // Database schema definition
+  static getSchema() {
+    return {
+      tableName: 'products',
+      columns: {
+        id: 'INT AUTO_INCREMENT PRIMARY KEY',
+        project_id: 'INT NULL',
+        title: 'VARCHAR(255) NOT NULL',
+        description: 'TEXT',
+        price: 'DECIMAL(10, 2) NOT NULL',
+        category: 'VARCHAR(100) NOT NULL',
+        type: "ENUM('market', 'willing', 'barter') NOT NULL",
+        address: 'TEXT NULL',
+        coordinate: "VARCHAR(255) NULL COMMENT 'Stored as comma-separated lat,lng values'",
+        stock_quantity: 'INT DEFAULT 0',
+        isRecommend: 'BOOLEAN DEFAULT FALSE',
+        user_id: 'INT NOT NULL',
+        created_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+        updated_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+      },
+      foreignKeys: [
+        'FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE'
+      ],
+      indexes: [
+        'INDEX idx_products_user_id (user_id)',
+        'INDEX idx_products_category (category)',
+        'INDEX idx_products_type (type)',
+        'INDEX idx_products_isRecommend (isRecommend)',
+        'INDEX idx_products_created_at (created_at)'
+      ]
+    };
+  }
+
+  // Ensure table exists before any operations
+  static async ensureTable() {
+    return await ensureModelTable(Product.getSchema());
+  }
   constructor(data) {
     this.id = data.id;
     this.project_id = data.project_id;
@@ -20,6 +58,9 @@ class Product {
 
   // Create a new product
   static async create(productData) {
+    // Ensure table exists
+    await Product.ensureTable();
+    
     const {
       project_id,
       title,
@@ -61,6 +102,9 @@ class Product {
 
   // Find all products with optional filters
   static async findAll(filters = {}) {
+    // Ensure table exists
+    await Product.ensureTable();
+    
     let query = `
       SELECT p.*, u.firstName, u.lastName, u.email as owner_email
       FROM products p

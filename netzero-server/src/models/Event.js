@@ -1,6 +1,43 @@
 const { executeQuery } = require('../config/database');
+const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class Event {
+  // Database schema definition
+  static getSchema() {
+    return {
+      tableName: 'events',
+      columns: {
+        id: 'INT AUTO_INCREMENT PRIMARY KEY',
+        title: 'VARCHAR(255) NOT NULL',
+        description: 'TEXT',
+        event_date: 'DATETIME NOT NULL',
+        location: 'VARCHAR(255)',
+        category: 'VARCHAR(100)',
+        organizer: 'VARCHAR(255)',
+        contact_email: 'VARCHAR(255)',
+        contact_phone: 'VARCHAR(20)',
+        max_participants: 'INT DEFAULT 0',
+        current_participants: 'INT DEFAULT 0',
+        registration_deadline: 'DATETIME NULL',
+        status: "ENUM('active', 'cancelled', 'completed') DEFAULT 'active'",
+        isRecommended: 'BOOLEAN DEFAULT FALSE',
+        created_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+        updated_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+      },
+      indexes: [
+        'INDEX idx_events_event_date (event_date)',
+        'INDEX idx_events_category (category)',
+        'INDEX idx_events_status (status)',
+        'INDEX idx_events_isRecommended (isRecommended)',
+        'INDEX idx_events_created_at (created_at)'
+      ]
+    };
+  }
+
+  // Ensure table exists before any operations
+  static async ensureTable() {
+    return await ensureModelTable(Event.getSchema());
+  }
   constructor(data) {
     this.id = data.id;
     this.title = data.title;
@@ -23,6 +60,9 @@ class Event {
   // Get all events - simple implementation
   static async findAll() {
     try {
+      // Ensure table exists
+      await Event.ensureTable();
+      
       const query = 'SELECT * FROM events ORDER BY created_at DESC';
       const results = await executeQuery(query);
       return results.map(row => new Event(row));
@@ -34,6 +74,9 @@ class Event {
   // Get event by ID
   static async findById(id) {
     try {
+      // Ensure table exists
+      await Event.ensureTable();
+      
       const query = 'SELECT * FROM events WHERE id = ?';
       const results = await executeQuery(query, [id]);
       

@@ -1,8 +1,45 @@
 const { executeQuery, executeCommand } = require('../config/database');
+const { ensureModelTable } = require('../utils/databaseEnsure');
 const bcrypt = require('bcryptjs');
 
 class User {
+  // Database schema definition
+  static getSchema() {
+    return {
+      tableName: 'users',
+      columns: {
+        id: 'INT AUTO_INCREMENT PRIMARY KEY',
+        email: 'VARCHAR(255) UNIQUE NOT NULL',
+        password: 'VARCHAR(255) NOT NULL',
+        firstName: 'VARCHAR(100) NOT NULL',
+        lastName: 'VARCHAR(100) NOT NULL',
+        role: "ENUM('user', 'admin', 'seller') DEFAULT 'user'",
+        profileImage: 'TEXT NULL',
+        phoneNumber: 'VARCHAR(20) NULL',
+        address: 'TEXT NULL',
+        isActive: 'BOOLEAN DEFAULT TRUE',
+        emailVerified: 'BOOLEAN DEFAULT FALSE',
+        lastLogin: 'DATETIME NULL',
+        createdAt: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+        updatedAt: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+      },
+      indexes: [
+        'INDEX idx_users_email (email)',
+        'INDEX idx_users_role (role)',
+        'INDEX idx_users_isActive (isActive)',
+        'INDEX idx_users_createdAt (createdAt)'
+      ]
+    };
+  }
+
+  // Ensure table exists before any operations
+  static async ensureTable() {
+    return await ensureModelTable(User.getSchema());
+  }
   static async create(userData) {
+    // Ensure table exists
+    await User.ensureTable();
+    
     const { email, password, firstName, lastName, role = 'user', profileImage, phoneNumber, address } = userData;
     
     // Hash password
@@ -29,6 +66,9 @@ class User {
   }
 
   static async findByEmail(email) {
+    // Ensure table exists
+    await User.ensureTable();
+    
     const query = `
       SELECT id, email, password, firstName, lastName, role, profileImage, phoneNumber, address, 
              isActive, emailVerified, lastLogin, createdAt, updatedAt

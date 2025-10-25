@@ -6,6 +6,7 @@ const morgan = require('morgan');
 
 // Import configuration and middleware
 const { testConnection } = require('./src/config/database');
+const { initializeDatabase } = require('./src/initDatabase');
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 const { apiLimiter } = require('./src/middleware/rateLimiter');
 const { 
@@ -54,6 +55,9 @@ app.use(requestId);
 
 // CORS configuration
 app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Rate limiting
 app.use(apiLimiter);
@@ -240,28 +244,37 @@ const server = app.listen(PORT, '127.0.0.1', async () => {
   console.log('═══════════════════════════════════════');
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Server: http://127.0.0.1:${PORT}`);
-  console.log(`🔗 Health Check: http://127.0.0.1:${PORT}/health`);
-  console.log(`🗄️  Database Test: http://127.0.0.1:${PORT}/db-test`);
-  console.log(`📚 API Base: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}`);
-  console.log(`📋 Events API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/events`);
-  console.log(`🔐 Auth API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/auth`);
-  console.log(`👤 Users API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/users`);
-  console.log(`🛍️  Products API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/products`);
-  console.log(`📝 Reservations API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/reservations`);
+  console.log(`🌐 Server (localhost): http://localhost:${PORT}`);
+  console.log(`🔗 Health Check: http://localhost:${PORT}/health`);
+  console.log(`🗄️  Database Test: http://localhost:${PORT}/db-test`);
+  console.log(`📚 API Base: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}`);
+  console.log(`📋 Events API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/events`);
+  console.log(`🔐 Auth API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/auth`);
+  console.log(`👤 Users API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/users`);
+  console.log(`🛍️  Products API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/products`);
+  console.log(`📝 Reservations API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/reservations`);
   console.log('═══════════════════════════════════════');
   
-  // Test database connection on startup
-  console.log('🔍 Testing database connection...');
-  const isConnected = await testConnection();
-  
-  if (isConnected) {
-    console.log('✅ Database connected successfully');
-  } else {
-    console.log('❌ Database connection failed');
-    console.log('⚠️  Server started but database is not available');
+  // Initialize database structure
+  console.log('🔍 Initializing database structure...');
+  try {
+    await initializeDatabase();
+    console.log('✅ Database structure initialization completed');
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
+    console.log('⚠️  Server started but database initialization failed');
   }
   
   console.log('🎉 NetZero API Server is ready!');
+});
+
+// Error handling for server startup
+server.on('error', (error) => {
+  console.error('❌ Server startup error:', error.message);
+  if (error.code === 'EADDRINUSE') {
+    console.error(`💥 Port ${PORT} is already in use. Please try a different port or stop the process using this port.`);
+  }
+  process.exit(1);
 });
 
 module.exports = app;
