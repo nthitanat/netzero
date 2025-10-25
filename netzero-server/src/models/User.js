@@ -13,7 +13,7 @@ class User {
         password: 'VARCHAR(255) NOT NULL',
         firstName: 'VARCHAR(100) NOT NULL',
         lastName: 'VARCHAR(100) NOT NULL',
-        role: "ENUM('user', 'admin', 'seller') DEFAULT 'user'",
+        role: "ENUM('user', 'admin', 'seller', 'community_head') DEFAULT 'user'",
         profileImage: 'TEXT NULL',
         phoneNumber: 'VARCHAR(20) NULL',
         address: 'TEXT NULL',

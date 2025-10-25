@@ -340,6 +340,187 @@ class EventsService {
     }
   }
 
+  // Create a new event
+  async createEvent(eventData) {
+    try {
+      console.log('📝 Creating new event:', eventData);
+
+      const response = await axiosInstance.post(this.baseUrl, eventData);
+
+      // Clear cache since we have new data
+      this.clearCache();
+
+      console.log('✅ Event created successfully');
+      return ApiResponse.success(
+        response.data.data || response.data,
+        response.data.message || 'Event created successfully'
+      );
+
+    } catch (error) {
+      console.error('❌ Error creating event:', error);
+      
+      if (error.response?.status === 400) {
+        throw new ApiError(
+          error.response?.data?.message || 'Invalid event data provided',
+          API_ERROR_TYPES.VALIDATION_ERROR,
+          400,
+          { validationErrors: error.response?.data?.errors }
+        );
+      }
+      
+      throw new ApiError(
+        error.response?.data?.message || 'Failed to create event',
+        API_ERROR_TYPES.SERVER_ERROR,
+        error.response?.status || 500,
+        { originalError: error.message }
+      );
+    }
+  }
+
+  // Update an existing event
+  async updateEvent(eventId, eventData) {
+    try {
+      console.log(`📝 Updating event ${eventId}:`, eventData);
+
+      const response = await axiosInstance.put(`${this.baseUrl}/${eventId}`, eventData);
+
+      // Clear cache since we have updated data
+      this.clearCache();
+      this.clearCacheEntry(`event-${eventId}`);
+
+      console.log(`✅ Event ${eventId} updated successfully`);
+      return ApiResponse.success(
+        response.data.data || response.data,
+        response.data.message || 'Event updated successfully'
+      );
+
+    } catch (error) {
+      console.error(`❌ Error updating event ${eventId}:`, error);
+      
+      if (error.response?.status === 400) {
+        throw new ApiError(
+          error.response?.data?.message || 'Invalid event data provided',
+          API_ERROR_TYPES.VALIDATION_ERROR,
+          400,
+          { validationErrors: error.response?.data?.errors }
+        );
+      }
+      
+      if (error.response?.status === 403) {
+        throw new ApiError(
+          error.response?.data?.message || 'You do not have permission to update this event',
+          API_ERROR_TYPES.FORBIDDEN_ERROR,
+          403
+        );
+      }
+      
+      if (error.response?.status === 404) {
+        throw new ApiError(
+          error.response?.data?.message || `Event with ID ${eventId} not found`,
+          API_ERROR_TYPES.NOT_FOUND_ERROR,
+          404
+        );
+      }
+      
+      throw new ApiError(
+        error.response?.data?.message || 'Failed to update event',
+        API_ERROR_TYPES.SERVER_ERROR,
+        error.response?.status || 500,
+        { originalError: error.message }
+      );
+    }
+  }
+
+  // Delete an event (hard delete)
+  async deleteEvent(eventId) {
+    try {
+      console.log(`🗑️ Deleting event ${eventId}`);
+
+      const response = await axiosInstance.delete(`${this.baseUrl}/${eventId}`);
+
+      // Clear cache since we have deleted data
+      this.clearCache();
+      this.clearCacheEntry(`event-${eventId}`);
+
+      console.log(`✅ Event ${eventId} deleted successfully`);
+      return ApiResponse.success(
+        response.data.data || response.data,
+        response.data.message || 'Event deleted successfully'
+      );
+
+    } catch (error) {
+      console.error(`❌ Error deleting event ${eventId}:`, error);
+      
+      if (error.response?.status === 403) {
+        throw new ApiError(
+          error.response?.data?.message || 'You do not have permission to delete this event',
+          API_ERROR_TYPES.FORBIDDEN_ERROR,
+          403
+        );
+      }
+      
+      if (error.response?.status === 404) {
+        throw new ApiError(
+          error.response?.data?.message || `Event with ID ${eventId} not found`,
+          API_ERROR_TYPES.NOT_FOUND_ERROR,
+          404
+        );
+      }
+      
+      throw new ApiError(
+        error.response?.data?.message || 'Failed to delete event',
+        API_ERROR_TYPES.SERVER_ERROR,
+        error.response?.status || 500,
+        { originalError: error.message }
+      );
+    }
+  }
+
+  // Cancel an event (soft delete)
+  async cancelEvent(eventId) {
+    try {
+      console.log(`❌ Cancelling event ${eventId}`);
+
+      const response = await axiosInstance.put(`${this.baseUrl}/${eventId}/cancel`);
+
+      // Clear cache since we have updated data
+      this.clearCache();
+      this.clearCacheEntry(`event-${eventId}`);
+
+      console.log(`✅ Event ${eventId} cancelled successfully`);
+      return ApiResponse.success(
+        response.data.data || response.data,
+        response.data.message || 'Event cancelled successfully'
+      );
+
+    } catch (error) {
+      console.error(`❌ Error cancelling event ${eventId}:`, error);
+      
+      if (error.response?.status === 403) {
+        throw new ApiError(
+          error.response?.data?.message || 'You do not have permission to cancel this event',
+          API_ERROR_TYPES.FORBIDDEN_ERROR,
+          403
+        );
+      }
+      
+      if (error.response?.status === 404) {
+        throw new ApiError(
+          error.response?.data?.message || `Event with ID ${eventId} not found`,
+          API_ERROR_TYPES.NOT_FOUND_ERROR,
+          404
+        );
+      }
+      
+      throw new ApiError(
+        error.response?.data?.message || 'Failed to cancel event',
+        API_ERROR_TYPES.SERVER_ERROR,
+        error.response?.status || 500,
+        { originalError: error.message }
+      );
+    }
+  }
+
   // Note: Registration endpoints will be implemented later
   // Keep these methods for compatibility but they will throw errors for now
   async registerForEvent(eventId, registrationData) {

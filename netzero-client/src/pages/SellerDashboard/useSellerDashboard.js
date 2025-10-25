@@ -122,7 +122,7 @@ const useSellerDashboard = (initialProps = {}) => {
   // Initialize data on component mount
   useEffect(() => {
     const initializeData = async () => {
-      if (!user || user.role !== 'seller') {
+      if (!user || (user.role !== 'seller' && user.role !== 'community_head')) {
         return;
       }
       

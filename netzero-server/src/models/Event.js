@@ -1,5 +1,12 @@
-const { executeQuery } = require('../config/database');
+const { executeQuery, executeCommand } = require('../config/database');
 const { ensureModelTable } = require('../utils/databaseEnsure');
+
+// Helper function to convert ISO datetime to MySQL format
+const formatDateTimeForMySQL = (isoDateTime) => {
+  if (!isoDateTime) return null;
+  const date = new Date(isoDateTime);
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+};
 
 class Event {
   // Database schema definition
@@ -38,6 +45,57 @@ class Event {
   static async ensureTable() {
     return await ensureModelTable(Event.getSchema());
   }
+
+  // Create a new event
+  static async create(eventData) {
+    try {
+      // Ensure table exists
+      await Event.ensureTable();
+      
+      const {
+        title,
+        description,
+        event_date,
+        location,
+        category,
+        organizer,
+        contact_email,
+        contact_phone,
+        max_participants = 0,
+        registration_deadline,
+        status = 'active',
+        isRecommended = false
+      } = eventData;
+      
+      const query = `
+        INSERT INTO events (
+          title, description, event_date, location, category, organizer,
+          contact_email, contact_phone, max_participants, registration_deadline,
+          status, isRecommended
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      
+      const [result] = await executeCommand(query, [
+        title,
+        description || null,
+        formatDateTimeForMySQL(event_date),
+        location || null,
+        category || null,
+        organizer || null,
+        contact_email || null,
+        contact_phone || null,
+        max_participants,
+        formatDateTimeForMySQL(registration_deadline),
+        status,
+        isRecommended ? 1 : 0
+      ]);
+      
+      return result.insertId;
+    } catch (error) {
+      throw new Error(`Error creating event: ${error.message}`);
+    }
+  }
+
   constructor(data) {
     this.id = data.id;
     this.title = data.title;
@@ -121,6 +179,118 @@ class Event {
       return results.map(row => new Event(row));
     } catch (error) {
       throw new Error(`Error fetching recommended events: ${error.message}`);
+    }
+  }
+
+  // Delete event by ID (hard delete)
+  static async deleteById(id) {
+    try {
+      const query = 'DELETE FROM events WHERE id = ?';
+      const [result] = await executeCommand(query, [id]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      throw new Error(`Error deleting event: ${error.message}`);
+    }
+  }
+
+  // Soft delete event (mark as cancelled)
+  static async softDeleteById(id) {
+    try {
+      const query = `
+        UPDATE events 
+        SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ?
+      `;
+      const [result] = await executeCommand(query, [id]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      throw new Error(`Error soft deleting event: ${error.message}`);
+    }
+  }
+
+  // Delete event with ownership check
+  static async deleteByIdWithOwnership(eventId, userId) {
+    try {
+      // Import UserEvent here to avoid circular dependency
+      const UserEvent = require('./UserEvent');
+      
+      // Check if user owns the event
+      const ownsEvent = await UserEvent.userOwnsEvent(userId, eventId);
+      
+      if (!ownsEvent) {
+        throw new Error('User does not have permission to delete this event');
+      }
+
+      // Delete the event
+      return await Event.deleteById(eventId);
+    } catch (error) {
+      throw new Error(`Error deleting event with ownership check: ${error.message}`);
+    }
+  }
+
+  // Soft delete event with ownership check
+  static async softDeleteByIdWithOwnership(eventId, userId) {
+    try {
+      // Import UserEvent here to avoid circular dependency
+      const UserEvent = require('./UserEvent');
+      
+      // Check if user owns the event
+      const ownsEvent = await UserEvent.userOwnsEvent(userId, eventId);
+      
+      if (!ownsEvent) {
+        throw new Error('User does not have permission to delete this event');
+      }
+
+      // Soft delete the event
+      return await Event.softDeleteById(eventId);
+    } catch (error) {
+      throw new Error(`Error soft deleting event with ownership check: ${error.message}`);
+    }
+  }
+
+  // Update event with ownership check
+  static async updateByIdWithOwnership(eventId, userId, updateData) {
+    try {
+      // Import UserEvent here to avoid circular dependency
+      const UserEvent = require('./UserEvent');
+      
+      // Check if user owns the event
+      const ownsEvent = await UserEvent.userOwnsEvent(userId, eventId);
+      
+      if (!ownsEvent) {
+        throw new Error('User does not have permission to update this event');
+      }
+
+      // Build update query dynamically based on provided fields
+      const allowedFields = ['title', 'description', 'event_date', 'location', 'category', 'organizer', 'contact_email', 'contact_phone', 'max_participants', 'registration_deadline', 'status'];
+      const updateFields = [];
+      const updateValues = [];
+
+      for (const [key, value] of Object.entries(updateData)) {
+        if (allowedFields.includes(key) && value !== undefined) {
+          updateFields.push(`${key} = ?`);
+          // Format datetime fields for MySQL
+          if (key === 'event_date' || key === 'registration_deadline') {
+            updateValues.push(formatDateTimeForMySQL(value));
+          } else {
+            updateValues.push(value);
+          }
+        }
+      }
+
+      if (updateFields.length === 0) {
+        throw new Error('No valid fields provided for update');
+      }
+
+      updateFields.push('updated_at = CURRENT_TIMESTAMP');
+      updateValues.push(eventId);
+
+      const query = `UPDATE events SET ${updateFields.join(', ')} WHERE id = ?`;
+      const [result] = await executeCommand(query, updateValues);
+      
+      return result.affectedRows > 0;
+    } catch (error) {
+      throw new Error(`Error updating event with ownership check: ${error.message}`);
     }
   }
 

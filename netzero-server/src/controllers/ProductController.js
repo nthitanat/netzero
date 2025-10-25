@@ -193,7 +193,9 @@ class ProductController {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
+      const userRole = req.user.role;
+      const isAdmin = userRole === 'admin';
+      const isCommunityHead = userRole === 'community_head';
 
       if (!productId || isNaN(productId)) {
         return res.status(400).json({
@@ -270,7 +272,7 @@ class ProductController {
           });
         }
       } else {
-        // Regular user - check ownership in the model
+        // Regular user or community_head - check ownership in the model
         const success = await Product.updateById(productId, updateData, userId);
         if (!success) {
           return res.status(404).json({
@@ -300,12 +302,13 @@ class ProductController {
     }
   }
 
-  // DELETE /api/v1/products/:id - Delete product (only by owner or admin)
+  // DELETE /api/v1/products/:id - Delete product (only by owner, community_head, or admin)
   static async deleteProduct(req, res) {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
+      const userRole = req.user.role;
+      const isAdmin = userRole === 'admin';
 
       if (!productId || isNaN(productId)) {
         return res.status(400).json({
@@ -657,7 +660,8 @@ class ProductController {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
+      const userRole = req.user.role;
+      const isAdmin = userRole === 'admin';
 
       if (!productId || isNaN(productId)) {
         return res.status(400).json({
@@ -677,6 +681,7 @@ class ProductController {
         });
       }
 
+      // Allow admin, community_head, and product owner
       if (!isAdmin && product.user_id !== userId) {
         return res.status(403).json({
           success: false,
@@ -733,7 +738,8 @@ class ProductController {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
+      const userRole = req.user.role;
+      const isAdmin = userRole === 'admin';
 
       if (!productId || isNaN(productId)) {
         return res.status(400).json({
@@ -753,6 +759,7 @@ class ProductController {
         });
       }
 
+      // Allow admin, community_head, and product owner
       if (!isAdmin && product.user_id !== userId) {
         return res.status(403).json({
           success: false,
@@ -809,7 +816,8 @@ class ProductController {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
+      const userRole = req.user.role;
+      const isAdmin = userRole === 'admin';
 
       if (!productId || isNaN(productId)) {
         return res.status(400).json({
@@ -829,6 +837,7 @@ class ProductController {
         });
       }
 
+      // Allow admin, community_head, and product owner
       if (!isAdmin && product.user_id !== userId) {
         return res.status(403).json({
           success: false,

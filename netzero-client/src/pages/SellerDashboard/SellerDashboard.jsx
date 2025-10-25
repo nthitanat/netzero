@@ -13,14 +13,14 @@ export default function SellerDashboard() {
     const { stateSellerDashboard, setSellerDashboard } = useSellerDashboard();
     const handlers = SellerDashboardHandler(stateSellerDashboard, setSellerDashboard, navigate);
     
-    // Check if user has seller role
-    if (!user || user.role !== 'seller') {
+    // Check if user has seller or community_head role
+    if (!user || (user.role !== 'seller' && user.role !== 'community_head')) {
         return (
             <div className={styles.Container}>
                 <div className={styles.UnauthorizedContainer}>
                     <GoogleIcon iconType="warning" size="large" className={styles.WarningIcon} />
                     <h2>ไม่สามารถเข้าถึงได้</h2>
-                    <p>คุณต้องมีสิทธิ์เป็นผู้ขายเพื่อเข้าใช้หน้านี้</p>
+                    <p>คุณต้องมีสิทธิ์เป็นผู้ขายหรือผู้นำชุมชนเพื่อเข้าใช้หน้านี้</p>
                     <button 
                         className={styles.BackButton}
                         onClick={() => navigate('/')}

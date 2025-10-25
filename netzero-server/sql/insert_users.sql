@@ -7,6 +7,7 @@ INSERT INTO users (email, password, firstName, lastName, role, profileImage, pho
 -- Admin user
 
 -- Seller users
+('community1@netzero.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBdXig/H96.9em', 'Community', '1', 'community_head', NULL, '+1234567891', '456 Seller Ave, Community head City, SC 23456', TRUE),
 ('seller1@netzero.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBdXig/H96.9em', 'John', 'Smith', 'seller', NULL, '+1234567891', '456 Seller Ave, Seller City, SC 23456', TRUE),
 ('seller2@netzero.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBdXig/H96.9em', 'Sarah', 'Johnson', 'seller', NULL, '+1234567892', '789 Market St, Commerce City, CC 34567', TRUE),
 ('greenfarm@netzero.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBdXig/H96.9em', 'Michael', 'Green', 'seller', NULL, '+1234567893', '321 Organic Farm Rd, Green Valley, GV 45678', TRUE),

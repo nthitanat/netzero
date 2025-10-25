@@ -100,13 +100,22 @@ export default function FloatingNavBar({
                                             <GoogleIcon iconType="shopping_cart" size="small" />
                                             My Orders
                                         </button>
-                                        {user?.role === 'seller' && (
+                                        {(user?.role === 'seller' || user?.role === 'community_head') && (
                                             <button 
                                                 className={styles.UserMenuItem}
                                                 onClick={handlers.handleSellerDashboardClick}
                                             >
                                                 <GoogleIcon iconType="dashboard" size="small" />
                                                 Seller Dashboard
+                                            </button>
+                                        )}
+                                        {user?.role === 'community_head' && (
+                                            <button 
+                                                className={styles.UserMenuItem}
+                                                onClick={handlers.handleEventDashboardClick}
+                                            >
+                                                <GoogleIcon iconType="event" size="small" />
+                                                Event Dashboard
                                             </button>
                                         )}
                                         <button 

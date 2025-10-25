@@ -1,0 +1,493 @@
+@import "src/styles/main";
+
+.Container {
+  width: 100%;
+  @include glassmorphism-light;
+  border-radius: 20px;
+  padding: 30px;
+  @include fade-in-animation(0.5s);
+}
+
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  .LoadingIcon {
+    @include text-color-palette("primary-color-3");
+    margin-bottom: 16px;
+    animation: pulse 2s infinite;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-2");
+  }
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.HeaderLeft {
+  flex: 1;
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.Subtitle {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-3");
+}
+
+.HeaderActions {
+  display: flex;
+  gap: 12px;
+  
+  @include mobile {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.RefreshButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  @include bg-color-palette("white");
+  @include text-color-palette("primary-color-2");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 10px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.CreateButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 10px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include shawdow-palette("primary-color-2", 0.2);
+  
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-2px);
+    @include shawdow-palette("primary-color-1", 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.EmptyState {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .EmptyIcon {
+    @include text-color-palette("primary-color-4");
+    margin-bottom: 20px;
+  }
+  
+  h4 {
+    @include font-size-palette("headline-5");
+    @include text-color-palette("primary-color-2");
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-3");
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+}
+
+.EmptyCreateButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 12px;
+  @include font-size-palette("body-1");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include shawdow-palette("primary-color-2", 0.2);
+  
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-2px);
+    @include shawdow-palette("primary-color-1", 0.3);
+  }
+}
+
+.EventsList {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+.EventCard {
+  @include bg-color-palette("white");
+  border-radius: 16px;
+  padding: 24px;
+  @include border-color-palette("primary-color-4", 1px);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    @include shawdow-palette("primary-color-3", 0.1);
+  }
+}
+
+.EventHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.EventHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.EventTitle {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.StatusBadge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  @include font-size-palette("body-3");
+  font-weight: 500;
+  white-space: nowrap;
+  
+  &.Active {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &.Completed {
+    @include bg-color-palette("secondary-color-4");
+    @include text-color-palette("secondary-color-1");
+  }
+  
+  &.Cancelled {
+    @include bg-color-palette("inactive");
+    @include text-color-palette("white");
+  }
+  
+  &.Default {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-2");
+  }
+}
+
+.EventActions {
+  display: flex;
+  gap: 8px;
+}
+
+.ActionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-2");
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-3");
+    @include text-color-palette("primary-color-1");
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.EventDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.EventMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.MetaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  
+  svg {
+    @include text-color-palette("primary-color-3");
+  }
+}
+
+.EventDescription {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  line-height: 1.6;
+  margin: 0;
+}
+
+.EventFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--primary-color-4);
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.Category {
+  padding: 4px 10px;
+  @include bg-color-palette("secondary-color-4");
+  @include text-color-palette("secondary-color-1");
+  border-radius: 12px;
+  @include font-size-palette("body-3");
+  font-weight: 500;
+}
+
+.CreatedDate {
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-3");
+}
+
+// Modal Styles
+.Modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.ModalContent {
+  @include bg-color-palette("white");
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  @include shawdow-palette("black", 0.3);
+}
+
+.ModalHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 30px 30px 20px 30px;
+  
+  h3 {
+    @include font-size-palette("headline-5");
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.WarningIcon {
+  @include text-color-palette("warning");
+}
+
+.ModalBody {
+  padding: 0 30px 20px 30px;
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-2");
+    margin: 0 0 8px 0;
+    line-height: 1.6;
+  }
+  
+  strong {
+    @include text-color-palette("primary-color-1");
+    display: block;
+    margin: 8px 0;
+  }
+}
+
+.WarningText {
+  @include font-size-palette("body-2");
+  @include text-color-palette("warning");
+  font-style: italic;
+  margin-top: 16px !important;
+}
+
+.ModalFooter {
+  display: flex;
+  gap: 12px;
+  padding: 20px 30px 30px 30px;
+  justify-content: flex-end;
+}
+
+.CancelButton {
+  padding: 10px 20px;
+  @include bg-color-palette("white");
+  @include text-color-palette("primary-color-2");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 10px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.DeleteButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  @include bg-color-palette("warning");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 10px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #d32f2f;
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .Container {
+    padding: 20px;
+  }
+  
+  .EventCard {
+    padding: 20px;
+  }
+  
+  .ModalContent {
+    margin: 10px;
+  }
+  
+  .ModalHeader,
+  .ModalBody,
+  .ModalFooter {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+// Animation keyframes
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

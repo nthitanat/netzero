@@ -1,0 +1,192 @@
+@import "src/styles/main";
+
+.Container {
+  @include navbar-spacing;
+  min-height: 100vh;
+  position: relative;
+  padding: 20px;
+  @include bg-color-palette("white");
+}
+
+.BackgroundDecoration {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.UnauthorizedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px 20px;
+  @include glassmorphism-light;
+  border-radius: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  
+  h2 {
+    @include font-size-palette("headline-4");
+    @include text-color-palette("primary-color-1");
+    margin: 20px 0 10px 0;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-2");
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+}
+
+.WarningIcon {
+  @include text-color-palette("warning");
+}
+
+.BackButton {
+  padding: 12px 24px;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 12px;
+  @include font-size-palette("body-1");
+  font-weight: 500;
+  cursor: pointer;
+  @include fade-in-animation(0.3s);
+  
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-2px);
+    @include shawdow-palette("primary-color-1", 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.Header {
+  text-align: center;
+  margin-bottom: 40px;
+  z-index: 1;
+  position: relative;
+}
+
+.Title {
+  @include font-size-palette("headline-2");
+  @include text-color-palette("primary-color-1");
+  font-weight: 700;
+  margin-bottom: 10px;
+  @include fade-in-animation(0.5s);
+}
+
+.Subtitle {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-3");
+  font-weight: 400;
+  @include fade-in-animation(0.7s);
+}
+
+.TabContainer {
+  margin-bottom: 30px;
+  z-index: 1;
+  position: relative;
+}
+
+.TabButtons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  @include glassmorphism-light;
+  border-radius: 16px;
+  padding: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.TabButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  @include text-color-palette("primary-color-2");
+  background: transparent;
+  flex: 1;
+  justify-content: center;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+  
+  &.Active {
+    @include bg-color-palette("primary-color-2");
+    @include text-color-palette("white");
+    @include shawdow-palette("primary-color-2", 0.2);
+    
+    &:hover {
+      @include bg-color-palette("primary-color-1");
+      transform: translateY(-1px);
+    }
+  }
+  
+  @include mobile {
+    padding: 14px 20px;
+    @include font-size-palette("body-1");
+  }
+}
+
+.Content {
+  z-index: 1;
+  position: relative;
+  @include fade-in-animation(0.8s);
+  
+  // Add margin bottom to account for floating navbar
+  margin-bottom: 120px;
+  
+  @include mobile {
+    margin-bottom: 140px;
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .Container {
+    padding: 15px;
+  }
+  
+  .Header {
+    margin-bottom: 30px;
+  }
+  
+  .Title {
+    @include font-size-palette("headline-3");
+  }
+  
+  .Subtitle {
+    @include font-size-palette("body-2");
+  }
+  
+  .TabContainer {
+    margin-bottom: 20px;
+  }
+}

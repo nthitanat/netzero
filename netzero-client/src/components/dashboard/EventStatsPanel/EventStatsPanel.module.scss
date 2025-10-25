@@ -1,0 +1,314 @@
+@import "src/styles/main";
+
+.Container {
+  width: 100%;
+  @include glassmorphism-light;
+  border-radius: 20px;
+  padding: 30px;
+  @include fade-in-animation(0.5s);
+}
+
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  .LoadingIcon {
+    @include text-color-palette("primary-color-3");
+    margin-bottom: 16px;
+    animation: pulse 2s infinite;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-2");
+  }
+}
+
+.EmptyState {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .EmptyIcon {
+    @include text-color-palette("primary-color-4");
+    margin-bottom: 20px;
+  }
+  
+  h4 {
+    @include font-size-palette("headline-5");
+    @include text-color-palette("primary-color-2");
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    @include font-size-palette("body-1");
+    @include text-color-palette("primary-color-3");
+    margin-bottom: 30px;
+  }
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.HeaderLeft {
+  flex: 1;
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.Subtitle {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-3");
+}
+
+.RefreshButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  @include bg-color-palette("white");
+  @include text-color-palette("primary-color-2");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 10px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.StatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.StatCard {
+  @include bg-color-palette("white");
+  border-radius: 16px;
+  padding: 24px;
+  @include border-color-palette("primary-color-4", 1px);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    @include shawdow-palette("primary-color-3", 0.1);
+  }
+  
+  // Color variants
+  &.primary .StatIcon {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &.success .StatIcon {
+    background: rgba(76, 175, 80, 0.1);
+    @include text-color-palette("primary-color-2");
+  }
+  
+  &.info .StatIcon {
+    @include bg-color-palette("secondary-color-4");
+    @include text-color-palette("secondary-color-1");
+  }
+  
+  &.completed .StatIcon {
+    background: rgba(129, 199, 132, 0.2);
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &.warning .StatIcon {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+  }
+  
+  &.participants .StatIcon {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196f3;
+  }
+  
+  &.average .StatIcon {
+    background: rgba(156, 39, 176, 0.1);
+    color: #9c27b0;
+  }
+}
+
+.StatIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.StatContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.StatValue {
+  @include font-size-palette("headline-3");
+  font-weight: 700;
+  @include text-color-palette("primary-color-1");
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.StatTitle {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-2");
+  font-weight: 500;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.StatDescription {
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-3");
+  line-height: 1.4;
+}
+
+.SummarySection {
+  border-top: 2px solid var(--primary-color-4);
+  padding-top: 30px;
+}
+
+.SummaryTitle {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.SummaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.SummaryCard {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-4", 1px);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  &:hover {
+    @include shawdow-palette("primary-color-3", 0.05);
+  }
+}
+
+.SummaryIcon {
+  width: 48px;
+  height: 48px;
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-2");
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.SummaryContent {
+  flex: 1;
+}
+
+.SummaryLabel {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-3");
+  margin-bottom: 4px;
+}
+
+.SummaryValue {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.SummaryNote {
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-3");
+}
+
+// Responsive Design
+@include mobile {
+  .Container {
+    padding: 20px;
+  }
+  
+  .StatCard {
+    padding: 20px;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .StatIcon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .StatValue {
+    @include font-size-palette("headline-4");
+  }
+  
+  .SummaryCard {
+    padding: 16px;
+  }
+}
+
+// Animation keyframes
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

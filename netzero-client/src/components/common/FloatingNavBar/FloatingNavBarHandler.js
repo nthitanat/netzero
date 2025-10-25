@@ -76,10 +76,10 @@ const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigat
       }
     },
 
-    handleMyOrdersClick: () => {
+    handleEventDashboardClick: () => {
       setFloatingNavBar("showUserMenu", false);
       if (navigate) {
-        navigate('/my-orders');
+        navigate('/event-dashboard');
       }
     },
 

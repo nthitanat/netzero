@@ -22,6 +22,7 @@ const eventRoutes = require('./src/routes/eventRoutes');
 const connectionRoutes = require('./src/routes/connectionRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const userEventRoutes = require('./src/routes/userEventRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const reservationRoutes = require('./src/routes/reservationRoutes');
 const chatAppRoutes = require('./src/routes/chatAppRoutes');
@@ -99,6 +100,7 @@ app.get('/', (req, res) => {
       connection: `${API_PREFIX}/${API_VERSION}/connection`,
       auth: `${API_PREFIX}/${API_VERSION}/auth`,
       users: `${API_PREFIX}/${API_VERSION}/users`,
+      userEvents: `${API_PREFIX}/${API_VERSION}/user-events`,
       products: `${API_PREFIX}/${API_VERSION}/products`,
       reservations: `${API_PREFIX}/${API_VERSION}/reservations`,
       health: '/health',
@@ -139,6 +141,14 @@ app.get('/', (req, res) => {
         updateUser: `PUT ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`,
         updatePassword: `PUT ${API_PREFIX}/${API_VERSION}/users/:id/password (Owner or Admin)`,
         deleteUser: `DELETE ${API_PREFIX}/${API_VERSION}/users/:id (Owner or Admin)`
+      },
+      userEvents: {
+        getUserEvents: `GET ${API_PREFIX}/${API_VERSION}/user-events/user/:userId/events`,
+        getMyEvents: `GET ${API_PREFIX}/${API_VERSION}/user-events/my-events (Auth required)`,
+        joinEvent: `POST ${API_PREFIX}/${API_VERSION}/user-events/join (Auth required)`,
+        leaveEvent: `DELETE ${API_PREFIX}/${API_VERSION}/user-events/user/:userId/event/:eventId (Auth required)`,
+        getEventUsers: `GET ${API_PREFIX}/${API_VERSION}/user-events/event/:eventId/users`,
+        checkOwnership: `GET ${API_PREFIX}/${API_VERSION}/user-events/user/:userId/event/:eventId/ownership`
       },
       products: {
         getAll: `GET ${API_PREFIX}/${API_VERSION}/products`,
@@ -211,6 +221,7 @@ app.use(`${API_PREFIX}/${API_VERSION}/events`, eventRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/connection`, connectionRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/auth`, authRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/users`, userRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/user-events`, userEventRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/products`, productRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/reservations`, reservationRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/chatapps`, chatAppRoutes);

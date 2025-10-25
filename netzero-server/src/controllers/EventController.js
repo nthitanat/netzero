@@ -283,6 +283,288 @@ class EventController {
       });
     }
   }
+
+  // POST /api/v1/events - Create new event
+  static async createEvent(req, res) {
+    try {
+      const {
+        title,
+        description,
+        event_date,
+        location,
+        category,
+        organizer,
+        contact_email,
+        contact_phone,
+        max_participants,
+        registration_deadline,
+        status = 'active',
+        isRecommended = false
+      } = req.body;
+
+      // Validate required fields
+      if (!title || !event_date) {
+        return res.status(400).json({
+          success: false,
+          message: 'Title and event date are required',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate event date is in the future
+      const eventDate = new Date(event_date);
+      if (eventDate <= new Date()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Event date must be in the future',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Create event using Event model's create method (we need to add this)
+      const eventData = {
+        title,
+        description,
+        event_date,
+        location,
+        category,
+        organizer,
+        contact_email,
+        contact_phone,
+        max_participants: max_participants || 0,
+        registration_deadline,
+        status,
+        isRecommended: isRecommended ? 1 : 0
+      };
+
+      const eventId = await Event.create(eventData);
+
+      // Get the created event
+      const createdEvent = await Event.findById(eventId);
+
+      // Auto-join the event for the creator to establish ownership
+      const UserEvent = require('../models/UserEvent');
+      const userId = req.user.userId || req.user.id; // Support both userId and id
+      await UserEvent.create(userId, eventId);
+
+      res.status(201).json({
+        success: true,
+        message: 'Event created successfully',
+        data: createdEvent ? createdEvent.toJSON() : { id: eventId },
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Error in createEvent:', error);
+      
+      if (error.message.includes('already associated')) {
+        // This shouldn't happen in create, but just in case
+        return res.status(409).json({
+          success: false,
+          message: 'Event creation conflict',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create event',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  // DELETE /api/v1/events/:id - Delete event (with ownership check)
+  static async deleteEvent(req, res) {
+    try {
+      const eventId = req.params.id;
+      const userId = req.user.id; // From auth middleware
+      
+      // Validate event ID
+      if (!eventId || isNaN(eventId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid event ID provided',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Check if event exists first
+      const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: 'Event not found',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Delete event with ownership check
+      const deleted = await Event.deleteByIdWithOwnership(parseInt(eventId), userId);
+      
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'Event not found or already deleted',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Event deleted successfully',
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Error in deleteEvent:', error);
+      
+      if (error.message.includes('permission')) {
+        return res.status(403).json({
+          success: false,
+          message: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Failed to delete event',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  // PUT /api/v1/events/:id/cancel - Soft delete (cancel) event
+  static async cancelEvent(req, res) {
+    try {
+      const eventId = req.params.id;
+      const userId = req.user.id; // From auth middleware
+      
+      // Validate event ID
+      if (!eventId || isNaN(eventId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid event ID provided',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Check if event exists first
+      const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: 'Event not found',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Cancel event with ownership check
+      const cancelled = await Event.softDeleteByIdWithOwnership(parseInt(eventId), userId);
+      
+      if (!cancelled) {
+        return res.status(404).json({
+          success: false,
+          message: 'Event not found or already cancelled',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Event cancelled successfully',
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Error in cancelEvent:', error);
+      
+      if (error.message.includes('permission')) {
+        return res.status(403).json({
+          success: false,
+          message: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Failed to cancel event',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  // PUT /api/v1/events/:id - Update event (with ownership check)
+  static async updateEvent(req, res) {
+    try {
+      const eventId = req.params.id;
+      const userId = req.user.id; // From auth middleware
+      const updateData = req.body;
+      
+      // Validate event ID
+      if (!eventId || isNaN(eventId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid event ID provided',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Check if event exists first
+      const event = await Event.findById(eventId);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: 'Event not found',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Update event with ownership check
+      const updated = await Event.updateByIdWithOwnership(parseInt(eventId), userId, updateData);
+      
+      if (!updated) {
+        return res.status(404).json({
+          success: false,
+          message: 'Event not found or no changes made',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Fetch updated event
+      const updatedEvent = await Event.findById(eventId);
+
+      res.status(200).json({
+        success: true,
+        message: 'Event updated successfully',
+        data: updatedEvent ? updatedEvent.toJSON() : null,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Error in updateEvent:', error);
+      
+      if (error.message.includes('permission')) {
+        return res.status(403).json({
+          success: false,
+          message: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Failed to update event',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
 }
 
 module.exports = EventController;
