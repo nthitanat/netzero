@@ -150,8 +150,80 @@ export default function ReserveDialog({
                                     <span>รับที่ร้าน</span>
                                 </div>
                             </label>
+                            
+                            <label className={styles.DeliveryOption}>
+                                <input
+                                    type="radio"
+                                    name="deliveryOption"
+                                    value="event"
+                                    checked={stateReserveDialog.optionOfDelivery === 'event'}
+                                    onChange={handlers.handleDeliveryOptionChange}
+                                    className={styles.DeliveryRadio}
+                                />
+                                <div className={styles.DeliveryOptionContent}>
+                                    <GoogleIcon iconType="event" size="small" />
+                                    <span>รับที่กิจกรรม</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
+
+                    {stateReserveDialog.optionOfDelivery === 'event' && (
+                        <div className={styles.EventSection}>
+                            <label className={styles.EventLabel}>เลือกกิจกรรม</label>
+                            
+                            {stateReserveDialog.isLoadingEvents ? (
+                                <div className={styles.LoadingContainer}>
+                                    <div className={styles.LoadingSpinner} />
+                                    <span>กำลังโหลดรายการกิจกรรม...</span>
+                                </div>
+                            ) : stateReserveDialog.availableEvents.length === 0 ? (
+                                <div className={styles.NoEventsMessage}>
+                                    <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
+                                    <span>ไม่มีกิจกรรมที่เกี่ยวข้องกับสินค้านี้</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <select
+                                        value={stateReserveDialog.selectedEvent?.event_id || ''}
+                                        onChange={handlers.handleEventSelection}
+                                        className={`${styles.EventSelect} ${stateReserveDialog.selectedEventError ? styles.Error : ''}`}
+                                    >
+                                        <option value="">-- กรุณาเลือกกิจกรรม --</option>
+                                        {stateReserveDialog.availableEvents.map(eventProduct => (
+                                            <option key={eventProduct.event_id} value={eventProduct.event_id}>
+                                                {eventProduct.event_title} (คงเหลือ: {eventProduct.stock_quantity} ชิ้น | ราคา: ฿{eventProduct.event_price.toLocaleString()})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    
+                                    {stateReserveDialog.selectedEvent && (
+                                        <div className={styles.EventInfo}>
+                                            <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
+                                            <div className={styles.EventDetails}>
+                                                <p><strong>กิจกรรม:</strong> {stateReserveDialog.selectedEvent.event_title}</p>
+                                                <p><strong>สถานที่:</strong> {stateReserveDialog.selectedEvent.event_location || 'ไม่ระบุ'}</p>
+                                                <p><strong>วันที่:</strong> {new Date(stateReserveDialog.selectedEvent.event_date).toLocaleDateString('th-TH', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}</p>
+                                                <p><strong>ราคาพิเศษ:</strong> ฿{stateReserveDialog.selectedEvent.event_price.toLocaleString()}</p>
+                                                <p><strong>คงเหลือ:</strong> {stateReserveDialog.selectedEvent.stock_quantity} ชิ้น</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            
+                            {stateReserveDialog.selectedEventError && (
+                                <div className={styles.ErrorMessage}>
+                                    <GoogleIcon iconType="warning" size="small" />
+                                    {stateReserveDialog.selectedEventError}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {stateReserveDialog.optionOfDelivery === 'delivery' && (
                         <div className={styles.ShippingSection}>
@@ -230,9 +302,20 @@ export default function ReserveDialog({
                         <div className={styles.TotalDisplay}>
                             <span className={styles.TotalLabel}>ยอดรวม:</span>
                             <span className={styles.TotalAmount}>
-                                {productsService.formatPrice(product.price * stateReserveDialog.selectedQuantity)}
+                                {productsService.formatPrice(
+                                    (stateReserveDialog.optionOfDelivery === 'event' && stateReserveDialog.eventPrice
+                                        ? stateReserveDialog.eventPrice
+                                        : product.price
+                                    ) * stateReserveDialog.selectedQuantity
+                                )}
                             </span>
                         </div>
+                        {stateReserveDialog.optionOfDelivery === 'event' && stateReserveDialog.eventPrice && (
+                            <div className={styles.PriceNote}>
+                                <GoogleIcon iconType="info" size="small" className={styles.InfoIcon} />
+                                <span>ราคาพิเศษสำหรับกิจกรรม (ราคาปกติ: {productsService.formatPrice(product.price)})</span>
+                            </div>
+                        )}
                     </div>
                     
                     {stateReserveDialog.reservationError && (
@@ -256,7 +339,8 @@ export default function ReserveDialog({
                                 stateReserveDialog.selectedQuantity <= 0 || 
                                 stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity ||
                                 (stateReserveDialog.optionOfDelivery === 'delivery' && !stateReserveDialog.shippingAddress.trim()) ||
-                                (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim())
+                                (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim()) ||
+                                (stateReserveDialog.optionOfDelivery === 'event' && !stateReserveDialog.selectedEvent)
                                 ? styles.Disabled : ''
                             }`}
                             onClick={handlers.handleConfirmReservation}
@@ -265,7 +349,8 @@ export default function ReserveDialog({
                                 stateReserveDialog.selectedQuantity <= 0 || 
                                 stateReserveDialog.selectedQuantity > stateReserveDialog.availableQuantity ||
                                 (stateReserveDialog.optionOfDelivery === 'delivery' && !stateReserveDialog.shippingAddress.trim()) ||
-                                (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim())
+                                (stateReserveDialog.optionOfDelivery === 'pickup' && !stateReserveDialog.pickupDate.trim()) ||
+                                (stateReserveDialog.optionOfDelivery === 'event' && !stateReserveDialog.selectedEvent)
                             }
                         >
                             

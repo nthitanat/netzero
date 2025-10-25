@@ -12,6 +12,7 @@ class ProductReservation {
         product_id: 'INT NOT NULL',
         event_id: 'INT NULL COMMENT \'Event where product was reserved, if applicable\'',
         quantity: 'INT NOT NULL',
+        reserved_unit_price: 'DECIMAL(10,2) NOT NULL COMMENT \'Price per unit at time of reservation\'',
         note: 'TEXT NULL',
         shipping_address: 'TEXT NULL',
         option_of_delivery: "ENUM('pickup','delivery','event') NOT NULL DEFAULT 'delivery'",
@@ -47,7 +48,9 @@ class ProductReservation {
     this.reservation_id = data.reservation_id;
     this.user_id = data.user_id;
     this.product_id = data.product_id;
+    this.event_id = data.event_id;
     this.quantity = data.quantity;
+    this.reserved_unit_price = data.reserved_unit_price;
     this.note = data.note;
     this.shipping_address = data.shipping_address;
     this.option_of_delivery = data.option_of_delivery;
@@ -67,7 +70,9 @@ class ProductReservation {
     const {
       user_id,
       product_id,
+      event_id,
       quantity,
+      reserved_unit_price,
       note,
       shipping_address,
       option_of_delivery = 'delivery',
@@ -77,14 +82,16 @@ class ProductReservation {
     } = reservationData;
 
     const query = `
-      INSERT INTO product_reservations (user_id, product_id, quantity, note, shipping_address, option_of_delivery, user_note, pickup_date, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO product_reservations (user_id, product_id, event_id, quantity, reserved_unit_price, note, shipping_address, option_of_delivery, user_note, pickup_date, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.execute(query, [
       user_id,
       product_id,
+      event_id || null,
       quantity,
+      reserved_unit_price,
       note || null,
       shipping_address || null,
       option_of_delivery,
@@ -114,11 +121,16 @@ class ProductReservation {
         u.phoneNumber as customer_phone,
         owner.firstName as owner_firstName,
         owner.lastName as owner_lastName,
-        owner.email as owner_email
+        owner.email as owner_email,
+        e.id as event_id,
+        e.title as event_title,
+        e.location as event_location,
+        e.event_date as event_date
       FROM product_reservations pr
       LEFT JOIN products p ON pr.product_id = p.id
       LEFT JOIN users u ON pr.user_id = u.id
       LEFT JOIN users owner ON p.user_id = owner.id
+      LEFT JOIN events e ON pr.event_id = e.id
       WHERE 1=1
     `;
     const params = [];
@@ -175,7 +187,13 @@ class ProductReservation {
         firstName: row.owner_firstName,
         lastName: row.owner_lastName,
         email: row.owner_email
-      }
+      },
+      event: row.event_id ? {
+        id: row.event_id,
+        title: row.event_title,
+        location: row.event_location,
+        event_date: row.event_date
+      } : null
     }));
   }
 
@@ -194,11 +212,16 @@ class ProductReservation {
         u.phoneNumber as customer_phone,
         owner.firstName as owner_firstName,
         owner.lastName as owner_lastName,
-        owner.email as owner_email
+        owner.email as owner_email,
+        e.id as event_id,
+        e.title as event_title,
+        e.location as event_location,
+        e.event_date as event_date
       FROM product_reservations pr
       LEFT JOIN products p ON pr.product_id = p.id
       LEFT JOIN users u ON pr.user_id = u.id
       LEFT JOIN users owner ON p.user_id = owner.id
+      LEFT JOIN events e ON pr.event_id = e.id
       WHERE pr.reservation_id = ?
     `;
 
@@ -228,7 +251,13 @@ class ProductReservation {
         firstName: row.owner_firstName,
         lastName: row.owner_lastName,
         email: row.owner_email
-      }
+      },
+      event: row.event_id ? {
+        id: row.event_id,
+        title: row.event_title,
+        location: row.event_location,
+        event_date: row.event_date
+      } : null
     };
   }
 
@@ -385,6 +414,29 @@ class ProductReservation {
         'UPDATE products SET stock_quantity = stock_quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
         [reservation.quantity, reservation.product_id]
       );
+
+      // If reservation is for an event, also reduce event_product stock_quantity
+      if (reservation.event_id) {
+        const [eventProductRows] = await connection.execute(
+          'SELECT stock_quantity FROM event_products WHERE event_id = ? AND product_id = ?',
+          [reservation.event_id, reservation.product_id]
+        );
+
+        if (eventProductRows.length > 0) {
+          const eventStock = eventProductRows[0].stock_quantity;
+          
+          // Check if sufficient event stock is available
+          if (eventStock < reservation.quantity) {
+            throw new Error('Insufficient event stock available');
+          }
+
+          // Reduce event_product stock
+          await connection.execute(
+            'UPDATE event_products SET stock_quantity = stock_quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE event_id = ? AND product_id = ?',
+            [reservation.quantity, reservation.event_id, reservation.product_id]
+          );
+        }
+      }
 
       await connection.commit();
       return true;

@@ -1,4 +1,4 @@
-import { reservationsService } from "../../../api";
+import { reservationsService, eventProductsService } from "../../../api";
 
 const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onClose, onReservationSuccess, onShowLogin, isAuthenticated, validateShippingAddress, validateUserNote, validatePickupDate) => {
   return {
@@ -99,6 +99,37 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         setReserveDialog("pickupDate", "");
         setReserveDialog("pickupDateError", "");
       }
+      
+      // Clear selected event when switching away from event
+      if (value !== 'event') {
+        setReserveDialog("selectedEvent", null);
+        setReserveDialog("selectedEventError", "");
+        setReserveDialog("eventPrice", null);
+      }
+      
+      // Fetch events when switching to event delivery
+      if (value === 'event' && product && product.id) {
+        setReserveDialog("isLoadingEvents", true);
+        setReserveDialog("selectedEventError", "");
+        
+        eventProductsService.getEventsByProductId(product.id)
+          .then(response => {
+            console.log('📦 Events for product:', response);
+            const confirmedEvents = (response.data || []).filter(ep => ep.event_product_status === 'confirmed');
+            setReserveDialog("availableEvents", confirmedEvents);
+            setReserveDialog("isLoadingEvents", false);
+            
+            if (confirmedEvents.length === 0) {
+              setReserveDialog("selectedEventError", "ไม่มีกิจกรรมที่เกี่ยวข้องกับสินค้านี้");
+            }
+          })
+          .catch(error => {
+            console.error('❌ Failed to fetch events:', error);
+            setReserveDialog("availableEvents", []);
+            setReserveDialog("isLoadingEvents", false);
+            setReserveDialog("selectedEventError", "ไม่สามารถโหลดรายการกิจกรรมได้");
+          });
+      }
     },
 
     handleUserNoteChange: (event) => {
@@ -129,6 +160,46 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         const error = validatePickupDate(value, stateReserveDialog.optionOfDelivery);
         if (error) {
           setReserveDialog("pickupDateError", error);
+        }
+      }
+    },
+
+    handleEventSelection: (event) => {
+      const eventId = parseInt(event.target.value);
+      
+      // Clear previous error
+      setReserveDialog("selectedEventError", "");
+      
+      if (!eventId) {
+        setReserveDialog("selectedEvent", null);
+        setReserveDialog("eventPrice", null);
+        return;
+      }
+      
+      // Find the selected event from available events
+      const selectedEventData = stateReserveDialog.availableEvents.find(
+        ep => ep.event_id === eventId
+      );
+      
+      console.log('🎫 Event selected, ID:', eventId);
+      console.log('🎫 Found event data:', selectedEventData);
+      console.log('💰 Event price from data:', selectedEventData?.event_price);
+      
+      if (selectedEventData) {
+        setReserveDialog("selectedEvent", selectedEventData);
+        // Convert event_price to number
+        const eventPrice = parseFloat(selectedEventData.event_price);
+        console.log('💰 Parsed event price:', eventPrice);
+        setReserveDialog("eventPrice", eventPrice);
+        
+        // Update available quantity based on event's stock quantity
+        if (selectedEventData.stock_quantity !== undefined) {
+          setReserveDialog("availableQuantity", selectedEventData.stock_quantity);
+          
+          // Reset selected quantity if it exceeds new available quantity
+          if (stateReserveDialog.selectedQuantity > selectedEventData.stock_quantity) {
+            setReserveDialog("selectedQuantity", Math.min(1, selectedEventData.stock_quantity));
+          }
         }
       }
     },
@@ -188,14 +259,31 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         }
       }
 
+      // Validate event selection (only for event option)
+      if (optionOfDelivery === 'event') {
+        if (!stateReserveDialog.selectedEvent) {
+          setReserveDialog("selectedEventError", "กรุณาเลือกกิจกรรมที่ต้องการรับสินค้า");
+          return;
+        }
+      }
+
       setReserveDialog("isReserving", true);
       setReserveDialog("reservationError", "");
 
       try {
+        // Calculate reserved unit price based on delivery option
+        const reservedUnitPrice = optionOfDelivery === 'event' && stateReserveDialog.eventPrice
+          ? parseFloat(stateReserveDialog.eventPrice)
+          : parseFloat(product.price);
+        
         // Create reservation using the proper API
         const reservationData = {
           product_id: product.id,
+          event_id: optionOfDelivery === 'event' && stateReserveDialog.selectedEvent
+            ? stateReserveDialog.selectedEvent.event_id
+            : null,
           quantity: quantity,
+          reserved_unit_price: reservedUnitPrice,
           note: `การจองสินค้า ${product.title} จำนวน ${quantity} ชิ้น`,
           shipping_address: optionOfDelivery === 'delivery' ? shippingAddress.trim() : null,
           option_of_delivery: optionOfDelivery,
@@ -204,9 +292,18 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
         };
 
         console.log('🔄 Creating reservation:', reservationData);
+        console.log('� Product object:', product);
+        console.log('🎫 Selected event:', stateReserveDialog.selectedEvent);
+        console.log('�📊 Reserved unit price:', reservedUnitPrice, 'Type:', typeof reservedUnitPrice);
+        console.log('📊 Event price:', stateReserveDialog.eventPrice, 'Type:', typeof stateReserveDialog.eventPrice);
+        console.log('📊 Product price:', product.price, 'Type:', typeof product.price);
+        console.log('🚚 Delivery option:', optionOfDelivery);
         const response = await reservationsService.createReservation(reservationData);
         
         console.log('✅ Reservation created:', response.data);
+
+        // Calculate total price using reserved unit price
+        const totalPrice = reservedUnitPrice * quantity;
 
         // Calculate updated product info
         const updatedProductInfo = {
@@ -220,8 +317,8 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
           onReservationSuccess({
             transaction: {
               ...response.data,
-              totalPrice: product.price * quantity,
-              unitPrice: product.price
+              totalPrice: totalPrice,
+              unitPrice: reservedUnitPrice
             },
             updatedProduct: updatedProductInfo,
             reservedQuantity: quantity,
@@ -236,12 +333,21 @@ const ReserveDialogHandler = (stateReserveDialog, setReserveDialog, product, onC
 
       } catch (error) {
         console.error("❌ Reservation failed:", error);
+        console.error("📋 Error response data:", error.response?.data);
+        console.error("📋 Error message:", error.response?.data?.message);
         
         let errorMsg = "ไม่สามารถจองสินค้าได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
         
         // Handle different types of errors based on our API structure
         if (error.response?.status === 400) {
-          errorMsg = error.response?.data?.message || "ข้อมูลการจองไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+          // Use the server's error message directly for 400 errors
+          const serverMessage = error.response?.data?.message;
+          
+          if (serverMessage === "Cannot reserve your own product") {
+            errorMsg = "คุณไม่สามารถจองสินค้าของตัวเองได้";
+          } else {
+            errorMsg = serverMessage || "ข้อมูลการจองไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+          }
         } else if (error.response?.status === 409) {
           errorMsg = "สินค้าถูกจองหมดแล้ว กรุณาลองใหม่อีกครั้ง";
         } else if (error.response?.status === 404) {

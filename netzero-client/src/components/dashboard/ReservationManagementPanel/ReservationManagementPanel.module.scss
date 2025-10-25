@@ -279,7 +279,8 @@
   @include text-color-palette("primary-color-1");
 }
 
-.ShippingAddress {
+.ShippingAddress,
+.EventInfo {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
@@ -290,13 +291,15 @@
   border-left: 4px solid;
   @include border-color-palette("primary-color-3");
   
-  .AddressContent {
+  .AddressContent,
+  .EventContent {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     flex: 1;
     
-    .AddressLabel {
+    .AddressLabel,
+    .EventLabel {
       @include font-size-palette("body-3");
       @include text-color-palette("primary-color-2");
       font-weight: 600;
@@ -304,11 +307,22 @@
       letter-spacing: 0.5px;
     }
     
-    .AddressText {
+    .AddressText,
+    .EventText {
       @include font-size-palette("body-2");
       @include text-color-palette("primary-color-1");
       line-height: 1.4;
       word-wrap: break-word;
+    }
+    
+    .EventLocation,
+    .EventDate {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      @include font-size-palette("body-3");
+      @include text-color-palette("primary-color-1");
+      margin-top: 0.25rem;
     }
   }
 }

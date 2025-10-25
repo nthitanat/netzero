@@ -16,7 +16,12 @@ const useReserveDialog = (initialProps) => {
     userNote: "",
     userNoteError: "",
     pickupDate: "",
-    pickupDateError: ""
+    pickupDateError: "",
+    selectedEvent: null,
+    selectedEventError: "",
+    availableEvents: [],
+    isLoadingEvents: false,
+    eventPrice: null
   });
 
   const setReserveDialog = (field, value) => {
@@ -48,7 +53,12 @@ const useReserveDialog = (initialProps) => {
       userNote: "",
       userNoteError: "",
       pickupDate: "",
-      pickupDateError: ""
+      pickupDateError: "",
+      selectedEvent: null,
+      selectedEventError: "",
+      availableEvents: [],
+      isLoadingEvents: false,
+      eventPrice: null
     });
   };
 

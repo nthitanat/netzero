@@ -101,7 +101,9 @@ class ProductReservationController {
     try {
       const {
         product_id,
+        event_id,
         quantity,
+        reserved_unit_price,
         note,
         shipping_address,
         option_of_delivery,
@@ -118,11 +120,20 @@ class ProductReservationController {
         });
       }
 
-      // Validate option_of_delivery
-      if (option_of_delivery && !['pickup', 'delivery'].includes(option_of_delivery)) {
+      // Validate reserved_unit_price is required
+      if (!reserved_unit_price || isNaN(reserved_unit_price) || reserved_unit_price <= 0) {
         return res.status(400).json({
           success: false,
-          message: 'option_of_delivery must be either "pickup" or "delivery"',
+          message: 'reserved_unit_price is required and must be a valid positive number',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate option_of_delivery
+      if (option_of_delivery && !['pickup', 'delivery', 'event'].includes(option_of_delivery)) {
+        return res.status(400).json({
+          success: false,
+          message: 'option_of_delivery must be either "pickup", "delivery", or "event"',
           timestamp: new Date().toISOString()
         });
       }
@@ -132,6 +143,15 @@ class ProductReservationController {
         return res.status(400).json({
           success: false,
           message: 'pickup_date is required when option_of_delivery is "pickup"',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate event_id if option is event
+      if (option_of_delivery === 'event' && !event_id) {
+        return res.status(400).json({
+          success: false,
+          message: 'event_id is required when option_of_delivery is "event"',
           timestamp: new Date().toISOString()
         });
       }
@@ -175,7 +195,9 @@ class ProductReservationController {
       const reservationData = {
         user_id: req.user.userId,
         product_id: parseInt(product_id),
+        event_id: event_id ? parseInt(event_id) : null,
         quantity: parseInt(quantity),
+        reserved_unit_price: parseFloat(reserved_unit_price),
         note,
         shipping_address,
         option_of_delivery: option_of_delivery || 'delivery',

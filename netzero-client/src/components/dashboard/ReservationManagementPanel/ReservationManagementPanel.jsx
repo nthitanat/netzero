@@ -116,9 +116,12 @@ export default function ReservationManagementPanel({
                     <div className={styles.ReservationsList}>
                         {reservations.map((reservation) => {
                             const statusInfo = getStatusInfo(reservation.status);
-                            const productPrice = reservation.product?.price ? parseFloat(reservation.product.price) : 0;
+                            // Use reserved_unit_price if available, otherwise fall back to product price
+                            const unitPrice = reservation.reserved_unit_price 
+                                ? parseFloat(reservation.reserved_unit_price)
+                                : (reservation.product?.price ? parseFloat(reservation.product.price) : 0);
                             const quantity = reservation.quantity || 0;
-                            const totalPrice = productPrice * quantity;
+                            const totalPrice = unitPrice * quantity;
                             
                             return (
                                 <div key={reservation.reservation_id} className={styles.ReservationCard}>
@@ -158,7 +161,7 @@ export default function ReservationManagementPanel({
                                             </div>
                                             <div className={styles.DetailItem}>
                                                 <GoogleIcon iconType="monetization_on" size="small" />
-                                                <span>ราคาต่อชิ้น: {formatPrice(productPrice)}</span>
+                                                <span>ราคาต่อชิ้น: {formatPrice(unitPrice)}</span>
                                             </div>
                                         </div>
                                         
@@ -179,8 +182,16 @@ export default function ReservationManagementPanel({
                                                     <span>ผู้ขาย: {reservation.owner ? `${reservation.owner.firstName} ${reservation.owner.lastName}` : 'ไม่ระบุ'}</span>
                                                 </div>
                                                 <div className={styles.DetailItem}>
-                                                    <GoogleIcon iconType={reservation.option_of_delivery === 'pickup' ? 'store' : 'local_shipping'} size="small" />
-                                                    <span>{reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 'จัดส่งถึงที่อยู่'}</span>
+                                                    <GoogleIcon iconType={
+                                                        reservation.option_of_delivery === 'pickup' ? 'store' : 
+                                                        reservation.option_of_delivery === 'event' ? 'event' : 
+                                                        'local_shipping'
+                                                    } size="small" />
+                                                    <span>
+                                                        {reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 
+                                                         reservation.option_of_delivery === 'event' ? 'รับที่กิจกรรม' : 
+                                                         'จัดส่งถึงที่อยู่'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         )}
@@ -188,8 +199,16 @@ export default function ReservationManagementPanel({
                                         {mode === "seller" && (
                                             <div className={styles.DetailRow}>
                                                 <div className={styles.DetailItem}>
-                                                    <GoogleIcon iconType={reservation.option_of_delivery === 'pickup' ? 'store' : 'local_shipping'} size="small" />
-                                                    <span>{reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 'จัดส่งถึงที่อยู่'}</span>
+                                                    <GoogleIcon iconType={
+                                                        reservation.option_of_delivery === 'pickup' ? 'store' : 
+                                                        reservation.option_of_delivery === 'event' ? 'event' : 
+                                                        'local_shipping'
+                                                    } size="small" />
+                                                    <span>
+                                                        {reservation.option_of_delivery === 'pickup' ? 'รับที่ร้าน' : 
+                                                         reservation.option_of_delivery === 'event' ? 'รับที่กิจกรรม' : 
+                                                         'จัดส่งถึงที่อยู่'}
+                                                    </span>
                                                 </div>
                                                 {reservation.option_of_delivery === 'pickup' && reservation.pickup_date && (
                                                     <div className={styles.DetailItem}>
@@ -197,6 +216,29 @@ export default function ReservationManagementPanel({
                                                         <span>วันที่รับ: {formatDate(reservation.pickup_date)}</span>
                                                     </div>
                                                 )}
+                                            </div>
+                                        )}
+                                        
+                                        {/* Event Information */}
+                                        {reservation.option_of_delivery === 'event' && reservation.event && (
+                                            <div className={styles.EventInfo}>
+                                                <GoogleIcon iconType="event" size="small" />
+                                                <div className={styles.EventContent}>
+                                                    <span className={styles.EventLabel}>กิจกรรม:</span>
+                                                    <span className={styles.EventText}>{reservation.event.title}</span>
+                                                    {reservation.event.location && (
+                                                        <span className={styles.EventLocation}>
+                                                            <GoogleIcon iconType="location_on" size="small" />
+                                                            {reservation.event.location}
+                                                        </span>
+                                                    )}
+                                                    {reservation.event.event_date && (
+                                                        <span className={styles.EventDate}>
+                                                            <GoogleIcon iconType="schedule" size="small" />
+                                                            {formatDate(reservation.event.event_date)}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         )}
                                         
