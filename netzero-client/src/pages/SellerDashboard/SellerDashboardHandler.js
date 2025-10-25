@@ -27,6 +27,38 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
       });
     },
 
+    handleAddProductToEvent: (product) => {
+      setSellerDashboard({
+        productForEvent: product,
+        showAddToEventDialog: true
+      });
+    },
+
+    handleCloseAddToEventDialog: () => {
+      setSellerDashboard({
+        showAddToEventDialog: false,
+        productForEvent: null
+      });
+    },
+
+    handleAddToEventSuccess: async (assignments) => {
+      console.log("✅ Product added to events successfully:", assignments);
+      
+      // Refresh products to get updated unassigned_stock_quantity
+      try {
+        const response = await productsService.getMyProducts();
+        setSellerDashboard({
+          products: response.data,
+          showAddToEventDialog: false,
+          productForEvent: null
+        });
+        
+        alert(`เพิ่มสินค้าในอีเวนต์สำเร็จ (${assignments.length} อีเวนต์)`);
+      } catch (error) {
+        console.error("Error refreshing products:", error);
+      }
+    },
+
     handleDeleteProduct: (product) => {
       setSellerDashboard({
         productToDelete: product,

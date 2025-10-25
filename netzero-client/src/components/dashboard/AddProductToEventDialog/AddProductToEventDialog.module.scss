@@ -1,0 +1,516 @@
+@import "src/styles/main";
+
+.ModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.Container {
+  @include bg-color-palette("white");
+  border-radius: 24px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-in-out;
+  position: relative;
+  
+  @include mobile {
+    max-width: 95vw;
+    border-radius: 20px;
+  }
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 30px;
+  border-bottom: 1px solid var(--primary-color-4);
+  
+  @include mobile {
+    padding: 20px;
+  }
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  @include mobile {
+    @include font-size-palette("headline-5");
+  }
+}
+
+.CloseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-2");
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    @include bg-color-palette("primary-color-3");
+    @include text-color-palette("primary-color-1");
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.ProductInfo {
+  padding: 20px 30px;
+  @include bg-color-palette("primary-color-5");
+  border-bottom: 1px solid var(--primary-color-4);
+  
+  @include mobile {
+    padding: 16px 20px;
+  }
+}
+
+.ProductTitle {
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0 0 12px 0;
+}
+
+.ProductDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  
+  @include mobile {
+    gap: 12px;
+  }
+}
+
+.DetailItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  
+  @include mobile {
+    @include font-size-palette("body-3");
+  }
+}
+
+.Form {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  
+  @include mobile {
+    padding: 20px;
+    gap: 24px;
+  }
+}
+
+.AddEventSection,
+.AssignmentsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.SectionTitle {
+  @include font-size-palette("headline-6");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.LoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 16px;
+  
+  p {
+    @include text-color-palette("primary-color-2");
+    @include font-size-palette("body-2");
+    margin: 0;
+  }
+}
+
+.LoadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--primary-color-4);
+  border-top-color: var(--primary-color-1);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.EmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+  @include bg-color-palette("primary-color-5");
+  border-radius: 12px;
+  
+  p {
+    @include text-color-palette("primary-color-2");
+    @include font-size-palette("body-2");
+    margin: 0;
+  }
+  
+  small {
+    @include text-color-palette("primary-color-3");
+    @include font-size-palette("body-3");
+  }
+}
+
+.AddEventForm {
+  @include bg-color-palette("primary-color-5");
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.FormRow {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  
+  @include tablet {
+    grid-template-columns: 1fr;
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.FormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.Label {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  font-weight: 500;
+}
+
+.Required {
+  color: var(--semantic-error);
+}
+
+.Select,
+.Input {
+  padding: 12px 16px;
+  border: 1px solid var(--primary-color-4);
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+  @include bg-color-palette("white");
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color-1);
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-1-rgb), 0.1);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    @include bg-color-palette("primary-color-5");
+  }
+}
+
+.PriceInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.PriceUnit {
+  position: absolute;
+  right: 16px;
+  @include text-color-palette("primary-color-3");
+  @include font-size-palette("body-2");
+  pointer-events: none;
+}
+
+.HelperText {
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-3");
+  margin: 0;
+}
+
+.AddButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  @include bg-color-palette("primary-color-1");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: fit-content;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.AssignmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.AssignmentCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  @include bg-color-palette("primary-color-5");
+  border: 1px solid var(--primary-color-4);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.AssignmentInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.AssignmentTitle {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.AssignmentDetails {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.DetailBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  @include bg-color-palette("white");
+  border: 1px solid var(--primary-color-4);
+  border-radius: 6px;
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-2");
+}
+
+.RemoveButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  @include text-color-palette("semantic-error");
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    @include bg-color-palette("semantic-error");
+    @include text-color-palette("white");
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.AssignmentsSummary {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  @include bg-color-palette("white");
+  border: 2px solid var(--primary-color-1);
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+.SummaryItem {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  
+  strong {
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+    @include font-size-palette("headline-6");
+    
+    &.Exceeded {
+      @include text-color-palette("semantic-error");
+    }
+  }
+}
+
+.ErrorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  @include bg-color-palette("semantic-error-light");
+  @include text-color-palette("semantic-error");
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  border-left: 4px solid var(--semantic-error);
+}
+
+.FormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--primary-color-4);
+  
+  @include mobile {
+    flex-direction: column-reverse;
+  }
+}
+
+.CancelButton,
+.SubmitButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.CancelButton {
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-2");
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-3");
+    @include text-color-palette("primary-color-1");
+  }
+}
+
+.SubmitButton {
+  @include bg-color-palette("primary-color-1");
+  @include text-color-palette("white");
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:disabled {
+    @include bg-color-palette("primary-color-3");
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -20,6 +20,7 @@ export default function ProductManagementPanel({
     onCloseModal,
     onProductSaved,
     onRefresh,
+    onAddToEvent,
     theme = "seller",
     className = "" 
 }) {
@@ -74,7 +75,17 @@ export default function ProductManagementPanel({
                 </div>
             ) : (
                 <div className={styles.ProductsGrid}>
-                    {products.map((product) => (
+                    {products.map((product) => {
+                        // Debug: Check product data
+                        console.log("📦 Product:", {
+                            id: product.id,
+                            title: product.title,
+                            stock_quantity: product.stock_quantity,
+                            unassigned_stock_quantity: product.unassigned_stock_quantity,
+                            hasUnassigned: !!product.unassigned_stock_quantity && product.unassigned_stock_quantity > 0
+                        });
+                        
+                        return (
                         <div key={product.id} className={styles.ProductCard}>
                             <div className={styles.ProductImage}>
                                 <img 
@@ -117,7 +128,11 @@ export default function ProductManagementPanel({
                                     </div>
                                     <div className={styles.MetaItem}>
                                         <GoogleIcon iconType="inventory" size="small" />
-                                        <span>คงเหลือ: {product.stock_quantity}</span>
+                                        <span>คงเหลือทั้งหมด: {product.stock_quantity}</span>
+                                    </div>
+                                    <div className={styles.MetaItem}>
+                                        <GoogleIcon iconType="inventory_2" size="small" />
+                                        <span>ยังไม่จัดสรร: {product.unassigned_stock_quantity || 0}</span>
                                     </div>
                                     <div className={styles.MetaItem}>
                                         <GoogleIcon iconType="category" size="small" />
@@ -127,6 +142,22 @@ export default function ProductManagementPanel({
                             </div>
                             
                             <div className={styles.ProductActions}>
+                                <button 
+                                    className={styles.AddToEventButton}
+                                    onClick={() => {
+                                        console.log("🎯 Add to Event clicked for product:", product);
+                                        console.log("📊 onAddToEvent exists?", !!onAddToEvent);
+                                        if (onAddToEvent) {
+                                            onAddToEvent(product);
+                                        } else {
+                                            console.error("❌ onAddToEvent handler is undefined!");
+                                        }
+                                    }}
+                                    title="เพิ่มสินค้าไปยังอีเวนท์"
+                                    disabled={!product.unassigned_stock_quantity || product.unassigned_stock_quantity === 0}
+                                >
+                                    <GoogleIcon iconType="event" size="small" />
+                                </button>
                                 <button 
                                     className={styles.EditButton}
                                     onClick={() => onEditProduct(product)}
@@ -143,7 +174,8 @@ export default function ProductManagementPanel({
                                 </button>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
             

@@ -51,6 +51,7 @@ class Product {
     this.address = data.address;
     this.coordinate = data.coordinate;
     this.stock_quantity = data.stock_quantity;
+    this.unassigned_stock_quantity = data.unassigned_stock_quantity;
     this.isRecommend = data.isRecommend;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
@@ -72,6 +73,7 @@ class Product {
       address,
       coordinate,
       stock_quantity = 0,
+      unassigned_stock_quantity,
       isRecommend = false,
       user_id
     } = productData;
@@ -79,9 +81,9 @@ class Product {
     const query = `
       INSERT INTO products (
         project_id, title, description, price, category, type, 
-        address, coordinate, stock_quantity, isRecommend, user_id
+        address, coordinate, stock_quantity, unassigned_stock_quantity, isRecommend, user_id
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await executeCommand(query, [
@@ -94,6 +96,7 @@ class Product {
       address || null,
       coordinate || null,
       stock_quantity,
+      unassigned_stock_quantity !== undefined ? unassigned_stock_quantity : stock_quantity,
       isRecommend ? 1 : 0,
       user_id
     ]);
@@ -268,6 +271,7 @@ class Product {
       address,
       coordinate,
       stock_quantity,
+      unassigned_stock_quantity,
       isRecommend
     } = productData;
 
@@ -281,7 +285,7 @@ class Product {
       UPDATE products 
       SET project_id = ?, title = ?, description = ?, price = ?, 
           category = ?, type = ?, address = ?, coordinate = ?, 
-          stock_quantity = ?, isRecommend = ?, updated_at = CURRENT_TIMESTAMP
+          stock_quantity = ?, unassigned_stock_quantity = ?, isRecommend = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND user_id = ?
     `;
 
@@ -295,6 +299,7 @@ class Product {
       address || null,
       coordinate || null,
       stock_quantity,
+      unassigned_stock_quantity !== undefined ? unassigned_stock_quantity : stock_quantity,
       isRecommend ? 1 : 0,
       id,
       userId
@@ -343,6 +348,26 @@ class Product {
     return result.affectedRows > 0;
   }
 
+  // Update unassigned stock quantity (for event products)
+  static async updateUnassignedStockQuantity(id, quantity, userId = null) {
+    // If userId is provided, verify ownership
+    if (userId !== null) {
+      const product = await Product.findById(id);
+      if (!product || product.user_id !== userId) {
+        throw new Error('Product not found or access denied');
+      }
+    }
+
+    const query = `
+      UPDATE products 
+      SET unassigned_stock_quantity = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
+    const [result] = await executeCommand(query, [quantity, id]);
+    return result.affectedRows > 0;
+  }
+
   // Get products by type (market, willing, barter)
   static async findByType(type) {
     const query = `
@@ -370,6 +395,7 @@ class Product {
       address: this.address,
       coordinate: this.coordinate,
       stock_quantity: this.stock_quantity,
+      unassigned_stock_quantity: this.unassigned_stock_quantity,
       isRecommend: this.isRecommend,
       created_at: this.created_at,
       updated_at: this.updated_at,

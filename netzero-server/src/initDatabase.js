@@ -7,6 +7,7 @@ const Product = require('./models/Product');
 const ProductReservation = require('./models/ProductReservation');
 const Event = require('./models/Event');
 const UserEvent = require('./models/UserEvent');
+const EventProduct = require('./models/EventProduct');
 const ChatApp = require('./models/ChatApp');
 
 /**
@@ -44,6 +45,12 @@ function getAllModelSchemas() {
     schemas.push(UserEvent.getSchema());
   } catch (error) {
     console.warn('Could not get UserEvent schema:', error.message);
+  }
+  
+  try {
+    schemas.push(EventProduct.getSchema());
+  } catch (error) {
+    console.warn('Could not get EventProduct schema:', error.message);
   }
   
   try {

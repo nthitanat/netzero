@@ -229,20 +229,67 @@ class EventProductController {
 
       // Check if user owns the event (set by middleware)
       const userId = req.user.userId || req.user.id;
+      const userRole = req.user.role;
       const userOwnsEvent = req.userOwnsEvent; // Set by checkEventOwnership middleware
 
+      // Check if user owns the product (product.user_id is the seller/owner)
+      const userOwnsProduct = product.user_id === userId;
+      const isAdmin = userRole === 'admin';
+
+      console.log('🔍 Event Product Creation Authorization Check:', {
+        userId,
+        userRole,
+        productUserId: product.user_id,
+        userOwnsProduct,
+        userOwnsEvent,
+        isAdmin
+      });
+
+      // Only product owner or admin can add product to event
+      if (!userOwnsProduct && !isAdmin) {
+        console.log('❌ Authorization failed: User does not own product and is not admin');
+        return res.status(403).json({
+          success: false,
+          message: 'Only the product owner or admin can add this product to an event',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Validate stock_quantity against unassigned_stock_quantity only if user owns both or is admin
+      const requestedQuantity = stock_quantity ? parseInt(stock_quantity) : 0;
+      const availableUnassigned = product.unassigned_stock_quantity || 0;
+
+      if ((userOwnsEvent && userOwnsProduct) || isAdmin) {
+        // User owns both event and product, or is admin - validate and reduce unassigned stock
+        if (requestedQuantity > availableUnassigned) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient unassigned stock. Available: ${availableUnassigned}, Requested: ${requestedQuantity}`,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+
       // Determine status based on ownership
-      const status = userOwnsEvent ? 'confirmed' : 'pending';
+      // Admin or event owner can confirm immediately
+      const status = (userOwnsEvent || isAdmin) ? 'confirmed' : 'pending';
 
       const eventProductData = {
         event_id: parseInt(event_id),
         product_id: parseInt(product_id),
         event_price: parseFloat(event_price),
-        stock_quantity: stock_quantity ? parseInt(stock_quantity) : 0,
+        stock_quantity: requestedQuantity,
         status
       };
 
       const eventProductId = await EventProduct.create(eventProductData);
+
+      // Reduce unassigned_stock_quantity if user owns both event and product, or is admin
+      if ((userOwnsEvent && userOwnsProduct) || isAdmin) {
+        const newUnassignedQuantity = availableUnassigned - requestedQuantity;
+        await Product.updateUnassignedStockQuantity(product_id, newUnassignedQuantity, userId);
+      }
+
       const newEventProduct = await EventProduct.findById(eventProductId);
 
       res.status(201).json({
@@ -311,7 +358,42 @@ class EventProductController {
       }
 
       // Check if user owns the event (set by middleware)
+      const userId = req.user.userId || req.user.id;
       const userOwnsEvent = req.userOwnsEvent; // Set by checkEventOwnership middleware
+
+      // If stock_quantity is being updated, validate against unassigned stock (only if user owns both)
+      let newUnassignedQuantity = null;
+      if (stock_quantity !== undefined) {
+        const product = await Product.findById(existingEventProduct.product_id);
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: 'Product not found',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        const userOwnsProduct = product.user_id === userId;
+
+        // Only validate and update unassigned stock if user owns both event and product
+        if (userOwnsEvent && userOwnsProduct) {
+          const currentAssigned = existingEventProduct.stock_quantity;
+          const newAssigned = parseInt(stock_quantity);
+          const difference = newAssigned - currentAssigned;
+
+          // Calculate what would be the new unassigned quantity
+          const currentUnassigned = product.unassigned_stock_quantity || 0;
+          newUnassignedQuantity = currentUnassigned - difference;
+
+          if (newUnassignedQuantity < 0) {
+            return res.status(400).json({
+              success: false,
+              message: `Insufficient unassigned stock. Available: ${currentUnassigned}, Additional needed: ${difference}`,
+              timestamp: new Date().toISOString()
+            });
+          }
+        }
+      }
 
       // Prepare update data
       const updateData = {
@@ -337,6 +419,12 @@ class EventProductController {
           message: 'Failed to update event product',
           timestamp: new Date().toISOString()
         });
+      }
+
+      // Update product's unassigned_stock_quantity if stock_quantity was changed
+      if (newUnassignedQuantity !== null) {
+        // userId is already available from the UPDATE method's userId variable
+        await Product.updateUnassignedStockQuantity(existingEventProduct.product_id, newUnassignedQuantity, userId);
       }
 
       const updatedEventProduct = await EventProduct.findById(eventProductId);
@@ -379,6 +467,22 @@ class EventProductController {
           message: 'Event product not found',
           timestamp: new Date().toISOString()
         });
+      }
+
+      // Get product and check ownership to restore unassigned quantity
+      const product = await Product.findById(eventProduct.product_id);
+      if (product) {
+        const userId = req.user.userId || req.user.id;
+        const userOwnsProduct = product.user_id === userId;
+        
+        // Check if user owns the event
+        const userOwnsEvent = await UserEvent.findByEventAndUser(eventProduct.event_id, userId);
+        
+        // Only restore unassigned_stock_quantity if user owns both product and event
+        if (userOwnsProduct && userOwnsEvent) {
+          const restoredQuantity = (product.unassigned_stock_quantity || 0) + eventProduct.stock_quantity;
+          await Product.updateUnassignedStockQuantity(eventProduct.product_id, restoredQuantity, userId);
+        }
       }
 
       const success = await EventProduct.deleteById(eventProductId);

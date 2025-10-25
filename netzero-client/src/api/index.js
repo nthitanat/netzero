@@ -5,6 +5,8 @@ import { reservationsService } from './reservations.js';
 import { treesService } from './trees.js';
 import { locationTreesService } from './locationTrees.js';
 import { chatService } from './chat.js';
+import { eventProductsService } from './eventProducts.js';
+import { userEventsService } from './userEvents.js';
 import AuthService, { authService } from './auth.js';
 import UserService from './users.js';
 
@@ -16,6 +18,8 @@ export { reservationsService, ReservationsService } from './reservations.js';
 export { treesService, TreesService } from './trees.js';
 export { locationTreesService, LocationTreesService } from './locationTrees.js';
 export { chatService } from './chat.js';
+export { eventProductsService, EventProductsService } from './eventProducts.js';
+export { userEventsService, UserEventsService } from './userEvents.js';
 export { authService, default as AuthService } from './auth.js';
 export { default as UserService } from './users.js';
 export { 
@@ -36,6 +40,8 @@ export const api = {
   trees: treesService,
   locationTrees: locationTreesService,
   chat: chatService,
+  eventProducts: eventProductsService,
+  userEvents: userEventsService,
   auth: authService,
   users: UserService,
 };

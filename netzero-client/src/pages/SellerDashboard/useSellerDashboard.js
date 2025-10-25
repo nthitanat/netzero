@@ -18,6 +18,10 @@ const useSellerDashboard = (initialProps = {}) => {
     productModalMode: "create", // "create" or "edit"
     isSubmittingProduct: false,
     
+    // Add to Event Dialog
+    showAddToEventDialog: false,
+    productForEvent: null,
+    
     // Reservations data
     reservations: [],
     

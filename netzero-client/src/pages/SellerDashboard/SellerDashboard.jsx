@@ -4,7 +4,7 @@ import styles from "./SellerDashboard.module.scss";
 import useSellerDashboard from "./useSellerDashboard";
 import SellerDashboardHandler from "./SellerDashboardHandler";
 import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
-import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel } from "../../components/dashboard";
+import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel, AddProductToEventDialog } from "../../components/dashboard";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function SellerDashboard() {
@@ -95,6 +95,7 @@ export default function SellerDashboard() {
                         onCloseModal={handlers.handleCloseProductModal}
                         onProductSaved={handlers.handleProductSaved}
                         onRefresh={handlers.handleRefreshProducts}
+                        onAddToEvent={handlers.handleAddProductToEvent}
                         theme="seller"
                     />
                 )}
@@ -110,6 +111,14 @@ export default function SellerDashboard() {
                     />
                 )}
             </div>
+            
+            {/* Add Product to Event Dialog */}
+            <AddProductToEventDialog
+                isOpen={stateSellerDashboard.showAddToEventDialog}
+                product={stateSellerDashboard.productForEvent}
+                onClose={handlers.handleCloseAddToEventDialog}
+                onSuccess={handlers.handleAddToEventSuccess}
+            />
             
             <FloatingNavBar
                 onNavigate={handlers.handleNavigate}
