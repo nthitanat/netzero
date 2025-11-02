@@ -1,0 +1,126 @@
+# Load environment variables from scripts/.env or local .env
+# Use: docker-compose --env-file scripts/.env up
+# or copy scripts/.env to project root as .env
+
+services:
+  # Main API Server
+  # Note: Database should be running on host machine (localhost:3306)
+  netzero-server:
+    build:
+      context: ./netzero-server
+      dockerfile: Dockerfile
+    container_name: netzero-server
+    restart: unless-stopped
+    environment:
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-development}
+      NODE_ENV: ${DEPLOYMENT_MODE:-development}
+      # Development variables
+      DEV_DB_HOST: ${DEV_DB_HOST}
+      DEV_DB_PORT: ${DEV_DB_PORT}
+      DEV_DB_USER: ${DEV_DB_USER}
+      DEV_DB_PASSWORD: ${DEV_DB_PASSWORD}
+      DEV_DB_NAME: ${DEV_DB_NAME}
+      DEV_JWT_SECRET: ${DEV_JWT_SECRET}
+      DEV_JWT_EXPIRES_IN: ${DEV_JWT_EXPIRES_IN}
+      DEV_CORS_ORIGIN: ${DEV_CORS_ORIGIN}
+      # Production variables
+      PROD_DB_HOST: ${PROD_DB_HOST}
+      PROD_DB_PORT: ${PROD_DB_PORT}
+      PROD_DB_USER: ${PROD_DB_USER}
+      PROD_DB_PASSWORD: ${PROD_DB_PASSWORD}
+      PROD_DB_NAME: ${PROD_DB_NAME}
+      PROD_JWT_SECRET: ${PROD_JWT_SECRET}
+      PROD_JWT_EXPIRES_IN: ${PROD_JWT_EXPIRES_IN}
+      PROD_CORS_ORIGIN: ${PROD_CORS_ORIGIN}
+      # Shared variables
+      PORT: ${PORT}
+      API_PREFIX: ${API_PREFIX}
+      API_VERSION: ${API_VERSION}
+      UPLOAD_DIR: ${UPLOAD_DIR}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./netzero-server/files:/app/files
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - netzero-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Chat Server
+  netzero-chat-server:
+    build:
+      context: ./netzero-chat-server
+      dockerfile: Dockerfile
+    container_name: netzero-chat-server
+    restart: unless-stopped
+    environment:
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-development}
+      NODE_ENV: ${DEPLOYMENT_MODE:-development}
+      # Development variables
+      DEV_CHAT_DB_HOST: ${DEV_CHAT_DB_HOST}
+      DEV_CHAT_DB_PORT: ${DEV_CHAT_DB_PORT}
+      DEV_CHAT_DB_USER: ${DEV_CHAT_DB_USER}
+      DEV_CHAT_DB_PASSWORD: ${DEV_CHAT_DB_PASSWORD}
+      DEV_CHAT_DB_NAME: ${DEV_CHAT_DB_NAME}
+      DEV_CHAT_JWT_SECRET: ${DEV_CHAT_JWT_SECRET}
+      DEV_CHAT_JWT_EXPIRES_IN: ${DEV_CHAT_JWT_EXPIRES_IN}
+      # Production variables
+      PROD_CHAT_DB_HOST: ${PROD_CHAT_DB_HOST}
+      PROD_CHAT_DB_PORT: ${PROD_CHAT_DB_PORT}
+      PROD_CHAT_DB_USER: ${PROD_CHAT_DB_USER}
+      PROD_CHAT_DB_PASSWORD: ${PROD_CHAT_DB_PASSWORD}
+      PROD_CHAT_DB_NAME: ${PROD_CHAT_DB_NAME}
+      PROD_CHAT_JWT_SECRET: ${PROD_CHAT_JWT_SECRET}
+      PROD_CHAT_JWT_EXPIRES_IN: ${PROD_CHAT_JWT_EXPIRES_IN}
+      # Shared variables
+      CHAT_PORT: ${CHAT_PORT}
+      API_PREFIX: ${API_PREFIX}
+      API_VERSION: ${API_VERSION}
+    ports:
+      - "3004:3004"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - netzero-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3004/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # React Client
+  netzero-client:
+    build:
+      context: ./netzero-client
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_BASE_URL=${PROD_REACT_APP_API_BASE_URL:-${DEV_REACT_APP_API_BASE_URL}}
+        - REACT_APP_CHAT_API_BASE_URL=${PROD_REACT_APP_CHAT_API_BASE_URL:-${DEV_REACT_APP_CHAT_API_BASE_URL}}
+        - REACT_APP_USE_REAL_TREE_API=${PROD_REACT_APP_USE_REAL_TREE_API:-${DEV_REACT_APP_USE_REAL_TREE_API}}
+        - REACT_APP_TREE_IMAGES_BASE_URL=${PROD_REACT_APP_TREE_IMAGES_BASE_URL:-${DEV_REACT_APP_TREE_IMAGES_BASE_URL}}
+        - REACT_APP_ENABLE_API_LOGGING=${PROD_REACT_APP_ENABLE_API_LOGGING:-${DEV_REACT_APP_ENABLE_API_LOGGING}}
+    container_name: netzero-client
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "3000:80"
+    depends_on:
+      - netzero-server
+      - netzero-chat-server
+    networks:
+      - netzero-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  netzero-network:
+    driver: bridge

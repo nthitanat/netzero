@@ -2,18 +2,14 @@ import axios from 'axios';
 
 // Determine base URL based on environment
 const getBaseURL = () => {
-  // Check if we have an environment variable set
+  // Environment variables are injected at build time by Docker
+  // They come from the .env file via docker-compose
   if (process.env.REACT_APP_API_BASE_URL) {
     return process.env.REACT_APP_API_BASE_URL;
   }
   
-  // Auto-detect based on NODE_ENV
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3001';
-  }
-  
-  // Production URL
-  return 'https://engagement.chula.ac.th/netzero-api/';
+  // Fallback to localhost for local development
+  return 'http://localhost:3001/api';
 };
 
 // Create axios instance with default configuration

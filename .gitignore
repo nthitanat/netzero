@@ -107,3 +107,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Uploaded files (but keep folder structure)
+netzero-server/files/**
+!netzero-server/files/.gitkeep
+!netzero-server/files/*/.gitkeep

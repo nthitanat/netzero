@@ -1,0 +1,18 @@
+# IMPORTANT: Environment files with sensitive credentials
+# Keep .env files out of version control
+scripts/.env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# VPN PID file
+/var/run/openconnect.pid
+
+# Deployment packages
+*.tar.gz
+netzero-deploy-*
+
+# Docker volumes
+mysql_data/

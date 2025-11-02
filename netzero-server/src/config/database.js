@@ -1,16 +1,11 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const dbConfig = {
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'netzeroadmin',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'netzero',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-};
+// Import environment configuration
+const config = require('./env');
+
+// Use database configuration from env helper
+const dbConfig = config.database;
 
 // Create connection pool
 const pool = mysql.createPool(dbConfig);

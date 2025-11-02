@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+examples/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (handled in service-specific dockerignores)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+netzero/
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
