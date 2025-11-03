@@ -5,6 +5,7 @@ const fs = require('fs');
 // Configure storage for both events and products
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log('🟡 Multer: Processing file destination...');
     const id = req.params.id;
     
     // Extract image type from the URL path
@@ -37,10 +38,24 @@ const storage = multer.diskStorage({
       uploadPath = path.join(process.cwd(), 'files', 'events', imageType, id);
     }
     
-    // Create directory if it doesn't exist
-    fs.mkdirSync(uploadPath, { recursive: true });
+    console.log('🟡 Multer: Upload path details:', {
+      id,
+      imageType,
+      isEventRoute,
+      isProductRoute,
+      url: req.originalUrl,
+      uploadPath
+    });
     
-    cb(null, uploadPath);
+    // Create directory if it doesn't exist
+    try {
+      fs.mkdirSync(uploadPath, { recursive: true });
+      console.log('✅ Multer: Directory created/verified:', uploadPath);
+      cb(null, uploadPath);
+    } catch (error) {
+      console.error('❌ Multer: Failed to create directory:', error);
+      cb(error, null);
+    }
   },
   filename: function (req, file, cb) {
     // Generate unique filename with timestamp
@@ -49,17 +64,32 @@ const storage = multer.diskStorage({
     const name = path.basename(file.originalname, ext);
     const filename = `${name}_${timestamp}${ext}`;
     
+    console.log('🟡 Multer: Generating filename:', {
+      original: file.originalname,
+      generated: filename,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+    
     cb(null, filename);
   }
 });
 
 // File filter to allow only images
 const fileFilter = (req, file, cb) => {
+  console.log('🟡 Multer: Filtering file type:', {
+    fieldname: file.fieldname,
+    originalname: file.originalname,
+    mimetype: file.mimetype
+  });
+  
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
   
   if (allowedTypes.includes(file.mimetype)) {
+    console.log('✅ Multer: File type accepted');
     cb(null, true);
   } else {
+    console.error('❌ Multer: Invalid file type rejected:', file.mimetype);
     cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'), false);
   }
 };
@@ -86,8 +116,21 @@ const uploadMultiple = (fieldName, maxCount = 10) => {
 
 // Error handling middleware for multer
 const handleUploadError = (error, req, res, next) => {
+  if (!error) {
+    return next();
+  }
+
+  console.error('❌ Multer Upload Error:', {
+    message: error.message,
+    code: error.code,
+    field: error.field,
+    type: error.constructor.name,
+    url: req.originalUrl
+  });
+
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
+      console.error('❌ File size limit exceeded');
       return res.status(400).json({
         success: false,
         message: 'File too large. Maximum size is 5MB.',
@@ -95,6 +138,7 @@ const handleUploadError = (error, req, res, next) => {
       });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {
+      console.error('❌ File count limit exceeded');
       return res.status(400).json({
         success: false,
         message: 'Too many files. Maximum is 10 files.',
@@ -102,21 +146,25 @@ const handleUploadError = (error, req, res, next) => {
       });
     }
     if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      console.error('❌ Unexpected file field:', error.field);
       return res.status(400).json({
         success: false,
-        message: 'Unexpected field in file upload.',
-        error: error.message
+        message: `Unexpected field in file upload: ${error.field}. Expected field name may be different.`,
+        error: error.message,
+        hint: 'Check that the form field name matches the server expectation'
       });
     }
   }
   
   if (error.message.includes('Invalid file type')) {
+    console.error('❌ Invalid file type');
     return res.status(400).json({
       success: false,
       message: error.message
     });
   }
   
+  console.error('❌ Generic upload error:', error);
   return res.status(500).json({
     success: false,
     message: 'File upload error',

@@ -97,7 +97,7 @@ echo ""
 echo -e "${BLUE}🔌 Step 2: Testing connection to remote server...${NC}"
 
 # Test if server is reachable
-if ping -c 1 -W 2 "$REMOTE_HOST" &> /dev/null; then
+if ping -c 1 -W 5 "$REMOTE_HOST" &> /dev/null; then
     echo -e "${GREEN}✅ Remote server is reachable${NC}"
 else
     echo -e "${RED}❌ Cannot reach remote server at $REMOTE_HOST${NC}"
@@ -128,6 +128,8 @@ echo -e "${BLUE}📤 Step 4: Uploading .env file to remote server...${NC}"
 sshpass -p "$REMOTE_PASSWORD" scp -P "$REMOTE_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
+    -o PreferredAuthentications=password \
+    -o PubkeyAuthentication=no \
     "$SCRIPT_DIR/.env" \
     "$REMOTE_USER@$REMOTE_HOST:/tmp/.env.netzero"
 
@@ -142,6 +144,8 @@ echo -e "${BLUE}🚀 Step 5: Executing action on remote server...${NC}"
 sshpass -p "$REMOTE_PASSWORD" ssh -p "$REMOTE_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
+    -o PreferredAuthentications=password \
+    -o PubkeyAuthentication=no \
     "$REMOTE_USER@$REMOTE_HOST" "REMOTE_SUDO_PASS='$REMOTE_PASSWORD' GITHUB_TOKEN='$GITHUB_TOKEN' REPO_URL='$REPO_URL' ACTION='$ACTION' bash -s" << 'ENDSSH'
 set -e
 

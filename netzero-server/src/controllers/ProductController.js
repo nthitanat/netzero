@@ -657,58 +657,111 @@ class ProductController {
 
   // POST /api/v1/products/:id/upload/thumbnail - Upload product thumbnail
   static async uploadProductThumbnail(req, res) {
+    console.log('\n🔵 === THUMBNAIL UPLOAD REQUEST START ===');
+    console.log('📋 Request Details:', {
+      productId: req.params.id,
+      userId: req.user?.userId,
+      userRole: req.user?.role,
+      hasFile: !!req.file,
+      contentType: req.headers['content-type'],
+      url: req.originalUrl,
+      method: req.method
+    });
+
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
       const userRole = req.user.role;
       const isAdmin = userRole === 'admin';
 
+      console.log('✅ Step 1: Validating product ID...');
       if (!productId || isNaN(productId)) {
+        console.error('❌ FAIL: Invalid product ID:', productId);
         return res.status(400).json({
           success: false,
           message: 'Invalid product ID provided',
           timestamp: new Date().toISOString()
         });
       }
+      console.log('✅ Product ID valid:', productId);
 
       // Check if product exists and user has permission
+      console.log('✅ Step 2: Checking if product exists...');
       const product = await Product.findById(productId);
       if (!product) {
+        console.error('❌ FAIL: Product not found with ID:', productId);
         return res.status(404).json({
           success: false,
           message: 'Product not found',
           timestamp: new Date().toISOString()
         });
       }
+      console.log('✅ Product found:', { id: product.id, user_id: product.user_id, name: product.name });
 
       // Allow admin, community_head, and product owner
+      console.log('✅ Step 3: Checking permissions...');
+      console.log('Permission check:', { isAdmin, productOwnerId: product.user_id, requestUserId: userId });
       if (!isAdmin && product.user_id !== userId) {
+        console.error('❌ FAIL: Access denied. User', userId, 'is not owner of product owned by', product.user_id);
         return res.status(403).json({
           success: false,
           message: 'Access denied. You can only upload images for your own products.',
           timestamp: new Date().toISOString()
         });
       }
+      console.log('✅ User has permission to upload');
 
+      console.log('✅ Step 4: Checking uploaded file...');
       if (!req.file) {
+        console.error('❌ FAIL: No file in request');
+        console.log('Request body:', req.body);
+        console.log('Request files:', req.files);
         return res.status(400).json({
           success: false,
           message: 'No file uploaded',
           timestamp: new Date().toISOString()
         });
       }
+      console.log('✅ File received:', {
+        fieldname: req.file.fieldname,
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        path: req.file.path
+      });
 
       // Rename file to standard format: thumbnail_{productId}.png
+      console.log('✅ Step 5: Renaming file to standard format...');
       const uploadedFilePath = req.file.path;
       const standardFileName = `thumbnail_${productId}.png`;
       const standardFilePath = path.join(path.dirname(uploadedFilePath), standardFileName);
+      
+      console.log('File paths:', {
+        uploaded: uploadedFilePath,
+        standard: standardFilePath,
+        directory: path.dirname(uploadedFilePath)
+      });
+
+      // Check if directory exists
+      if (!fs.existsSync(path.dirname(uploadedFilePath))) {
+        console.error('❌ FAIL: Upload directory does not exist:', path.dirname(uploadedFilePath));
+        throw new Error('Upload directory does not exist');
+      }
 
       // Rename the uploaded file
-      fs.renameSync(uploadedFilePath, standardFilePath);
+      try {
+        fs.renameSync(uploadedFilePath, standardFilePath);
+        console.log('✅ File renamed successfully');
+      } catch (renameError) {
+        console.error('❌ FAIL: Error renaming file:', renameError);
+        throw renameError;
+      }
 
+      console.log('✅ Step 6: Generating file URL...');
       const fileUrl = generateFileUrl(req, getRelativePath(standardFilePath));
+      console.log('✅ File URL generated:', fileUrl);
 
-      res.status(200).json({
+      const responseData = {
         success: true,
         message: 'Product thumbnail uploaded successfully',
         data: {
@@ -720,10 +773,26 @@ class ProductController {
           mimetype: req.file.mimetype
         },
         timestamp: new Date().toISOString()
-      });
+      };
+
+      console.log('✅ SUCCESS: Thumbnail upload completed');
+      console.log('Response data:', responseData);
+      console.log('🔵 === THUMBNAIL UPLOAD REQUEST END ===\n');
+
+      res.status(200).json(responseData);
 
     } catch (error) {
-      console.error('Error in uploadProductThumbnail:', error);
+      console.error('❌ ERROR in uploadProductThumbnail:', error);
+      console.error('Error stack:', error.stack);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        errno: error.errno,
+        syscall: error.syscall,
+        path: error.path
+      });
+      console.log('🔵 === THUMBNAIL UPLOAD REQUEST END (ERROR) ===\n');
+
       res.status(500).json({
         success: false,
         message: 'Failed to upload thumbnail',

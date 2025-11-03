@@ -65,12 +65,15 @@ axiosInstance.interceptors.response.use(
     const duration = error.config?.metadata ? 
       endTime.getTime() - error.config.metadata.startTime.getTime() : 0;
     
-    console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
+    const errorDetails = {
       status: error.response?.status,
       duration: `${duration}ms`,
       message: error.message,
       data: error.response?.data,
-    });
+    };
+    
+    console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+    console.error('Error Details:', errorDetails);
     
     // Handle common error scenarios
     if (error.response?.status === 401) {
@@ -103,6 +106,17 @@ axiosInstance.interceptors.response.use(
       window.dispatchEvent(new CustomEvent('api:serverError', {
         detail: {
           message: 'Server error occurred. Please try again later.',
+          originalUrl: error.config?.url
+        }
+      }));
+    }
+    
+    // Handle network errors (server not reachable)
+    if (!error.response && error.code === 'ERR_NETWORK') {
+      console.error('⚠️ Network Error: Cannot reach server. Please check if the server is running.');
+      window.dispatchEvent(new CustomEvent('api:networkError', {
+        detail: {
+          message: 'Cannot reach server. Please check your connection or contact support.',
           originalUrl: error.config?.url
         }
       }));
