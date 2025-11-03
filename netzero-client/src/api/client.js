@@ -9,7 +9,7 @@ const getBaseURL = () => {
   }
   
   // Fallback to localhost for local development
-  return 'http://localhost:3001/api';
+  return 'https://engagement.chula.ac.th/netzero-api/';
 };
 
 // Create axios instance with default configuration
