@@ -173,13 +173,13 @@ process.on('SIGINT', () => {
 });
 
 // Start server
-const server = app.listen(PORT, '127.0.0.1', async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log('🚀 NetZero Chat Server Starting...');
   console.log('═══════════════════════════════════════');
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Server: http://127.0.0.1:${PORT}`);
-  console.log(`🔗 Health Check: http://127.0.0.1:${PORT}/health`);
-  console.log(`🗄️  Database Test: http://127.0.0.1:${PORT}/db-test`);
+  console.log(`🌐 Server: http://0.0.0.0:${PORT}`);
+  console.log(`🔗 Health Check: http://localhost:${PORT}/health`);
+  console.log(`🗄️  Database Test: http://localhost:${PORT}/db-test`);
   console.log(`📚 API Base: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}`);
   console.log(`💬 Chat API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/chat`);
   console.log('═══════════════════════════════════════');
