@@ -588,7 +588,90 @@ class ProductController {
     }
   }
 
-  // GET /api/v1/products/:id/images/:imageId - Get product images
+  // GET /api/v1/products/:id/images - Get all product images metadata
+  static async getAllProductImages(req, res) {
+    try {
+      const productId = req.params.id;
+      
+      if (!productId || isNaN(productId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid product ID provided',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Check if product exists
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: 'Product not found',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      const imagesDir = path.join(__dirname, '../../files/products/images', productId.toString());
+      const images = [];
+
+      // Check if images directory exists
+      if (fs.existsSync(imagesDir)) {
+        // Read all files in the images directory
+        const files = fs.readdirSync(imagesDir);
+        
+        // Filter and process image files
+        const imageFiles = files.filter(file => file.match(/^image_(\d+)\.png$/));
+        
+        for (const file of imageFiles) {
+          const imageIdMatch = file.match(/^image_(\d+)\.png$/);
+          if (imageIdMatch) {
+            const imageId = parseInt(imageIdMatch[1]);
+            const filePath = path.join(imagesDir, file);
+            const stats = fs.statSync(filePath);
+            
+            images.push({
+              imageId: imageId,
+              filename: file,
+              url: `${req.protocol}://${req.get('host')}/api/v1/products/${productId}/images/${imageId}`,
+              size: stats.size,
+              exists: true,
+              lastModified: stats.mtime
+            });
+          }
+        }
+        
+        // Sort images by imageId
+        images.sort((a, b) => a.imageId - b.imageId);
+      }
+
+      // Set CORS headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
+
+      res.status(200).json({
+        success: true,
+        message: 'Product images metadata retrieved successfully',
+        data: {
+          productId: parseInt(productId),
+          images: images,
+          totalImages: images.length
+        },
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Error in getAllProductImages:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve product images metadata',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }
+
+  // GET /api/v1/products/:id/images/:imageId - Get specific product image
   static async getProductImages(req, res) {
     try {
       const productId = req.params.id;

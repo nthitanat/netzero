@@ -4,6 +4,7 @@ import ProductModalHandler from "./ProductModalHandler";
 import { ImageSlideshow, GoogleIcon } from "../../common";
 import { ReserveDialog } from "../";
 import { productsService } from "../../../api";
+import useProductModal from "./useProductModal";
 
 export default function ProductModal({ 
     product, 
@@ -20,6 +21,9 @@ export default function ProductModal({
     onCloseReserveDialog,
     isReserving = false
 }) {
+    // Use the custom hook for product modal logic including image loading
+    const { productWithImages, imagesLoading } = useProductModal(product, isOpen);
+    
     // Create handlers using ProductModalHandler without state
     const handlers = ProductModalHandler(
         product, 
@@ -31,16 +35,6 @@ export default function ProductModal({
         onCloseReserveDialog, 
         isReserving
     );
-    
-    // Create a product object with proper image URLs and field mappings
-    const productWithImages = product ? {
-        ...product,
-        images: [
-            productsService.getProductThumbnailUrl(product.id),
-            productsService.getProductCoverUrl(product.id)
-        ],
-        inStock: product.stock_quantity > 0 // Convert stock_quantity to inStock boolean
-    } : null;
     
     // Add keyboard event listener for Escape key
     useEffect(() => {
@@ -79,11 +73,18 @@ export default function ProductModal({
                 
                 <div className={styles.ModalContent}>
                     <div className={styles.ImageSection}>
-                        <ImageSlideshow 
-                            images={productWithImages.images}
-                            alt={productWithImages.title}
-                            className={styles.ProductSlideshow}
-                        />
+                        {imagesLoading ? (
+                            <div className={styles.ImageLoading}>
+                                <div className={styles.LoadingSpinner} />
+                                <span>กำลังโหลดรูปภาพ...</span>
+                            </div>
+                        ) : (
+                            <ImageSlideshow 
+                                images={productWithImages.images}
+                                alt={productWithImages.title}
+                                className={styles.ProductSlideshow}
+                            />
+                        )}
                         
                         <div className={styles.BadgeContainer}>
                             <div className={`${styles.CategoryBadge}`}>

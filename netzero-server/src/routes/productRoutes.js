@@ -43,9 +43,18 @@ router.options('/:id/cover', (req, res) => {
   res.sendStatus(200);
 });
 
-// GET /api/v1/products/:id/images/:imageId - Get product images
+// GET /api/v1/products/:id/images/:imageId - Get specific product image (more specific route first)
 router.get('/:id/images/:imageId', ProductController.getProductImages);
 router.options('/:id/images/:imageId', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
+  res.sendStatus(200);
+});
+
+// GET /api/v1/products/:id/images - Get all product images metadata (less specific route second)
+router.get('/:id/images', ProductController.getAllProductImages);
+router.options('/:id/images', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');

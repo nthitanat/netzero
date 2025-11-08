@@ -16,7 +16,7 @@ const apiLimiter = rateLimit({
 // Strict rate limiting for creation endpoints - more lenient in development
 const createLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'development' ? 100 : 10, // 100 for dev, 10 for prod
+  max: process.env.NODE_ENV === 'development' ? 1000 : 1000, // 1000 for dev, 1000 for prod
   message: {
     success: false,
     message: 'Too many creation requests from this IP, please try again later.',

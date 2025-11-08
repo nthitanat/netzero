@@ -3,6 +3,7 @@ import styles from "./AdvertisementCarousel.module.scss";
 import useAdvertisementCarousel from "./useAdvertisementCarousel";
 import AdvertisementCarouselHandler from "./AdvertisementCarouselHandler";
 import { BaseSlideshow } from "../../common";
+import { productsService } from "../../../api/products";
 
 export default function AdvertisementCarousel({ advertisements, onAdClick, className = "", theme = "market" }) {
     const { stateAdvertisementCarousel, setAdvertisementCarousel } = useAdvertisementCarousel();
@@ -24,7 +25,7 @@ export default function AdvertisementCarousel({ advertisements, onAdClick, class
             <div className={styles.AdContainer}>
                 <div className={styles.AdImageContainer}>
                     <img 
-                        src={ad.image} 
+                        src={productsService.getProductCoverUrl(ad.id)} 
                         alt={ad.title}
                         className={styles.AdImage}
                     />

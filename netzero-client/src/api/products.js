@@ -429,6 +429,44 @@ class ProductsService {
     }
   }
 
+  // Get product images metadata
+  async getProductImagesMetadata(productId) {
+    try {
+      const cacheKey = `images-metadata-${productId}`;
+      
+      // Check cache first
+      const cached = apiCache.get(cacheKey);
+      if (cached) {
+        console.log(`📦 Cache hit for product images metadata: ${productId}`);
+        return cached;
+      }
+
+      console.log(`🔍 Fetching product images metadata: ${productId}`);
+      const response = await axiosInstance.get(`${this.baseUrl}/${productId}/images`);
+      
+      if (response.data.success) {
+        // Cache the result
+        apiCache.set(cacheKey, response.data, 300000); // 5 minutes cache
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch product images metadata');
+      }
+    } catch (error) {
+      console.error(`❌ Error fetching product images metadata for ${productId}:`, error);
+      
+      // Return empty images array as fallback
+      return {
+        success: false,
+        data: {
+          productId: parseInt(productId),
+          images: [],
+          totalImages: 0
+        },
+        error: error.message
+      };
+    }
+  }
+
   // Get product image URLs
   getProductThumbnailUrl(productId) {
     return `${axiosInstance.defaults.baseURL}${this.baseUrl}/${productId}/thumbnail`;
