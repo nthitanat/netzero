@@ -41,9 +41,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  min-width: 90%;
-  max-width: 90%;
-  max-height: 90vh;
+  min-width: 900px;
+  max-width: 1000px;
+  width: 90vw;
+  max-height: 95vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -55,7 +56,7 @@
   // Theme-specific modal styling
   .Container.market-theme & {
     @include market-glassmorphism-card;
-    border-radius: 32px;
+    border-radius: 24px;
     border: 1px solid var(--market-glass-border);
     background: var(--market-glass-bg);
   }
@@ -63,11 +64,12 @@
   .Container.barter-theme & {
     @include glassmorphism-card;
     background: var(--theme-bg, white);
+    border-radius: 20px;
   }
   
   .Container.willing-theme & {
     @include willing-glassmorphism-card;
-    border-radius: 32px;
+    border-radius: 24px;
     border: 1px solid var(--willing-glass-border);
     background: var(--willing-glass-bg);
   }
@@ -76,45 +78,67 @@
 }
 
 .CloseButton {
-  background: var(--theme-primary, var(--primary-color-3));
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  @include bg-color-palette("primary-color-3");
   border: none;
   border-radius: 50px;
-  padding: 10px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: white;
+  @include text-color-palette("white");
   transition: all 0.3s ease;
+  z-index: 1;
 
   &:hover {
-    background: var(--theme-primary-hover, var(--primary-color-2));
+    @include bg-color-palette("primary-color-2");
     transform: scale(1.05);
   }
 }
 
 .ModalContent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+}
+
+.Header {
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  margin: 0 0 8px 0;
+  font-weight: 600;
 }
 
 .ImageSection {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
 }
 
 .ProductSlideshow {
   width: 100%;
-  height: 100%;
-  min-height: 350px;
-  border-radius: 24px 0 0 24px;
+  max-width: 600px;
+  height: 400px;
+  border-radius: 16px;
   object-fit: cover;
+  @include border-color-palette("primary-color-3", 2px);
 }
 
 .BadgeContainer {
@@ -127,10 +151,9 @@
 }
 
 .CategoryBadge {
-  background-color: var(--theme-primary, var(--primary-color-2));
-  color: var(--white);
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
   @include font-size-palette("body-3");
-  
   padding: 6px 12px;
   border-radius: 12px;
   font-weight: 600;
@@ -139,25 +162,24 @@
 
 .StatusBadge {
   @include font-size-palette("body-3");
-  
   padding: 6px 12px;
   border-radius: 12px;
   font-weight: 600;
   backdrop-filter: blur(10px);
   
   &.OutOfStock {
-    background: var(--warning-bg, var(--warning));
-    color: var(--warning-text, white);
+    @include bg-color-palette("warning");
+    @include text-color-palette("white");
   }
 }
 
 .InfoSection {
-  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  overflow-y: auto;
+  gap: 20px;
+  flex: 2;
   min-height: 0;
+  overflow-y: auto;
   
   // Custom scrollbar styling
   &::-webkit-scrollbar {
@@ -170,220 +192,327 @@
   }
   
   &::-webkit-scrollbar-thumb {
-    background: var(--theme-primary, var(--primary-color-3));
+    @include bg-color-palette("primary-color-2");
     border-radius: 3px;
     opacity: 0.7;
     
     &:hover {
-      background: var(--theme-primary-hover, var(--primary-color-2));
+      @include bg-color-palette("primary-color-1");
     }
   }
 }
 
-.ProductHeader {
+.ProductInfo {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
+  padding: 12px 16px;
+  @include bg-color-palette("primary-color-4");
+  background: rgba(69, 206, 105, 0.1);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.ProductHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .ProductTitle {
-  @include font-size-palette("headline-3");
-  color: var(--theme-text, var(--primary-color-1));
-  
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
   margin: 0;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
-  flex: 1;
 }
 
 .ProductPrice {
-  @include font-size-palette("headline-4");
-  color: var(--theme-primary, var(--secondary-color-1));
-  
+  @include font-size-palette("headline-5");
+  @include text-color-palette("primary-color-1");
   font-weight: 700;
-  padding: 8px 16px;
-  background-color: var(--theme-secondary, var(--secondary-color-4));
-  border-radius: 16px;
-  white-space: nowrap;
 }
 
 .ProductDescription {
-  @include font-size-palette("body-1");
-  color: var(--theme-text, var(--primary-color-1));
-  
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
   margin: 0;
-  line-height: 1.6;
-  opacity: 0.9;
+  line-height: 1.4;
+  text-align: left;
+  max-height: 80px;
+  overflow-y: auto;
+  padding: 8px 0;
 }
 
 .ProductSpecs {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1;
 }
 
 .SpecsTitle {
   @include font-size-palette("headline-5");
-  color: var(--theme-text, var(--primary-color-1));
-  
+  @include text-color-palette("primary-color-1");
   margin: 0;
   font-weight: 700;
 }
 
 .SpecsList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 12px;
+  flex: 1;
 }
 
 .SpecItem {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   @include font-size-palette("body-2");
+  padding: 12px 16px;
+  background: rgba(27, 94, 32, 0.08);
+  border-radius: 12px;
+  min-width: 0;
+  flex: 1;
+  @include border-color-palette("primary-color-1", 1px);
+  border: 1px solid rgba(27, 94, 32, 0.15);
 }
 
 .SpecIcon {
-  color: var(--theme-primary, var(--primary-color-3));
+  @include text-color-palette("primary-color-2");
   flex-shrink: 0;
 }
 
 .SpecLabel {
-  color: var(--theme-primary, var(--primary-color-2));
-  font-weight: 600;
-  min-width: 80px;
+  @include text-color-palette("primary-color-1");
+  font-weight: 700;
+  min-width: 70px;
+  flex-shrink: 0;
 }
 
 .SpecValue {
-  color: var(--theme-text, var(--primary-color-1));
+  @include text-color-palette("primary-color-1");
   font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   
   &.InStock {
-    color: var(--theme-primary, var(--primary-color-3));
+    @include text-color-palette("primary-color-2");
+    font-weight: 600;
   }
   
   &.OutOfStock {
-    color: var(--warning-text, var(--warning));
+    @include text-color-palette("warning");
+    font-weight: 600;
   }
 }
 
 .ActionSection {
-  margin-top: auto;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: center;
+  padding-top: 12px;
   flex-shrink: 0;
-  padding-top: 16px;
+  margin-top: auto;
 }
 
 .ReserveButton {
-  background-color: var(--theme-primary);
-  color: var(--white);
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
   @include font-size-palette("body-1");
   
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  width: 100%;
-  padding: 16px 24px;
+  gap: 8px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 20px;
-  font-weight: 700;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   
   &:hover:not(.Disabled) {
-    background-color: var(--theme-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-  
-  &:active:not(.Disabled) {
-    transform: translateY(0);
+    @include bg-color-palette("primary-color-2");
+    transform: translateY(-1px);
+    @include shawdow-palette("primary-color-2", 0.3);
   }
   
   &.Disabled {
-    background: var(--inactive-bg, var(--inactive));
+    @include bg-color-palette("inactive");
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
   }
+}
+
+.ImageLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-2");
 }
 
 .LoadingSpinner {
   width: 20px;
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-// Responsive Design
-@media (max-width: 768px) {
+// Responsive design
+@media (max-width: 1024px) {
   .Modal {
-    width: 95%;
-    max-height: 95vh;
-  }
-  
-  .ModalContent {
-    grid-template-columns: 1fr;
-    min-height: 0;
+    min-width: 700px;
+    max-width: 800px;
+    width: 85vw;
   }
   
   .ProductSlideshow {
-    min-height: 280px;
-    border-radius: 24px 24px 0 0;
+    height: 350px;
+    max-width: 500px;
   }
   
-  .InfoSection {
-    padding: 24px;
-    gap: 20px;
+  .SpecsList {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .Modal {
+    min-width: 90vw;
+    max-width: 95vw;
+    width: 95vw;
+    margin: 16px;
+  }
+  
+  .ModalContent {
+    padding: 16px;
+    gap: 12px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  
+  .Header {
+    padding-bottom: 6px;
+  }
+  
+  .Title {
+    @include font-size-palette("headline-5");
+  }
+  
+  .ProductSlideshow {
+    height: 250px;
+    max-width: 100%;
+  }
+  
+  .ProductInfo {
+    padding: 10px 12px;
+    gap: 8px;
   }
   
   .ProductTitle {
-    @include font-size-palette("headline-4");
+    @include font-size-palette("headline-5");
   }
   
-  .ProductPrice {
-    @include font-size-palette("headline-5");
+  .InfoSection {
+    gap: 12px;
+  }
+  
+  .ProductSpecs {
+    gap: 10px;
+  }
+  
+  .SpecsList {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 }
 
 @media (max-width: 480px) {
   .Modal {
-    width: 98%;
-    max-height: 95vh;
+    min-width: 95vw;
+    max-width: 95vw;
+    width: 95vw;
     margin: 8px;
+    max-height: 95vh;
   }
   
-  .InfoSection {
-    padding: 20px;
-    gap: 16px;
-  }
-  
-  .ProductSlideshow {
-    min-height: 220px;
+  .ModalContent {
+    padding: 12px;
+    gap: 8px;
   }
   
   .CloseButton {
-    width: 36px;
-    height: 36px;
-    top: 12px;
-    right: 12px;
+    top: 8px;
+    right: 8px;
+    padding: 6px;
+  }
+  
+  .ProductSlideshow {
+    height: 200px;
+    max-width: 100%;
+  }
+  
+  .ProductInfo {
+    padding: 8px;
+    gap: 6px;
+  }
+  
+  .ProductTitle {
+    @include font-size-palette("body-1");
+  }
+  
+  .ProductPrice {
+    @include font-size-palette("body-1");
+  }
+  
+  .InfoSection {
+    gap: 8px;
+  }
+  
+  .ProductSpecs {
+    gap: 8px;
+  }
+  
+  .SpecsList {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
   
   .SpecItem {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
+    padding: 6px 8px;
   }
   
   .SpecLabel {
     min-width: auto;
+  }
+  
+  .SpecValue {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+  
+  .ActionSection {
+    padding-top: 8px;
   }
 }

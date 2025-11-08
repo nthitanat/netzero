@@ -567,37 +567,114 @@
 // Responsive design
 @media (max-width: 768px) {
   .Dialog {
-    width: 95%;
-    max-width: none;
-    margin: 20px;
+    min-width: 320px;
+    max-width: 320px;
+    margin: 16px;
   }
   
   .DialogContent {
-    padding: 20px;
+    padding: 16px;
     gap: 16px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .Header {
+    padding-bottom: 8px;
+  }
+  
+  .Title {
+    @include font-size-palette("headline-5");
   }
   
   .ProductInfo {
     flex-direction: column;
     text-align: center;
     gap: 12px;
+    padding: 12px;
   }
   
   .ProductImage {
     width: 100px;
     height: 100px;
+    align-self: center;
   }
   
   .QuantityControls {
     gap: 12px;
+    justify-content: center;
   }
   
   .QuantityInput {
     width: 100px;
   }
   
+  .DeliveryOptions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
   .ActionSection {
     flex-direction: column;
+    gap: 8px;
+  }
+  
+  .TotalSection {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Dialog {
+    min-width: 320px;
+    max-width: 320px;
+    margin: 8px;
+    max-height: 95vh;
+  }
+  
+  .DialogContent {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .CloseButton {
+    top: 8px;
+    right: 8px;
+    padding: 6px;
+  }
+  
+  .ProductInfo {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .ProductImage {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .QuantityButton {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .QuantityInput {
+    width: 80px;
+    height: 36px;
+  }
+  
+  .ShippingInput,
+  .UserNoteInput {
+    min-height: 60px;
+    padding: 8px 12px;
+  }
+  
+  .PickupDateInput {
+    padding: 8px 12px;
+  }
+  
+  .TotalSection {
+    padding: 8px;
   }
 }
 

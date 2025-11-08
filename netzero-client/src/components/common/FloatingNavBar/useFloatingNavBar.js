@@ -8,6 +8,7 @@ const useFloatingNavBar = (initialProps = {}) => {
     lastScrollY: 0,
     showLoginModal: false,
     showUserMenu: false,
+    isCollapsed: false,
     ...initialProps
   });
 

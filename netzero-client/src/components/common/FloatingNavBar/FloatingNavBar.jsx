@@ -23,7 +23,21 @@ export default function FloatingNavBar({
 
     return (
         <>
-            <div className={`${styles.Container} ${styles[`${theme}-theme`]} ${className}`}>
+            <div className={`${styles.Container} ${styles[`${theme}-theme`]} ${stateFloatingNavBar.isCollapsed ? styles.MobileMenuOpen : ''} ${className}`}>
+                {/* Toggle Button for Mobile */}
+                <button
+                    className={styles.ToggleButton}
+                    onClick={handlers.handleToggleNavbar}
+                    aria-label={stateFloatingNavBar.isCollapsed ? 'Hide menu' : 'Show menu'}
+                >
+                    <GoogleIcon 
+                        iconType={stateFloatingNavBar.isCollapsed ? 'close' : 'menu'} 
+                        size="medium" 
+                        className={styles.ToggleIcon}
+                    />
+                </button>
+
+                {/* Desktop Navigation Bar */}
                 <nav className={styles.NavBar}>
                     {navItems.map((item, index) => (
                         <button
@@ -33,7 +47,7 @@ export default function FloatingNavBar({
                             }`}
                             onClick={() => {
                                 console.log("Button clicked for:", item.path, item.label);
-                                handlers.handleNavClick(item.path, item.label);
+                                handlers.handleNavClickWithCollapse(item.path, item.label);
                             }}
                             onMouseEnter={() => handlers.handleMouseEnter(index)}
                             onMouseLeave={handlers.handleMouseLeave}
@@ -144,6 +158,133 @@ export default function FloatingNavBar({
                         )}
                     </div>
                 </nav>
+
+                {/* Mobile Menu Overlay */}
+                <div 
+                    className={styles.MenuOverlay}
+                    onClick={handlers.handleToggleNavbar}
+                />
+
+                {/* Mobile Menu */}
+                <div className={styles.MobileMenu}>
+                    <div className={styles.MobileNavItems}>
+                        {navItems.map((item) => (
+                            <button
+                                key={item.path}
+                                className={`${styles.MobileNavItem} ${
+                                    stateFloatingNavBar.activeRoute === item.path ? styles.Active : ''
+                                }`}
+                                onClick={() => {
+                                    console.log("Mobile nav clicked:", item.path, item.label);
+                                    handlers.handleNavClickWithCollapse(item.path, item.label);
+                                }}
+                            >
+                                <GoogleIcon 
+                                    iconType={item.icon} 
+                                    size="medium" 
+                                    className={styles.MobileNavIcon}
+                                />
+                                <span className={styles.MobileNavLabel}>{item.label}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Mobile Authentication Section */}
+                    <div className={styles.MobileAuthSection}>
+                        {isAuthenticated ? (
+                            <>
+                                <div className={styles.MobileUserInfo}>
+                                    {user?.profileImage ? (
+                                        <img 
+                                            src={user.profileImage} 
+                                            alt="Profile" 
+                                            className={styles.MobileUserAvatar}
+                                        />
+                                    ) : (
+                                        <div className={styles.MobileUserInitials}>
+                                            {getUserInitials()}
+                                        </div>
+                                    )}
+                                    <div className={styles.MobileUserDetails}>
+                                        <div className={styles.MobileUserName}>{getDisplayName()}</div>
+                                        <div className={styles.MobileUserEmail}>{user?.email}</div>
+                                    </div>
+                                </div>
+                                
+                                <div className={styles.MobileUserActions}>
+                                    <button 
+                                        className={styles.MobileUserAction}
+                                        onClick={() => {
+                                            handlers.handleProfileClick();
+                                            handlers.handleToggleNavbar();
+                                        }}
+                                    >
+                                        <GoogleIcon iconType="person" size="small" />
+                                        Profile
+                                    </button>
+                                    <button 
+                                        className={styles.MobileUserAction}
+                                        onClick={() => {
+                                            handlers.handleMyOrdersClick();
+                                            handlers.handleToggleNavbar();
+                                        }}
+                                    >
+                                        <GoogleIcon iconType="shopping_cart" size="small" />
+                                        My Orders
+                                    </button>
+                                    {(user?.role === 'seller' || user?.role === 'community_head') && (
+                                        <button 
+                                            className={styles.MobileUserAction}
+                                            onClick={() => {
+                                                handlers.handleSellerDashboardClick();
+                                                handlers.handleToggleNavbar();
+                                            }}
+                                        >
+                                            <GoogleIcon iconType="dashboard" size="small" />
+                                            Seller Dashboard
+                                        </button>
+                                    )}
+                                    {user?.role === 'community_head' && (
+                                        <button 
+                                            className={styles.MobileUserAction}
+                                            onClick={() => {
+                                                handlers.handleEventDashboardClick();
+                                                handlers.handleToggleNavbar();
+                                            }}
+                                        >
+                                            <GoogleIcon iconType="event" size="small" />
+                                            Event Dashboard
+                                        </button>
+                                    )}
+                                    <button 
+                                        className={styles.MobileUserAction}
+                                        onClick={() => {
+                                            handlers.handleLogoutClick();
+                                            handlers.handleToggleNavbar();
+                                        }}
+                                    >
+                                        <GoogleIcon iconType="logout" size="small" />
+                                        Logout
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <button
+                                className={styles.MobileLoginButton}
+                                onClick={() => {
+                                    handlers.handleLoginClick();
+                                    handlers.handleToggleNavbar();
+                                }}
+                            >
+                                <GoogleIcon 
+                                    iconType="login" 
+                                    size="medium" 
+                                />
+                                Login
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Login Modal */}

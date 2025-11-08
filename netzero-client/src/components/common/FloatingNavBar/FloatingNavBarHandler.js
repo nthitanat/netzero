@@ -15,6 +15,34 @@ const FloatingNavBarHandler = (stateFloatingNavBar, setFloatingNavBar, onNavigat
       }
     },
 
+    // Navigation with auto-collapse on mobile
+    handleNavClickWithCollapse: (path, label) => {
+      console.log("NavBar clicked:", path, label); // Debug log
+      setFloatingNavBar("activeRoute", path);
+      
+      if (onNavigate) {
+        console.log("Calling onNavigate:", onNavigate); // Debug log
+        onNavigate(path, label);
+      } else if (navigate) {
+        console.log("Using navigate function"); // Debug log
+        navigate(path);
+      } else {
+        console.log("No navigation function available"); // Debug log
+      }
+
+      // Auto-collapse on mobile after navigation
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          setFloatingNavBar('isCollapsed', true);
+        }, 300);
+      }
+    },
+
+    // Toggle navbar visibility (for mobile)
+    handleToggleNavbar: () => {
+      setFloatingNavBar('isCollapsed', !stateFloatingNavBar.isCollapsed);
+    },
+
     handleMouseEnter: (index) => {
       setFloatingNavBar("hoveredIndex", index);
     },

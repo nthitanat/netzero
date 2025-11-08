@@ -72,6 +72,10 @@ export default function ProductModal({
                 </button>
                 
                 <div className={styles.ModalContent}>
+                    <div className={styles.Header}>
+                        <h2 className={styles.Title}>รายละเอียดสินค้า</h2>
+                    </div>
+
                     <div className={styles.ImageSection}>
                         {imagesLoading ? (
                             <div className={styles.ImageLoading}>
@@ -97,15 +101,17 @@ export default function ProductModal({
                             )}
                         </div>
                     </div>
-                    
-                    <div className={styles.InfoSection}>
+
+                    <div className={styles.ProductInfo}>
                         <div className={styles.ProductHeader}>
-                            <h2 className={styles.ProductTitle}>{productWithImages.title}</h2>
+                            <h3 className={styles.ProductTitle}>{productWithImages.title}</h3>
                             <div className={styles.ProductPrice}>
                                 {productsService.formatPrice(productWithImages.price)}
                             </div>
                         </div>
-                        
+                    </div>
+
+                    <div className={styles.InfoSection}>
                         <p className={styles.ProductDescription}>
                             {productWithImages.description}
                         </p>
@@ -151,31 +157,31 @@ export default function ProductModal({
                                 </div>
                             </div>
                         </div>
-                        
-                        <div className={styles.ActionSection}>
-                            <button
-                                className={`${styles.ReserveButton} ${!productWithImages.inStock ? styles.Disabled : ''}`}
-                                onClick={handlers.handleReserve}
-                                disabled={!productWithImages.inStock || isReserving}
-                            >
-                                {isReserving ? (
-                                    <>
-                                        <div className={styles.LoadingSpinner} />
-                                        กำลังจอง...
-                                    </>
-                                ) : productWithImages.inStock ? (
-                                    <>
-                                        <GoogleIcon iconType="shopping_cart" size="medium" />
-                                        {actionLabel}
-                                    </>
-                                ) : (
-                                    <>
-                                        <GoogleIcon iconType="warning" size="medium" />
-                                        สินค้าหมด
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                    </div>
+                    
+                    <div className={styles.ActionSection}>
+                        <button
+                            className={`${styles.ReserveButton} ${!productWithImages.inStock ? styles.Disabled : ''}`}
+                            onClick={handlers.handleReserve}
+                            disabled={!productWithImages.inStock || isReserving}
+                        >
+                            {isReserving ? (
+                                <>
+                                    <div className={styles.LoadingSpinner} />
+                                    กำลังจอง...
+                                </>
+                            ) : productWithImages.inStock ? (
+                                <>
+                                    <GoogleIcon iconType="shopping_cart" size="medium" />
+                                    {actionLabel}
+                                </>
+                            ) : (
+                                <>
+                                    <GoogleIcon iconType="warning" size="medium" />
+                                    สินค้าหมด
+                                </>
+                            )}
+                        </button>
                     </div>
                 </div>
             </div>

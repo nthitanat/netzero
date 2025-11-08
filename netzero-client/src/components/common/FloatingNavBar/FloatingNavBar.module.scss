@@ -24,6 +24,279 @@
   &.map-theme {
     @include map-theme;
   }
+  
+  // Mobile menu state
+  &.MobileMenuOpen {
+    .MobileMenu {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .MenuOverlay {
+      opacity: 1;
+      pointer-events: all;
+    }
+  }
+}
+
+.ToggleButton {
+  display: none;
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 1002;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Default styling
+  @include glassmorphism-card;
+  backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px var(--glass-shadow-strong);
+  @include bg-color-palette("primary-color-2");
+  
+  // Theme-specific styling
+  .Container.market-theme & {
+    @include market-glassmorphism-card;
+    @include bg-color-palette("market-primary");
+  }
+  
+  .Container.barter-theme & {
+    @include glassmorphism-card;
+    @include bg-color-palette("barter-primary");
+  }
+  
+  .Container.willing-theme & {
+    @include willing-glassmorphism-card;
+    @include bg-color-palette("willing-primary");
+  }
+  
+  .Container.map-theme & {
+    @include map-glassmorphism-card;
+    @include bg-color-palette("map-primary");
+  }
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.ToggleIcon {
+  @include text-color-palette("white");
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+  
+  .Container.MobileMenuOpen & {
+    transform: rotate(90deg);
+  }
+}
+
+.MenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  @include bg-color-palette("glass-bg-overlay");
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.MobileMenu {
+  position: fixed;
+  min-width: 320px;
+  top: 60px;
+  right: 12px;
+  left: 12px;
+  @include bg-color-palette("glass-bg-strong");
+  backdrop-filter: blur(25px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px var(--glass-shadow-strong);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  
+  &.Active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+}
+
+.MobileNavItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.MobileNavItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
+  
+  &:hover {
+    background: var(--glass-bg-subtle);
+  }
+  
+  &.Active {
+    background: var(--glass-bg-strong);
+    
+    .MobileNavLabel {
+      font-weight: 600;
+    }
+  }
+}
+
+.MobileNavIcon {
+  @include text-color-palette("text-primary");
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.MobileNavLabel {
+  @include font-size-palette("body-1");
+  @include text-color-palette("text-primary");
+  font-weight: 500;
+  text-shadow: none;
+}
+
+.MobileAuthSection {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 16px;
+}
+
+.MobileLoginButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--glass-bg-overlay);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  @include text-color-palette("text-primary");
+  @include font-size-palette("body-1");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: var(--glass-bg-subtle);
+    border-color: var(--glass-border-strong);
+  }
+}
+
+.MobileUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--glass-bg-overlay);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.MobileUserAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--glass-border-strong);
+}
+
+.MobileUserInitials {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--glass-bg-subtle);
+  border: 2px solid var(--glass-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include text-color-palette("text-primary");
+  @include font-size-palette("body-1");
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.MobileUserDetails {
+  flex: 1;
+}
+
+.MobileUserName {
+  @include font-size-palette("body-1");
+  @include text-color-palette("text-primary");
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.MobileUserEmail {
+  @include font-size-palette("body-2");
+  @include text-color-palette("text-secondary");
+  opacity: 0.8;
+}
+
+.MobileUserActions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.MobileUserAction {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  @include text-color-palette("text-primary");
+  @include font-size-palette("body-2");
+  
+  &:hover {
+    background: var(--glass-bg-subtle);
+  }
+  
+  svg {
+    @include text-color-palette("text-secondary");
+    opacity: 0.8;
+  }
 }
 
 .NavBar {
@@ -34,12 +307,13 @@
   padding: 12px 20px;
   border-radius: 32px;
   pointer-events: all;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   // Default styling for market and barter
   @include glassmorphism-card;
   backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px var(--glass-shadow-strong);
   @include bg-color-palette("primary-color-2");
   
   // Theme-specific styling
@@ -82,7 +356,7 @@
   min-width: 64px;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--glass-bg-subtle);
     transform: translateY(-2px);
     
     .IconContainer {
@@ -96,7 +370,7 @@
   }
   
   &.Active {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--glass-bg-strong);
     
     .IconContainer {
       transform: scale(1.15);
@@ -124,9 +398,8 @@
 }
 
 .NavLabel {
-  @include font-size-palette("body-3");
+  @include font-size-palette("body-2");
   @include text-color-palette("white");
-  
   opacity: 0.8;
   font-weight: 500;
   white-space: nowrap;
@@ -144,44 +417,65 @@
   height: 2px;
   @include bg-color-palette("white");
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px var(--white);
   
   @include expand-animation(0.3s, 0px, 2px);
 }
 
-// Responsive Design
+// Responsive Design - Show toggle button and mobile menu on mobile
 @media (max-width: 768px) {
-  .Container {
-    top: 16px;
+  .ToggleButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 12px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    z-index: 1003;
   }
   
   .NavBar {
-    padding: 10px 16px;
-    gap: 4px;
+    display: none; // Hide regular navbar on mobile
   }
   
-  .NavItem {
-    padding: 10px 12px;
-    min-width: 56px;
-    
-    .NavLabel {
-      @include font-size-palette("body-4");
-    }
+  .MobileMenu {
+    top: 70px;
   }
 }
 
 @media (max-width: 480px) {
-  .NavBar {
-    padding: 8px 12px;
-    gap: 2px;
+  .ToggleButton {
+    top: 8px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
   }
   
-  .NavItem {
-    padding: 8px 10px;
-    min-width: 48px;
+  .MobileMenu {
+    top: 60px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .ToggleButton {
+    top: 6px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .MobileMenu {
+    top: 50px;
+    width: 98%;
+    max-width: 280px;
+    padding: 12px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
     
-    .NavLabel {
-      display: none;
+    &.Active {
+      transform: translateX(-50%) translateY(0);
     }
   }
 }
@@ -192,7 +486,7 @@
   align-items: center;
   margin-left: 12px;
   padding-left: 12px;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 1px solid var(--glass-border);
 }
 
 .LoginButton {
@@ -200,8 +494,8 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg-overlay);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
   @include text-color-palette("white");
   @include font-size-palette("body-2");
@@ -211,8 +505,8 @@
   backdrop-filter: blur(10px);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--glass-bg-subtle);
+    border-color: var(--glass-border-strong);
     transform: translateY(-1px);
   }
 
@@ -244,15 +538,15 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--glass-border-strong);
+  background: var(--glass-bg-overlay);
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--glass-border-strong);
+    background: var(--glass-bg-subtle);
     transform: translateY(-1px);
   }
 
@@ -375,20 +669,106 @@
 // Mobile responsive adjustments
 @media (max-width: 768px) {
   .AuthSection {
-    margin-left: 8px;
-    padding-left: 8px;
+    margin-left: 6px;
+    padding-left: 6px;
+    border-left: 1px solid var(--glass-border-subtle);
   }
 
   .LoginButton {
-    padding: 6px 12px;
+    padding: 6px 10px;
+    border-radius: 16px;
     
     .LoginLabel {
       display: none;
     }
   }
 
+  .UserButton {
+    width: 36px;
+    height: 36px;
+    border-width: 1px;
+  }
+
+  .UserAvatar {
+    width: 32px;
+    height: 32px;
+  }
+
   .UserDropdown {
     right: -8px;
     min-width: 200px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .AuthSection {
+    margin-left: 4px;
+    padding-left: 4px;
+  }
+
+  .LoginButton {
+    padding: 4px 8px;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+
+  .UserButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .UserAvatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .UserInitials {
+    font-size: 11px;
+  }
+
+  .UserDropdown {
+    right: -12px;
+    min-width: 180px;
+    
+    &::before {
+      right: 20px;
+    }
+  }
+
+  .UserInfo {
+    padding: 8px 12px;
+  }
+
+  .UserMenuItem {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 360px) {
+  .AuthSection {
+    margin-left: 2px;
+    padding-left: 2px;
+  }
+
+  .LoginButton {
+    padding: 4px 6px;
+    border-radius: 12px;
+  }
+
+  .UserButton {
+    width: 30px;
+    height: 30px;
+  }
+
+  .UserAvatar {
+    width: 26px;
+    height: 26px;
+  }
+
+  .UserDropdown {
+    right: -16px;
+    min-width: 160px;
   }
 }
