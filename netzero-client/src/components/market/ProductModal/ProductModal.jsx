@@ -76,112 +76,117 @@ export default function ProductModal({
                         <h2 className={styles.Title}>รายละเอียดสินค้า</h2>
                     </div>
 
-                    <div className={styles.ImageSection}>
-                        {imagesLoading ? (
-                            <div className={styles.ImageLoading}>
-                                <div className={styles.LoadingSpinner} />
-                                <span>กำลังโหลดรูปภาพ...</span>
-                            </div>
-                        ) : (
-                            <ImageSlideshow 
-                                images={productWithImages.images}
-                                alt={productWithImages.title}
-                                className={styles.ProductSlideshow}
-                            />
-                        )}
-                        
-                        <div className={styles.BadgeContainer}>
-                            <div className={`${styles.CategoryBadge}`}>
-                                {productWithImages.category}
-                            </div>
-                            {!productWithImages.inStock && (
-                                <div className={`${styles.StatusBadge} ${styles.OutOfStock}`}>
-                                    หมด
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className={styles.ProductInfo}>
-                        <div className={styles.ProductHeader}>
-                            <h3 className={styles.ProductTitle}>{productWithImages.title}</h3>
-                            <div className={styles.ProductPrice}>
-                                {productsService.formatPrice(productWithImages.price)}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.InfoSection}>
-                        <p className={styles.ProductDescription}>
-                            {productWithImages.description}
-                        </p>
-                        
-                        <div className={styles.ProductSpecs}>
-                            <h3 className={styles.SpecsTitle}>รายละเอียดสินค้า</h3>
-                            
-                            <div className={styles.SpecsList}>
-                                <div className={styles.SpecItem}>
-                                    <GoogleIcon iconType="location_on" size="small" className={styles.SpecIcon} />
-                                    <span className={styles.SpecLabel}>ที่อยู่:</span>
-                                    <span className={styles.SpecValue}>{productWithImages.address || 'ไม่ระบุ'}</span>
-                                </div>
-                                
-                                <div className={styles.SpecItem}>
-                                    <GoogleIcon iconType="inventory" size="small" className={styles.SpecIcon} />
-                                    <span className={styles.SpecLabel}>คงเหลือ:</span>
-                                    <span className={styles.SpecValue}>{productWithImages.stock_quantity || 0} ชิ้น</span>
-                                </div>
-                                
-                                <div className={styles.SpecItem}>
-                                    <GoogleIcon iconType="star" size="small" className={styles.SpecIcon} />
-                                    <span className={styles.SpecLabel}>หมวดหมู่:</span>
-                                    <span className={styles.SpecValue}>{productWithImages.category}</span>
-                                </div>
-                                
-                                <div className={styles.SpecItem}>
-                                    <GoogleIcon iconType="category" size="small" className={styles.SpecIcon} />
-                                    <span className={styles.SpecLabel}>ประเภท:</span>
-                                    <span className={styles.SpecValue}>{productWithImages.type}</span>
-                                </div>
-                                
-                                <div className={styles.SpecItem}>
-                                    <GoogleIcon 
-                                        iconType={productWithImages.inStock ? "check_circle" : "warning"} 
-                                        size="small" 
-                                        className={styles.SpecIcon} 
-                                    />
-                                    <span className={styles.SpecLabel}>สถานะ:</span>
-                                    <span className={`${styles.SpecValue} ${productWithImages.inStock ? styles.InStock : styles.OutOfStock}`}>
-                                        {productWithImages.inStock ? "มีสินค้า" : "สินค้าหมด"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className={styles.ActionSection}>
-                        <button
-                            className={`${styles.ReserveButton} ${!productWithImages.inStock ? styles.Disabled : ''}`}
-                            onClick={handlers.handleReserve}
-                            disabled={!productWithImages.inStock || isReserving}
-                        >
-                            {isReserving ? (
-                                <>
+                    <div className={styles.MainContent}>
+                        <div className={styles.ImageSection}>
+                            {imagesLoading ? (
+                                <div className={styles.ImageLoading}>
                                     <div className={styles.LoadingSpinner} />
-                                    กำลังจอง...
-                                </>
-                            ) : productWithImages.inStock ? (
-                                <>
-                                    <GoogleIcon iconType="shopping_cart" size="medium" />
-                                    {actionLabel}
-                                </>
+                                    <span>กำลังโหลดรูปภาพ...</span>
+                                </div>
                             ) : (
-                                <>
-                                    <GoogleIcon iconType="warning" size="medium" />
-                                    สินค้าหมด
-                                </>
+                                <ImageSlideshow 
+                                    images={productWithImages.images}
+                                    alt={productWithImages.title}
+                                    className={styles.ProductSlideshow}
+                                />
                             )}
-                        </button>
+                            
+                            <div className={styles.BadgeContainer}>
+                                <div className={`${styles.CategoryBadge}`}>
+                                    {productWithImages.category}
+                                </div>
+                                {!productWithImages.inStock && (
+                                    <div className={`${styles.StatusBadge} ${styles.OutOfStock}`}>
+                                        หมด
+                                    </div>
+                                )}
+                            </div>
+                             <div className={styles.ActionSection}>
+                                <button
+                                    className={`${styles.ReserveButton} ${!productWithImages.inStock ? styles.Disabled : ''}`}
+                                    onClick={handlers.handleReserve}
+                                    disabled={!productWithImages.inStock || isReserving}
+                                >
+                                    {isReserving ? (
+                                        <>
+                                            <div className={styles.LoadingSpinner} />
+                                            กำลังจอง...
+                                        </>
+                                    ) : productWithImages.inStock ? (
+                                        <>
+                                            <GoogleIcon iconType="shopping_cart" size="medium" />
+                                            {actionLabel}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <GoogleIcon iconType="warning" size="medium" />
+                                            สินค้าหมด
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className={styles.RightContent}>
+                            <div className={styles.ProductInfo}>
+                                <div className={styles.ProductHeader}>
+                                    <h3 className={styles.ProductTitle}>{productWithImages.title}</h3>
+                                    <div className={styles.ProductPrice}>
+                                        {productsService.formatPrice(productWithImages.price)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={styles.InfoSection}>
+                                <p className={styles.ProductDescription}>
+                                    {productWithImages.description}
+                                </p>
+                                
+                                <div className={styles.ProductSpecs}>
+                                    <h3 className={styles.SpecsTitle}>รายละเอียดสินค้า</h3>
+                                    
+                                    <div className={styles.SpecsList}>
+                                        <div className={styles.SpecItem}>
+                                            <GoogleIcon iconType="location_on" size="small" className={styles.SpecIcon} />
+                                            <span className={styles.SpecLabel}>ที่อยู่:</span>
+                                            <span className={styles.SpecValue}>{productWithImages.address || 'ไม่ระบุ'}</span>
+                                        </div>
+                                        
+                                        <div className={styles.SpecItem}>
+                                            <GoogleIcon iconType="inventory" size="small" className={styles.SpecIcon} />
+                                            <span className={styles.SpecLabel}>คงเหลือ:</span>
+                                            <span className={styles.SpecValue}>{productWithImages.stock_quantity || 0} ชิ้น</span>
+                                        </div>
+                                        
+                                        <div className={styles.SpecItem}>
+                                            <GoogleIcon iconType="star" size="small" className={styles.SpecIcon} />
+                                            <span className={styles.SpecLabel}>หมวดหมู่:</span>
+                                            <span className={styles.SpecValue}>{productWithImages.category}</span>
+                                        </div>
+                                        
+                                        <div className={styles.SpecItem}>
+                                            <GoogleIcon iconType="category" size="small" className={styles.SpecIcon} />
+                                            <span className={styles.SpecLabel}>ประเภท:</span>
+                                            <span className={styles.SpecValue}>{productWithImages.type}</span>
+                                        </div>
+                                        
+                                        <div className={styles.SpecItem}>
+                                            <GoogleIcon 
+                                                iconType={productWithImages.inStock ? "check_circle" : "warning"} 
+                                                size="small" 
+                                                className={styles.SpecIcon} 
+                                            />
+                                            <span className={styles.SpecLabel}>สถานะ:</span>
+                                            <span className={`${styles.SpecValue} ${productWithImages.inStock ? styles.InStock : styles.OutOfStock}`}>
+                                                {productWithImages.inStock ? "มีสินค้า" : "สินค้าหมด"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                           
+                        </div>
                     </div>
                 </div>
             </div>

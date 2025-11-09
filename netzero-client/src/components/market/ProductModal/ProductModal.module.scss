@@ -104,7 +104,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  overflow-y: auto;
+  overflow: hidden;
   flex: 1;
   min-height: 0;
 }
@@ -114,6 +114,15 @@
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+}
+
+.MainContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .Title {
@@ -127,15 +136,15 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
-  flex: 0 0 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .ProductSlideshow {
   width: 100%;
-  max-width: 600px;
-  height: 400px;
+  height: 300px;
+  min-height: 300px;
   border-radius: 16px;
   object-fit: cover;
   @include border-color-palette("primary-color-3", 2px);
@@ -143,11 +152,12 @@
 
 .BadgeContainer {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 12px;
+  left: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  z-index: 1;
 }
 
 .CategoryBadge {
@@ -176,8 +186,8 @@
 .InfoSection {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  flex: 2;
+  gap: 14px;
+  flex: 1;
   min-height: 0;
   overflow-y: auto;
   
@@ -192,14 +202,22 @@
   }
   
   &::-webkit-scrollbar-thumb {
-    @include bg-color-palette("primary-color-2");
+    @include bg-color-palette("primary-color-3");
     border-radius: 3px;
     opacity: 0.7;
     
     &:hover {
-      @include bg-color-palette("primary-color-1");
+      @include bg-color-palette("primary-color-2");
     }
   }
+}
+
+.RightContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .ProductInfo {
@@ -384,9 +402,14 @@
     width: 85vw;
   }
   
+  .MainContent {
+    grid-template-columns: 45% 55%;
+    gap: 20px;
+  }
+  
   .ProductSlideshow {
-    height: 350px;
-    max-width: 500px;
+    min-height: 200px;
+    max-height: 200px;
   }
   
   .SpecsList {
@@ -405,8 +428,14 @@
   .ModalContent {
     padding: 16px;
     gap: 12px;
-    max-height: 85vh;
     overflow-y: auto;
+  }
+  
+  .MainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: visible;
   }
   
   .Header {
@@ -417,9 +446,18 @@
     @include font-size-palette("headline-5");
   }
   
+  .ImageSection {
+    flex: none;
+  }
+  
   .ProductSlideshow {
     height: 250px;
-    max-width: 100%;
+    width: 100%;
+    min-height: 250px;
+  }
+  
+  .RightContent {
+    overflow: visible;
   }
   
   .ProductInfo {
@@ -433,6 +471,7 @@
   
   .InfoSection {
     gap: 12px;
+    overflow: visible;
   }
   
   .ProductSpecs {
@@ -459,6 +498,10 @@
     gap: 8px;
   }
   
+  .MainContent {
+    gap: 12px;
+  }
+  
   .CloseButton {
     top: 8px;
     right: 8px;
@@ -466,8 +509,8 @@
   }
   
   .ProductSlideshow {
-    height: 200px;
-    max-width: 100%;
+    height: 180px;
+    min-height: 180px;
   }
   
   .ProductInfo {
