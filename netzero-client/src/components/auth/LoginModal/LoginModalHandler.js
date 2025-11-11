@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import AuthService from '../../../api/auth';
-import UserService from '../../../api/users';
+import { validateEmail, validatePassword } from '../../../utils/authValidation';
 
 export default function LoginModalHandler({
     formData,
@@ -48,7 +47,7 @@ export default function LoginModalHandler({
         // Email validation
         if (!formData.email) {
             errors.email = 'Email is required';
-        } else if (!AuthService.validateEmail(formData.email)) {
+        } else if (!validateEmail(formData.email)) {
             errors.email = 'Please enter a valid email address';
         }
 
@@ -56,7 +55,7 @@ export default function LoginModalHandler({
         if (!formData.password) {
             errors.password = 'Password is required';
         } else if (isRegisterMode) {
-            const passwordValidation = AuthService.validatePassword(formData.password);
+            const passwordValidation = validatePassword(formData.password);
             if (!passwordValidation.isValid) {
                 errors.password = passwordValidation.errors[0];
             }

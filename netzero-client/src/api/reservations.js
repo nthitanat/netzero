@@ -447,5 +447,5 @@ class ReservationsService {
 // Export singleton instance
 export const reservationsService = new ReservationsService();
 
-// Export additional utilities
-export { ReservationsService };
+// Export as default for flexibility
+export default reservationsService;

@@ -266,5 +266,5 @@ class UserEventsService {
 // Export singleton instance
 export const userEventsService = new UserEventsService();
 
-// Export class for testing
-export { UserEventsService };
+// Export as default for flexibility
+export default userEventsService;

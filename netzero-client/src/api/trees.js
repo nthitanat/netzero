@@ -266,18 +266,6 @@ class TreesService {
 
 // Create and export service instance
 export const treesService = new TreesService();
-export { TreesService };
 
-// Individual function exports for convenience
-export const {
-  getAllTrees,
-  getTreeByName,
-  getTreeStats,
-  getTreeLocations,
-  getTreeInfo,
-  searchTrees,
-  getTreeImage,
-  updateTree,
-  createTree,
-  deleteTree
-} = treesService;
+// Export as default for flexibility
+export default treesService;

@@ -296,3 +296,6 @@ class ChatService {
 }
 
 export const chatService = new ChatService();
+
+// Export as default for flexibility
+export default chatService;

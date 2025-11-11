@@ -1,4 +1,4 @@
-import { treesService } from '../api/trees.js';
+import { treesService } from '../api';
 import treeDataJson from '../data/treeData.json';
 
 /**

@@ -1,4 +1,4 @@
-import { reservationsService } from "../../api/reservations";
+import { reservationsService } from "../../api";
 
 const MyOrdersHandler = (stateMyOrders, setMyOrders, navigate) => {
   

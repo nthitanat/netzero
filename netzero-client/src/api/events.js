@@ -555,5 +555,5 @@ class EventsService {
 // Export singleton instance
 export const eventsService = new EventsService();
 
-// Export additional utilities
-export { EventsService };
+// Export as default for flexibility
+export default eventsService;

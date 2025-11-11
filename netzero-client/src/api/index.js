@@ -7,21 +7,21 @@ import { locationTreesService } from './locationTrees.js';
 import { chatService } from './chat.js';
 import { eventProductsService } from './eventProducts.js';
 import { userEventsService } from './userEvents.js';
-import AuthService, { authService } from './auth.js';
-import UserService from './users.js';
+import { authService } from './auth.js';
+import { userService } from './users.js';
 
 // API Services Export
 export { axiosInstance } from './client.js';
-export { eventsService, EventsService } from './events.js';
-export { productsService, ProductsService } from './products.js';
-export { reservationsService, ReservationsService } from './reservations.js';
-export { treesService, TreesService } from './trees.js';
-export { locationTreesService, LocationTreesService } from './locationTrees.js';
+export { eventsService } from './events.js';
+export { productsService } from './products.js';
+export { reservationsService } from './reservations.js';
+export { treesService } from './trees.js';
+export { locationTreesService } from './locationTrees.js';
 export { chatService } from './chat.js';
-export { eventProductsService, EventProductsService } from './eventProducts.js';
-export { userEventsService, UserEventsService } from './userEvents.js';
-export { authService, default as AuthService } from './auth.js';
-export { default as UserService } from './users.js';
+export { eventProductsService } from './eventProducts.js';
+export { userEventsService } from './userEvents.js';
+export { authService } from './auth.js';
+export { userService } from './users.js';
 export { 
   ApiResponse, 
   PaginatedResponse, 
@@ -43,5 +43,5 @@ export const api = {
   eventProducts: eventProductsService,
   userEvents: userEventsService,
   auth: authService,
-  users: UserService,
+  users: userService,
 };

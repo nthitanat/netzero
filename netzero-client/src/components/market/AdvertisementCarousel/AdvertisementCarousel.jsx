@@ -3,7 +3,7 @@ import styles from "./AdvertisementCarousel.module.scss";
 import useAdvertisementCarousel from "./useAdvertisementCarousel";
 import AdvertisementCarouselHandler from "./AdvertisementCarouselHandler";
 import { BaseSlideshow } from "../../common";
-import { productsService } from "../../../api/products";
+import { productsService } from "../../../api";
 
 export default function AdvertisementCarousel({ advertisements, onAdClick, className = "", theme = "market" }) {
     const { stateAdvertisementCarousel, setAdvertisementCarousel } = useAdvertisementCarousel();

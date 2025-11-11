@@ -128,10 +128,8 @@ class EventProductsService {
   }
 }
 
-// Create singleton instance
-const eventProductsService = new EventProductsService();
+// Create and export singleton instance
+export const eventProductsService = new EventProductsService();
 
-// Export both the class and the instance
-export { EventProductsService };
-export { eventProductsService };
+// Export as default for flexibility
 export default eventProductsService;

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { eventsService } from "../../api/events";
-import { userEventsService } from "../../api/userEvents";
+import { eventsService, userEventsService } from "../../api";
 import { useAuth } from "../../contexts/AuthContext";
 
 const EventDashboardHandler = (stateEventDashboard, setEventDashboard, navigate) => {

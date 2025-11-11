@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import AuthService from '../api/auth';
-import UserService from '../api/users';
+import { authService, userService } from '../api';
 
 // Action types for authentication state management
 const AUTH_ACTIONS = {
@@ -88,9 +87,9 @@ export const AuthProvider = ({ children }) => {
 
       try {
         // Check if user is already authenticated
-        if (AuthService.isAuthenticated() && !AuthService.isTokenExpired()) {
+        if (authService.isAuthenticated() && !authService.isTokenExpired()) {
           // Verify token with server
-          const response = await AuthService.verifyToken();
+          const response = await authService.verifyToken();
           if (response.success && response.data.user) {
             dispatch({ type: AUTH_ACTIONS.SET_USER, payload: response.data.user });
           } else {
@@ -98,12 +97,12 @@ export const AuthProvider = ({ children }) => {
           }
         } else {
           // Clear any invalid auth data
-          AuthService.clearAuthData();
+          authService.clearAuthData();
           dispatch({ type: AUTH_ACTIONS.SET_USER, payload: null });
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        AuthService.clearAuthData();
+        authService.clearAuthData();
         dispatch({ type: AUTH_ACTIONS.SET_USER, payload: null });
       }
     };
@@ -139,7 +138,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
-      const response = await AuthService.login(credentials);
+      const response = await authService.login(credentials);
       
       if (response.success && response.data.user) {
         dispatch({ type: AUTH_ACTIONS.SET_USER, payload: response.data.user });
@@ -160,7 +159,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
-      const response = await AuthService.register(userData);
+      const response = await authService.register(userData);
       
       if (response.success && response.data.user) {
         dispatch({ type: AUTH_ACTIONS.SET_USER, payload: response.data.user });
@@ -178,7 +177,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = useCallback(async () => {
     try {
-      await AuthService.logout();
+      await authService.logout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -191,7 +190,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
-      const response = await UserService.updateCurrentUser(userData);
+      const response = await userService.updateCurrentUser(userData);
       
       if (response.success && response.data.user) {
         dispatch({ type: AUTH_ACTIONS.UPDATE_USER, payload: response.data.user });
@@ -211,7 +210,7 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
-      const response = await UserService.updateCurrentUserPassword(passwordData);
+      const response = await userService.updateCurrentUserPassword(passwordData);
       
       if (response.success) {
         return { success: true, message: response.message };
@@ -226,38 +225,33 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Delete account function
-  const deleteAccount = useCallback(async (confirmationEmail) => {
+  const deleteAccount = useCallback(async () => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
 
     try {
-      // Validate email confirmation
-      if (!confirmationEmail || confirmationEmail !== state.user?.email) {
-        throw new Error('Email confirmation does not match your account email');
-      }
-
-      const response = await UserService.deleteCurrentUser();
+      const response = await userService.deleteCurrentUser();
       
       if (response.success) {
         dispatch({ type: AUTH_ACTIONS.LOGOUT });
         return { success: true, message: response.message };
       } else {
-        throw new Error(response.message || 'Account deletion failed');
+        throw new Error('Account deletion failed');
       }
     } catch (error) {
       const errorMessage = error.message || 'Account deletion failed. Please try again.';
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  }, [state.user?.email]);
+  }, []);
 
-  // Refresh user data function
+  // Refresh user data
   const refreshUser = useCallback(async () => {
     try {
-      const response = await UserService.getCurrentUser();
+      const response = await userService.getCurrentUser();
       
       if (response.success && response.data.user) {
-        dispatch({ type: AUTH_ACTIONS.UPDATE_USER, payload: response.data.user });
-        return { success: true, user: response.data.user };
+        dispatch({ type: AUTH_ACTIONS.SET_USER, payload: response.data.user });
+        return { success: true };
       } else {
         throw new Error('Failed to refresh user data');
       }
@@ -284,12 +278,12 @@ export const AuthProvider = ({ children }) => {
 
   // Get user display name
   const getDisplayName = useCallback(() => {
-    return UserService.getDisplayName(state.user);
+    return userService.getDisplayName(state.user);
   }, [state.user]);
 
   // Get user initials
   const getUserInitials = useCallback(() => {
-    return UserService.getUserInitials(state.user);
+    return userService.getUserInitials(state.user);
   }, [state.user]);
 
   // Context value

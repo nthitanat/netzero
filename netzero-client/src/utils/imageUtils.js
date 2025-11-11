@@ -1,4 +1,4 @@
-import { eventsService } from '../api/events.js';
+import { eventsService } from '../api';
 
 /**
  * Event image utilities for working with API image endpoints

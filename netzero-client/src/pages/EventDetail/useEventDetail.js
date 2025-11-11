@@ -6,8 +6,6 @@ const useEventDetail = (eventId) => {
     event: null,
     isLoading: true,
     error: null,
-    isSaved: false,
-    isRegistered: false,
   });
 
   const setEventDetail = (field, value) => {
@@ -50,9 +48,6 @@ const useEventDetail = (eventId) => {
           event: eventResponse.data,
           isLoading: false,
           error: null,
-          // Check if event is already saved (from localStorage)
-          isSaved: localStorage.getItem(`event_saved_${eventId}`) === 'true',
-          isRegistered: localStorage.getItem(`event_registered_${eventId}`) === 'true',
         }));
       }
     } catch (error) {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { storageService } from '../utils/storage';
 
 // Determine base URL based on environment
 const getBaseURL = () => {
@@ -24,8 +25,8 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Add auth token if available
-    const token = localStorage.getItem('authToken');
+    // Add auth token if available (use storageService directly)
+    const token = storageService.getAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -77,9 +78,8 @@ axiosInstance.interceptors.response.use(
     
     // Handle common error scenarios
     if (error.response?.status === 401) {
-      // Unauthorized - clear auth data and dispatch event
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
+      // Unauthorized - clear auth data using storageService directly
+      storageService.clearAuthData();
       
       // Dispatch custom event for auth context to handle
       window.dispatchEvent(new CustomEvent('auth:unauthorized', {

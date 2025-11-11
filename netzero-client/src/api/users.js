@@ -1,26 +1,32 @@
 import { axiosInstance } from './client';
-import AuthService from './auth';
-
-// User endpoints
-const USER_ENDPOINTS = {
-  GET_CURRENT_USER: '/api/v1/users/me',
-  GET_ALL_USERS: '/api/v1/users',
-  GET_USER_BY_ID: (id) => `/api/v1/users/${id}`,
-  UPDATE_USER: (id) => `/api/v1/users/${id}`,
-  UPDATE_PASSWORD: (id) => `/api/v1/users/${id}/password`,
-  DELETE_USER: (id) => `/api/v1/users/${id}`
-};
+import { authService } from './auth';
+import { storageService } from '../utils/storage';
 
 class UserService {
+  constructor() {
+    // User endpoints
+    this.endpoints = {
+      GET_CURRENT_USER: '/api/v1/users/me',
+      GET_ALL_USERS: '/api/v1/users',
+      GET_USER_BY_ID: (id) => `/api/v1/users/${id}`,
+      UPDATE_USER: (id) => `/api/v1/users/${id}`,
+      UPDATE_PASSWORD: (id) => `/api/v1/users/${id}/password`,
+      DELETE_USER: (id) => `/api/v1/users/${id}`
+    };
+    
+    // Keep for backward compatibility
+    this.userDataKey = storageService.authKeys.USER_DATA;
+  }
+
   // Get current user profile
-  static async getCurrentUser() {
+  async getCurrentUser() {
     try {
-      const headers = AuthService.getAuthHeaders();
-      const response = await axiosInstance.get(USER_ENDPOINTS.GET_CURRENT_USER, { headers });
+      const headers = authService.getAuthHeaders();
+      const response = await axiosInstance.get(this.endpoints.GET_CURRENT_USER, { headers });
       
       if (response.data.success && response.data.data.user) {
-        // Update stored user data
-        localStorage.setItem('userData', JSON.stringify(response.data.data.user));
+        // Update stored user data using centralized storage
+        storageService.setUserData(response.data.data.user);
       }
       
       return response.data;
@@ -31,10 +37,10 @@ class UserService {
   }
 
   // Get all users (admin only)
-  static async getAllUsers(page = 1, limit = 20) {
+  async getAllUsers(page = 1, limit = 20) {
     try {
-      const headers = AuthService.getAuthHeaders();
-      const response = await axiosInstance.get(USER_ENDPOINTS.GET_ALL_USERS, {
+      const headers = authService.getAuthHeaders();
+      const response = await axiosInstance.get(this.endpoints.GET_ALL_USERS, {
         headers,
         params: { page, limit }
       });
@@ -47,10 +53,10 @@ class UserService {
   }
 
   // Get user by ID
-  static async getUserById(userId) {
+  async getUserById(userId) {
     try {
-      const headers = AuthService.getAuthHeaders();
-      const response = await axiosInstance.get(USER_ENDPOINTS.GET_USER_BY_ID(userId), { headers });
+      const headers = authService.getAuthHeaders();
+      const response = await axiosInstance.get(this.endpoints.GET_USER_BY_ID(userId), { headers });
       
       return response.data;
     } catch (error) {
@@ -60,15 +66,15 @@ class UserService {
   }
 
   // Update user profile
-  static async updateUser(userId, userData) {
+  async updateUser(userId, userData) {
     try {
-      const headers = AuthService.getAuthHeaders();
-      const response = await axiosInstance.put(USER_ENDPOINTS.UPDATE_USER(userId), userData, { headers });
+      const headers = authService.getAuthHeaders();
+      const response = await axiosInstance.put(this.endpoints.UPDATE_USER(userId), userData, { headers });
       
-      // If updating current user, update stored data
-      const currentUser = AuthService.getUserData();
+      // If updating current user, update stored data using centralized storage
+      const currentUser = authService.getUserData();
       if (currentUser && currentUser.id === parseInt(userId)) {
-        localStorage.setItem('userData', JSON.stringify(response.data.data.user));
+        storageService.setUserData(response.data.data.user);
       }
       
       return response.data;
@@ -79,11 +85,11 @@ class UserService {
   }
 
   // Update user password
-  static async updatePassword(userId, passwordData) {
+  async updatePassword(userId, passwordData) {
     try {
-      const headers = AuthService.getAuthHeaders();
+      const headers = authService.getAuthHeaders();
       const response = await axiosInstance.put(
-        USER_ENDPOINTS.UPDATE_PASSWORD(userId), 
+        this.endpoints.UPDATE_PASSWORD(userId), 
         passwordData, 
         { headers }
       );
@@ -96,15 +102,15 @@ class UserService {
   }
 
   // Delete user account (soft delete)
-  static async deleteUser(userId) {
+  async deleteUser(userId) {
     try {
-      const headers = AuthService.getAuthHeaders();
-      const response = await axiosInstance.delete(USER_ENDPOINTS.DELETE_USER(userId), { headers });
+      const headers = authService.getAuthHeaders();
+      const response = await axiosInstance.delete(this.endpoints.DELETE_USER(userId), { headers });
       
       // If deleting current user, clear auth data
-      const currentUser = AuthService.getUserData();
+      const currentUser = authService.getUserData();
       if (currentUser && currentUser.id === parseInt(userId)) {
-        AuthService.clearAuthData();
+        authService.clearAuthData();
       }
       
       return response.data;
@@ -115,8 +121,8 @@ class UserService {
   }
 
   // Update current user profile (convenience method)
-  static async updateCurrentUser(userData) {
-    const currentUser = AuthService.getUserData();
+  async updateCurrentUser(userData) {
+    const currentUser = authService.getUserData();
     if (!currentUser) {
       throw new Error('No authenticated user found');
     }
@@ -125,8 +131,8 @@ class UserService {
   }
 
   // Update current user password (convenience method)
-  static async updateCurrentUserPassword(passwordData) {
-    const currentUser = AuthService.getUserData();
+  async updateCurrentUserPassword(passwordData) {
+    const currentUser = authService.getUserData();
     if (!currentUser) {
       throw new Error('No authenticated user found');
     }
@@ -135,8 +141,8 @@ class UserService {
   }
 
   // Delete current user account (convenience method)
-  static async deleteCurrentUser() {
-    const currentUser = AuthService.getUserData();
+  async deleteCurrentUser() {
+    const currentUser = authService.getUserData();
     if (!currentUser) {
       throw new Error('No authenticated user found');
     }
@@ -145,8 +151,8 @@ class UserService {
   }
 
   // Check if current user can access a specific user's data
-  static canAccessUser(userId) {
-    const currentUser = AuthService.getUserData();
+  canAccessUser(userId) {
+    const currentUser = authService.getUserData();
     if (!currentUser) return false;
     
     // User can access their own data or admin can access any user data
@@ -154,12 +160,12 @@ class UserService {
   }
 
   // Check if current user can modify a specific user's data
-  static canModifyUser(userId) {
+  canModifyUser(userId) {
     return this.canAccessUser(userId); // Same logic for now
   }
 
   // Validate user data
-  static validateUserData(userData) {
+  validateUserData(userData) {
     const errors = [];
     
     if (userData.firstName) {
@@ -206,7 +212,7 @@ class UserService {
   }
 
   // Validate password data
-  static validatePasswordData(passwordData) {
+  validatePasswordData(passwordData) {
     const errors = [];
     
     if (!passwordData.currentPassword) {
@@ -215,11 +221,6 @@ class UserService {
     
     if (!passwordData.newPassword) {
       errors.push('New password is required');
-    } else {
-      const passwordValidation = AuthService.validatePassword(passwordData.newPassword);
-      if (!passwordValidation.isValid) {
-        errors.push(...passwordValidation.errors);
-      }
     }
     
     if (passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword) {
@@ -233,14 +234,14 @@ class UserService {
   }
 
   // Handle user service errors
-  static handleUserError(error) {
+  handleUserError(error) {
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
       
       if (status === 401) {
         // Unauthorized - clear auth data
-        AuthService.clearAuthData();
+        authService.clearAuthData();
       }
       
       return {
@@ -266,7 +267,7 @@ class UserService {
   }
 
   // Format user display name
-  static getDisplayName(user) {
+  getDisplayName(user) {
     if (!user) return 'Unknown User';
     
     const firstName = user.firstName || '';
@@ -284,7 +285,7 @@ class UserService {
   }
 
   // Get user initials for avatar
-  static getUserInitials(user) {
+  getUserInitials(user) {
     if (!user) return 'UU';
     
     const firstName = user.firstName || '';
@@ -304,7 +305,7 @@ class UserService {
   }
 
   // Check if user profile is complete
-  static isProfileComplete(user) {
+  isProfileComplete(user) {
     if (!user) return false;
     
     return !!(
@@ -316,7 +317,7 @@ class UserService {
   }
 
   // Get user role display name
-  static getRoleDisplayName(role) {
+  getRoleDisplayName(role) {
     switch (role) {
       case 'admin':
         return 'Administrator';
@@ -328,4 +329,6 @@ class UserService {
   }
 }
 
-export default UserService;
+// Export singleton instance as default and named export
+export const userService = new UserService();
+export default userService;

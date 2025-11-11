@@ -4,20 +4,25 @@ import styles from './Profile.module.scss';
 import { FloatingNavBar, OrganicDecoration } from '../../components/common';
 import { UserModal } from '../../components/auth';
 import { useAuth } from '../../contexts/AuthContext';
-import UserService from '../../api/users';
+import { getRoleDisplayName, isProfileComplete } from '../../utils/userFormatting';
 
 export default function Profile() {
     const navigate = useNavigate();
     const { userId } = useParams();
-    const { user: currentUser, isAuthenticated, isLoading: authLoading } = useAuth();
-    const [profileData, setProfileData] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const { 
+        user: currentUser, 
+        isAuthenticated, 
+        isLoading: authLoading,
+        getDisplayName,
+        getUserInitials,
+        refreshUser
+    } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     // Determine if viewing own profile or another user's profile
     const isOwnProfile = !userId || (currentUser && currentUser.id === parseInt(userId));
-    const targetUserId = userId || currentUser?.id;
 
     useEffect(() => {
         // Redirect to login if not authenticated
@@ -26,37 +31,26 @@ export default function Profile() {
             return;
         }
 
-        // Load profile data
-        if (isAuthenticated && targetUserId) {
+        // For own profile, refresh user data if needed
+        if (isAuthenticated && isOwnProfile && !userId) {
             loadProfileData();
         }
-    }, [isAuthenticated, authLoading, targetUserId, navigate]);
+
+        // Viewing another user's profile is not supported in this implementation
+        // You would need to add a getUserById method to AuthContext or use a separate API
+        if (userId && !isOwnProfile) {
+            setError('Viewing other user profiles is not supported yet.');
+        }
+    }, [isAuthenticated, authLoading, userId, isOwnProfile, navigate]);
 
     const loadProfileData = async () => {
         try {
             setIsLoading(true);
             setError(null);
-
-            let response;
-            if (isOwnProfile) {
-                response = await UserService.getCurrentUser();
-            } else {
-                response = await UserService.getUserById(targetUserId);
-            }
-
-            if (response.success && response.data.user) {
-                setProfileData(response.data.user);
-            } else {
-                throw new Error(response.message || 'Failed to load profile');
-            }
+            await refreshUser();
         } catch (error) {
             console.error('Profile load error:', error);
             setError(error.message || 'Failed to load profile');
-            
-            // If user not found or access denied, redirect to home
-            if (error.status === 404 || error.status === 403) {
-                navigate('/');
-            }
         } finally {
             setIsLoading(false);
         }
@@ -81,7 +75,8 @@ export default function Profile() {
     };
 
     const handleProfileUpdate = async (updatedData) => {
-        setProfileData(updatedData);
+        // Reload profile data after update
+        await loadProfileData();
         setShowUpdateModal(false);
     };
 
@@ -94,21 +89,8 @@ export default function Profile() {
         });
     };
 
-    const getDisplayName = () => {
-        return UserService.getDisplayName(profileData);
-    };
-
-    const getUserInitials = () => {
-        return UserService.getUserInitials(profileData);
-    };
-
-    const getRoleDisplayName = () => {
-        return UserService.getRoleDisplayName(profileData?.role);
-    };
-
-    const isProfileComplete = () => {
-        return UserService.isProfileComplete(profileData);
-    };
+    // Use currentUser from context instead of profileData
+    const profileData = currentUser;
 
     // Loading state
     if (authLoading || isLoading) {
@@ -173,11 +155,11 @@ export default function Profile() {
                         <p className={styles.profileEmail}>
                             {profileData?.email}
                         </p>
-                        <div className={styles.profileRole}>
+                        <p className={styles.profileRole}>
                             <span className={`${styles.roleBadge} ${styles[profileData?.role]}`}>
-                                {getRoleDisplayName()}
+                                {getRoleDisplayName(profileData?.role)}
                             </span>
-                        </div>
+                        </p>
                     </div>
 
                     {isOwnProfile && (
@@ -192,7 +174,7 @@ export default function Profile() {
                     )}
                 </div>
 
-                {!isProfileComplete() && isOwnProfile && (
+                {!isProfileComplete(profileData) && isOwnProfile && (
                     <div className={styles.profileIncomplete}>
                         <div className={styles.incompleteIcon}>ℹ️</div>
                         <div className={styles.incompleteContent}>

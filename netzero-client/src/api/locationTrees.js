@@ -394,16 +394,6 @@ class LocationTreesService {
 
 // Create and export service instance
 export const locationTreesService = new LocationTreesService();
-export { LocationTreesService };
 
-// Individual function exports for convenience
-export const {
-  getAllLocations,
-  getAllTrees,
-  getTreesByLocation,
-  getLocationsByTree,
-  getLocationDetails,
-  getTreeDetails,
-  getLocationMarkers,
-  search
-} = locationTreesService;
+// Export as default for flexibility
+export default locationTreesService;

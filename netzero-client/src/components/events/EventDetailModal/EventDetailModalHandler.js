@@ -1,4 +1,4 @@
-import { eventsService } from "../../../api/events";
+import { eventsService } from "../../../api";
 
 const EventDetailModalHandler = (stateEventDetail, setEventDetail, onClose) => {
   
@@ -6,56 +6,6 @@ const EventDetailModalHandler = (stateEventDetail, setEventDetail, onClose) => {
     handleClose: () => {
       if (onClose) {
         onClose();
-      }
-    },
-    
-    handleRegister: async () => {
-      const { event } = stateEventDetail;
-      
-      if (!event) return;
-
-      try {
-        // Check registration status first
-        const statusResponse = await eventsService.getEventRegistrationStatus(event.id);
-        const registrationStatus = statusResponse.data;
-
-        if (!registrationStatus.canRegister) {
-          let message = 'Registration is not available for this event.';
-          if (registrationStatus.isFullyBooked) {
-            message = 'Sorry, this event is fully booked.';
-          } else if (registrationStatus.registrationClosed) {
-            message = 'Registration deadline has passed.';
-          } else if (registrationStatus.eventPassed) {
-            message = 'This event has already taken place.';
-          }
-          alert(message);
-          return;
-        }
-
-        // For demo purposes, use mock registration data
-        // In a real app, this would come from a registration form
-        const registrationData = {
-          name: "Demo User",
-          email: "demo@example.com",
-          phone: "123-456-7890"
-        };
-
-        setEventDetail("isRegistering", true);
-        
-        const response = await eventsService.registerForEvent(event.id, registrationData);
-        
-        if (response.status === 'success') {
-          setEventDetail("isRegistered", true);
-          localStorage.setItem(`event_registered_${event.id}`, 'true');
-          
-          alert(`Successfully registered for "${event.title}"! Registration ID: ${response.data.id}`);
-        }
-        
-      } catch (error) {
-        console.error('Registration failed:', error);
-        alert(error.message || 'Failed to register for event. Please try again.');
-      } finally {
-        setEventDetail("isRegistering", false);
       }
     },
     
@@ -76,31 +26,9 @@ const EventDetailModalHandler = (stateEventDetail, setEventDetail, onClose) => {
           alert('Event link copied to clipboard!');
         }).catch(err => {
           console.error('Failed to copy link:', err);
-          alert('Unable to copy link. Please share manually.');
+          alert('Unable to share link.');
         });
       }
-    },
-    
-    handleSave: () => {
-      const { event, isSaved } = stateEventDetail;
-      
-      if (!event) return;
-      
-      const newSavedState = !isSaved;
-      setEventDetail("isSaved", newSavedState);
-      
-      // Persist to localStorage
-      if (newSavedState) {
-        localStorage.setItem(`event_saved_${event.id}`, 'true');
-      } else {
-        localStorage.removeItem(`event_saved_${event.id}`);
-      }
-      
-      // Show feedback
-      const message = newSavedState 
-        ? 'Event saved to your favorites!' 
-        : 'Event removed from favorites.';
-      console.log(message);
     },
     
     handleDownloadCalendar: () => {

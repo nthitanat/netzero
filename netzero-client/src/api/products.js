@@ -504,5 +504,5 @@ class ProductsService {
 // Export singleton instance
 export const productsService = new ProductsService();
 
-// Export additional utilities
-export { ProductsService };
+// Export as default for flexibility
+export default productsService;

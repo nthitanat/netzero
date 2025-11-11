@@ -1,4 +1,4 @@
-import { chatService } from "../../../api/chat";
+import { chatService } from "../../../api";
 
 const ChatModalHandler = (stateChatModal, setChatModal, onClose, chatApp, addMessage) => {
   return {
