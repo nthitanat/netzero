@@ -26,68 +26,68 @@ echo ""
 
 echo "📊 2. Checking MySQL data directory size..."
 echo "-------------------------------------------"
-docker exec $CONTAINER_NAME du -sh /var/lib/mysql/ 2>/dev/null || echo "⚠️  Could not check MySQL data directory (might be on host)"
+sudo docker exec $CONTAINER_NAME du -sh /var/lib/mysql/ 2>/dev/null || echo "⚠️  Could not check MySQL data directory (might be on host)"
 echo ""
 
 echo "📊 3. Checking number of tables in database..."
 echo "----------------------------------------------"
-TABLE_COUNT=$(docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema='$DB_NAME';" -s -N 2>/dev/null)
+TABLE_COUNT=$(sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema='$DB_NAME';" -s -N 2>/dev/null)
 echo "Current tables in $DB_NAME: $TABLE_COUNT"
 echo ""
 
 echo "📊 4. Checking InnoDB status..."
 echo "-------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'innodb_file_per_table';" 2>/dev/null
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'innodb_data_file_path';" 2>/dev/null
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'innodb_autoextend_increment';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'innodb_file_per_table';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'innodb_data_file_path';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'innodb_autoextend_increment';" 2>/dev/null
 echo ""
 
 echo "📊 5. Checking InnoDB tablespace info..."
 echo "----------------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SELECT name, file_size/1024/1024 as 'Size_MB', allocated_size/1024/1024 as 'Allocated_MB' FROM information_schema.innodb_sys_tablespaces WHERE name='$DB_NAME/surveys' OR name LIKE 'innodb%';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SELECT name, file_size/1024/1024 as 'Size_MB', allocated_size/1024/1024 as 'Allocated_MB' FROM information_schema.innodb_sys_tablespaces WHERE name='$DB_NAME/surveys' OR name LIKE 'innodb%';" 2>/dev/null
 echo ""
 
 echo "📊 6. Checking open file limits..."
 echo "----------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'open_files_limit';" 2>/dev/null
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW GLOBAL STATUS LIKE 'Open_files';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'open_files_limit';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW GLOBAL STATUS LIKE 'Open_files';" 2>/dev/null
 echo ""
 
 echo "📊 7. Checking table limits..."
 echo "------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'table_open_cache';" 2>/dev/null
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW GLOBAL STATUS LIKE 'Open_tables';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW VARIABLES LIKE 'table_open_cache';" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW GLOBAL STATUS LIKE 'Open_tables';" 2>/dev/null
 echo ""
 
 echo "📊 8. Checking MySQL error log (last 20 lines)..."
 echo "-------------------------------------------------"
-docker exec $CONTAINER_NAME tail -20 /var/log/mysql/error.log 2>/dev/null || echo "⚠️  Could not access MySQL error log"
+sudo docker exec $CONTAINER_NAME tail -20 /var/log/mysql/error.log 2>/dev/null || echo "⚠️  Could not access MySQL error log"
 echo ""
 
 echo "📊 9. Checking existing tables in database..."
 echo "---------------------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW TABLES;" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW TABLES;" 2>/dev/null
 echo ""
 
 echo "📊 10. Checking if surveys table exists (corrupted)..."
 echo "------------------------------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW CREATE TABLE surveys;" 2>/dev/null && echo "✅ surveys table exists" || echo "❌ surveys table does not exist"
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW CREATE TABLE surveys;" 2>/dev/null && echo "✅ surveys table exists" || echo "❌ surveys table does not exist"
 echo ""
 
 echo "📊 11. Checking MySQL version and engine..."
 echo "-------------------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SELECT VERSION();" 2>/dev/null
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW ENGINES;" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SELECT VERSION();" 2>/dev/null
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW ENGINES;" 2>/dev/null
 echo ""
 
 echo "📊 12. Checking for InnoDB errors..."
 echo "------------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW ENGINE INNODB STATUS\G" 2>/dev/null | grep -A 20 "LATEST DETECTED DEADLOCK\|LATEST FOREIGN KEY ERROR"
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SHOW ENGINE INNODB STATUS\G" 2>/dev/null | grep -A 20 "LATEST DETECTED DEADLOCK\|LATEST FOREIGN KEY ERROR"
 echo ""
 
 echo "📊 13. Attempting to create surveys table manually..."
 echo "----------------------------------------------------"
-docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
+sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
 CREATE TABLE IF NOT EXISTS surveys_test (
   survey_id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS surveys_test (
 
 if [ $? -eq 0 ]; then
     echo "✅ Test table creation succeeded - cleaning up..."
-    docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "DROP TABLE IF EXISTS surveys_test;" 2>/dev/null
+    sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "DROP TABLE IF EXISTS surveys_test;" 2>/dev/null
 else
     echo "❌ Test table creation failed with same error"
 fi
@@ -108,7 +108,7 @@ echo ""
 
 echo "📊 14. Checking temp directory space..."
 echo "---------------------------------------"
-docker exec $CONTAINER_NAME df -h /tmp 2>/dev/null || df -h /tmp
+sudo docker exec $CONTAINER_NAME df -h /tmp 2>/dev/null || df -h /tmp
 echo ""
 
 echo "✅ Diagnostic complete!"
