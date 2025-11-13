@@ -10,6 +10,12 @@ const UserEvent = require('./models/UserEvent');
 const EventProduct = require('./models/EventProduct');
 const ChatApp = require('./models/ChatApp');
 
+// Survey models
+const Survey = require('./models/survey/Survey');
+const Question = require('./models/survey/Question');
+const Response = require('./models/survey/Response');
+const Answer = require('./models/survey/Answer');
+
 /**
  * Get schemas from all models
  */
@@ -57,6 +63,31 @@ function getAllModelSchemas() {
     schemas.push(ChatApp.getSchema());
   } catch (error) {
     console.warn('Could not get ChatApp schema:', error.message);
+  }
+
+  // Survey models
+  try {
+    schemas.push(Survey.getSchema());
+  } catch (error) {
+    console.warn('Could not get Survey schema:', error.message);
+  }
+  
+  try {
+    schemas.push(Question.getSchema());
+  } catch (error) {
+    console.warn('Could not get Question schema:', error.message);
+  }
+  
+  try {
+    schemas.push(Response.getSchema());
+  } catch (error) {
+    console.warn('Could not get Response schema:', error.message);
+  }
+  
+  try {
+    schemas.push(Answer.getSchema());
+  } catch (error) {
+    console.warn('Could not get Answer schema:', error.message);
   }
   
   return schemas;

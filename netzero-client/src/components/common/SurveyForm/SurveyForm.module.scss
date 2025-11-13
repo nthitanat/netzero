@@ -1,0 +1,102 @@
+@import "src/styles/main";
+
+.Container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.Header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.Title {
+  @include font-size-palette("headline-3");
+  @include text-color-palette("primary-color-1");
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.Description {
+  @include font-size-palette("body-2");
+  @include text-color-palette("black");
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.EmptyMessage {
+  @include font-size-palette("body-1");
+  @include text-color-palette("inactive");
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.Form {
+  width: 100%;
+}
+
+.QuestionsWrapper {
+  margin-bottom: 32px;
+}
+
+.SubmitError {
+  @include bg-color-palette("warning");
+  @include text-color-palette("white");
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  @include font-size-palette("body-2");
+  text-align: center;
+}
+
+.Actions {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.SubmitButton {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include font-size-palette("body-1");
+  padding: 16px 48px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-1");
+    @include shawdow-palette("primary-color-1", 0.3);
+    transform: translateY(-2px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    @include bg-color-palette("inactive");
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.ProgressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  @include bg-color-palette("primary-color-4");
+  z-index: 1000;
+}
+
+.ProgressFill {
+  height: 100%;
+  @include bg-color-palette("primary-color-2");
+  transition: width 0.3s ease;
+}

@@ -9,6 +9,7 @@ import { eventProductsService } from './eventProducts.js';
 import { userEventsService } from './userEvents.js';
 import { authService } from './auth.js';
 import { userService } from './users.js';
+import { surveysService } from './surveys.js';
 
 // API Services Export
 export { axiosInstance } from './client.js';
@@ -22,6 +23,7 @@ export { eventProductsService } from './eventProducts.js';
 export { userEventsService } from './userEvents.js';
 export { authService } from './auth.js';
 export { userService } from './users.js';
+export { surveysService } from './surveys.js';
 export { 
   ApiResponse, 
   PaginatedResponse, 
@@ -44,4 +46,5 @@ export const api = {
   userEvents: userEventsService,
   auth: authService,
   users: userService,
+  surveys: surveysService,
 };

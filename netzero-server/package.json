@@ -10,7 +10,8 @@
     "test:watch": "jest --watch",
     "db:ensure": "node scripts/ensureDatabase.js",
     "db:init": "node scripts/ensureDatabase.js",
-    "db:test": "node scripts/testDatabaseEnsure.js"
+    "db:test": "node scripts/testDatabaseEnsure.js",
+    "survey:init": "node scripts/initiateChulaSurvey.js"
   },
   "keywords": [
     "netzero",

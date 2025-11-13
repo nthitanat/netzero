@@ -27,6 +27,7 @@ const eventProductRoutes = require('./src/routes/eventProductRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const reservationRoutes = require('./src/routes/reservationRoutes');
 const chatAppRoutes = require('./src/routes/chatAppRoutes');
+const surveyRoutes = require('./src/routes/surveyRoutes');
 
 // Initialize Express app
 const app = express();
@@ -227,6 +228,7 @@ app.use(`${API_PREFIX}/${API_VERSION}/event-products`, eventProductRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/products`, productRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/reservations`, reservationRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/chatapps`, chatAppRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/surveys`, surveyRoutes);
 
 // 404 handler
 app.use(notFound);

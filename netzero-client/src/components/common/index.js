@@ -6,5 +6,7 @@ export { default as ImageSlideshow } from './ImageSlideshow/ImageSlideshow';
 export { default as OrganicDecoration } from './OrganicDecoration/OrganicDecoration';
 // Legacy component - use ProductSearch from market components instead
 export { default as SearchContainer } from './SearchContainer/SearchContainer';
+export { default as SurveyForm } from './SurveyForm/SurveyForm';
+export { default as SurveyQuestion } from './SurveyQuestion/SurveyQuestion';
 export { default as ThaiHeader } from './ThaiHeader/ThaiHeader';
 export { default as ThaiIcon } from './ThaiIcon/ThaiIcon';
