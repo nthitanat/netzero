@@ -11,12 +11,14 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Load environment variables
+# Load environment variables from project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    source "$PROJECT_ROOT/.env"
 else
-    echo -e "${RED}❌ Error: .env file not found in scripts directory${NC}"
+    echo -e "${RED}❌ Error: .env file not found in project root${NC}"
     exit 1
 fi
 
@@ -61,8 +63,8 @@ export DEPLOYMENT_MODE=production
 TEMP_ENV_FILE=$(mktemp)
 trap "rm -f $TEMP_ENV_FILE" EXIT
 
-# Copy .env and override DEPLOYMENT_MODE
-cp "$SCRIPT_DIR/.env" "$TEMP_ENV_FILE"
+# Copy .env from project root and override DEPLOYMENT_MODE
+cp "$PROJECT_ROOT/.env" "$TEMP_ENV_FILE"
 sed -i.bak 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' "$TEMP_ENV_FILE"
 rm -f "$TEMP_ENV_FILE.bak"
 
@@ -124,16 +126,16 @@ echo -e "${GREEN}✅ SSH tools ready${NC}"
 echo ""
 echo -e "${BLUE}📤 Step 4: Uploading .env file to remote server...${NC}"
 
-# Upload .env file to remote scripts directory
+# Upload .env file from project root to remote server
 sshpass -p "$REMOTE_PASSWORD" scp -P "$REMOTE_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
     -o PreferredAuthentications=password \
     -o PubkeyAuthentication=no \
-    "$SCRIPT_DIR/.env" \
+    "$PROJECT_ROOT/.env" \
     "$REMOTE_USER@$REMOTE_HOST:/tmp/.env.netzero"
 
-echo -e "${GREEN}✅ .env file uploaded${NC}"
+echo -e "${GREEN}✅ .env file uploaded from project root${NC}"
 
 # Step 5: Execute action on remote server
 echo ""
@@ -169,25 +171,19 @@ deploy_app() {
         git reset --hard origin/main || git pull origin main
     fi
 
-    echo "📤 Deploying .env file to scripts/ and project root..."
-    mkdir -p "$DEPLOY_PATH/scripts"
+    echo "📤 Deploying .env file to project root..."
     if [ -f /tmp/.env.netzero ]; then
-        # Copy to scripts directory
-        cp /tmp/.env.netzero "$DEPLOY_PATH/scripts/.env"
-        # Also copy to project root for manual docker-compose commands
+        # Copy to project root only (single source of truth)
         cp /tmp/.env.netzero "$DEPLOY_PATH/.env"
         rm /tmp/.env.netzero
-        echo "✅ .env file deployed to scripts/ and project root"
+        echo "✅ .env file deployed to project root"
     else
         echo "⚠️  Warning: .env file not found in /tmp"
     fi
 
     echo "🔧 Setting up environment for production..."
     cd "$DEPLOY_PATH"
-    # Update .env in both locations to force production mode
-    if [ -f scripts/.env ]; then
-        sed -i 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' scripts/.env 2>/dev/null || true
-    fi
+    # Update .env to force production mode
     if [ -f .env ]; then
         sed -i 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' .env 2>/dev/null || true
     fi
@@ -211,7 +207,7 @@ deploy_app() {
 
     echo "🐳 Building and starting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env up -d --build netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env up -d --build netzero-server netzero-chat-server
 
     echo "🧹 Cleaning workspace (remote tmp)..."
     rm -rf /tmp/* || true
@@ -221,7 +217,7 @@ deploy_app() {
     echo ""
     echo "📊 Container status:"
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
 }
 
 # Function to update (git pull + restart, no rebuild)
@@ -238,54 +234,48 @@ update_app() {
     git fetch --all --prune
     git reset --hard origin/main || git pull origin main
 
-    echo "📤 Updating .env file in scripts/ and project root..."
-    mkdir -p "$DEPLOY_PATH/scripts"
+    echo "📤 Updating .env file in project root..."
     if [ -f /tmp/.env.netzero ]; then
-        # Copy to scripts directory
-        cp /tmp/.env.netzero "$DEPLOY_PATH/scripts/.env"
-        # Also copy to project root for manual docker-compose commands
+        # Copy to project root only (single source of truth)
         cp /tmp/.env.netzero "$DEPLOY_PATH/.env"
         rm /tmp/.env.netzero
-        echo "✅ .env file updated in scripts/ and project root"
+        echo "✅ .env file updated in project root"
     else
         echo "⚠️  Warning: .env file not found in /tmp"
     fi
 
     echo "🔧 Setting up environment for production..."
-    if [ -f scripts/.env ]; then
-        sed -i 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' scripts/.env 2>/dev/null || true
-    fi
     if [ -f .env ]; then
         sed -i 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' .env 2>/dev/null || true
     fi
 
     echo "🔄 Restarting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env restart netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env restart netzero-server netzero-chat-server
 
     echo "✅ Update complete!"
 
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
 }
 
 # Function to start containers
 start_containers() {
     echo "🚀 Starting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env up -d netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env up -d netzero-server netzero-chat-server
     echo "✅ Containers started!"
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
 }
 
 # Function to stop containers
 stop_containers() {
     echo "🛑 Stopping Docker containers..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env down
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env down
     echo "✅ Containers stopped!"
 }
 
@@ -293,25 +283,25 @@ stop_containers() {
 restart_containers() {
     echo "🔄 Restarting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env restart netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env restart netzero-server netzero-chat-server
     echo "✅ Containers restarted!"
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
 }
 
 # Function to view logs
 view_logs() {
     echo "📋 Viewing container logs (Press Ctrl+C to exit)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env logs -f --tail=100
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env logs -f --tail=100
 }
 
 # Function to show status
 show_status() {
     echo "📊 Container status:"
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file scripts/.env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
     echo ""
     echo "💾 Disk usage:"
     echo "$REMOTE_SUDO_PASS" | sudo -S docker system df

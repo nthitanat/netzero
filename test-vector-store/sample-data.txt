@@ -1,0 +1,59 @@
+# Chula NetZero Project Information
+
+## About Chula NetZero
+Chula NetZero is Chulalongkorn University's comprehensive sustainability initiative aimed at achieving carbon neutrality and promoting environmental stewardship across the campus and broader community. This innovative platform combines education, technology, and community engagement to drive meaningful environmental impact.
+
+## Key Features
+- Carbon footprint tracking for university operations and individual students
+- Real-time sustainability metrics dashboard
+- Environmental impact analysis and reporting
+- Campus tree planting and green space initiatives
+- Student and faculty engagement tools
+- Sustainable product marketplace
+- Event-based environmental activities and workshops
+- Educational resources and sustainability courses
+- Community carbon offset programs
+
+## Mission
+Our mission is to transform Chulalongkorn University into a model of sustainability excellence by achieving net-zero carbon emissions through innovative technology solutions, research-driven insights, actionable environmental policies, and comprehensive community engagement. We aim to inspire and educate the next generation of environmental leaders.
+
+## Vision
+To establish Chulalongkorn University as Thailand's leading institution in sustainability practices and carbon neutrality, serving as a blueprint for other educational institutions across Southeast Asia.
+
+## Technology Stack
+- React Frontend with modern UI/UX
+- Node.js Backend with Express
+- MySQL Database for data persistence
+- Docker Containerization for deployment
+- AI-powered chat system for user engagement
+- Vector store for intelligent file search
+- Real-time analytics and monitoring
+
+## Key Initiatives
+- Campus-wide carbon footprint reduction programs
+- Solar panel installation projects
+- Waste reduction and recycling programs
+- Sustainable transportation initiatives
+- Green building certifications
+- Research partnerships with environmental organizations
+- Student-led sustainability clubs and activities
+
+## Team
+The Chula NetZero team comprises dedicated faculty members, students, environmental scientists, software engineers, and sustainability experts committed to creating innovative technology solutions that drive positive environmental impact at Chulalongkorn University and beyond.
+
+## Partnerships
+- Chulalongkorn University administration
+- Environmental research institutes
+- Local and international sustainability organizations
+- Corporate sustainability partners
+- Government environmental agencies
+
+## Impact Goals
+- Achieve carbon neutrality by 2030
+- Reduce campus energy consumption by 40%
+- Increase green space coverage by 25%
+- Engage 100% of students in sustainability programs
+- Plant 10,000 trees across campus
+
+## Contact
+For more information about the Chula NetZero project, partnership opportunities, or to get involved in our sustainability initiatives, please visit our platform or contact the Chulalongkorn University Environmental Affairs Office.

@@ -64,6 +64,11 @@ const config = {
   jwt: {
     secret: getEnvVar('CHAT_JWT_SECRET'),
     expiresIn: getEnvVar('CHAT_JWT_EXPIRES_IN', '24h')
+  },
+  
+  // OpenAI configuration
+  openai: {
+    apiKey: getEnvVar('OPENAI_API_KEY')
   }
 };
 
@@ -71,7 +76,8 @@ const config = {
 function validateConfig() {
   const required = [
     'database.password',
-    'jwt.secret'
+    'jwt.secret',
+    'openai.apiKey'
   ];
   
   const missing = [];
@@ -117,6 +123,9 @@ console.log('📋 Chat Server Configuration loaded:', {
   jwt: {
     secret: config.jwt.secret ? '***' : 'NOT SET',
     expiresIn: config.jwt.expiresIn
+  },
+  openai: {
+    apiKey: config.openai.apiKey ? '***' : 'NOT SET'
   }
 });
 

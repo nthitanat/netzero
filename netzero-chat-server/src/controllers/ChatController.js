@@ -1,4 +1,5 @@
 const { executeQuery } = require('../config/database');
+const { welcomeChat } = require('../utils/welcomeChat');
 
 class ChatController {
   
@@ -10,8 +11,8 @@ class ChatController {
 
       console.log(`💬 Chat request - User: ${userId}, Chat ID: ${chatid}`);
 
-      // Simple welcome message
-      const welcomeMessage = `Welcome to ${chatid}! How can I help you today?`;
+      // Generate AI welcome message
+      const welcomeMessage = await welcomeChat(chatid, userId);
 
       res.locals.data = {
         chatId: chatid,
@@ -42,8 +43,8 @@ class ChatController {
 
       console.log(`💬 Message from User ${userId} in Chat ${chatid}: ${message}`);
 
-      // Simple response with the same welcome message
-      const welcomeMessage = `Welcome to ${chatid}! How can I help you today?`;
+      // Generate AI welcome message
+      const welcomeMessage = await welcomeChat(chatid, userId);
 
       res.locals.data = {
         chatId: chatid,

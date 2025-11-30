@@ -1,83 +1,49 @@
 #!/bin/bash
 
-# Quick Fix Script for MySQL Error 168
-# Attempts common solutions
+# Quick Fix Script for MySQL Error 168 (Remote version - automatic)
+# Attempts to fix the issue without interactive prompts
 
-echo "🔧 MySQL Error 168 Fix Script"
-echo "=============================="
+echo "🔧 MySQL Error 168 Fix Script (Remote)"
+echo "======================================="
 echo ""
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
 
 DB_USER="netzeroadmin"
 DB_PASS="x8A3dyDnpeN3KLDp"
 DB_NAME="netzero"
 CONTAINER_NAME="netzero-server"
 
-echo "⚠️  This script will attempt to fix MySQL Error 168"
-echo "   by trying various solutions."
+echo "🧹 Step 1: Cleaning up Docker system..."
+echo "---------------------------------------"
+docker system prune -f
+echo "✅ Docker cleanup complete"
 echo ""
-read -p "Continue? (y/n) " -n 1 -r
-echo ""
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-fi
 
-echo ""
-echo "🧹 Step 1: Clean up Docker system..."
-echo "------------------------------------"
-sudo docker system df
-echo ""
-read -p "Run docker system prune? (y/n) " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo docker system prune -f
-    echo "✅ Docker cleanup complete"
-fi
-
-echo ""
-echo "🔍 Step 2: Check for orphaned surveys table..."
-echo "----------------------------------------------"
-SURVEYS_EXISTS=$(sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW TABLES LIKE 'surveys';" -s -N 2>/dev/null)
+echo "🔍 Step 2: Checking for orphaned surveys table..."
+echo "--------------------------------------------------"
+SURVEYS_EXISTS=$(docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW TABLES LIKE 'surveys';" -s -N 2>/dev/null)
 if [ ! -z "$SURVEYS_EXISTS" ]; then
-    echo "⚠️  surveys table exists but might be corrupted"
-    read -p "Drop and recreate surveys table? (y/n) " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "DROP TABLE IF EXISTS surveys;" 2>&1
-        echo "✅ Dropped surveys table"
-    fi
+    echo "⚠️  surveys table exists but might be corrupted - dropping..."
+    docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "DROP TABLE IF EXISTS answers, responses, questions, surveys;" 2>&1
+    echo "✅ Dropped survey-related tables"
 else
     echo "✅ No surveys table found"
 fi
+echo ""
 
+echo "🔄 Step 3: Restarting MySQL container..."
+echo "----------------------------------------"
+docker restart $CONTAINER_NAME
+echo "⏳ Waiting for container to start..."
+sleep 10
+echo "✅ Container restarted"
 echo ""
-echo "🔍 Step 3: Check MySQL InnoDB status..."
-echo "---------------------------------------"
-sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -e "SET GLOBAL innodb_fast_shutdown=0;" 2>/dev/null
-echo "✅ Set InnoDB fast shutdown to 0"
 
-echo ""
-echo "🔄 Step 4: Restart MySQL container..."
-echo "-------------------------------------"
-read -p "Restart netzero-server container? (y/n) " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo docker restart $CONTAINER_NAME
-    echo "⏳ Waiting for container to start..."
-    sleep 10
-    echo "✅ Container restarted"
-fi
+echo "🧪 Step 4: Creating survey tables..."
+echo "------------------------------------"
 
-echo ""
-echo "🧪 Step 5: Test table creation..."
-echo "---------------------------------"
-sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
+# Create surveys table
+echo "Creating surveys table..."
+docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
 CREATE TABLE IF NOT EXISTS surveys (
   survey_id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -90,11 +56,10 @@ CREATE TABLE IF NOT EXISTS surveys (
 
 if [ $? -eq 0 ]; then
     echo "✅ surveys table created successfully!"
-    echo ""
-    echo "📋 Creating related tables..."
     
     # Create questions table
-    sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
+    echo "Creating questions table..."
+    docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
     CREATE TABLE IF NOT EXISTS questions (
       question_id INT AUTO_INCREMENT PRIMARY KEY,
       survey_id INT NOT NULL,
@@ -109,7 +74,8 @@ if [ $? -eq 0 ]; then
     echo "✅ questions table created"
     
     # Create responses table
-    sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
+    echo "Creating responses table..."
+    docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
     CREATE TABLE IF NOT EXISTS responses (
       response_id INT AUTO_INCREMENT PRIMARY KEY,
       survey_id INT NOT NULL,
@@ -125,7 +91,8 @@ if [ $? -eq 0 ]; then
     echo "✅ responses table created"
     
     # Create answers table
-    sudo docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
+    echo "Creating answers table..."
+    docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "
     CREATE TABLE IF NOT EXISTS answers (
       answer_id INT AUTO_INCREMENT PRIMARY KEY,
       response_id INT NOT NULL,
@@ -141,14 +108,24 @@ if [ $? -eq 0 ]; then
     echo "✅ answers table created"
     echo ""
     echo "🎉 All survey tables created successfully!"
+    echo ""
+    echo "📋 Verifying tables..."
+    docker exec $CONTAINER_NAME mysql -u$DB_USER -p$DB_PASS -D$DB_NAME -e "SHOW TABLES;" 2>/dev/null
+    echo ""
+    echo "✅ Fix complete! You can now run the survey initialization script."
+    
 else
     echo "❌ Still unable to create surveys table"
     echo ""
-    echo "🔍 Please check the diagnostic output above for more details"
-    echo "   You may need to:"
-    echo "   1. Check disk space: df -h"
-    echo "   2. Check MySQL logs: sudo docker logs netzero-server --tail 100"
-    echo "   3. Restart the entire stack: cd /www/netzero-deploy && sudo docker compose down && sudo docker compose up -d"
+    echo "🔍 Checking detailed error information..."
+    docker logs $CONTAINER_NAME --tail 50 2>&1 | grep -i "error" | tail -10
+    echo ""
+    echo "💡 Possible solutions:"
+    echo "   1. Check MySQL container health: docker ps -a"
+    echo "   2. Check MySQL logs: docker logs netzero-server --tail 100"
+    echo "   3. Try restarting all containers: cd /www/netzero-deploy && docker compose restart"
+    echo "   4. If all else fails, recreate containers: docker compose down && docker compose up -d"
+    exit 1
 fi
 
 echo ""

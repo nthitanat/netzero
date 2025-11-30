@@ -1,6 +1,6 @@
-# Load environment variables from scripts/.env or local .env
-# Use: docker-compose --env-file scripts/.env up
-# or copy scripts/.env to project root as .env
+# Load environment variables from .env in project root
+# Use: docker-compose up
+# The .env file will be automatically loaded
 
 services:
   # Main API Server
@@ -70,6 +70,7 @@ services:
       DEV_CHAT_DB_NAME: ${DEV_CHAT_DB_NAME}
       DEV_CHAT_JWT_SECRET: ${DEV_CHAT_JWT_SECRET}
       DEV_CHAT_JWT_EXPIRES_IN: ${DEV_CHAT_JWT_EXPIRES_IN}
+      DEV_OPENAI_API_KEY: ${DEV_OPENAI_API_KEY}
       # Production variables
       PROD_CHAT_DB_HOST: ${PROD_CHAT_DB_HOST}
       PROD_CHAT_DB_PORT: ${PROD_CHAT_DB_PORT}
@@ -78,6 +79,7 @@ services:
       PROD_CHAT_DB_NAME: ${PROD_CHAT_DB_NAME}
       PROD_CHAT_JWT_SECRET: ${PROD_CHAT_JWT_SECRET}
       PROD_CHAT_JWT_EXPIRES_IN: ${PROD_CHAT_JWT_EXPIRES_IN}
+      PROD_OPENAI_API_KEY: ${PROD_OPENAI_API_KEY}
       # Shared variables
       CHAT_PORT: ${CHAT_PORT}
       API_PREFIX: ${API_PREFIX}
