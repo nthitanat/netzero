@@ -1,15 +1,7 @@
 @import "src/styles/main";
 
 .Container {
-  position: fixed;
-  min-width: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9998;
-  
-  @include fade-in-animation(0.3s);
+  @include modal-container-base;
   
   // Theme classes
   &.market-theme {
@@ -26,94 +18,37 @@
 }
 
 .Overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;  
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  cursor: pointer;
+  @include modal-overlay;
 }
 
 .Modal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 900px;
-  max-width: 1000px;
-  width: 90vw;
-  max-height: 95vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  
-  // Default glassmorphism for market and barter
-  @include glassmorphism-card;
-  background: var(--theme-bg, white);
+  @include modal-body-base;
+  @include modal-body-large;
   
   // Theme-specific modal styling
   .Container.market-theme & {
-    @include market-glassmorphism-card;
-    border-radius: 24px;
-    border: 1px solid var(--market-glass-border);
-    background: var(--market-glass-bg);
+    @include modal-theme-market;
   }
   
   .Container.barter-theme & {
-    @include glassmorphism-card;
-    background: var(--theme-bg, white);
-    border-radius: 20px;
+    @include modal-theme-barter;
   }
   
   .Container.willing-theme & {
-    @include willing-glassmorphism-card;
-    border-radius: 24px;
-    border: 1px solid var(--willing-glass-border);
-    background: var(--willing-glass-bg);
+    @include modal-theme-willing;
   }
-  
-  @include expand-animation(0.4s, 0.8, 1);
 }
 
 .CloseButton {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  @include bg-color-palette("primary-color-3");
-  border: none;
-  border-radius: 50px;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  @include text-color-palette("white");
-  transition: all 0.3s ease;
-  z-index: 1;
-
-  &:hover {
-    @include bg-color-palette("primary-color-2");
-    transform: scale(1.05);
-  }
+  @include modal-close-button;
 }
 
 .ModalContent {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  overflow: hidden;
-  flex: 1;
-  min-height: 0;
+  @include modal-content;
 }
 
 .Header {
-  text-align: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
+  @include modal-header;
 }
 
 .MainContent {
@@ -126,10 +61,7 @@
 }
 
 .Title {
-  @include font-size-palette("headline-4");
-  @include text-color-palette("primary-color-1");
-  margin: 0 0 8px 0;
-  font-weight: 600;
+  @include modal-title;
 }
 
 .ImageSection {
@@ -184,33 +116,11 @@
 }
 
 .InfoSection {
+  @include modal-scrollable-content;
   display: flex;
   flex-direction: column;
   gap: 16px;
   flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
-  
-  // Custom scrollbar styling
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 3px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    @include bg-color-palette("primary-color-3");
-    border-radius: 3px;
-    opacity: 0.7;
-    
-    &:hover {
-      @include bg-color-palette("primary-color-2");
-    }
-  }
 }
 
 .RightContent {
@@ -341,39 +251,14 @@
 }
 
 .ActionSection {
-  display: flex;
-  justify-content: center;
-  padding-top: 12px;
-  flex-shrink: 0;
-  margin-top: auto;
+  @include modal-footer;
 }
 
 .ReserveButton {
-  @include bg-color-palette("primary-color-3");
-  @include text-color-palette("white");
-  @include font-size-palette("body-1");
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover:not(.Disabled) {
-    @include bg-color-palette("primary-color-2");
-    transform: translateY(-1px);
-    @include shawdow-palette("primary-color-2", 0.3);
-  }
+  @include button-primary;
   
   &.Disabled {
     @include bg-color-palette("inactive");
-    cursor: not-allowed;
-    opacity: 0.5;
   }
 }
 
@@ -389,18 +274,7 @@
 }
 
 .LoadingSpinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  @include modal-loading-spinner;
 }
 
 // Responsive design

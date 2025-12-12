@@ -15,6 +15,14 @@ const {
 
 // Import routes
 const chatRoutes = require('./src/routes/chatRoutes');
+const productSurveyRoutes = require('./src/routes/productSurveyRoutes');
+
+// Import models for auto-migration
+const { 
+  ProductSurveyQuestion,
+  ProductSurveyResponse,
+  ProductSurveyAnswer 
+} = require('./src/models/ProductSurvey');
 
 // Initialize Express app
 const app = express();
@@ -39,8 +47,11 @@ app.use(helmet({
 // CORS configuration
 const corsOptions = {
   origin: [
-    'http://localhost:3000',  // React development server
+    'http://localhost:3000',  // React development server (CRA default)
     'http://127.0.0.1:3000',
+    'http://localhost:3001',  // NetZero client port
+    'http://127.0.0.1:3001',
+    'http://10.201.188.99:3001', // Network access
     'https://your-domain.com' // Production domain
   ],
   credentials: true,
@@ -86,6 +97,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     documentation: {
       chat: `${API_PREFIX}/${API_VERSION}/chat`,
+      productSurvey: `${API_PREFIX}/${API_VERSION}/products`,
       health: '/health'
     },
     endpoints: {
@@ -94,6 +106,13 @@ app.get('/', (req, res) => {
         sendMessage: `POST ${API_PREFIX}/${API_VERSION}/chat/:chatid/message`,
         getHistory: `GET ${API_PREFIX}/${API_VERSION}/chat/:chatid/history`,
         health: `GET ${API_PREFIX}/${API_VERSION}/chat/health`
+      },
+      productSurvey: {
+        submitSurvey: `POST ${API_PREFIX}/${API_VERSION}/products/:productId/surveys`,
+        getSurveyHistory: `GET ${API_PREFIX}/${API_VERSION}/products/:productId/surveys`,
+        getSurveyResponse: `GET ${API_PREFIX}/${API_VERSION}/products/surveys/:surveyResponseId`,
+        getQuestions: `GET ${API_PREFIX}/${API_VERSION}/products/surveys/questions`,
+        health: `GET ${API_PREFIX}/${API_VERSION}/products/surveys/health`
       }
     },
     usage: {
@@ -105,6 +124,17 @@ app.get('/', (req, res) => {
           url: '/api/v1/chat/{chatid}/message',
           body: { message: 'Your message here' },
           headers: { 'Authorization': 'Bearer your-jwt-token' }
+        },
+        submitSurvey: {
+          method: 'POST',
+          url: '/api/v1/products/{productId}/surveys',
+          body: { 
+            answers: [
+              { questionId: 'q001', score: 8 },
+              { questionId: 'q002', score: 7 }
+            ]
+          },
+          headers: { 'Authorization': 'Bearer your-jwt-token (optional)' }
         }
       }
     },
@@ -148,6 +178,7 @@ app.get('/db-test', async (req, res) => {
 
 // API Routes
 app.use(`${API_PREFIX}/${API_VERSION}/chat`, chatRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/products`, productSurveyRoutes);
 
 // 404 handler
 app.use(notFound);
@@ -189,7 +220,23 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   const isConnected = await testConnection();
   
   if (isConnected) {
-    console.log('✅ Database connected successfully');
+    console.log('✅ Chat Server - Database connected successfully');
+    
+    // Auto-migrate database tables
+    console.log('🔄 Ensuring database tables exist...');
+    try {
+      await ProductSurveyQuestion.ensureTable();
+      console.log('✅ Product Survey Question table ready');
+      
+      await ProductSurveyResponse.ensureTable();
+      console.log('✅ Product Survey Response table ready');
+      
+      await ProductSurveyAnswer.ensureTable();
+      console.log('✅ Product Survey Answer table ready');
+    } catch (error) {
+      console.error('❌ Error ensuring tables:', error);
+      console.log('⚠️  Chat server started but some tables may be missing');
+    }
   } else {
     console.log('❌ Database connection failed');
     console.log('⚠️  Chat server started but database is not available');

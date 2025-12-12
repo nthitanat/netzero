@@ -1,13 +1,16 @@
 @import "src/styles/main";
 
 .Container {
+  @include navbar-spacing;
   min-height: 100vh;
   background: var(--map-bg);
   @include text-color-palette("primary-color-1");
-  padding: 1.25rem;
-  padding-bottom: 7.5rem; // Space for floating nav
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-bottom: 2rem;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .BackgroundDecoration {
@@ -141,6 +144,30 @@
     transform: translateY(-2px);
     @include shawdow-palette("primary-color-2", 0.3);
   }
+}
+
+// Survey Modal Styles
+.ModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.SurveyModalContainer {
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 // Responsive Design

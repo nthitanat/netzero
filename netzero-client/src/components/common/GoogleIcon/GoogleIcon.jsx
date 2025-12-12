@@ -74,6 +74,10 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
                 return <span className={baseClass}>grade</span>;
             case "verified":
                 return <span className={baseClass}>verified</span>;
+            case "workspace_premium":
+                return <span className={baseClass}>workspace_premium</span>;
+            case "task_alt":
+                return <span className={baseClass}>task_alt</span>;
             case "quality_check":
                 return <span className={baseClass}>high_quality</span>;
             
@@ -86,6 +90,8 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
                 return <span className={baseClass}>arrow_forward</span>;
             case "expand_more":
                 return <span className={baseClass}>expand_more</span>;
+            case "expand_less":
+                return <span className={baseClass}>expand_less</span>;
             case "menu":
                 return <span className={baseClass}>menu</span>;
             case "more_vert":
@@ -106,12 +112,22 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
             // Alerts & Status
             case "warning":
                 return <span className={baseClass}>warning</span>;
+            case "report_problem":
+                return <span className={baseClass}>report_problem</span>;
+            case "error_outline":
+                return <span className={baseClass}>error_outline</span>;
             case "error":
                 return <span className={baseClass}>error</span>;
             case "info":
                 return <span className={baseClass}>info</span>;
             case "check_circle":
                 return <span className={baseClass}>check_circle</span>;
+            case "psychology":
+                return <span className={baseClass}>psychology</span>;
+            case "rule":
+                return <span className={baseClass}>rule</span>;
+            case "bar_chart":
+                return <span className={baseClass}>bar_chart</span>;
             case "notification_important":
                 return <span className={baseClass}>notification_important</span>;
             
@@ -146,6 +162,8 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
                 return <span className={baseClass}>filter_list</span>;
             case "refresh":
                 return <span className={baseClass}>refresh</span>;
+            case "tips_and_updates":
+                return <span className={baseClass}>tips_and_updates</span>;
             case "add":
                 return <span className={baseClass}>add</span>;
             case "remove":

@@ -18,6 +18,12 @@ const useSellerDashboard = (initialProps = {}) => {
     productModalMode: "create", // "create" or "edit"
     isSubmittingProduct: false,
     
+    // Product Survey flow
+    showSurveyForm: false,
+    showSurveyResult: false,
+    surveyResult: null,
+    pendingProductId: null, // Store product ID during survey flow
+    
     // Add to Event Dialog
     showAddToEventDialog: false,
     productForEvent: null,
@@ -126,7 +132,7 @@ const useSellerDashboard = (initialProps = {}) => {
   // Initialize data on component mount
   useEffect(() => {
     const initializeData = async () => {
-      if (!user || (user.role !== 'seller' && user.role !== 'community_head')) {
+      if (!user || (user.role !== 'seller' && user.role !== 'community_head' && user.role !== 'admin')) {
         return;
       }
       

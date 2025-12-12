@@ -20,7 +20,7 @@ export default function EventDashboard() {
                 <div className={styles.UnauthorizedContainer}>
                     <GoogleIcon iconType="warning" size="large" className={styles.WarningIcon} />
                     <h2>ไม่สามารถเข้าถึงได้</h2>
-                    <p>คุณต้องมีสิทธิ์เป็นหัวหน้าชุมชนเพื่อเข้าใช้หน้านี้</p>
+                    <p>คุณต้องมีสิทธิ์เป็นหัวหน้าชุมชนหรือผู้ดูแลระบบ เพื่อเข้าใช้หน้านี้</p>
                     <button 
                         className={styles.BackButton}
                         onClick={() => navigate('/')}

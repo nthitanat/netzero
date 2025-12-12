@@ -1,11 +1,13 @@
 @import "src/styles/main";
 
 .Container {
+  @include navbar-spacing;
   @include bg-color-palette("white");
   min-height: 100vh;
   position: relative;
-  padding: 2rem 1rem;
-  padding-bottom: 6rem; // Account for floating nav bar
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 2rem;
 }
 
 .BackgroundDecoration {

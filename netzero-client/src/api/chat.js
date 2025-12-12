@@ -1,5 +1,7 @@
+import axios from 'axios';
 import { axiosInstance } from './client';
 import { ApiResponse, ApiError, API_ERROR_TYPES, API_STATUS } from './types';
+import { storageService } from '../utils/storage';
 
 // Determine chat server URL based on environment
 const getChatServerURL = () => {
@@ -10,17 +12,54 @@ const getChatServerURL = () => {
   
   // Auto-detect based on NODE_ENV
   if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3004/api/v1/chat';
+    return 'http://localhost:3004/api/v1';
   }
   
   // Production URL - adjust this to your production chat server URL
-  return 'https://engagement.chula.ac.th/netzero-api-chat/api/v1/chat';
+  return 'https://engagement.chula.ac.th/netzero-api-chat/api/v1';
 };
+
+// Create a separate axios instance for chat server
+const chatServerInstance = axios.create({
+  baseURL: getChatServerURL(),
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Add auth token interceptor for chat server
+chatServerInstance.interceptors.request.use(
+  (config) => {
+    const token = storageService.getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    console.log(`🚀 Chat Server Request: ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  (error) => {
+    console.error('❌ Chat Server Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for chat server
+chatServerInstance.interceptors.response.use(
+  (response) => {
+    console.log(`✅ Chat Server Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+    return response;
+  },
+  (error) => {
+    console.error(`❌ Chat Server Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, error);
+    return Promise.reject(error);
+  }
+);
 
 class ChatService {
   constructor() {
     this.baseUrl = '/api/v1/chatapps';
-    this.chatServerUrl = getChatServerURL();
   }
 
   // ==========================================
@@ -218,7 +257,7 @@ class ChatService {
   // Get chat welcome message
   async getChatWelcome(chatId) {
     try {
-      const response = await axiosInstance.get(`${this.chatServerUrl}/${chatId}`);
+      const response = await chatServerInstance.get(`/chat/${chatId}`);
 
       const apiResponse = new ApiResponse(
         response.data.data,
@@ -243,7 +282,7 @@ class ChatService {
   // Send message to chat
   async sendMessage(chatId, message) {
     try {
-      const response = await axiosInstance.post(`${this.chatServerUrl}/${chatId}/message`, {
+      const response = await chatServerInstance.post(`/chat/${chatId}/message`, {
         message
       });
 
@@ -272,7 +311,7 @@ class ChatService {
   // Check chat server health
   async checkChatHealth() {
     try {
-      const response = await axiosInstance.get(`${this.chatServerUrl}/health`);
+      const response = await chatServerInstance.get('/chat/health');
 
       const apiResponse = new ApiResponse(
         response.data.data,

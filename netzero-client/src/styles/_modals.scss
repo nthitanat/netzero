@@ -1,0 +1,475 @@
+// ========================================
+// MODAL STYLES - Centralized Modal Components
+// ========================================
+// Based on market component modal patterns
+// Supports: market, barter, willing, map themes
+
+// ========================================
+// BASE MODAL CONTAINER
+// ========================================
+@mixin modal-container-base {
+  position: fixed;
+  min-width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  
+  @include fade-in-animation(0.3s);
+}
+
+// ========================================
+// MODAL OVERLAY
+// ========================================
+@mixin modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+// ========================================
+// MODAL BODY - Centered with Glassmorphism
+// ========================================
+@mixin modal-body-base {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+  // Default glassmorphism
+  @include glassmorphism-card;
+  background: var(--theme-bg, white);
+  border-radius: 24px;
+  
+  @include expand-animation(0.4s, 0.8, 1);
+}
+
+// Modal body sizes
+@mixin modal-body-small {
+  min-width: 400px;
+  max-width: 500px;
+  width: 85vw;
+}
+
+@mixin modal-body-medium {
+  min-width: 600px;
+  max-width: 800px;
+  width: 90vw;
+}
+
+@mixin modal-body-large {
+  min-width: 800px;
+  max-width: 1000px;
+  width: 90vw;
+}
+
+// ========================================
+// MODAL THEME VARIANTS
+// ========================================
+@mixin modal-theme-market {
+  @include market-glassmorphism-card;
+  border-radius: 24px;
+  border: 1px solid var(--market-glass-border);
+  background: var(--market-glass-bg);
+}
+
+@mixin modal-theme-barter {
+  @include glassmorphism-card;
+  background: var(--theme-bg, white);
+  border-radius: 20px;
+}
+
+@mixin modal-theme-willing {
+  @include willing-glassmorphism-card;
+  border-radius: 24px;
+  border: 1px solid var(--willing-glass-border);
+  background: var(--willing-glass-bg);
+}
+
+@mixin modal-theme-map {
+  @include map-glassmorphism-card;
+  border-radius: 24px;
+  border: 1px solid var(--map-glass-border);
+  background: var(--map-glass-bg-strong);
+}
+
+// ========================================
+// MODAL CLOSE BUTTON
+// ========================================
+@mixin modal-close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  @include bg-color-palette("primary-color-3");
+  border: none;
+  border-radius: 50px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include text-color-palette("white");
+  transition: all 0.3s ease;
+  z-index: 1;
+
+  &:hover {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// MODAL CONTENT WRAPPER
+// ========================================
+@mixin modal-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+// ========================================
+// MODAL HEADER
+// ========================================
+@mixin modal-header {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+@mixin modal-header-left {
+  text-align: left;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--primary-color-3);
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin modal-title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+@mixin modal-subtitle {
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  margin: 0;
+  font-weight: 500;
+}
+
+// ========================================
+// MODAL SCROLLABLE CONTENT
+// ========================================
+@mixin modal-scrollable-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    @include bg-color-palette("primary-color-3");
+    border-radius: 3px;
+    opacity: 0.7;
+    
+    &:hover {
+      @include bg-color-palette("primary-color-2");
+    }
+  }
+}
+
+// ========================================
+// MODAL FOOTER / ACTION SECTION
+// ========================================
+@mixin modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 12px;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+@mixin modal-footer-full {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+// ========================================
+// MODAL ANIMATIONS
+// ========================================
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modalExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+// ========================================
+// RESPONSIVE BREAKPOINTS FOR MODALS
+// ========================================
+
+// Tablet breakpoint
+@mixin modal-responsive-tablet {
+  @media (max-width: 1024px) {
+    min-width: 700px;
+    max-width: 800px;
+    width: 85vw;
+  }
+}
+
+// Mobile breakpoint
+@mixin modal-responsive-mobile {
+  @media (max-width: 768px) {
+    min-width: 90vw;
+    max-width: 95vw;
+    width: 95vw;
+    margin: 16px;
+    max-height: 90vh;
+    
+    .ModalContent {
+      padding: 16px;
+      gap: 12px;
+    }
+    
+    .CloseButton {
+      top: 12px;
+      right: 12px;
+      padding: 6px;
+    }
+  }
+}
+
+// Small mobile breakpoint
+@mixin modal-responsive-small-mobile {
+  @media (max-width: 480px) {
+    min-width: 95vw;
+    max-width: 95vw;
+    width: 95vw;
+    margin: 8px;
+    max-height: 95vh;
+    
+    .ModalContent {
+      padding: 12px;
+      gap: 8px;
+    }
+    
+    .CloseButton {
+      top: 8px;
+      right: 8px;
+      padding: 6px;
+    }
+  }
+}
+
+// ========================================
+// LOADING SPINNER FOR MODALS
+// ========================================
+@mixin modal-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ========================================
+// MODAL SECTION DIVIDER
+// ========================================
+@mixin modal-section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 0, 0, 0.1) 50%,
+    transparent
+  );
+  margin: 16px 0;
+}
+
+// ========================================
+// CUSTOM SCROLLBAR FOR MODALS
+// ========================================
+@mixin modal-custom-scrollbar($track-color: "secondary-color-4", $thumb-color: "primary-color-3", $thumb-hover-color: "primary-color-2") {
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    @include bg-color-palette($track-color);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @include bg-color-palette($thumb-color);
+    border-radius: 4px;
+    
+    &:hover {
+      @include bg-color-palette($thumb-hover-color);
+    }
+  }
+  
+  // Firefox scrollbar styling
+  scrollbar-width: thin;
+  scrollbar-color: var(--#{$thumb-color}) var(--#{$track-color});
+}
+
+// Small horizontal scrollbar variant
+@mixin modal-custom-scrollbar-horizontal {
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @include bg-color-palette("primary-color-3");
+    border-radius: 3px;
+  }
+}
+
+// ========================================
+// CARD HOVER EFFECT
+// ========================================
+@mixin card-hover-effect {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 20px rgba(27, 94, 32, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+@mixin card-hover-effect-subtle {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// ========================================
+// MODAL TAB NAVIGATION
+// ========================================
+@mixin modal-tab-navigation {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  overflow-x: auto;
+  border-bottom: 2px solid var(--primary-color-4);
+  flex-shrink: 0;
+
+  @include modal-custom-scrollbar-horizontal;
+}
+
+@mixin modal-tab-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+
+  &:hover:not(:disabled) {
+    @include text-color-palette("primary-color-1");
+    @include bg-color-palette("primary-color-5");
+  }
+
+  &.active {
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+    border-bottom-color: var(--primary-color-2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// SCORE CIRCLE INDICATOR
+// ========================================
+@mixin score-circle-progress($status: "success") {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+
+  @if $status == "success" {
+    stroke: var(--primary-color-2);
+  } @else if $status == "warning" {
+    stroke: #F59E0B;
+  } @else if $status == "info" {
+    stroke: #3B82F6;
+  } @else if $status == "error" {
+    stroke: var(--secondary-color-1);
+  }
+}

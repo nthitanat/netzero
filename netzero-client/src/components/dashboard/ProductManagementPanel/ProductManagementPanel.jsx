@@ -1,24 +1,18 @@
 import React from "react";
 import styles from "./ProductManagementPanel.module.scss";
 import { GoogleIcon } from "../../common";
-import { ProductModal } from "../";
 import { productsService } from "../../../api";
 
 export default function ProductManagementPanel({ 
     products = [],
     isLoading = false,
     selectedProduct = null,
-    showProductModal = false,
     showDeleteConfirm = false,
-    productModalMode = "create",
-    isSubmittingProduct = false,
     onCreateProduct,
     onEditProduct,
     onDeleteProduct,
     onConfirmDelete,
     onCancelDelete,
-    onCloseModal,
-    onProductSaved,
     onRefresh,
     onAddToEvent,
     theme = "seller",
@@ -214,16 +208,6 @@ export default function ProductManagementPanel({
                     </div>
                 </div>
             )}
-            
-            {/* Product Modal */}
-            <ProductModal
-                isOpen={showProductModal}
-                mode={productModalMode}
-                product={selectedProduct}
-                onClose={onCloseModal}
-                onSave={onProductSaved}
-                isLoading={isSubmittingProduct}
-            />
         </div>
     );
 }

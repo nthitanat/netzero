@@ -114,7 +114,7 @@ export default function FloatingNavBar({
                                             <GoogleIcon iconType="shopping_cart" size="small" />
                                             My Orders
                                         </button>
-                                        {(user?.role === 'seller' || user?.role === 'community_head') && (
+                                        {(user?.role === 'seller' || user?.role === 'community_head' || user?.role === 'admin') && (
                                             <button 
                                                 className={styles.UserMenuItem}
                                                 onClick={handlers.handleSellerDashboardClick}
@@ -123,7 +123,7 @@ export default function FloatingNavBar({
                                                 Seller Dashboard
                                             </button>
                                         )}
-                                        {user?.role === 'community_head' && (
+                                        {(user?.role === 'community_head' || user?.role === 'admin') && (
                                             <button 
                                                 className={styles.UserMenuItem}
                                                 onClick={handlers.handleEventDashboardClick}
@@ -232,7 +232,7 @@ export default function FloatingNavBar({
                                         <GoogleIcon iconType="shopping_cart" size="small" />
                                         My Orders
                                     </button>
-                                    {(user?.role === 'seller' || user?.role === 'community_head') && (
+                                    {(user?.role === 'seller' || user?.role === 'community_head' || user?.role === 'admin') && (
                                         <button 
                                             className={styles.MobileUserAction}
                                             onClick={() => {
@@ -244,7 +244,7 @@ export default function FloatingNavBar({
                                             Seller Dashboard
                                         </button>
                                     )}
-                                    {user?.role === 'community_head' && (
+                                    {(user?.role === 'community_head' || user?.role === 'admin') && (
                                         <button 
                                             className={styles.MobileUserAction}
                                             onClick={() => {

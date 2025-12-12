@@ -1,17 +1,12 @@
 @import "src/styles/main";
 
 .Container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  @include modal-container-base;
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  box-sizing: border-box;
 
   // Theme variations
   &.market-theme {
@@ -32,63 +27,36 @@
 }
 
 .Overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  // @include bg-color-palette("black");
-  // opacity: 0.6;
-  // backdrop-filter: blur(8px);
-  // -webkit-backdrop-filter: blur(8px);
-  // @include fade-in-animation(0.3s);
+  @include modal-overlay;
 }
 
 .Modal {
+  @include modal-body-base;
+  @include modal-body-medium;
+  @include modal-custom-scrollbar;
+  @include modal-entrance-animation;
   position: relative;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow: auto;
-  @include glassmorphism-card;
+  transform: none;
+  top: auto;
+  left: auto;
   @include bg-color-palette("white");
-  @include fade-in-animation(0.4s);
-  animation: modalEnter 0.3s ease-out forwards;
-
-  // Custom scrollbar
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    @include bg-color-palette("secondary-color-4");
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    @include bg-color-palette("primary-color-3");
-    border-radius: 4px;
-    
-    &:hover {
-      @include bg-color-palette("primary-color-2");
-    }
-  }
 
   // Theme-specific styling
   .Container.market-theme & {
-    @include market-glassmorphism-card;
+    @include modal-theme-market;
   }
 
   .Container.willing-theme & {
-    @include willing-glassmorphism-card;
+    @include modal-theme-willing;
   }
 
   .Container.map-theme & {
-    @include map-glassmorphism-card;
+    @include modal-theme-map;
   }
 }
 
 .ModalContent {
+  @include modal-content;
   padding: 32px;
   
   @media (max-width: 768px) {
@@ -115,23 +83,8 @@
 .SuccessIcon {
   @include text-color-palette("success-dark");
   @include font-size-palette("headline-1");
-  animation: successBounce 0.6s ease-out;
+  @include success-bounce-animation;
   filter: drop-shadow(0 4px 12px rgba(46, 125, 50, 0.3));
-}
-
-@keyframes successBounce {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }
 
 .SuccessTitle {
@@ -288,36 +241,12 @@
 }
 
 .ActionSection {
-  display: flex;
-  justify-content: center;
+  @include modal-footer;
 }
 
 .CloseButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 32px;
-  @include bg-color-palette("primary-color-3");
-  @include text-color-palette("white");
-  @include font-size-palette("body-1");
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  @include button-primary;
   min-width: 160px;
-  justify-content: center;
-  
-  &:hover {
-    @include bg-color-palette("primary-color-2");
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.3);
-  }
-  
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
-  }
 
   // Theme-specific button styling
   .Container.market-theme & {
@@ -395,14 +324,4 @@
   }
 }
 
-// Keyframes for modal entrance animation
-@keyframes modalEnter {
-  0% {
-    opacity: 0;
-    transform: scale(0.9) translateY(-20px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
+// Entrance animation provided by @include modal-entrance-animation in _animations.scss

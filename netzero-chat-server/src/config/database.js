@@ -34,6 +34,17 @@ const executeQuery = async (query, params = []) => {
   }
 };
 
+// Execute command function (for non-query commands like CREATE, ALTER, DROP)
+const executeCommand = async (command, params = []) => {
+  try {
+    const [result] = await pool.execute(command, params);
+    return [result];
+  } catch (error) {
+    console.error('Chat Server - Database command error:', error);
+    throw error;
+  }
+};
+
 // Get connection from pool
 const getConnection = async () => {
   try {
@@ -58,6 +69,7 @@ module.exports = {
   pool,
   testConnection,
   executeQuery,
+  executeCommand,
   getConnection,
   closePool,
   dbConfig

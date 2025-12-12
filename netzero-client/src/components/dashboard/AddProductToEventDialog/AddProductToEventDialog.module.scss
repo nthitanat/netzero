@@ -1,58 +1,44 @@
 @import "src/styles/main";
 
+// Use centralized modal styles
 .ModalOverlay {
+  @include modal-container-base;
+  @include modal-overlay;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 9999;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease-in-out;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 120px 20px 20px 20px;
+  overflow-y: auto;
 }
 
 .Container {
-  @include bg-color-palette("white");
-  border-radius: 24px;
-  max-width: 900px;
-  width: 100%;
+  @include modal-body-base;
+  @include modal-body-large;
   max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease-in-out;
-  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   
-  @include mobile {
-    max-width: 95vw;
-    border-radius: 20px;
-  }
+  // Override absolute positioning to account for navbar
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin-top: 20px;
 }
 
 .Header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 30px;
-  border-bottom: 1px solid var(--primary-color-4);
-  
-  @include mobile {
-    padding: 20px;
-  }
+  @include modal-header;
 }
 
 .Title {
-  @include font-size-palette("headline-4");
-  @include text-color-palette("primary-color-1");
-  font-weight: 600;
-  margin: 0;
+  @include modal-title;
   display: flex;
   align-items: center;
   gap: 12px;
+  margin: 0;
   
   @include mobile {
     @include font-size-palette("headline-5");
@@ -60,33 +46,15 @@
 }
 
 .CloseButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  @include bg-color-palette("primary-color-4");
-  @include text-color-palette("primary-color-2");
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    @include bg-color-palette("primary-color-3");
-    @include text-color-palette("primary-color-1");
-    transform: scale(1.05);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+  @include modal-close-button;
 }
 
 .ProductInfo {
+  @include form-section-bordered;
   padding: 20px 30px;
-  @include bg-color-palette("primary-color-5");
   border-bottom: 1px solid var(--primary-color-4);
+  border-radius: 0;
+  margin-bottom: 0;
   
   @include mobile {
     padding: 16px 20px;
@@ -127,6 +95,9 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
   
   @include mobile {
     padding: 20px;
@@ -155,14 +126,10 @@
 
 .ExistingCard {
   @include bg-color-palette("white");
+  @include card-hover-effect-subtle;
   border: 1px solid var(--primary-color-4);
   border-radius: 12px;
   padding: 16px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  }
 }
 
 .ExistingInfo {
@@ -188,19 +155,14 @@
 }
 
 .StatusBadge {
-  padding: 4px 12px;
-  border-radius: 6px;
-  @include font-size-palette("body-3");
-  font-weight: 500;
+  @include status-badge;
   
   &.confirmed {
-    @include bg-color-palette("semantic-success-light");
-    @include text-color-palette("semantic-success");
+    @include status-badge-confirmed;
   }
   
   &.pending {
-    @include bg-color-palette("semantic-warning-light");
-    @include text-color-palette("semantic-warning");
+    @include status-badge-pending;
   }
 }
 
@@ -254,26 +216,7 @@
 }
 
 .EditButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  @include bg-color-palette("primary-color-1");
-  @include text-color-palette("white");
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+  @include button-icon-edit;
 }
 
 .EditInput {
@@ -294,49 +237,11 @@
 }
 
 .SaveButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  @include bg-color-palette("semantic-success");
-  @include text-color-palette("white");
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+  @include button-icon-save;
 }
 
 .CancelEditButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  @include bg-color-palette("primary-color-4");
-  @include text-color-palette("primary-color-2");
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    @include bg-color-palette("primary-color-3");
-    @include text-color-palette("primary-color-1");
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+  @include button-icon-cancel;
 }
 
 .SectionTitle {
@@ -432,27 +337,14 @@
   color: var(--semantic-error);
 }
 
-.Select,
+.Select {
+  @include input-select;
+  border-radius: 12px;
+}
+
 .Input {
-  padding: 12px 16px;
-  border: 1px solid var(--primary-color-4);
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  @include text-color-palette("primary-color-1");
-  @include bg-color-palette("white");
-  transition: all 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color-1);
-    box-shadow: 0 0 0 3px rgba(var(--primary-color-1-rgb), 0.1);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    @include bg-color-palette("primary-color-5");
-  }
+  @include input-text;
+  border-radius: 12px;
 }
 
 .PriceInputContainer {
@@ -462,50 +354,18 @@
 }
 
 .PriceUnit {
-  position: absolute;
-  right: 16px;
-  @include text-color-palette("primary-color-3");
-  @include font-size-palette("body-2");
-  pointer-events: none;
+  @include input-price-unit;
 }
 
 .HelperText {
-  @include font-size-palette("body-3");
-  @include text-color-palette("primary-color-3");
-  margin: 0;
+  @include form-helper-text;
 }
 
 .AddButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 20px;
-  @include bg-color-palette("primary-color-1");
-  @include text-color-palette("white");
-  border: none;
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  @include button-primary;
+  border-radius: 12px;
   white-space: nowrap;
   height: fit-content;
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
 }
 
 .AssignmentsList {
@@ -515,6 +375,7 @@
 }
 
 .AssignmentCard {
+  @include card-hover-effect-subtle;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -522,11 +383,6 @@
   @include bg-color-palette("primary-color-5");
   border: 1px solid var(--primary-color-4);
   border-radius: 12px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  }
 }
 
 .AssignmentInfo {
@@ -564,26 +420,7 @@
 }
 
 .RemoveButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  @include text-color-palette("semantic-error");
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    @include bg-color-palette("semantic-error");
-    @include text-color-palette("white");
-  }
-  
-  &:active {
-    transform: scale(0.95);
-  }
+  @include button-icon-remove;
 }
 
 .AssignmentsSummary {
@@ -615,21 +452,13 @@
 }
 
 .ErrorMessage {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  @include bg-color-palette("semantic-error-light");
-  @include text-color-palette("semantic-error");
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  border-left: 4px solid var(--semantic-error);
+  @include form-error-message;
+  border-left: 4px solid var(--warning);
 }
 
 .FormActions {
-  display: flex;
+  @include modal-footer-full;
   justify-content: flex-end;
-  gap: 12px;
   padding-top: 20px;
   border-top: 1px solid var(--primary-color-4);
   
@@ -638,52 +467,17 @@
   }
 }
 
-.CancelButton,
-.SubmitButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-}
-
 .CancelButton {
-  @include bg-color-palette("primary-color-4");
-  @include text-color-palette("primary-color-2");
-  
-  &:hover:not(:disabled) {
-    @include bg-color-palette("primary-color-3");
-    @include text-color-palette("primary-color-1");
-  }
+  @include button-secondary;
+  border-radius: 12px;
 }
 
 .SubmitButton {
-  @include bg-color-palette("primary-color-1");
-  @include text-color-palette("white");
-  
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
+  @include button-primary;
+  border-radius: 12px;
   
   &:disabled {
-    @include bg-color-palette("primary-color-3");
+    @include bg-color-palette("inactive");
   }
 }
 

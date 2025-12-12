@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./ProductModal.module.scss";
 import useProductModal from "./useProductModal";
 import ProductModalHandler from "./ProductModalHandler";
 import { GoogleIcon } from "../../common";
+import ProductSurveyForm from "../ProductSurveyForm/ProductSurveyForm";
+import ProductSurveyResult from "../ProductSurveyResult/ProductSurveyResult";
 
 export default function ProductModal({
     isOpen = false,
@@ -11,6 +13,15 @@ export default function ProductModal({
     onClose,
     onSave,
     isLoading = false,
+    showSurveyForm = false,
+    showSurveyResult = false,
+    surveyResult = null,
+    pendingProductId = null,
+    onSurveyComplete,
+    onSurveyResultConfirm,
+    onCloseSurveyForm,
+    onCloseSurveyResult,
+    onRetakeSurvey,
     className = ""
 }) {
     const { 
@@ -41,7 +52,62 @@ export default function ProductModal({
     
     const handlers = ProductModalHandler(stateProductModal, hookFunctions, onSave, onClose);
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
+    // Debug logging for survey states
+    useEffect(() => {
+        console.log('🔍 ProductModal State:', {
+            isOpen,
+            showSurveyForm,
+            showSurveyResult,
+            hasSurveyResult: !!surveyResult,
+            pendingProductId
+        });
+    }, [isOpen, showSurveyForm, showSurveyResult, surveyResult, pendingProductId]);
+
     if (!isOpen) return null;
+
+    // If survey form should be shown, render it instead of the product form
+    if (showSurveyForm) {
+        return (
+            <div className={styles.ModalOverlay}>
+                <div className={`${styles.Container} ${className}`}>
+                    <ProductSurveyForm
+                        productId={pendingProductId}
+                        onComplete={onSurveyComplete}
+                        onCancel={onCloseSurveyForm}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    // If survey result should be shown, render it instead of the product form
+    if (showSurveyResult) {
+        return (
+            <div className={styles.ModalOverlay}>
+                <div className={`${styles.Container} ${className}`}>
+                    <ProductSurveyResult
+                        resultData={surveyResult}
+                        onRetakeSurvey={onRetakeSurvey}
+                        onConfirm={onSurveyResultConfirm}
+                        onClose={onCloseSurveyResult}
+                    />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.ModalOverlay}>

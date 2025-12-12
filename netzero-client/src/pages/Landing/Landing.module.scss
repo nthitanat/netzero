@@ -1,6 +1,7 @@
 @import "src/styles/main";
 
 .Container {
+  @include navbar-spacing;
   @include barter-theme;
   min-height: 100vh;
   position: relative;

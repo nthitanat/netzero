@@ -1,0 +1,546 @@
+// ========================================
+// BUTTON STYLES - Centralized Button Components
+// ========================================
+// Based on market component button patterns
+// Standardized buttons for consistent UI across the app
+
+// ========================================
+// PRIMARY BUTTON (Green - Main Action)
+// ========================================
+@mixin button-primary {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  @include font-size-palette("body-1");
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-2");
+    transform: translateY(-1px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    @include bg-color-palette("inactive");
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+// ========================================
+// SECONDARY BUTTON (Gray - Cancel/Back)
+// ========================================
+@mixin button-secondary {
+  @include bg-color-palette("inactive");
+  @include text-color-palette("white");
+  @include font-size-palette("body-1");
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: rgba(158, 158, 158, 0.8);
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// OUTLINE BUTTON (Bordered, Transparent)
+// ========================================
+@mixin button-outline {
+  background: transparent;
+  @include text-color-palette("primary-color-2");
+  @include border-color-palette("primary-color-3", 2px);
+  @include font-size-palette("body-1");
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-4");
+    @include border-color-palette("primary-color-2", 2px);
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// SMALL BUTTON VARIANTS
+// ========================================
+@mixin button-primary-small {
+  @include button-primary;
+  padding: 8px 16px;
+  @include font-size-palette("body-2");
+  border-radius: 8px;
+}
+
+@mixin button-secondary-small {
+  @include button-secondary;
+  padding: 8px 16px;
+  @include font-size-palette("body-2");
+  border-radius: 8px;
+}
+
+// ========================================
+// CIRCULAR CLOSE BUTTON
+// ========================================
+@mixin button-close {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.1);
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(1);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Small variant for compact spaces
+@mixin button-close-small {
+  @include button-close;
+  width: 32px;
+  height: 32px;
+}
+
+// ========================================
+// ICON BUTTON (Square with Icon)
+// ========================================
+@mixin button-icon {
+  @include bg-color-palette("white");
+  @include text-color-palette("primary-color-2");
+  @include border-color-palette("primary-color-3", 1px);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-4");
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// QUANTITY CONTROL BUTTONS
+// ========================================
+@mixin button-quantity {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.05);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(1);
+  }
+
+  &:disabled {
+    @include bg-color-palette("inactive");
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+@mixin button-quantity-small {
+  @include button-quantity;
+  width: 32px;
+  height: 32px;
+}
+
+// ========================================
+// UPLOAD BUTTON
+// ========================================
+@mixin button-upload {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include font-size-palette("body-2");
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-1");
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// WARNING/SKIP BUTTON (Orange/Yellow)
+// ========================================
+@mixin button-warning {
+  @include bg-color-palette("warning");
+  @include text-color-palette("white");
+  @include font-size-palette("body-2");
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: darken(#FF9500, 10%);
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// BUTTON WITH LOADING STATE
+// ========================================
+@mixin button-loading-spinner {
+  .LoadingSpinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+// ========================================
+// BUTTON GROUP (Side-by-side buttons)
+// ========================================
+@mixin button-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  
+  &.fullWidth {
+    width: 100%;
+    
+    button {
+      flex: 1;
+    }
+  }
+}
+
+// ========================================
+// FLOATING ACTION BUTTON (FAB)
+// ========================================
+@mixin button-fab {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-2");
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(1.05);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// TEXT BUTTON (No background)
+// ========================================
+@mixin button-text {
+  background: none;
+  border: none;
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-2");
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    @include text-color-palette("primary-color-1");
+    background: rgba(76, 175, 80, 0.1);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// LINK BUTTON (Underlined text button)
+// ========================================
+@mixin button-link {
+  background: none;
+  border: none;
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-2");
+  padding: 4px 0;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    @include text-color-palette("primary-color-1");
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// STATUS BADGE (Colored status indicators)
+// ========================================
+@mixin status-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  @include font-size-palette("body-3");
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@mixin status-badge-confirmed {
+  @include status-badge;
+  @include bg-color-palette("semantic-success-light");
+  @include text-color-palette("semantic-success");
+}
+
+@mixin status-badge-pending {
+  @include status-badge;
+  @include bg-color-palette("semantic-warning-light");
+  @include text-color-palette("semantic-warning");
+}
+
+@mixin status-badge-success {
+  @include status-badge;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+}
+
+@mixin status-badge-warning {
+  @include status-badge;
+  background: #F59E0B;
+  color: white;
+}
+
+@mixin status-badge-info {
+  @include status-badge;
+  background: #3B82F6;
+  color: white;
+}
+
+@mixin status-badge-error {
+  @include status-badge;
+  @include bg-color-palette("secondary-color-1");
+  @include text-color-palette("white");
+}
+
+// ========================================
+// ICON BUTTON VARIANTS (Edit/Save/Cancel)
+// ========================================
+@mixin button-icon-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  @include bg-color-palette("primary-color-1");
+  @include text-color-palette("white");
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-icon-save {
+  @include button-icon-edit;
+  @include bg-color-palette("semantic-success");
+}
+
+@mixin button-icon-cancel {
+  @include button-icon-edit;
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-2");
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("primary-color-3");
+    @include text-color-palette("primary-color-1");
+  }
+}
+
+@mixin button-icon-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  @include text-color-palette("semantic-error");
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    @include bg-color-palette("semantic-error");
+    @include text-color-palette("white");
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

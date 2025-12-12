@@ -4,7 +4,7 @@ import styles from "./SellerDashboard.module.scss";
 import useSellerDashboard from "./useSellerDashboard";
 import SellerDashboardHandler from "./SellerDashboardHandler";
 import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
-import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel, AddProductToEventDialog } from "../../components/dashboard";
+import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel, AddProductToEventDialog, ProductSurveyForm, ProductSurveyResult, ProductModal } from "../../components/dashboard";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function SellerDashboard() {
@@ -13,14 +13,14 @@ export default function SellerDashboard() {
     const { stateSellerDashboard, setSellerDashboard } = useSellerDashboard();
     const handlers = SellerDashboardHandler(stateSellerDashboard, setSellerDashboard, navigate);
     
-    // Check if user has seller or community_head role
-    if (!user || (user.role !== 'seller' && user.role !== 'community_head')) {
+    // Check if user has seller, community_head, or admin role
+    if (!user || (user.role !== 'seller' && user.role !== 'community_head' && user.role !== 'admin')) {
         return (
             <div className={styles.Container}>
                 <div className={styles.UnauthorizedContainer}>
                     <GoogleIcon iconType="warning" size="large" className={styles.WarningIcon} />
                     <h2>ไม่สามารถเข้าถึงได้</h2>
-                    <p>คุณต้องมีสิทธิ์เป็นผู้ขายหรือผู้นำชุมชนเพื่อเข้าใช้หน้านี้</p>
+                    <p>คุณต้องมีสิทธิ์เป็นผู้ขาย ผู้นำชุมชน หรือผู้ดูแลระบบ เพื่อเข้าใช้หน้านี้</p>
                     <button 
                         className={styles.BackButton}
                         onClick={() => navigate('/')}
@@ -83,17 +83,12 @@ export default function SellerDashboard() {
                         products={stateSellerDashboard.products}
                         isLoading={stateSellerDashboard.isLoading}
                         selectedProduct={stateSellerDashboard.selectedProduct}
-                        showProductModal={stateSellerDashboard.showProductModal}
                         showDeleteConfirm={stateSellerDashboard.showDeleteConfirm}
-                        productModalMode={stateSellerDashboard.productModalMode}
-                        isSubmittingProduct={stateSellerDashboard.isSubmittingProduct}
                         onCreateProduct={handlers.handleCreateProduct}
                         onEditProduct={handlers.handleEditProduct}
                         onDeleteProduct={handlers.handleDeleteProduct}
                         onConfirmDelete={handlers.handleConfirmDelete}
                         onCancelDelete={handlers.handleCancelDelete}
-                        onCloseModal={handlers.handleCloseProductModal}
-                        onProductSaved={handlers.handleProductSaved}
                         onRefresh={handlers.handleRefreshProducts}
                         onAddToEvent={handlers.handleAddProductToEvent}
                         theme="seller"
@@ -111,6 +106,25 @@ export default function SellerDashboard() {
                     />
                 )}
             </div>
+            
+            {/* Product Modal */}
+            <ProductModal
+                isOpen={stateSellerDashboard.showProductModal}
+                mode={stateSellerDashboard.productModalMode}
+                product={stateSellerDashboard.selectedProduct}
+                onClose={handlers.handleCloseProductModal}
+                onSave={handlers.handleProductSaved}
+                isLoading={stateSellerDashboard.isSubmittingProduct}
+                showSurveyForm={stateSellerDashboard.showSurveyForm}
+                showSurveyResult={stateSellerDashboard.showSurveyResult}
+                surveyResult={stateSellerDashboard.surveyResult}
+                pendingProductId={stateSellerDashboard.pendingProductId}
+                onSurveyComplete={handlers.handleSurveyComplete}
+                onSurveyResultConfirm={handlers.handleSurveyResultConfirm}
+                onCloseSurveyForm={handlers.handleCloseSurveyForm}
+                onCloseSurveyResult={handlers.handleCloseSurveyResult}
+                onRetakeSurvey={handlers.handleRetakeSurvey}
+            />
             
             {/* Add Product to Event Dialog */}
             <AddProductToEventDialog

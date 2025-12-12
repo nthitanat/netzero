@@ -1,0 +1,567 @@
+// ========================================
+// FORM STYLES - Centralized Form Elements
+// ========================================
+// Based on market component form patterns
+// Standardized inputs, textareas, selects, and form controls
+
+// ========================================
+// BASE INPUT FIELD
+// ========================================
+@mixin input-base {
+  width: 100%;
+  padding: 12px 16px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-1");
+  @include border-color-palette("primary-color-3", 2px);
+  border-radius: 12px;
+  background: white;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  
+  &::placeholder {
+    @include text-color-palette("inactive");
+    opacity: 0.7;
+  }
+  
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+  
+  &:disabled {
+    background-color: rgba(27, 94, 32, 0.05);
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// TEXT INPUT
+// ========================================
+@mixin input-text {
+  @include input-base;
+}
+
+// ========================================
+// TEXTAREA
+// ========================================
+@mixin input-textarea {
+  @include input-base;
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+@mixin input-textarea-large {
+  @include input-textarea;
+  min-height: 120px;
+}
+
+// ========================================
+// SELECT DROPDOWN
+// ========================================
+@mixin input-select {
+  @include input-base;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234CAF50' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  
+  &:hover:not(:disabled) {
+    @include border-color-palette("primary-color-2", 2px);
+  }
+}
+
+// ========================================
+// NUMBER INPUT
+// ========================================
+@mixin input-number {
+  @include input-base;
+  text-align: center;
+  font-weight: 600;
+  
+  // Hide spinner arrows
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  &[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+// ========================================
+// QUANTITY INPUT (Compact number input)
+// ========================================
+@mixin input-quantity {
+  width: 80px;
+  height: 40px;
+  text-align: center;
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  @include border-color-palette("primary-color-3", 2px);
+  border-radius: 8px;
+  background: white;
+  font-weight: 600;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+    @include shawdow-palette("primary-color-2", 0.3);
+  }
+
+  // Hide spinner arrows
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+// ========================================
+// DATE INPUT
+// ========================================
+@mixin input-date {
+  @include input-base;
+  cursor: pointer;
+  
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    @include text-color-palette("primary-color-3");
+  }
+}
+
+// ========================================
+// ERROR STATE FOR INPUTS
+// ========================================
+@mixin input-error {
+  @include border-color-palette("warning", 2px);
+  background: rgba(244, 67, 54, 0.05);
+  
+  &:focus {
+    @include border-color-palette("warning", 2px);
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+  }
+}
+
+// ========================================
+// FORM LABEL
+// ========================================
+@mixin form-label {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+@mixin form-label-required {
+  @include form-label;
+  
+  &::after {
+    content: " *";
+    @include text-color-palette("warning");
+    font-weight: 700;
+  }
+}
+
+// ========================================
+// HELPER TEXT
+// ========================================
+@mixin form-helper-text {
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-2");
+  margin-top: 4px;
+  display: block;
+  font-style: italic;
+}
+
+// ========================================
+// ERROR MESSAGE
+// ========================================
+@mixin form-error-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  @include font-size-palette("body-3");
+  @include text-color-palette("warning");
+  padding: 8px 12px;
+  @include bg-color-palette("warning");
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 8px;
+  @include border-color-palette("warning", 1px);
+  margin-top: 8px;
+}
+
+// ========================================
+// FORM GROUP (Label + Input container)
+// ========================================
+@mixin form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+@mixin form-group-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  
+  label {
+    flex-shrink: 0;
+    min-width: 120px;
+  }
+  
+  input, select, textarea {
+    flex: 1;
+  }
+}
+
+// ========================================
+// RADIO BUTTON GROUP
+// ========================================
+@mixin radio-button-group {
+  display: flex;
+  gap: 16px;
+  
+  label {
+    flex: 1;
+    cursor: pointer;
+  }
+  
+  input[type="radio"] {
+    display: none;
+  }
+}
+
+@mixin radio-button-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  @include font-size-palette("body-2");
+  @include text-color-palette("primary-color-2");
+  transition: all 0.3s ease;
+  background: white;
+  
+  &:hover {
+    border-color: #b0b0b0;
+    @include text-color-palette("primary-color-1");
+  }
+}
+
+@mixin radio-button-option-checked {
+  @include border-color-palette("primary-color-3", 2px);
+  @include bg-color-palette("primary-color-4");
+  background: rgba(69, 206, 105, 0.1);
+  @include text-color-palette("primary-color-1");
+  font-weight: 600;
+}
+
+// ========================================
+// CUSTOM RADIO BUTTON (Full Styling)
+// ========================================
+// Use this for complete custom radio button implementation
+@mixin radio-button-custom {
+  flex: 1;
+  display: flex;
+  cursor: pointer;
+  
+  .DeliveryRadio,
+  input[type="radio"] {
+    display: none;
+  }
+  
+  .DeliveryOptionContent,
+  .radio-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-2");
+    transition: all 0.3s ease;
+    background: white;
+    
+    &:hover {
+      border-color: #b0b0b0;
+      @include text-color-palette("primary-color-1");
+    }
+  }
+  
+  .DeliveryRadio:checked + .DeliveryOptionContent,
+  input[type="radio"]:checked + .radio-content {
+    @include border-color-palette("primary-color-3", 2px);
+    @include bg-color-palette("primary-color-4");
+    background: rgba(69, 206, 105, 0.1);
+    @include text-color-palette("primary-color-1");
+    font-weight: 600;
+  }
+}
+
+// ========================================
+// CHECKBOX
+// ========================================
+@mixin checkbox-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-color-3);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:checked {
+      @include bg-color-palette("primary-color-3");
+      @include border-color-palette("primary-color-3", 2px);
+      
+      &::after {
+        content: "✓";
+        position: absolute;
+        left: 4px;
+        top: 0;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+      }
+    }
+    
+    &:hover {
+      @include border-color-palette("primary-color-2", 2px);
+    }
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  
+  label {
+    @include font-size-palette("body-2");
+    @include text-color-palette("primary-color-1");
+    cursor: pointer;
+  }
+}
+
+// ========================================
+// SEARCH INPUT
+// ========================================
+@mixin input-search {
+  @include input-base;
+  padding-left: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%234CAF50'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
+  background-size: 20px;
+}
+
+// ========================================
+// FILE INPUT (Hidden with custom button)
+// ========================================
+@mixin input-file-hidden {
+  display: none;
+}
+
+// ========================================
+// FORM SECTION WITH BACKGROUND
+// ========================================
+@mixin form-section {
+  padding: 16px;
+  @include bg-color-palette("primary-color-4");
+  background: rgba(69, 206, 105, 0.1);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+@mixin form-section-bordered {
+  @include form-section;
+  @include border-color-palette("primary-color-3", 1px);
+}
+
+// ========================================
+// INFO/NOTE BOX
+// ========================================
+@mixin form-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  @include font-size-palette("body-3");
+  @include text-color-palette("primary-color-2");
+  padding: 8px 12px;
+  background: rgba(69, 206, 105, 0.05);
+  border-radius: 8px;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+// ========================================
+// PRICE INPUT (With currency symbol)
+// ========================================
+@mixin input-price {
+  @include input-base;
+  padding-right: 48px;
+}
+
+@mixin input-price-unit {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-2");
+  font-weight: 600;
+  pointer-events: none;
+}
+
+// ========================================
+// PROGRESS BAR
+// ========================================
+@mixin progress-bar-container {
+  height: 8px;
+  @include bg-color-palette("white");
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@mixin progress-bar-fill {
+  height: 100%;
+  @include bg-color-palette("primary-color-2");
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+// ========================================
+// TOGGLE SWITCH
+// ========================================
+@mixin toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+  
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    
+    &:checked + .slider {
+      @include bg-color-palette("primary-color-3");
+      
+      &:before {
+        transform: translateX(24px);
+      }
+    }
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+    
+    &:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE FORM LAYOUTS
+// ========================================
+@mixin form-grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+// ========================================
+// NUMBERED LIST WITH CIRCLE BADGES
+// ========================================
+@mixin numbered-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: list-counter;
+}
+
+@mixin numbered-list-item {
+  position: relative;
+  padding-left: 36px;
+  margin-bottom: 16px;
+  @include text-color-palette("black");
+  @include font-size-palette("body-2");
+  line-height: 1.6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &::before {
+    content: counter(list-counter);
+    counter-increment: list-counter;
+    position: absolute;
+    left: 0;
+    top: 0;
+    @include bg-color-palette("primary-color-2");
+    @include text-color-palette("white");
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    @include font-size-palette("body-3");
+  }
+}

@@ -15,15 +15,88 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
       setSellerDashboard({
         selectedProduct: null,
         productModalMode: "create",
-        showProductModal: true
+        showProductModal: true,
+        showSurveyForm: false,
+        showSurveyResult: false,
+        surveyResult: null,
+        pendingProductId: null
       });
     },
 
     handleEditProduct: (product) => {
+      // For editing, skip survey and go directly to product modal
       setSellerDashboard({
         selectedProduct: product,
         productModalMode: "edit",
-        showProductModal: true
+        showProductModal: true,
+        showSurveyForm: false,
+        showSurveyResult: false
+      });
+    },
+
+    handleSurveyComplete: (resultData) => {
+      console.log("✅ Survey completed - Handler called with:", resultData);
+      console.log("📊 Result data structure:", {
+        hasProductId: !!resultData?.productId,
+        hasSurveyResponseId: !!resultData?.surveyResponseId,
+        hasAlignmentLevel: !!resultData?.alignmentLevel,
+        keys: Object.keys(resultData || {})
+      });
+      
+      // Show result and store it for later use
+      setSellerDashboard({
+        showSurveyForm: false,
+        showSurveyResult: true,
+        surveyResult: resultData,
+        pendingProductId: resultData.productId
+      });
+      
+      console.log("🎯 State updated - showSurveyResult: true");
+    },
+
+    handleSurveyResultConfirm: () => {
+      // After confirming survey result, close everything
+      console.log("✅ Survey completed and confirmed");
+      setSellerDashboard({
+        showSurveyResult: false,
+        showProductModal: false,
+        showSurveyForm: false,
+        surveyResult: null,
+        pendingProductId: null,
+        selectedProduct: null
+      });
+      alert("เพิ่มสินค้าและประเมิน Net-Zero เรียบร้อยแล้ว");
+    },
+
+    handleCloseSurveyForm: () => {
+      // Close survey form and the modal
+      setSellerDashboard({
+        showSurveyForm: false,
+        showProductModal: false,
+        surveyResult: null,
+        pendingProductId: null,
+        selectedProduct: null
+      });
+    },
+
+    handleCloseSurveyResult: () => {
+      // Close result and modal
+      setSellerDashboard({
+        showSurveyResult: false,
+        showProductModal: false,
+        showSurveyForm: false,
+        surveyResult: null,
+        pendingProductId: null,
+        selectedProduct: null
+      });
+    },
+
+    handleRetakeSurvey: () => {
+      // Go back to survey form (keep modal open)
+      setSellerDashboard({
+        showSurveyResult: false,
+        showSurveyForm: true,
+        surveyResult: null
       });
     },
 
@@ -107,7 +180,11 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
       setSellerDashboard({
         selectedProduct: null,
         showProductModal: false,
-        isSubmittingProduct: false
+        isSubmittingProduct: false,
+        showSurveyForm: false,
+        showSurveyResult: false,
+        surveyResult: null,
+        pendingProductId: null
       });
     },
 
@@ -137,16 +214,19 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
             await productsService.uploadProductImages(savedProduct.id, imageFiles.additionalImages);
           }
           
-          // Add new product to local state
+          // Add new product to local state and show survey form
           setSellerDashboard({
             products: [...stateSellerDashboard.products, savedProduct],
-            selectedProduct: null,
-            showProductModal: false,
-            isSubmittingProduct: false
+            selectedProduct: savedProduct,
+            showProductModal: true,
+            isSubmittingProduct: false,
+            showSurveyForm: true,
+            showSurveyResult: false,
+            surveyResult: null,
+            pendingProductId: savedProduct.id
           });
           
-          console.log("✅ New product created successfully");
-          alert(`เพิ่มสินค้า "${savedProduct.title}" เรียบร้อยแล้ว`);
+          console.log("✅ New product created successfully, showing survey form");
           
         } else {
           // Update existing product

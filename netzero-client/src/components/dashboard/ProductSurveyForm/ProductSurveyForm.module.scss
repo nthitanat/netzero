@@ -1,0 +1,448 @@
+@import "src/styles/main";
+
+.Container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.Header {
+  @include modal-header;
+}
+
+.HeaderContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.Title {
+  @include modal-title;
+  @include font-size-palette("headline-3");
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.Subtitle {
+  @include modal-subtitle;
+  opacity: 0.7;
+}
+
+.SkipButton {
+  @include button-warning;
+  align-self: flex-start;
+  border-radius: 12px;
+}
+
+.CloseButton {
+  @include modal-close-button;
+}
+
+.ProgressSection {
+  padding: 16px 24px;
+  @include bg-color-palette("primary-color-4");
+}
+
+.ProgressInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ProgressText {
+  @include text-color-palette("primary-color-1");
+  @include font-size-palette("body-2");
+  font-weight: 500;
+}
+
+.ProgressPercent {
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-2");
+  font-weight: 600;
+}
+
+.ProgressBar {
+  @include progress-bar-container;
+}
+
+.ProgressFill {
+  @include progress-bar-fill;
+}
+
+.CriteriaNav {
+  @include modal-tab-navigation;
+}
+
+.CriteriaButton {
+  @include modal-tab-button;
+
+  &.active {
+    .CriteriaCode,
+    .CriteriaProgress {
+      @include text-color-palette("primary-color-1");
+    }
+  }
+
+  &.complete {
+    .CriteriaCode {
+      @include text-color-palette("primary-color-2");
+    }
+  }
+}
+
+.CriteriaCode {
+  @include font-size-palette("body-2");
+  font-weight: inherit;
+}
+
+.CriteriaProgress {
+  @include text-color-palette("primary-color-3");
+  @include font-size-palette("body-3");
+  font-weight: 500;
+}
+
+.CriterionSection {
+  @include modal-scrollable-content;
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.CriterionHeader {
+  margin-bottom: 24px;
+}
+
+.CriterionBadge {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.StandardBadge {
+  @include bg-color-palette("secondary-color-1");
+  @include text-color-palette("white");
+  @include font-size-palette("body-3");
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.CriterionCode {
+  @include bg-color-palette("primary-color-3");
+  @include text-color-palette("primary-color-1");
+  @include font-size-palette("body-3");
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.CriterionName {
+  @include text-color-palette("primary-color-1");
+  @include font-size-palette("headline-4");
+  font-weight: 600;
+  margin: 0;
+}
+
+.QuestionsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.QuestionCard {
+  @include bg-color-palette("white");
+  @include border-color-palette("primary-color-3", 2px);
+  @include card-hover-effect;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.QuestionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.QuestionNumber {
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-1");
+  @include font-size-palette("body-3");
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.AnsweredBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include font-size-palette("body-3");
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.QuestionText {
+  @include text-color-palette("black");
+  @include font-size-palette("body-1");
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.ScoringGuide {
+  display: flex;
+  gap: 8px;
+  @include bg-color-palette("primary-color-4");
+  @include text-color-palette("primary-color-1");
+  @include font-size-palette("body-3");
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.AnswerSection,
+.ScoreSection {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.Label {
+  display: block;
+  @include text-color-palette("black");
+  @include font-size-palette("body-2");
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.Required {
+  @include text-color-palette("secondary-color-1");
+}
+
+.Textarea {
+  width: 100%;
+  padding: 12px;
+  @include text-color-palette("black");
+  @include font-size-palette("body-2");
+  @include border-color-palette("primary-color-3", 2px);
+  border-radius: 8px;
+  resize: vertical;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    @include border-color-palette("primary-color-2", 2px);
+  }
+
+  &.error {
+    @include border-color-palette("secondary-color-1", 2px);
+  }
+
+  &:disabled {
+    @include bg-color-palette("primary-color-4");
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.ErrorText {
+  @include text-color-palette("secondary-color-1");
+  @include font-size-palette("body-3");
+  display: block;
+  margin-top: 4px;
+}
+
+.ScoreInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ScoreSlider {
+  flex: 1;
+  height: 8px;
+  @include bg-color-palette("primary-color-4");
+  border-radius: 4px;
+  outline: none;
+  appearance: none;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    @include bg-color-palette("primary-color-2");
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    @include bg-color-palette("primary-color-2");
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      cursor: not-allowed;
+    }
+
+    &::-moz-range-thumb {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.ScoreValue {
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  @include font-size-palette("body-1");
+  font-weight: 600;
+  min-width: 40px;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.ScoreLabels {
+  display: flex;
+  justify-content: space-between;
+  @include text-color-palette("black");
+  @include font-size-palette("body-4");
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.Footer {
+  @include modal-footer-full;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-top: 2px solid var(--primary-color-3);
+}
+
+.FooterActions {
+  @include button-group;
+}
+
+.PrimaryButton {
+  @include button-primary;
+  border-radius: 12px;
+}
+
+.SecondaryButton {
+  @include button-outline;
+  border-radius: 12px;
+}
+
+.SubmitButton {
+  @include button-primary;
+  border-radius: 12px;
+}
+
+.CancelButton {
+  @include button-secondary;
+  border-radius: 12px;
+}
+
+.ErrorMessage {
+  @include form-error-message;
+}
+
+.LoadingContainer,
+.ErrorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: 16px;
+  text-align: center;
+}
+
+.LoadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #11955E;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.RetryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  @include bg-color-palette("primary-color-2");
+  @include text-color-palette("white");
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  @include font-size-palette("body-2");
+
+  &:hover {
+    @include bg-color-palette("primary-color-1");
+  }
+}
+
+.SubmittingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  @include bg-color-palette("black");
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.SubmittingCard {
+  @include bg-color-palette("white");
+  padding: 48px;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(27, 94, 32, 0.2);
+
+  h3 {
+    @include text-color-palette("primary-color-1");
+    @include font-size-palette("headline-4");
+    margin: 16px 0 8px 0;
+  }
+
+  p {
+    @include text-color-palette("black");
+    @include font-size-palette("body-2");
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .LoadingSpinner {
+    margin: 0 auto;
+  }
+}

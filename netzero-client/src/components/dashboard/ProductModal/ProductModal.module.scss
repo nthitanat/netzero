@@ -1,132 +1,86 @@
 @import "src/styles/main";
 
 .ModalOverlay {
+  @include modal-container-base;
+  @include modal-overlay;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 120px 20px 20px 20px;
+  overflow-y: auto;
 }
 
 .Container {
-  @include bg-color-palette("white");
-  border-radius: 12px;
-  @include shawdow-palette("black", 0.15);
-  max-width: 800px;
-  width: 100%;
+  @include modal-body-base;
+  @include modal-body-large;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   
-  @include fade-in-animation(0.3s);
+  // Override absolute positioning to account for navbar
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin-top: 20px;
 }
 
 .Header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  border-bottom: 2px solid var(--primary-color-1);
+  @include modal-header;
 }
 
 .Title {
-  @include font-size-palette("headline-4");
-  @include text-color-palette("primary-color-1");
-  font-weight: 600;
-  margin: 0;
+  @include modal-title;
   display: flex;
   align-items: center;
   gap: 12px;
+  margin: 0;
 }
 
 .CloseButton {
-  background: none;
-  border: none;
-  @include text-color-palette("black");
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(27, 94, 32, 0.1);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  @include modal-close-button;
 }
 
 .Form {
   padding: 0 24px 24px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .FormGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
+  @include form-grid-responsive;
 }
 
 .FormGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  @include form-group;
 }
 
 .Label {
-  @include font-size-palette("body-1");
-  @include text-color-palette("primary-color-1");
-  font-weight: 500;
-  margin-bottom: 4px;
+  @include form-label;
 }
 
 .Required {
-  @include text-color-palette("secondary-color-1");
+  @include text-color-palette("warning");
   margin-left: 4px;
 }
 
-.Input,
-.Select,
-.Textarea {
-  @include font-size-palette("body-2");
-  padding: 12px;
-  @include border-color-palette("primary-color-1", 1px);
-  border-radius: 8px;
-  @include bg-color-palette("white");
-  @include text-color-palette("black");
-  transition: all 0.2s ease;
+.Input {
+  @include input-text;
+  border-radius: 12px;
+}
 
-  &:focus {
-    outline: none;
-    @include border-color-palette("primary-color-2", 2px);
-    @include shawdow-palette("primary-color-2", 0.2);
-  }
-
-  &:disabled {
-    background-color: rgba(27, 94, 32, 0.05);
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
-  &::placeholder {
-    color: rgba(0, 0, 0, 0.5);
-  }
+.Select {
+  @include input-select;
+  border-radius: 12px;
 }
 
 .Textarea {
-  resize: vertical;
-  min-height: 100px;
-  font-family: inherit;
+  @include input-textarea-large;
+  border-radius: 12px;
 }
 
 .PriceInputContainer {
@@ -144,18 +98,14 @@
 }
 
 .HelperText {
-  @include font-size-palette("body-3");
-  @include text-color-palette("primary-color-2");
-  margin-top: 4px;
-  font-style: italic;
+  @include form-helper-text;
 }
 
 .ImageSection {
+  @include form-section-bordered;
   margin: 32px 0;
   padding: 24px;
-  @include border-color-palette("primary-color-1", 1px);
-  border-radius: 8px;
-  background-color: rgba(27, 94, 32, 0.02);
+  border-radius: 12px;
 }
 
 .ImageUploadGroup {
@@ -185,30 +135,9 @@
 }
 
 .UploadButton {
-  @include bg-color-palette("primary-color-2");
-  @include text-color-palette("white");
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @include button-upload;
   align-self: flex-start;
-  transition: all 0.2s ease;
-
-  &:hover {
-    @include bg-color-palette("primary-color-1");
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    background-color: rgba(0, 0, 0, 0.3);
-    cursor: not-allowed;
-    transform: none;
-  }
+  border-radius: 12px;
 }
 
 .ImagePreview {
@@ -287,92 +216,35 @@
 }
 
 .ErrorMessage {
-  background-color: rgba(102, 187, 106, 0.1);
-  @include border-color-palette("secondary-color-1", 1px);
-  @include text-color-palette("secondary-color-1");
-  padding: 12px;
-  border-radius: 8px;
-  @include font-size-palette("body-3");
+  @include form-error-message;
   margin: 16px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .FormActions {
-  display: flex;
+  @include modal-footer-full;
   justify-content: flex-end;
-  gap: 12px;
   margin-top: 32px;
-  padding-top: 24px;
-  border-top: 2px solid var(--primary-color-1);
 }
 
 .CancelButton {
-  @include bg-color-palette("white");
-  color: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  padding: 12px 24px;
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    @include text-color-palette("black");
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  @include button-secondary;
+  border-radius: 12px;
 }
 
 .SubmitButton {
-  @include bg-color-palette("primary-color-2");
-  @include text-color-palette("white");
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  @include font-size-palette("body-2");
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
+  @include button-primary;
   min-width: 140px;
-  justify-content: center;
-
-  &:hover:not(:disabled) {
-    @include bg-color-palette("primary-color-1");
-    transform: translateY(-1px);
-    @include shawdow-palette("primary-color-2", 0.3);
-  }
-
+  border-radius: 12px;
+  
   &:disabled {
-    background-color: rgba(0, 0, 0, 0.3);
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+    @include bg-color-palette("inactive");
   }
 }
 
 .LoadingSpinner {
+  @include button-loading-spinner;
   width: 16px;
   height: 16px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 // Responsive Design
