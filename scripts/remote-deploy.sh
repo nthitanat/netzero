@@ -196,6 +196,16 @@ deploy_app() {
     else
         npm install
     fi
+    
+    # Build with production environment variables
+    echo "Setting production environment variables for React build..."
+    source "$DEPLOY_PATH/.env"
+    export REACT_APP_API_BASE_URL="$PROD_REACT_APP_API_BASE_URL"
+    export REACT_APP_CHAT_API_BASE_URL="$PROD_REACT_APP_CHAT_API_BASE_URL"
+    export REACT_APP_USE_REAL_TREE_API="$PROD_REACT_APP_USE_REAL_TREE_API"
+    export REACT_APP_TREE_IMAGES_BASE_URL="$PROD_REACT_APP_TREE_IMAGES_BASE_URL"
+    export REACT_APP_ENABLE_API_LOGGING="$PROD_REACT_APP_ENABLE_API_LOGGING"
+    
     npm run build
 
     echo "📁 Deploying React build to /www/wwwroot/engagement.chula.ac.th/..."
