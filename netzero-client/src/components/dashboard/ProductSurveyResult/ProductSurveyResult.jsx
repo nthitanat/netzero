@@ -33,8 +33,9 @@ const ProductSurveyResult = ({
   const {
     getAlignmentInfo,
     getScoreColor,
-    formatCompliancePercentage,
+    formatComplianceValue,
     getCriteriaItems,
+    getNormalizedData,
     handleRetakeSurvey,
     handleConfirm,
     handleClose,
@@ -65,9 +66,10 @@ const ProductSurveyResult = ({
   const alignmentInfo = getAlignmentInfo();
   const scoreColor = getScoreColor(resultData.overallScore || 0);
   const criteriaItems = getCriteriaItems();
-  const compliance = resultData.criteriaBreakdown?.sbti_compliance_summary || {};
-  const riskFlags = resultData.criteriaBreakdown?.risk_flags || [];
-  const recommendations = resultData.criteriaBreakdown?.recommendations || [];
+  const normalizedData = getNormalizedData();
+  const compliance = normalizedData.criteriaBreakdown?.sbti_compliance_summary || {};
+  const riskFlags = normalizedData.criteriaBreakdown?.risk_flags || [];
+  const recommendations = normalizedData.criteriaBreakdown?.recommendations || [];
 
   return (
     <div className={`${styles.Container} ${className}`}>
@@ -109,11 +111,11 @@ const ProductSurveyResult = ({
               cy="60"
               r="50"
               className={`${styles.CircleProgress} ${styles[scoreColor]}`}
-              strokeDasharray={`${(resultData.overallScore || 0) * 3.14} 314`}
+              strokeDasharray={`${(normalizedData.overallScore || 0) * 3.14} 314`}
             />
           </svg>
           <div className={styles.ScoreText}>
-            <span className={styles.ScoreValue}>{resultData.overallScore || 0}</span>
+            <span className={styles.ScoreValue}>{normalizedData.overallScore || 0}</span>
             <span className={styles.ScoreLabel}>คะแนนรวม</span>
           </div>
         </div>
@@ -131,155 +133,167 @@ const ProductSurveyResult = ({
       {/* Scrollable Content */}
       <div className={styles.ScrollableContent}>
 
-      {/* AI Comment */}
-      {resultData.aiComment && (
-        <div className={styles.CommentSection}>
-          <div className={styles.CommentHeader}>
-            <GoogleIcon iconType="psychology" size={20} />
-            <h3>ความเห็นจาก AI</h3>
+        {/* AI Comment */}
+        {normalizedData.aiComment && (
+          <div className={styles.CommentSection}>
+            <div className={styles.CommentHeader}>
+              <GoogleIcon iconType="psychology" size={20} />
+              <h3>ความเห็นจาก AI</h3>
+            </div>
+            <p className={styles.CommentText}>{normalizedData.aiComment}</p>
           </div>
-          <p className={styles.CommentText}>{resultData.aiComment}</p>
-        </div>
-      )}
+        )}
 
-      {/* SBTi Compliance */}
-      {compliance && Object.keys(compliance).length > 0 && (
-        <div className={styles.Section}>
-          <button
-            className={styles.SectionHeader}
-            onClick={() => handleToggleSection('compliance')}
-          >
-            <div className={styles.SectionTitle}>
-              <GoogleIcon iconType="rule" size={20} />
-              <h3>ความสอดคล้องกับ SBTi</h3>
-            </div>
-            <GoogleIcon
-              name={expandedSections.compliance ? 'expand_less' : 'expand_more'}
-              size={20}
-            />
-          </button>
-          {expandedSections.compliance && (
-            <div className={styles.SectionContent}>
-              <div className={styles.ComplianceGrid}>
-                {Object.entries(compliance).map(([key, value]) => (
-                  <div key={key} className={styles.ComplianceItem}>
-                    <span className={styles.ComplianceLabel}>
-                      {key.replace(/_/g, ' ').toUpperCase()}
-                    </span>
-                    <span className={styles.ComplianceValue}>
-                      {formatCompliancePercentage(value)}
-                    </span>
-                  </div>
-                ))}
+        {/* SBTi Compliance */}
+        {compliance && Object.keys(compliance).length > 0 && (
+          <div className={styles.Section}>
+            <button
+              className={styles.SectionHeader}
+              onClick={() => handleToggleSection('compliance')}
+            >
+              <div className={styles.SectionTitle}>
+                <GoogleIcon iconType="rule" size={20} />
+                <h3>ความสอดคล้องกับ SBTi</h3>
               </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Risk Flags */}
-      {riskFlags.length > 0 && (
-        <div className={styles.Section}>
-          <button
-            className={styles.SectionHeader}
-            onClick={() => handleToggleSection('risks')}
-          >
-            <div className={styles.SectionTitle}>
-              <GoogleIcon iconType="report_problem" size={20} />
-              <h3>จุดเสี่ยง ({riskFlags.length})</h3>
-            </div>
-            <GoogleIcon
-              name={expandedSections.risks ? 'expand_less' : 'expand_more'}
-              size={20}
-            />
-          </button>
-          {expandedSections.risks && (
-            <div className={styles.SectionContent}>
-              <ul className={styles.RiskList}>
-                {riskFlags.map((risk, index) => (
-                  <li key={index} className={styles.RiskItem}>
-                    <GoogleIcon iconType="error_outline" size={16} />
-                    <span>{risk}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Recommendations */}
-      {recommendations.length > 0 && (
-        <div className={styles.Section}>
-          <button
-            className={styles.SectionHeader}
-            onClick={() => handleToggleSection('recommendations')}
-          >
-            <div className={styles.SectionTitle}>
-              <GoogleIcon iconType="tips_and_updates" size={20} />
-              <h3>คำแนะนำ ({recommendations.length})</h3>
-            </div>
-            <GoogleIcon
-              name={expandedSections.recommendations ? 'expand_less' : 'expand_more'}
-              size={20}
-            />
-          </button>
-          {expandedSections.recommendations && (
-            <div className={styles.SectionContent}>
-              <ol className={styles.RecommendationList}>
-                {recommendations.map((rec, index) => (
-                  <li key={index} className={styles.RecommendationItem}>
-                    <span>{rec}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Criteria Breakdown */}
-      {criteriaItems.length > 0 && (
-        <div className={styles.Section}>
-          <button
-            className={styles.SectionHeader}
-            onClick={() => handleToggleSection('criteria')}
-          >
-            <div className={styles.SectionTitle}>
-              <GoogleIcon iconType="bar_chart" size={20} />
-              <h3>คะแนนรายเกณฑ์ ({criteriaItems.length})</h3>
-            </div>
-            <GoogleIcon
-              name={expandedSections.criteria ? 'expand_less' : 'expand_more'}
-              size={20}
-            />
-          </button>
-          {expandedSections.criteria && (
-            <div className={styles.SectionContent}>
-              <div className={styles.CriteriaGrid}>
-                {criteriaItems.map((item) => (
-                  <div
-                    key={item.code}
-                    className={styles.CriteriaCard}
-                    onClick={() => handleCriterionClick(item)}
-                  >
-                    <div className={styles.CriteriaHeader}>
-                      <span className={styles.CriteriaCode}>{item.code}</span>
-                      <span className={`${styles.CriteriaScore} ${styles[getScoreColor(item.score)]}`}>
-                        {item.score}
-                      </span>
-                    </div>
-                    <p className={styles.CriteriaName}>{item.name}</p>
-                    <div className={`${styles.CriteriaLevel} ${styles[item.level]}`}>
-                      {item.level}
-                    </div>
-                  </div>
-                ))}
+              <GoogleIcon
+                name={expandedSections.compliance ? 'expand_less' : 'expand_more'}
+                size={20}
+              />
+            </button>
+            {expandedSections.compliance && (
+              <div className={styles.SectionContent}>
+                <div className={styles.ComplianceGrid}>
+                  {Object.entries(compliance).map(([key, value]) => {
+                    const formatted = formatComplianceValue(value);
+                    return (
+                      <div key={key} className={styles.ComplianceItem}>
+                        <span className={styles.ComplianceLabel}>
+                          {key.replace(/_/g, ' ').toUpperCase()}
+                        </span>
+                        <span className={`${styles.ComplianceValue} ${styles[formatted.color]}`}>
+                          <GoogleIcon iconType={formatted.icon} size={16} />
+                          {formatted.text}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+
+        {/* Risk Flags */}
+        {riskFlags.length > 0 && (
+          <div className={styles.Section}>
+            <button
+              className={styles.SectionHeader}
+              onClick={() => handleToggleSection('risks')}
+            >
+              <div className={styles.SectionTitle}>
+                <GoogleIcon iconType="report_problem" size={20} />
+                <h3>จุดเสี่ยง ({riskFlags.length})</h3>
+              </div>
+              <GoogleIcon
+                name={expandedSections.risks ? 'expand_less' : 'expand_more'}
+                size={20}
+              />
+            </button>
+            {expandedSections.risks && (
+              <div className={styles.SectionContent}>
+                <ul className={styles.RiskList}>
+                  {riskFlags.map((risk, index) => (
+                    <li key={index} className={styles.RiskItem}>
+                      <GoogleIcon iconType="error_outline" size={16} />
+                      <span>{risk}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <div className={styles.Section}>
+            <button
+              className={styles.SectionHeader}
+              onClick={() => handleToggleSection('recommendations')}
+            >
+              <div className={styles.SectionTitle}>
+                <GoogleIcon iconType="tips_and_updates" size={20} />
+                <h3>คำแนะนำ ({recommendations.length})</h3>
+              </div>
+              <GoogleIcon
+                name={expandedSections.recommendations ? 'expand_less' : 'expand_more'}
+                size={20}
+              />
+            </button>
+            {expandedSections.recommendations && (
+              <div className={styles.SectionContent}>
+                <ol className={styles.RecommendationList}>
+                  {recommendations.map((rec, index) => (
+                    <li key={index} className={styles.RecommendationItem}>
+                      <span>{rec}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Criteria Breakdown */}
+        {criteriaItems.length > 0 && (
+          <div className={styles.Section}>
+            <button
+              className={styles.SectionHeader}
+              onClick={() => handleToggleSection('criteria')}
+            >
+              <div className={styles.SectionTitle}>
+                <GoogleIcon iconType="bar_chart" size={20} />
+                <h3>คะแนนรายเกณฑ์ ({criteriaItems.length})</h3>
+              </div>
+              <GoogleIcon
+                name={expandedSections.criteria ? 'expand_less' : 'expand_more'}
+                size={20}
+              />
+            </button>
+            {expandedSections.criteria && (
+              <div className={styles.SectionContent}>
+                <div className={styles.CriteriaGrid}>
+                  {criteriaItems.map((item) => (
+                    <div
+                      key={item.code}
+                      className={styles.CriteriaCard}
+                      onClick={() => handleCriterionClick(item)}
+                    >
+                      <div className={styles.CriteriaHeader}>
+                        <span className={styles.CriteriaCode}>{item.code}</span>
+                        <span className={`${styles.CriteriaScore} ${styles[getScoreColor(item.score)]}`}>
+                          {item.score}
+                        </span>
+                      </div>
+                      {item.comment && (
+                        <p className={styles.CriteriaComment}>{item.comment}</p>
+                      )}
+                      <div className={`${styles.CriteriaLevel} ${styles[item.level]}`}>
+                        {item.level}
+                      </div>
+                      {item.hardCheckPassed === false && item.hardCheckNote && (
+                        <div className={styles.HardCheckWarning}>
+                          <GoogleIcon iconType="warning" size={14} />
+                          <span>{item.hardCheckNote}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Actions */}
@@ -313,7 +327,7 @@ const ProductSurveyResult = ({
         <div className={styles.Modal} onClick={closeCriterionDetail}>
           <div className={styles.ModalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.ModalHeader}>
-              <h3>{selectedCriterion.code}: {selectedCriterion.name}</h3>
+              <h3>{selectedCriterion.code}</h3>
               <button onClick={closeCriterionDetail}>
                 <GoogleIcon iconType="close" size={20} />
               </button>
@@ -325,6 +339,21 @@ const ProductSurveyResult = ({
               <div className={styles.DetailLevel}>
                 ระดับ: <strong>{selectedCriterion.level}</strong>
               </div>
+              {selectedCriterion.comment && (
+                <div className={styles.DetailComment}>
+                  <h4>ความเห็น:</h4>
+                  <p>{selectedCriterion.comment}</p>
+                </div>
+              )}
+              {selectedCriterion.hardCheckPassed === false && (
+                <div className={styles.DetailHardCheck}>
+                  <GoogleIcon iconType="warning" size={18} />
+                  <div>
+                    <h4>Hard Check Warning:</h4>
+                    <p>{selectedCriterion.hardCheckNote || 'ไม่ผ่านเกณฑ์การตรวจสอบ'}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

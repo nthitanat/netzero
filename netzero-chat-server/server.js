@@ -52,7 +52,9 @@ const corsOptions = {
     'http://localhost:3001',  // NetZero client port
     'http://127.0.0.1:3001',
     'http://10.201.188.99:3001', // Network access
-    'https://your-domain.com' // Production domain
+    'https://engagement.chula.ac.th', // Production domain
+    'http://161.200.199.67', // Production server IP
+    'http://161.200.199.67:3001' // Production server IP with port
   ],
   credentials: true,
   optionsSuccessStatus: 200

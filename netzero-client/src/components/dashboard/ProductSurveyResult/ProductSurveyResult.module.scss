@@ -262,10 +262,66 @@
 }
 
 .ComplianceValue {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   @include text-color-palette("primary-color-1");
-  @include font-size-palette("headline-4");
+  @include font-size-palette("body-1");
   font-weight: 700;
+
+  &.success {
+    @include text-color-palette("primary-color-2");
+  }
+
+  &.warning {
+    color: #F59E0B;
+  }
+
+  &.error {
+    @include text-color-palette("secondary-color-1");
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// ========================================
+// CRITERIA COMMENT (NEW)
+// ========================================
+.CriteriaComment {
+  @include text-color-palette("primary-color-2");
+  @include font-size-palette("body-3");
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+// ========================================
+// HARD CHECK WARNING (NEW)
+// ========================================
+.HardCheckWarning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 3px solid #F59E0B;
+  border-radius: 6px;
+  @include font-size-palette("body-3");
+  color: #D97706;
+  font-weight: 500;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    flex: 1;
+    line-height: 1.4;
+  }
 }
 
 // ========================================
@@ -516,10 +572,67 @@
   }
 }
 
+.DetailComment {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--primary-color-4);
+
+  h4 {
+    @include text-color-palette("primary-color-1");
+    @include font-size-palette("body-1");
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    @include text-color-palette("primary-color-2");
+    @include font-size-palette("body-2");
+    margin: 0;
+    line-height: 1.6;
+    font-style: italic;
+  }
+}
+
+.DetailHardCheck {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(245, 158, 11, 0.1);
+  border-left: 4px solid #F59E0B;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  svg {
+    flex-shrink: 0;
+    color: #F59E0B;
+    margin-top: 2px;
+  }
+
+  div {
+    flex: 1;
+  }
+
+  h4 {
+    @include font-size-palette("body-1");
+    font-weight: 600;
+    color: #D97706;
+    margin: 0 0 6px 0;
+  }
+
+  p {
+    @include text-color-palette("primary-color-2");
+    @include font-size-palette("body-2");
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
 // ========================================
 // PRINT STYLES
 // ========================================
 @media print {
+
   .CloseButton,
   .Actions {
     display: none;

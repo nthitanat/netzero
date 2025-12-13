@@ -1,6 +1,9 @@
 /**
  * Handler for ProductSurveyResult component business logic
+ * Uses normalizer to ensure safe data handling
  */
+import { normalizeResultData } from './ProductSurveyResultNormalizer';
+
 const ProductSurveyResultHandler = ({
   resultData,
   onRetakeSurvey,
@@ -9,11 +12,14 @@ const ProductSurveyResultHandler = ({
   toggleSection,
   openCriterionDetail
 }) => {
+  // Normalize data on entry to ensure safe structure
+  const normalizedData = normalizeResultData(resultData);
+
   /**
    * Get alignment level display info
    */
   const getAlignmentInfo = () => {
-    const level = resultData?.alignmentLevel || 'unknown';
+    const level = normalizedData.alignmentLevel;
     const configs = {
       consistent: {
         label: 'ระดับสูง (Consistent)',
@@ -43,32 +49,86 @@ const ProductSurveyResultHandler = ({
    * Get score level color
    */
   const getScoreColor = (score) => {
-    if (score >= 80) return 'success';
-    if (score >= 60) return 'warning';
-    if (score >= 40) return 'info';
+    const numScore = Number(score) || 0;
+    if (numScore >= 80) return 'success';
+    if (numScore >= 60) return 'warning';
+    if (numScore >= 40) return 'info';
     return 'error';
   };
 
   /**
-   * Format compliance percentage
+   * Format SBTi compliance enum to display text
+   * AI returns: "met" | "partial" | "not_met"
+   * Display as Thai text with appropriate styling
+   * @param {string} value - Compliance enum value
+   * @returns {Object} { text, color, percentage }
    */
-  const formatCompliancePercentage = (value) => {
-    if (typeof value !== 'number') return '0%';
-    return `${Math.round(value)}%`;
+  const formatComplianceValue = (value) => {
+    const configs = {
+      met: {
+        text: 'ผ่าน',
+        color: 'success',
+        percentage: 100,
+        icon: 'check_circle'
+      },
+      partial: {
+        text: 'ผ่านบางส่วน',
+        color: 'warning',
+        percentage: 50,
+        icon: 'warning'
+      },
+      not_met: {
+        text: 'ไม่ผ่าน',
+        color: 'error',
+        percentage: 0,
+        icon: 'cancel'
+      }
+    };
+    return configs[value] || configs.not_met;
   };
 
   /**
-   * Get criteria breakdown items
+   * Get criteria breakdown items from AI response
+   * AI Format: { "C1": { score: 7.5, comment: "..." }, ... }
+   * @returns {Array} Array of criterion objects
    */
   const getCriteriaItems = () => {
-    const breakdown = resultData?.criteriaBreakdown?.criteria_scores || {};
-    return Object.entries(breakdown).map(([key, data]) => ({
-      code: key,
-      name: data.criterion_name || key,
-      score: data.score || 0,
-      level: data.alignment_level || 'unknown'
-    }));
+    try {
+      const criteriaScores = normalizedData.criteriaBreakdown?.criteria_scores || {};
+
+      return Object.entries(criteriaScores).map(([code, data]) => ({
+        code,
+        score: data.score || 0,
+        comment: data.comment || '',
+        hardCheckPassed: data.hard_check_passed,
+        hardCheckNote: data.hard_check_note,
+        // Infer level from score for display
+        level: inferLevelFromScore(data.score)
+      }));
+    } catch (error) {
+      console.error('Error getting criteria items:', error);
+      return [];
+    }
   };
+
+  /**
+   * Infer alignment level from score
+   * Used when AI doesn't provide explicit level per criterion
+   * @param {number} score - Criterion score
+   * @returns {string} Inferred level
+   */
+  const inferLevelFromScore = (score) => {
+    if (score >= 8) return 'consistent';
+    if (score >= 6) return 'emerging';
+    if (score >= 4) return 'beginner';
+    return 'unknown';
+  };
+
+  /**
+   * Get normalized data for external use
+   * @returns {Object} Normalized result data
+   */
+  const getNormalizedData = () => normalizedData;
 
   /**
    * Handle retake survey with confirmation
@@ -83,7 +143,7 @@ const ProductSurveyResultHandler = ({
    * Handle confirm result
    */
   const handleConfirm = () => {
-    if (onConfirm) onConfirm(resultData);
+    if (onConfirm) onConfirm(normalizedData);
   };
 
   /**
@@ -112,12 +172,12 @@ const ProductSurveyResultHandler = ({
    */
   const handleDownloadResult = () => {
     try {
-      const dataStr = JSON.stringify(resultData, null, 2);
+      const dataStr = JSON.stringify(normalizedData, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `survey-result-${resultData.surveyResponseId || Date.now()}.json`;
+      link.download = `survey-result-${normalizedData.surveyResponseId || Date.now()}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -132,14 +192,20 @@ const ProductSurveyResultHandler = ({
    * Print result
    */
   const handlePrintResult = () => {
-    window.print();
+    try {
+      window.print();
+    } catch (error) {
+      console.error('Error printing result:', error);
+      alert('เกิดข้อผิดพลาดในการพิมพ์ผลลัพธ์');
+    }
   };
 
   return {
     getAlignmentInfo,
     getScoreColor,
-    formatCompliancePercentage,
+    formatComplianceValue,
     getCriteriaItems,
+    getNormalizedData,
     handleRetakeSurvey,
     handleConfirm,
     handleClose,
@@ -151,3 +217,4 @@ const ProductSurveyResultHandler = ({
 };
 
 export default ProductSurveyResultHandler;
+

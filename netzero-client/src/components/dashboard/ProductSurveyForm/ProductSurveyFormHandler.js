@@ -27,9 +27,9 @@ const ProductSurveyFormHandler = (
     if (user?.role === 'admin') {
       return true;
     }
-    
+
     clearAllValidationErrors();
-    
+
     const { questions, answers } = stateProductSurveyForm;
     let isValid = true;
     const errors = {};
@@ -75,14 +75,14 @@ const ProductSurveyFormHandler = (
         });
 
         const response = await productSurveyService.getQuestions();
-        
+
         console.log('📋 Survey Response:', response);
-        
+
         if (response.status === API_STATUS.SUCCESS && response.data) {
           const { questions, questionCount } = response.data;
-          
+
           console.log('✅ Questions loaded:', { questionCount, questionsLength: questions?.length });
-          
+
           // Group questions by criterion
           const grouped = productSurveyService.groupQuestionsByCriterion(questions);
 
@@ -111,7 +111,7 @@ const ProductSurveyFormHandler = (
     handleAnswerChange: (questionId, answer, score) => {
       // Clear validation error for this question
       clearValidationError(questionId);
-      
+
       // Validate score range
       if (score < 1 || score > 10) {
         setValidationError(questionId, 'คะแนนต้องอยู่ระหว่าง 1-10');
@@ -126,7 +126,7 @@ const ProductSurveyFormHandler = (
     handleNextCriterion: () => {
       clearError();
       nextCriterion();
-      
+
       // Scroll to top of form
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -134,7 +134,7 @@ const ProductSurveyFormHandler = (
     handlePreviousCriterion: () => {
       clearError();
       previousCriterion();
-      
+
       // Scroll to top of form
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -142,7 +142,7 @@ const ProductSurveyFormHandler = (
     handleGoToCriterion: (index) => {
       clearError();
       setProductSurveyForm("currentCriterionIndex", index);
-      
+
       // Scroll to top of form
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -150,7 +150,7 @@ const ProductSurveyFormHandler = (
     // Submit survey
     handleSubmit: async (e) => {
       if (e) e.preventDefault();
-      
+
       try {
         clearError();
         clearAllValidationErrors();
@@ -183,7 +183,14 @@ const ProductSurveyFormHandler = (
 
         console.log('📝 Submitting survey...', {
           productId,
-          answersCount: answersArray.length
+          answersCount: answersArray.length,
+          sampleAnswers: answersArray.slice(0, 3).map(a => ({
+            questionId: a.questionId,
+            hasAnswer: !!a.answer,
+            answerLength: a.answer?.length,
+            scoreType: typeof a.score,
+            scoreValue: a.score
+          }))
         });
 
         // Submit to API
@@ -197,7 +204,7 @@ const ProductSurveyFormHandler = (
 
         if (response.status === 'success') {
           console.log('✅ Survey submitted successfully', response.data);
-          
+
           // Call onComplete callback with results
           if (onComplete) {
             console.log('🔄 Calling onComplete callback with data:', response.data);
@@ -210,9 +217,9 @@ const ProductSurveyFormHandler = (
         }
       } catch (error) {
         console.error('❌ Error submitting survey:', error);
-        
+
         let errorMessage = 'ไม่สามารถส่งแบบสำรวจได้ กรุณาลองใหม่อีกครั้ง';
-        
+
         if (error.message.includes('timeout')) {
           errorMessage = 'การประเมินใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง';
         } else if (error.message.includes('AI service')) {

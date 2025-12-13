@@ -18,7 +18,7 @@ chatServerInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     console.log(`🚀 Chat API Request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
@@ -67,9 +67,9 @@ class ProductSurveyService {
 
       console.log('🌐 Fetching questions from server...');
       const response = await chatServerInstance.get(`${this.baseUrl}/surveys/questions`);
-      
+
       console.log('📊 Server response:', response.data);
-      
+
       if (response.data.success) {
         // Cache the questions
         apiCache.set(cacheKey, response.data.data, this.cacheTimeout);
@@ -122,9 +122,18 @@ class ProductSurveyService {
       );
 
       if (invalidAnswers.length > 0) {
+        console.error('❌ Invalid answers detected:', invalidAnswers);
+        console.error('Each invalid answer:', invalidAnswers.map(a => ({
+          questionId: a.questionId || 'MISSING',
+          hasAnswer: !!a.answer,
+          answerLength: a.answer?.length || 0,
+          scoreType: typeof a.score,
+          scoreValue: a.score
+        })));
+
         throw new ApiError(
           API_ERROR_TYPES.VALIDATION_ERROR,
-          'Each answer must have questionId, answer, and score'
+          `Each answer must have questionId, answer, and score. Failed ${invalidAnswers.length} of ${answers.length} answers.`
         );
       }
 
