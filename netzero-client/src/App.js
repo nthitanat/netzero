@@ -3,9 +3,7 @@ import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Landing from './pages/Landing/Landing';
 import Events from './pages/Events/Events';
-import Market from './pages/Market/Market';
-import Willing from './pages/Willing/Willing';
-import BarterTrade from './pages/BarterTrade/BarterTrade';
+import Marketplace from './pages/Marketplace/Marketplace';
 import Chat from './pages/Chat/index';
 import Map from './pages/Map/Map';
 import Profile from './pages/Profile/Profile';
@@ -23,9 +21,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/events" element={<Events />} />
-            <Route path="/market" element={<Market />} />
-            <Route path="/willing" element={<Willing />} />
-            <Route path="/barther-trade" element={<BarterTrade />} />
+            <Route path="/market" element={<Marketplace type="market" />} />
+            <Route path="/willing" element={<Marketplace type="willing" />} />
+            <Route path="/barther-trade" element={<Marketplace type="barter" />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/map" element={<Map />} />
             <Route path="/profile" element={<Profile />} />

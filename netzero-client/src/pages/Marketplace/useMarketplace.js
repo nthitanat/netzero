@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { productsService } from "../../api";
 
-const useWilling = (initialProps = {}) => {
-  const [stateWilling, setState] = useState({
+const useMarketplace = (type = "market") => {
+  const [state, setState] = useState({
     products: [],
     filteredProducts: [],
     categories: [],
@@ -11,59 +11,78 @@ const useWilling = (initialProps = {}) => {
     selectedRegion: "all", 
     selectedProduct: null,
     showModal: false,
-    productToReserve: null,
-    showReserveDialog: false,
-    showLoginModal: false,
     isLoading: true,
-    viewMode: "grid", // grid or list
+    viewMode: "grid",
     searchQuery: "",
-    filterTab: "category", // category or region
+    filterTab: "category",
     advertisements: [],
-    marketType: "willing",
-    // New hybrid filtering states
+    marketType: type,
+    
+    // Pagination
     totalProducts: 0,
     currentPage: 1,
     hasMore: true,
     isLoadingMore: false,
     pageSize: 20,
-    // Server-side search states
-    searchInputValue: "", // Input field value
-    isSearchMode: false, // Whether showing search results
-    isSearching: false, // Search loading state
-    searchResults: [], // Search results from server
-    // Alert state
+    
+    // Search
+    searchInputValue: "",
+    isSearchMode: false,
+    isSearching: false,
+    searchResults: [],
+    
+    // Alert
     alertVisible: false,
     alertType: "error",
     alertMessage: "",
-    ...initialProps
+    
+    // Type-specific state
+    ...(type === "barter" ? {
+      productToExchange: null,
+      showExchangeDialog: false
+    } : {
+      productToReserve: null,
+      showReserveDialog: false,
+      showLoginModal: false
+    }),
+    
+    // Market-specific
+    ...(type === "market" && {
+      showReservationSuccessModal: false,
+      reservationData: null
+    })
   });
+
+  const setMarketplace = (field, value) => {
+    if (typeof field === "object") {
+      setState((prevState) => ({ ...prevState, ...field }));
+    } else {
+      setState((prevState) => ({ ...prevState, [field]: value }));
+    }
+  };
 
   // Server-side search function
   const performSearch = useCallback(async (searchTerm) => {
     if (!searchTerm.trim()) {
-      // Empty search, return to normal products view
-      setWilling({
+      setMarketplace({
         isSearchMode: false,
         searchResults: [],
-        filteredProducts: stateWilling.products
+        filteredProducts: state.products
       });
       return;
     }
 
     try {
-      setWilling("isSearching", true);
+      setMarketplace("isSearching", true);
       
-      // Build search options with current filters
-      const searchOptions = {
-        type: "willing"
-      };
+      const searchOptions = { type };
       
-      if (stateWilling.selectedCategory !== "all") {
-        searchOptions.category = stateWilling.selectedCategory;
+      if (state.selectedCategory !== "all") {
+        searchOptions.category = state.selectedCategory;
       }
       
-      if (stateWilling.selectedRegion !== "all") {
-        searchOptions.region = stateWilling.selectedRegion;
+      if (state.selectedRegion !== "all") {
+        searchOptions.region = state.selectedRegion;
       }
 
       const response = await productsService.searchProducts(searchTerm, searchOptions);
@@ -77,7 +96,7 @@ const useWilling = (initialProps = {}) => {
         isSearching: false
       }));
 
-      console.log(`✅ Found ${searchResults.length} willing products for "${searchTerm}"`);
+      console.log(`✅ Found ${searchResults.length} ${type} products for "${searchTerm}"`);
 
     } catch (error) {
       console.error("Search failed:", error);
@@ -87,37 +106,22 @@ const useWilling = (initialProps = {}) => {
         isSearchMode: false
       }));
     }
-  }, [stateWilling.selectedCategory, stateWilling.selectedRegion, stateWilling.products]);
-
-  const setWilling = (field, value) => {
-    if (typeof field === "object") {
-      setState((prevState) => ({ ...prevState, ...field }));
-    } else {
-      setState((prevState) => ({ ...prevState, [field]: value }));
-    }
-  };
-
-  const toggleWillingField = (field) => {
-    setState((prevState) => ({
-      ...prevState,
-      [field]: !prevState[field],
-    }));
-  };
+  }, [state.selectedCategory, state.selectedRegion, state.products, type]);
 
   // Fetch products with server-side filtering for category/region
   const fetchProducts = useCallback(async (filters = {}, isLoadMore = false) => {
     try {
       if (!isLoadMore) {
-        setWilling("isLoading", true);
+        setMarketplace("isLoading", true);
       } else {
-        setWilling("isLoadingMore", true);
+        setMarketplace("isLoadingMore", true);
       }
 
       // Build filter options for API
       const options = {
-        type: "willing",
-        limit: stateWilling.pageSize,
-        offset: isLoadMore ? stateWilling.products.length : 0,
+        type: type,
+        limit: state.pageSize,
+        offset: isLoadMore ? state.products.length : 0,
         ...filters
       };
 
@@ -137,36 +141,36 @@ const useWilling = (initialProps = {}) => {
           ? [...prevState.products, ...newProducts]
           : newProducts,
         totalProducts: response.total || newProducts.length,
-        hasMore: newProducts.length === stateWilling.pageSize,
+        hasMore: newProducts.length === state.pageSize,
         isLoading: false,
         isLoadingMore: false,
         currentPage: isLoadMore ? prevState.currentPage + 1 : 1
       }));
 
     } catch (error) {
-      console.error("Failed to load willing products:", error);
+      console.error(`Failed to load ${type} products:`, error);
       setState(prevState => ({
         ...prevState,
         isLoading: false,
         isLoadingMore: false
       }));
     }
-  }, [stateWilling.pageSize, stateWilling.products.length]);
+  }, [type, state.pageSize, state.products.length]);
 
   // Load more products (infinite scroll)
   const loadMore = useCallback(() => {
-    if (!stateWilling.isLoadingMore && stateWilling.hasMore) {
+    if (!state.isLoadingMore && state.hasMore) {
       const filters = {};
-      if (stateWilling.selectedCategory !== "all") {
-        filters.category = stateWilling.selectedCategory;
+      if (state.selectedCategory !== "all") {
+        filters.category = state.selectedCategory;
       }
-      if (stateWilling.selectedRegion !== "all") {
-        filters.region = stateWilling.selectedRegion;
+      if (state.selectedRegion !== "all") {
+        filters.region = state.selectedRegion;
       }
       
       fetchProducts(filters, true);
     }
-  }, [stateWilling.isLoadingMore, stateWilling.hasMore, stateWilling.selectedCategory, stateWilling.selectedRegion, fetchProducts]);
+  }, [state.isLoadingMore, state.hasMore, state.selectedCategory, state.selectedRegion, fetchProducts]);
 
   // Initialize data on component mount
   useEffect(() => {
@@ -177,8 +181,8 @@ const useWilling = (initialProps = {}) => {
 
         // Get categories and regions from a larger sample for filter options
         const metaResponse = await productsService.getProducts({ 
-          type: "willing", 
-          limit: 1000 // Get more products to extract comprehensive filter options
+          type: type, 
+          limit: 1000
         });
         const allProducts = metaResponse.data;
         
@@ -197,7 +201,7 @@ const useWilling = (initialProps = {}) => {
         }));
 
       } catch (error) {
-        console.error("Failed to initialize willing data:", error);
+        console.error("Failed to initialize data:", error);
         setState(prevState => ({
           ...prevState,
           isLoading: false
@@ -206,54 +210,49 @@ const useWilling = (initialProps = {}) => {
     };
 
     initializeData();
-  }, [fetchProducts]);
+  }, [fetchProducts, type]);
 
   // Server-side filtering: Refetch when category or region changes
   useEffect(() => {
     const filters = {};
     
-    if (stateWilling.selectedCategory !== "all") {
-      filters.category = stateWilling.selectedCategory;
+    if (state.selectedCategory !== "all") {
+      filters.category = state.selectedCategory;
     }
     
-    if (stateWilling.selectedRegion !== "all") {
-      filters.region = stateWilling.selectedRegion;
+    if (state.selectedRegion !== "all") {
+      filters.region = state.selectedRegion;
     }
 
     // Reset pagination and refetch with new filters
     fetchProducts(filters, false);
     
-  }, [stateWilling.selectedCategory, stateWilling.selectedRegion, fetchProducts]);
+  }, [state.selectedCategory, state.selectedRegion, fetchProducts]);
 
   // Update filteredProducts when products change (for non-search mode)
   useEffect(() => {
-    if (!stateWilling.isSearchMode) {
-      setWilling("filteredProducts", stateWilling.products);
+    if (!state.isSearchMode) {
+      setMarketplace("filteredProducts", state.products);
     }
-  }, [stateWilling.products, stateWilling.isSearchMode]);
+  }, [state.products, state.isSearchMode]);
 
   // Clear search when filters change
   useEffect(() => {
-    if (stateWilling.isSearchMode && stateWilling.searchQuery.trim()) {
+    if (state.isSearchMode && state.searchQuery.trim()) {
       // Re-run the search with new filters if in search mode
-      performSearch(stateWilling.searchQuery);
+      performSearch(state.searchQuery);
     }
-  }, [stateWilling.selectedCategory, stateWilling.selectedRegion]);
+  }, [state.selectedCategory, state.selectedRegion]);
 
   return {
-    stateWilling,
-    setWilling,
-    toggleWillingField,
-    // Hybrid filtering functions
+    state,
+    setState: setMarketplace,
+    performSearch, 
+    isSearching: state.isSearching,
     loadMore,
-    // Server-side search function
-    performSearch,
-    // Loading states
-    isLoading: stateWilling.isLoading,
-    isLoadingMore: stateWilling.isLoadingMore,
-    hasMore: stateWilling.hasMore,
-    isSearching: stateWilling.isSearching
+    hasMore: state.hasMore,
+    isLoadingMore: state.isLoadingMore
   };
 };
 
-export default useWilling;
+export default useMarketplace;
