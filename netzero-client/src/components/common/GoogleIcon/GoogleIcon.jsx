@@ -168,6 +168,10 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
                 return <span className={baseClass}>add</span>;
             case "remove":
                 return <span className={baseClass}>remove</span>;
+            case "edit":
+                return <span className={baseClass}>edit</span>;
+            case "delete":
+                return <span className={baseClass}>delete</span>;
             case "archive":
                 return <span className={baseClass}>archive</span>;
             case "lock":
@@ -178,6 +182,10 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
                 return <span className={baseClass}>person</span>;
             case "calendar_today":
                 return <span className={baseClass}>calendar_today</span>;
+            case "inventory_2":
+                return <span className={baseClass}>inventory_2</span>;
+            case "category":
+                return <span className={baseClass}>category</span>;
             
             // Food & Health
             case "restaurant":

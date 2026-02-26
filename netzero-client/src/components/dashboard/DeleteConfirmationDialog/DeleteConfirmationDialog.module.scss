@@ -1,0 +1,243 @@
+@import "../../../styles/main.scss";
+
+// ========================================
+// CONTAINER & OVERLAY
+// ========================================
+.Container {
+  @include modal-container-base;
+}
+
+.Overlay {
+  @include modal-overlay;
+}
+
+// ========================================
+// DIALOG (MODAL BODY)
+// ========================================
+.Dialog {
+  @include modal-body-base;
+  @include modal-body-small;
+  padding: 0;
+  min-width: 400px;
+  max-width: 500px;
+  
+  // Default theme - seller/standard green
+  &.default-theme {
+    background: white;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    box-shadow: 
+      0 24px 48px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(76, 175, 80, 0.1);
+  }
+  
+  // Events theme
+  &.events-theme {
+    @include modal-theme-map;
+  }
+  
+  // Market theme
+  &.market-theme {
+    @include modal-theme-market;
+  }
+  
+  // Barter theme
+  &.barter-theme {
+    @include modal-theme-barter;
+  }
+  
+  // Willing theme
+  &.willing-theme {
+    @include modal-theme-willing;
+  }
+}
+
+// ========================================
+// HEADER
+// ========================================
+.Header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 24px 24px;
+  border-bottom: 2px solid var(--error-light);
+  background: linear-gradient(to bottom, var(--error-light) 0%, transparent 100%);
+}
+
+.IconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--error-light);
+  border: 3px solid var(--error-dark);
+}
+
+.WarningIcon {
+  color: var(--error-dark);
+  font-size: 32px;
+}
+
+.Title {
+  @include font-size-palette("headline-4");
+  @include text-color-palette("primary-color-1");
+  margin: 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+// ========================================
+// CONTENT
+// ========================================
+.Content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.Message {
+  @include font-size-palette("body-1");
+  @include text-color-palette("primary-color-2");
+  margin: 0;
+  line-height: 1.6;
+}
+
+.ItemName {
+  @include font-size-palette("headline-6");
+  @include text-color-palette("primary-color-1");
+  margin: 8px 0;
+  font-weight: 600;
+  word-wrap: break-word;
+}
+
+.WarningText {
+  @include font-size-palette("body-2");
+  color: var(--error-dark);
+  margin: 8px 0 0;
+  padding: 12px 16px;
+  background: var(--error-light);
+  border-radius: 8px;
+  border-left: 4px solid var(--error-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  font-weight: 500;
+}
+
+// ========================================
+// ACTIONS
+// ========================================
+.Actions {
+  display: flex;
+  gap: 12px;
+  padding: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+// Cancel Button (Secondary)
+.CancelButton {
+  @include button-secondary;
+  flex: 1;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// Confirm Delete Button (Danger)
+.ConfirmButton {
+  @include font-size-palette("body-1");
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  
+  // Danger styling
+  background: var(--error-dark);
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background: darken(#c62828, 10%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// LOADING SPINNER
+// ========================================
+.LoadingSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 768px) {
+  .Dialog {
+    min-width: auto;
+    width: 90vw;
+    max-width: 90vw;
+  }
+  
+  .Header {
+    padding: 24px 20px 20px;
+  }
+  
+  .IconWrapper {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .WarningIcon {
+    font-size: 28px;
+  }
+  
+  .Content {
+    padding: 20px;
+  }
+  
+  .Actions {
+    flex-direction: column-reverse;
+    padding: 20px;
+    
+    .CancelButton,
+    .ConfirmButton {
+      width: 100%;
+    }
+  }
+}

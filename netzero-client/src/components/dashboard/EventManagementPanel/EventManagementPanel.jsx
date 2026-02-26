@@ -4,6 +4,7 @@ import useEventManagementPanel from "./useEventManagementPanel";
 import EventManagementPanelHandler from "./EventManagementPanelHandler";
 import { GoogleIcon } from "../../common";
 import { EventModal } from "../";
+import DeleteConfirmationDialog from "../DeleteConfirmationDialog/DeleteConfirmationDialog";
 
 export default function EventManagementPanel({
   events = [],
@@ -198,52 +199,20 @@ export default function EventManagementPanel({
         />
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className={styles.Modal}>
-          <div className={styles.ModalContent}>
-            <div className={styles.ModalHeader}>
-              <GoogleIcon iconType="warning" size="medium" className={styles.WarningIcon} />
-              <h3>ยืนยันการลบกิจกรรม</h3>
-            </div>
-            
-            <div className={styles.ModalBody}>
-              <p>คุณแน่ใจหรือไม่ที่จะลบกิจกรรม</p>
-              <strong>"{selectedEvent?.title}"</strong>
-              <p className={styles.WarningText}>
-                การกระทำนี้ไม่สามารถยกเลิกได้ และข้อมูลกิจกรรมจะถูกลบอย่างถาวร
-              </p>
-            </div>
-            
-            <div className={styles.ModalFooter}>
-              <button
-                className={styles.CancelButton}
-                onClick={onCancelDelete}
-                disabled={isSubmittingEvent}
-              >
-                ยกเลิก
-              </button>
-              <button
-                className={styles.DeleteButton}
-                onClick={onConfirmDelete}
-                disabled={isSubmittingEvent}
-              >
-                {isSubmittingEvent ? (
-                  <>
-                    <GoogleIcon iconType="hourglass_empty" size="small" />
-                    กำลังลบ...
-                  </>
-                ) : (
-                  <>
-                    <GoogleIcon iconType="delete" size="small" />
-                    ลบกิจกรรม
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={showDeleteConfirm}
+        title="ยืนยันการลบกิจกรรม"
+        message="คุณแน่ใจหรือไม่ที่จะลบกิจกรรมนี้?"
+        itemName={selectedEvent?.title}
+        warningText="การกระทำนี้ไม่สามารถยกเลิกได้ และข้อมูลกิจกรรมจะถูกลบอย่างถาวร"
+        confirmText="ลบกิจกรรม"
+        cancelText="ยกเลิก"
+        isLoading={isSubmittingEvent}
+        onConfirm={onConfirmDelete}
+        onCancel={onCancelDelete}
+        theme={theme}
+      />
     </div>
   );
 }

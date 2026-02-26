@@ -133,6 +133,7 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
     },
 
     handleDeleteProduct: (product) => {
+      console.log(`🗑️ Delete requested for product: ${product.title}`);
       setSellerDashboard({
         productToDelete: product,
         showDeleteConfirm: true
@@ -322,22 +323,6 @@ const SellerDashboardHandler = (stateSellerDashboard, setSellerDashboard, naviga
       } catch (error) {
         console.error("❌ Error cancelling reservation:", error);
         alert(`ไม่สามารถยกเลิกการจองได้: ${error.message}`);
-      }
-    },
-
-    handleRefreshStats: async () => {
-      try {
-        setSellerDashboard("isLoading", true);
-        
-        // Reload both products and reservations to recalculate stats
-        await Promise.all([
-          // These will trigger the useEffect in the hook to recalculate stats
-          setSellerDashboard("isLoading", false)
-        ]);
-        
-      } catch (error) {
-        console.error("❌ Error refreshing stats:", error);
-        setSellerDashboard("isLoading", false);
       }
     },
 

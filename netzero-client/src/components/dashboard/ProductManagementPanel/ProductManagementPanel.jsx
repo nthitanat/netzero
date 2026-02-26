@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./ProductManagementPanel.module.scss";
 import { GoogleIcon } from "../../common";
 import { productsService } from "../../../api";
+import DeleteConfirmationDialog from "../DeleteConfirmationDialog/DeleteConfirmationDialog";
 
 export default function ProductManagementPanel({ 
     products = [],
@@ -15,13 +16,13 @@ export default function ProductManagementPanel({
     onCancelDelete,
     onRefresh,
     onAddToEvent,
-    theme = "seller",
     className = "" 
 }) {
+    // Pure presentation component - all state managed by parent
     
     if (isLoading) {
         return (
-            <div className={`${styles.Container} ${styles[`${theme}-theme`]} ${className}`}>
+            <div className={`${styles.Container} ${className}`}>
                 <div className={styles.LoadingContainer}>
                     <div className={styles.LoadingSpinner} />
                     <p>กำลังโหลดสินค้า...</p>
@@ -31,7 +32,7 @@ export default function ProductManagementPanel({
     }
     
     return (
-        <div className={`${styles.Container} ${styles[`${theme}-theme`]} ${className}`}>
+        <div className={`${styles.Container} ${className}`}>
             <div className={styles.Header}>
                 <h2 className={styles.Title}>จัดการสินค้า</h2>
                 <div className={styles.HeaderActions}>
@@ -68,18 +69,8 @@ export default function ProductManagementPanel({
                     </button>
                 </div>
             ) : (
-                <div className={styles.ProductsGrid}>
-                    {products.map((product) => {
-                        // Debug: Check product data
-                        console.log("📦 Product:", {
-                            id: product.id,
-                            title: product.title,
-                            stock_quantity: product.stock_quantity,
-                            unassigned_stock_quantity: product.unassigned_stock_quantity,
-                            hasUnassigned: !!product.unassigned_stock_quantity && product.unassigned_stock_quantity > 0
-                        });
-                        
-                        return (
+                <div className={styles.ProductsList}>
+                    {products.map((product) => (
                         <div key={product.id} className={styles.ProductCard}>
                             <div className={styles.ProductImage}>
                                 <img 
@@ -108,12 +99,6 @@ export default function ProductManagementPanel({
                             
                             <div className={styles.ProductInfo}>
                                 <h3 className={styles.ProductTitle}>{product.title}</h3>
-                                <p className={styles.ProductDescription}>
-                                    {product.description.length > 100 
-                                        ? `${product.description.substring(0, 100)}...`
-                                        : product.description
-                                    }
-                                </p>
                                 
                                 <div className={styles.ProductMeta}>
                                     <div className={styles.MetaItem}>
@@ -138,15 +123,7 @@ export default function ProductManagementPanel({
                             <div className={styles.ProductActions}>
                                 <button 
                                     className={styles.AddToEventButton}
-                                    onClick={() => {
-                                        console.log("🎯 Add to Event clicked for product:", product);
-                                        console.log("📊 onAddToEvent exists?", !!onAddToEvent);
-                                        if (onAddToEvent) {
-                                            onAddToEvent(product);
-                                        } else {
-                                            console.error("❌ onAddToEvent handler is undefined!");
-                                        }
-                                    }}
+                                    onClick={() => onAddToEvent(product)}
                                     title="เพิ่มสินค้าไปยังอีเวนท์"
                                     disabled={!product.unassigned_stock_quantity || product.unassigned_stock_quantity === 0}
                                 >
@@ -168,46 +145,23 @@ export default function ProductManagementPanel({
                                 </button>
                             </div>
                         </div>
-                        );
-                    })}
+                    ))}
                 </div>
             )}
             
-            {/* Delete Confirmation Modal */}
-            {showDeleteConfirm && (
-                <div className={styles.ModalOverlay}>
-                    <div className={styles.DeleteModal}>
-                        <div className={styles.DeleteModalHeader}>
-                            <GoogleIcon iconType="warning" size="medium" className={styles.WarningIcon} />
-                            <h3>ยืนยันการลบสินค้า</h3>
-                        </div>
-                        
-                        <div className={styles.DeleteModalContent}>
-                            <p>คุณต้องการลบสินค้านี้หรือไม่?</p>
-                            <p className={styles.ProductName}>"{selectedProduct?.title}"</p>
-                            <p className={styles.WarningText}>
-                                การดำเนินการนี้ไม่สามารถย้อนกลับได้
-                            </p>
-                        </div>
-                        
-                        <div className={styles.DeleteModalActions}>
-                            <button 
-                                className={styles.CancelButton}
-                                onClick={onCancelDelete}
-                            >
-                                ยกเลิก
-                            </button>
-                            <button 
-                                className={styles.ConfirmDeleteButton}
-                                onClick={onConfirmDelete}
-                            >
-                                <GoogleIcon iconType="delete" size="small" />
-                                ลบสินค้า
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Delete Confirmation Dialog */}
+            <DeleteConfirmationDialog
+                isOpen={showDeleteConfirm}
+                title="ยืนยันการลบสินค้า"
+                message="คุณต้องการลบสินค้านี้หรือไม่?"
+                itemName={selectedProduct?.title}
+                warningText="การดำเนินการนี้ไม่สามารถย้อนกลับได้"
+                confirmText="ลบสินค้า"
+                cancelText="ยกเลิก"
+                isLoading={false}
+                onConfirm={onConfirmDelete}
+                onCancel={onCancelDelete}
+            />
         </div>
     );
 }

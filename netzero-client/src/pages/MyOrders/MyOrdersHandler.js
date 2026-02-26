@@ -55,56 +55,10 @@ const MyOrdersHandler = (stateMyOrders, setMyOrders, navigate) => {
     setMyOrders('activeTab', tab);
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'รอการยืนยัน';
-      case 'confirmed':
-        return 'ยืนยันแล้ว';
-      case 'cancelled':
-        return 'ยกเลิกแล้ว';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'pending';
-      case 'confirmed':
-        return 'confirmed';
-      case 'cancelled':
-        return 'cancelled';
-      default:
-        return 'default';
-    }
-  };
-
-  const formatPrice = (price) => {
-    if (!price) return '฿0';
-    return `฿${price.toLocaleString('th-TH')}`;
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   return {
     handleLoadReservations,
     handleCancelReservation,
     handleTabChange,
-    getStatusText,
-    getStatusClass,
-    formatPrice,
-    formatDate,
   };
 };
 

@@ -4,7 +4,7 @@ import styles from "./SellerDashboard.module.scss";
 import useSellerDashboard from "./useSellerDashboard";
 import SellerDashboardHandler from "./SellerDashboardHandler";
 import { FloatingNavBar, GoogleIcon, OrganicDecoration } from "../../components/common";
-import { ProductManagementPanel, ReservationManagementPanel, SellerStatsPanel, AddProductToEventDialog, ProductSurveyForm, ProductSurveyResult, ProductModal } from "../../components/dashboard";
+import { ProductManagementPanel, ReservationManagementPanel, AddProductToEventDialog, ProductSurveyForm, ProductSurveyResult, ProductModal } from "../../components/dashboard";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function SellerDashboard() {
@@ -45,13 +45,6 @@ export default function SellerDashboard() {
             <div className={styles.TabContainer}>
                 <div className={styles.TabButtons}>
                     <button
-                        className={`${styles.TabButton} ${stateSellerDashboard.activeTab === 'stats' ? styles.Active : ''}`}
-                        onClick={() => handlers.handleTabChange('stats')}
-                    >
-                        <GoogleIcon iconType="analytics" size="small" />
-                        สถิติ
-                    </button>
-                    <button
                         className={`${styles.TabButton} ${stateSellerDashboard.activeTab === 'products' ? styles.Active : ''}`}
                         onClick={() => handlers.handleTabChange('products')}
                     >
@@ -69,20 +62,11 @@ export default function SellerDashboard() {
             </div>
             
             <div className={styles.Content}>
-                {stateSellerDashboard.activeTab === 'stats' && (
-                    <SellerStatsPanel
-                        isLoading={stateSellerDashboard.isLoading}
-                        stats={stateSellerDashboard.stats}
-                        onRefresh={handlers.handleRefreshStats}
-                        theme="seller"
-                    />
-                )}
-                
                 {stateSellerDashboard.activeTab === 'products' && (
                     <ProductManagementPanel
                         products={stateSellerDashboard.products}
                         isLoading={stateSellerDashboard.isLoading}
-                        selectedProduct={stateSellerDashboard.selectedProduct}
+                        selectedProduct={stateSellerDashboard.productToDelete}
                         showDeleteConfirm={stateSellerDashboard.showDeleteConfirm}
                         onCreateProduct={handlers.handleCreateProduct}
                         onEditProduct={handlers.handleEditProduct}

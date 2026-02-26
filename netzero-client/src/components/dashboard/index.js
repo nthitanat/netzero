@@ -4,6 +4,7 @@ export { default as ProductManagementPanel } from './ProductManagementPanel/Prod
 export { default as ReservationManagementPanel } from './ReservationManagementPanel/ReservationManagementPanel';
 export { default as ProductModal } from './ProductModal/ProductModal';
 export { default as AddProductToEventDialog } from './AddProductToEventDialog/AddProductToEventDialog';
+export { default as DeleteConfirmationDialog } from './DeleteConfirmationDialog/DeleteConfirmationDialog';
 
 // Product Survey Components
 export { default as ProductSurveyForm } from './ProductSurveyForm/ProductSurveyForm';

@@ -6,7 +6,7 @@ const useSellerDashboard = (initialProps = {}) => {
   const { user } = useAuth();
   
   const [stateSellerDashboard, setState] = useState({
-    activeTab: "stats", // stats, products, reservations
+    activeTab: "products", // products, reservations
     isLoading: true,
     
     // Products data
@@ -30,16 +30,6 @@ const useSellerDashboard = (initialProps = {}) => {
     
     // Reservations data
     reservations: [],
-    
-    // Stats data
-    stats: {
-      totalProducts: 0,
-      totalReservations: 0,
-      pendingReservations: 0,
-      confirmedReservations: 0,
-      totalRevenue: 0,
-      outOfStockProducts: 0
-    },
     
     error: null,
     ...initialProps
@@ -97,38 +87,6 @@ const useSellerDashboard = (initialProps = {}) => {
     }
   };
 
-  // Calculate statistics
-  const calculateStats = useCallback(() => {
-    const products = stateSellerDashboard.products;
-    const reservations = stateSellerDashboard.reservations;
-    
-    const totalProducts = products.length;
-    const totalReservations = reservations.length;
-    const pendingReservations = reservations.filter(r => r.status === 'pending').length;
-    const confirmedReservations = reservations.filter(r => r.status === 'confirmed').length;
-    const outOfStockProducts = products.filter(p => p.stock_quantity === 0).length;
-    
-    // Calculate revenue from confirmed reservations
-    const totalRevenue = reservations
-      .filter(r => r.status === 'confirmed')
-      .reduce((sum, r) => {
-        const product = products.find(p => p.id === r.product_id);
-        return sum + (product ? product.price * r.quantity : 0);
-      }, 0);
-    
-    setState(prevState => ({
-      ...prevState,
-      stats: {
-        totalProducts,
-        totalReservations,
-        pendingReservations,
-        confirmedReservations,
-        totalRevenue,
-        outOfStockProducts
-      }
-    }));
-  }, [stateSellerDashboard.products, stateSellerDashboard.reservations]);
-
   // Initialize data on component mount
   useEffect(() => {
     const initializeData = async () => {
@@ -161,18 +119,11 @@ const useSellerDashboard = (initialProps = {}) => {
     initializeData();
   }, [user]);
 
-  // Calculate stats when products or reservations change
-  useEffect(() => {
-    // Always calculate stats, even with empty arrays
-    calculateStats();
-  }, [calculateStats]);
-
   return {
     stateSellerDashboard,
     setSellerDashboard,
     loadProducts,
-    loadReservations,
-    calculateStats
+    loadReservations
   };
 };
 
