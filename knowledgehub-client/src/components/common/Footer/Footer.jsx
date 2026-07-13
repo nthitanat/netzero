@@ -80,7 +80,7 @@ export default function Footer() {
               </div>
               <div className={styles.ContactItem}>
                 <span className="material-symbols-outlined">mail</span>
-                <span>info@knowledgehub.cu.ac.th</span>
+                <span>inet.chula@gmail.com</span>
               </div>
               <div className={styles.ContactItem}>
                 <span className="material-symbols-outlined">phone</span>
