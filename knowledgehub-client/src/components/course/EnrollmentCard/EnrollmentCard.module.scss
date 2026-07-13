@@ -1,0 +1,200 @@
+@import '../../../styles/mixins';
+
+.enrollmentCard {
+  background: $color-surface-container-low;
+  border-radius: $shape-extra-large;
+  padding: $spacing-6;
+  box-shadow: $elevation-2;
+  position: sticky;
+  top: calc($spacing-20);
+
+  @media (max-width: $breakpoint-md) {
+    position: static;
+    margin-top: $spacing-6;
+  }
+}
+
+.priceSection {
+  margin-bottom: $spacing-4;
+}
+
+.price {
+  @include display-medium;
+  color: $color-primary;
+  font-weight: 700;
+}
+
+.currency {
+  @include title-medium;
+  color: $color-on-surface-variant;
+}
+
+.freeTag {
+  @include headline-large;
+  color: $color-tertiary;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.enrollButton {
+  width: 100%;
+  background: $color-primary;
+  color: $color-on-primary;
+  border: none;
+  border-radius: $shape-full;
+  padding: $spacing-3 $spacing-6;
+  @include title-medium;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  box-shadow: $elevation-1;
+  transition: all 0.3s ease;
+  margin-bottom: $spacing-5;
+
+  &:hover:not(:disabled) {
+    box-shadow: $elevation-3;
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.enrolled {
+    background: $color-tertiary-container;
+    color: $color-on-tertiary-container;
+  }
+
+  .material-symbols-outlined {
+    font-size: 24px;
+  }
+}
+
+.details {
+  border-top: 1px solid $color-outline-variant;
+  border-bottom: 1px solid $color-outline-variant;
+  padding: $spacing-4 0;
+  margin-bottom: $spacing-5;
+}
+
+.detailItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  @include body-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-3;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: $color-on-surface-variant;
+    flex-shrink: 0;
+  }
+
+  span:not(.material-symbols-outlined) {
+    flex: 1;
+  }
+}
+
+.warning {
+  color: $color-error;
+  font-weight: 600;
+}
+
+.objectives {
+  margin-bottom: $spacing-5;
+}
+
+.objectivesTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-3;
+}
+
+.objectivesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-2;
+    @include body-medium;
+    color: $color-on-surface-variant;
+    margin-bottom: $spacing-2;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+      color: $color-primary;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-3;
+}
+
+.wishlistButton,
+.shareButton {
+  flex: 1;
+  background: transparent;
+  color: $color-primary;
+  border: 1px solid $color-outline;
+  border-radius: $shape-full;
+  padding: $spacing-2 $spacing-4;
+  @include label-large;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-1;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $color-surface-variant;
+    border-color: $color-primary;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .enrollmentCard {
+    padding: $spacing-4;
+  }
+
+  .price {
+    @include headline-large;
+  }
+
+  .enrollButton {
+    padding: $spacing-2 $spacing-5;
+  }
+}

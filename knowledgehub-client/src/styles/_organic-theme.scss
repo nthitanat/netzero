@@ -1,0 +1,897 @@
+// ─────────────────────────────────────────────────────────────────
+// Organic Theme — Structural Mixins
+//
+// All visual patterns (blobs, organic shapes, card styles) are
+// expressed as mixins that accept a palette map.  Pages import
+// this file, declare ONE palette variable, and call the mixins —
+// no hard-coded color values in page files.
+//
+// Required imports in the consuming file:
+//   @import '../../styles/organic-theme';   // pulls animations + palettes
+//
+// Usage pattern:
+//   $page-palette: $palette-orange;
+//   .myWrapper { @include organic-page-wrapper($page-palette); }
+// ─────────────────────────────────────────────────────────────────
+
+@use 'sass:map';
+@use 'sass:color';
+@import 'animations';
+@import 'palettes';
+
+// ─── Palette Helpers ─────────────────────────────────────────────
+// Shorthand functions so mixin bodies stay readable.
+
+@function p1($palette) { @return map.get($palette, 'p1'); }
+@function p2($palette) { @return map.get($palette, 'p2'); }
+@function p3($palette) { @return map.get($palette, 'p3'); }
+@function p4($palette) { @return map.get($palette, 'p4'); }
+
+// ─────────────────────────────────────────────────────────────────
+// PAGE-LEVEL MIXINS
+// ─────────────────────────────────────────────────────────────────
+
+// Full-page background gradient + two large floating blobs
+@mixin organic-page-wrapper($palette) {
+  min-height: 100vh;
+  background: linear-gradient(180deg,
+    rgba(p1($palette), 0.03) 0%,
+    rgba($color-surface, 1) 15%,
+    rgba(p1($palette), 0.02) 40%,
+    rgba(p2($palette), 0.02) 60%,
+    rgba($color-surface-container-low, 1) 80%,
+    rgba(p1($palette), 0.04) 100%
+  );
+  position: relative;
+  overflow-x: clip;
+
+  // Large blob — top right
+  &::before {
+    content: '';
+    position: absolute;
+    top: 200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.15) 0%,
+      rgba(p2($palette), 0.08) 40%,
+      rgba(p1($palette), 0.04) 60%,
+      transparent 75%
+    );
+    border-radius: 45% 55% 60% 40% / 50% 60% 40% 50%;
+    z-index: 0;
+    pointer-events: none;
+    animation: float 25s ease-in-out infinite;
+  }
+
+  // Large blob — mid left
+  &::after {
+    content: '';
+    position: absolute;
+    top: 900px;
+    left: -250px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.18) 0%,
+      rgba(p2($palette), 0.12) 35%,
+      rgba(p3($palette), 0.06) 55%,
+      rgba(p1($palette), 0.03) 70%,
+      transparent 80%
+    );
+    border-radius: 55% 45% 50% 50% / 60% 40% 60% 40%;
+    z-index: 0;
+    pointer-events: none;
+    animation: float 30s ease-in-out infinite reverse;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// HERO MIXINS
+// ─────────────────────────────────────────────────────────────────
+
+// Hero section wrapper — background gradient + blob decorations
+@mixin organic-hero($palette) {
+  position: relative;
+  width: 100%;
+  min-height: 700px;
+  overflow: hidden;
+  background: linear-gradient(135deg,
+    rgba(p1($palette), 0.08) 0%,
+    rgba(p2($palette), 0.06) 50%,
+    rgba(p4($palette), 0.05) 100%
+  );
+
+  @media (max-width: $breakpoint-lg) { min-height: 600px; }
+  @media (max-width: $breakpoint-md) { min-height: auto; }
+
+  // Blob — top right
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -150px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.15) 0%,
+      rgba(p2($palette), 0.10) 40%,
+      transparent 70%
+    );
+    border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+    z-index: 0;
+    animation: float 25s ease-in-out infinite;
+  }
+
+  // Blob — bottom left
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -120px;
+    left: -120px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle,
+      rgba(p4($palette), 0.12) 0%,
+      rgba(p3($palette), 0.08) 50%,
+      transparent 70%
+    );
+    border-radius: 45% 55% 48% 52% / 60% 40% 60% 40%;
+    z-index: 0;
+    animation: float 30s ease-in-out infinite reverse;
+  }
+}
+
+// Image side of the hero split — organic glow behind image
+@mixin organic-hero-image-side($palette) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-10 $spacing-6;
+  z-index: 1;
+
+  @media (max-width: $breakpoint-lg) { padding: $spacing-8 $spacing-4; }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.2) 0%,
+      rgba(p2($palette), 0.15) 40%,
+      transparent 70%
+    );
+    border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+    z-index: 0;
+    filter: blur(30px);
+    animation: float 20s ease-in-out infinite;
+  }
+}
+
+// Morphing organic image frame (the circular/blob container)
+@mixin organic-image-frame($palette) {
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  aspect-ratio: 1;
+  border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%;
+  overflow: hidden;
+  box-shadow:
+    0 20px 60px rgba(p1($palette), 0.25),
+    0 10px 30px rgba(p4($palette), 0.15),
+    0 0 0 8px rgba(white, 0.5),
+    0 0 0 12px rgba(p1($palette), 0.2);
+  z-index: 1;
+  animation: morphShape 15s ease-in-out infinite;
+
+  @media (max-width: $breakpoint-lg) { max-width: 450px; }
+  @media (max-width: $breakpoint-md) { max-width: 350px; }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  // Inner highlight glow
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle,
+      rgba(p2($palette), 0.3) 0%,
+      transparent 60%
+    );
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+}
+
+// Text side of the hero split — angled background + decorative blobs
+@mixin organic-hero-text-side($palette) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: $spacing-10 $spacing-8;
+  background: linear-gradient(135deg,
+    rgba(white, 0.95) 0%,
+    rgba(p1($palette), 0.10) 100%
+  );
+  clip-path: polygon(
+    0 0, 100% 0, 100% 100%,
+    8% 100%, 5% 95%, 3% 85%, 0% 70%,
+    2% 50%, 0% 30%, 3% 15%, 0 5%
+  );
+  z-index: 2;
+
+  @media (max-width: $breakpoint-lg) {
+    clip-path: none;
+    border-radius: 48px 48px 0 0;
+    margin-top: -80px;
+  }
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-8 $spacing-4;
+    margin-top: -60px;
+  }
+
+  // Blob — bottom right
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 10%;
+    right: 5%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle,
+      rgba(p4($palette), 0.15) 0%,
+      rgba(p3($palette), 0.10) 50%,
+      transparent 70%
+    );
+    border-radius: 60% 40% 50% 50%;
+    z-index: 0;
+    filter: blur(25px);
+  }
+
+  // Blob — top right
+  &::after {
+    content: '';
+    position: absolute;
+    top: 15%;
+    right: 10%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle,
+      rgba(p2($palette), 0.18) 0%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60%;
+    z-index: 0;
+    filter: blur(20px);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// BADGE / TAG MIXINS
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-badge($palette) {
+  display: inline-block;
+  background: linear-gradient(135deg,
+    p1($palette) 0%,
+    color.adjust(p1($palette), $lightness: -10%) 100%
+  );
+  color: white;
+  padding: $spacing-2 $spacing-4;
+  border-radius: $organic-badge;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(p1($palette), 0.35), 0 0 0 2px rgba(p2($palette), 0.2);
+}
+
+@mixin organic-collab-tag($palette) {
+  background: linear-gradient(135deg,
+    rgba(p3($palette), 0.25) 0%,
+    rgba(p4($palette), 0.20) 100%
+  );
+  color: color.adjust(p3($palette), $lightness: -30%);
+  padding: $spacing-1 $spacing-3;
+  border-radius: $organic-tag;
+  font-weight: 600;
+  border: 1px solid rgba(p3($palette), 0.3);
+  box-shadow: 0 2px 4px rgba(p4($palette), 0.1);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// META / CHIP MIXIN
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-meta-chip($palette) {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  background: rgba(p4($palette), 0.12);
+  border-radius: $organic-tag;
+  font-weight: 600;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: p4($palette);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CARD MIXINS
+// ─────────────────────────────────────────────────────────────────
+
+// Base organic card — white bg, organic border-radius, elevation
+@mixin organic-card-base($palette) {
+  background: white;
+  border-radius: $organic-card;
+  box-shadow: $elevation-1;
+  position: relative;
+  overflow: hidden;
+}
+
+// Stat card — floating number cards below hero
+@mixin organic-stat-card($palette, $nth: 1) {
+  background: white;
+  border-radius: 24px 8px 24px 8px;
+  padding: $spacing-5;
+  box-shadow: $elevation-3;
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  // Decorative blob varies per card position
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    border-radius: 50% 40% 60% 50%;
+    opacity: 0.22;
+
+    @if $nth == 1 {
+      top: -20px; right: -20px;
+      width: 80px; height: 80px;
+      background: p2($palette);
+    } @else if $nth == 2 {
+      bottom: -30px; left: -30px;
+      width: 100px; height: 100px;
+      background: p4($palette);
+      opacity: 0.2;
+    } @else if $nth == 3 {
+      top: -20px; right: -20px;
+      width: 80px; height: 80px;
+      background: p3($palette);
+      border-radius: 45% 55% 50% 50%;
+    } @else {
+      top: -25px; left: -25px;
+      width: 80px; height: 80px;
+      background: p1($palette);
+      border-radius: 55% 45% 60% 40%;
+      opacity: 0.18;
+    }
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $elevation-4;
+
+    &::before {
+      opacity: 0.35;
+      transform: scale(1.1);
+    }
+  }
+
+  .material-symbols-outlined {
+    font-size: 48px;
+    color: $color-primary;
+    background: linear-gradient(135deg,
+      rgba(p2($palette), 0.3) 0%,
+      rgba(p4($palette), 0.2) 100%
+    );
+    border-radius: 16px 4px 16px 4px;
+    padding: $spacing-3;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Sidebar card with border
+@mixin organic-sidebar-card($palette) {
+  background: white;
+  border-radius: $organic-card;
+  padding: $spacing-6;
+  box-shadow: $elevation-2;
+  border: 1px solid $color-surface-container;
+  position: relative;
+  overflow: hidden;
+
+  // Blob — top left
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: -60px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.16) 0%,
+      rgba(p2($palette), 0.12) 45%,
+      rgba(p3($palette), 0.08) 65%,
+      transparent 75%
+    );
+    border-radius: 60% 40% 50% 50%;
+    z-index: 0;
+  }
+
+  // Blob — bottom right
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.18) 0%,
+      rgba(p2($palette), 0.15) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60%;
+    z-index: 0;
+  }
+}
+
+// Quick-info sidebar card (gradient background variant)
+@mixin organic-quick-info-card($palette) {
+  background: linear-gradient(135deg,
+    white 0%,
+    rgba(p1($palette), 0.06) 30%,
+    rgba(p2($palette), 0.10) 60%,
+    rgba(p4($palette), 0.08) 100%
+  );
+  border-radius: $organic-card;
+  padding: $spacing-6;
+  box-shadow: $elevation-2;
+  border: 1px solid $color-surface-container;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 130px; height: 130px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.18) 0%,
+      rgba(p2($palette), 0.12) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 40% 55% 45%;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -35px; left: -35px;
+    width: 110px; height: 110px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.15) 0%,
+      transparent 70%
+    );
+    border-radius: 60% 40% 50% 50%;
+    z-index: 0;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TAB MIXINS
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-tab-hover($palette) {
+  color: $color-primary;
+  background: linear-gradient(135deg,
+    rgba(p2($palette), 0.20) 0%,
+    rgba(p4($palette), 0.12) 50%,
+    rgba(p3($palette), 0.08) 100%
+  );
+  border-radius: $organic-tab;
+}
+
+@mixin organic-tab-active($palette) {
+  color: $color-primary;
+  border-bottom-color: p1($palette);
+  font-weight: 700;
+  background: linear-gradient(135deg,
+    rgba(p2($palette), 0.25) 0%,
+    rgba(p4($palette), 0.15) 50%,
+    rgba(p3($palette), 0.10) 100%
+  );
+  border-radius: $organic-tab;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CONTENT-CARD TAB PANEL MIXINS
+// ─────────────────────────────────────────────────────────────────
+
+// Story tab panel — large blob top-right + small blob bottom-left
+@mixin organic-story-panel($palette) {
+  @include organic-card-base($palette);
+  padding: $spacing-8;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.22) 0%,
+      rgba(p2($palette), 0.15) 45%,
+      rgba(p3($palette), 0.08) 65%,
+      transparent 75%
+    );
+    border-radius: 48% 52% 63% 37% / 44% 56% 44% 56%;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.18) 0%,
+      rgba(p4($palette), 0.12) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60%;
+    z-index: 0;
+  }
+
+  @media (max-width: $breakpoint-md) { padding: $spacing-6 $spacing-4; }
+}
+
+// Journey tab panel — blob bottom-left + blob top-right
+@mixin organic-journey-panel($palette) {
+  @include organic-card-base($palette);
+  padding: $spacing-8;
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.20) 0%,
+      rgba(p2($palette), 0.15) 40%,
+      rgba(p3($palette), 0.08) 65%,
+      transparent 75%
+    );
+    border-radius: 50% 40% 45% 55%;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -70px; right: -70px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.18) 0%,
+      rgba(p3($palette), 0.10) 50%,
+      transparent 70%
+    );
+    border-radius: 40% 60% 50% 50%;
+    z-index: 0;
+  }
+
+  @media (max-width: $breakpoint-md) { padding: $spacing-6 $spacing-4; }
+}
+
+// Media tab panel — blob top-left + blob bottom-right
+@mixin organic-media-panel($palette) {
+  @include organic-card-base($palette);
+  padding: $spacing-8;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: -80px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.16) 0%,
+      rgba(p4($palette), 0.12) 45%,
+      rgba(p3($palette), 0.08) 65%,
+      transparent 75%
+    );
+    border-radius: 55% 45% 50% 50%;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -70px; right: -70px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.14) 0%,
+      rgba(p2($palette), 0.10) 50%,
+      transparent 70%
+    );
+    border-radius: 60% 40% 55% 45%;
+    z-index: 0;
+  }
+
+  @media (max-width: $breakpoint-md) { padding: $spacing-6 $spacing-4; }
+}
+
+// Products tab panel — blob top-right + blob bottom-left
+@mixin organic-products-panel($palette) {
+  @include organic-card-base($palette);
+  padding: $spacing-8;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -90px; right: -90px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.25) 0%,
+      rgba(p2($palette), 0.20) 40%,
+      rgba(p1($palette), 0.12) 60%,
+      transparent 75%
+    );
+    border-radius: 45% 55% 60% 40%;
+    z-index: 0;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.18) 0%,
+      rgba(p3($palette), 0.12) 50%,
+      transparent 70%
+    );
+    border-radius: 60% 40% 50% 50%;
+    z-index: 0;
+  }
+
+  @media (max-width: $breakpoint-md) { padding: $spacing-6 $spacing-4; }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// HIGHLIGHT BLOCK (story lead / quote block)
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-highlight-block($palette) {
+  line-height: 1.7;
+  padding: $spacing-5;
+  background: linear-gradient(135deg,
+    rgba(p1($palette), 0.25) 0%,
+    rgba(p2($palette), 0.35) 40%,
+    rgba(p3($palette), 0.15) 70%,
+    rgba(p4($palette), 0.10) 100%
+  );
+  border-radius: $organic-item;
+  border-left: 5px solid p1($palette);
+  box-shadow: 0 4px 20px rgba(p1($palette), 0.15);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; right: 20px;
+    width: 60px; height: 60px;
+    background: rgba(p1($palette), 0.25);
+    border-radius: 50% 40% 60% 50%;
+    z-index: -1;
+    filter: blur(8px);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ICON BOX MIXIN (item icon inside relation cards)
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-icon-box($palette) {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    rgba(p1($palette), 0.2) 0%,
+    rgba(p2($palette), 0.25) 100%
+  );
+  border-radius: $organic-icon;
+  box-shadow: 0 2px 8px rgba(p1($palette), 0.15);
+
+  .material-symbols-outlined {
+    color: color.adjust(p1($palette), $lightness: -15%);
+    font-size: 20px;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHARE / SECONDARY ACTION BUTTON
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-share-button($palette) {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-6;
+  background: linear-gradient(135deg,
+    rgba(p3($palette), 0.20) 0%,
+    rgba(p4($palette), 0.15) 100%
+  );
+  backdrop-filter: blur(10px);
+  color: $color-on-surface;
+  border: 2px solid p3($palette);
+  border-radius: $shape-full;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(p3($palette), 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg,
+      rgba(p3($palette), 0.30) 0%,
+      rgba(p4($palette), 0.25) 100%
+    );
+    border-color: p4($palette);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(p4($palette), 0.3);
+  }
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: p4($palette);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CONTENT GRID (main + sidebar) BACKGROUND BLOBS
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-content-grid-blobs($palette) {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -150px; right: 40%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.12) 0%,
+      rgba(p2($palette), 0.08) 45%,
+      rgba(p1($palette), 0.04) 65%,
+      transparent 75%
+    );
+    border-radius: 50% 60% 40% 50% / 55% 45% 55% 45%;
+    z-index: 0;
+    pointer-events: none;
+    animation: float 28s ease-in-out infinite;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -200px; left: 25%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle,
+      rgba(p1($palette), 0.15) 0%,
+      rgba(p4($palette), 0.08) 40%,
+      rgba(p2($palette), 0.06) 60%,
+      transparent 75%
+    );
+    border-radius: 60% 40% 55% 45% / 50% 50% 50% 50%;
+    z-index: 0;
+    pointer-events: none;
+    animation: float 32s ease-in-out infinite reverse;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SIDEBAR STICKY WRAPPER AMBIENT GLOW
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-sidebar-glow($palette) {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10%; right: -120px;
+    width: 350px; height: 70%;
+    background: radial-gradient(ellipse at center,
+      rgba(p1($palette), 0.10) 0%,
+      rgba(p2($palette), 0.06) 50%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(35px);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// COURSE ITEM (sidebar courses card)
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-course-icon($palette) {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    p3($palette) 0%,
+    color.adjust(p3($palette), $lightness: -10%) 100%
+  );
+  border-radius: 12px 3px 12px 3px;
+  box-shadow: 0 4px 10px rgba(p3($palette), 0.3), 0 0 0 2px rgba(p4($palette), 0.15);
+
+  .material-symbols-outlined {
+    color: white;
+    font-size: 28px;
+  }
+}
+
+@mixin organic-course-item-hover($palette) {
+  background: linear-gradient(135deg,
+    rgba(p3($palette), 0.20) 0%,
+    rgba(p4($palette), 0.18) 50%,
+    rgba(p2($palette), 0.12) 100%
+  );
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(p4($palette), 0.15);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PRODUCT CARD
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-product-card-hover($palette) {
+  box-shadow: 0 8px 24px rgba(p1($palette), 0.2), 0 4px 12px rgba(p4($palette), 0.1);
+  transform: translateY(-6px);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SECTION TITLE UNDERLINE (colorful gradient border-bottom)
+// ─────────────────────────────────────────────────────────────────
+
+@mixin organic-title-underline($palette) {
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, p1($palette) 0%, p2($palette) 50%, p4($palette) 100%) border-box;
+  border-bottom: 3px solid;
+  display: inline-block;
+}
+
+@mixin organic-title-underline-green($palette) {
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, p3($palette) 0%, p4($palette) 100%) border-box;
+  border-bottom: 2px solid;
+}

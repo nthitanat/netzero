@@ -1,0 +1,397 @@
+@import '../../styles/mixins';
+
+.courseDetail {
+  min-height: 100vh;
+  background: $color-surface;
+}
+
+// Header
+.header {
+  background: $color-surface-container-low;
+  padding: $spacing-8 0;
+  border-bottom: 1px solid $color-outline-variant;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-6 0;
+  }
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0 $spacing-4;
+  }
+}
+
+.breadcrumb {
+  @include label-large;
+  color: $color-on-surface-variant;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  margin-bottom: $spacing-3;
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+}
+
+.courseTitle {
+  @include display-small;
+  color: $color-on-surface;
+  margin-bottom: $spacing-3;
+
+  @media (max-width: $breakpoint-md) {
+    @include headline-large;
+  }
+}
+
+.courseDescription {
+  @include title-large;
+  color: $color-on-surface-variant;
+  margin-bottom: $spacing-5;
+  line-height: 1.6;
+}
+
+.instructorRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+}
+
+.instructorAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: $elevation-1;
+}
+
+.instructorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.instructorLabel {
+  @include label-small;
+  color: $color-on-surface-variant;
+  margin-bottom: $spacing-1;
+}
+
+.instructorName {
+  @include title-medium;
+  color: $color-on-surface;
+  font-weight: 600;
+}
+
+.courseMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-6;
+  @include body-medium;
+  color: $color-on-surface-variant;
+
+  @media (max-width: $breakpoint-md) {
+    gap: $spacing-4;
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+  }
+}
+
+.rating {
+  color: $color-tertiary;
+  font-weight: 600;
+
+  .material-symbols-outlined {
+    color: $color-tertiary !important;
+  }
+}
+
+// Container
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-8 $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-6 $spacing-4;
+  }
+}
+
+// Main Content Grid
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: $spacing-8;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-6;
+  }
+}
+
+.leftColumn {
+  min-width: 0; // Prevents grid overflow
+}
+
+.rightColumn {
+  @media (max-width: $breakpoint-md) {
+    order: -1; // Move to top on mobile
+  }
+}
+
+// Tabs
+.tabs {
+  display: flex;
+  gap: $spacing-2;
+  border-bottom: 2px solid $color-outline-variant;
+  margin-bottom: $spacing-6;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  @include title-medium;
+  color: $color-on-surface-variant;
+  padding: $spacing-3 $spacing-4;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $color-on-surface;
+  }
+
+  &.active {
+    color: $color-primary;
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: $color-primary;
+    }
+  }
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Sections
+.section {
+  margin-bottom: $spacing-8;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  @include headline-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-4;
+  padding-bottom: $spacing-2;
+  border-bottom: 1px solid $color-outline-variant;
+}
+
+// About Tab
+.fullDescription {
+  @include body-large;
+  color: $color-on-surface-variant;
+  line-height: 1.8;
+
+  p {
+    margin-bottom: $spacing-4;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.objectivesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-3;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-3;
+    @include body-medium;
+    color: $color-on-surface;
+    padding: $spacing-3;
+    background: $color-surface-container-low;
+    border-radius: $shape-medium;
+
+    .material-symbols-outlined {
+      font-size: 24px;
+      color: $color-primary;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.prerequisites,
+.requirements {
+  @include body-large;
+  color: $color-on-surface-variant;
+  line-height: 1.6;
+  padding: $spacing-4;
+  background: $color-surface-container-low;
+  border-radius: $shape-medium;
+  border-left: 4px solid $color-tertiary;
+}
+
+// Instructor Tab
+.instructorProfile {
+  display: flex;
+  gap: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.instructorImage {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: $elevation-2;
+  flex-shrink: 0;
+}
+
+.instructorDetails {
+  flex: 1;
+}
+
+.instructorFullName {
+  @include headline-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-2;
+}
+
+.instructorTitle {
+  @include title-large;
+  color: $color-primary;
+  font-weight: 600;
+  margin-bottom: $spacing-1;
+}
+
+.instructorAffiliation {
+  @include body-medium;
+  color: $color-on-surface-variant;
+  margin-bottom: $spacing-4;
+}
+
+.instructorBio {
+  @include body-large;
+  color: $color-on-surface-variant;
+  line-height: 1.8;
+  margin-bottom: $spacing-5;
+}
+
+.instructorStats {
+  display: flex;
+  gap: $spacing-6;
+  margin-bottom: $spacing-5;
+
+  @media (max-width: $breakpoint-md) {
+    justify-content: center;
+  }
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  @include body-medium;
+  color: $color-on-surface;
+  font-weight: 600;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: $color-primary;
+  }
+}
+
+.socialLinks {
+  display: flex;
+  gap: $spacing-3;
+
+  @media (max-width: $breakpoint-md) {
+    justify-content: center;
+  }
+}
+
+.socialLink {
+  @include label-large;
+  background: $color-surface-container;
+  color: $color-on-surface;
+  padding: $spacing-2 $spacing-4;
+  border-radius: $shape-full;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  text-transform: capitalize;
+
+  &:hover {
+    background: $color-primary-container;
+    color: $color-on-primary-container;
+    transform: translateY(-2px);
+  }
+}
+
+// Not Found
+.notFound {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  h1 {
+    @include headline-large;
+    color: $color-on-surface-variant;
+  }
+}

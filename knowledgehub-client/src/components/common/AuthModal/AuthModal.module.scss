@@ -1,0 +1,173 @@
+@import '../../../styles/mixins';
+
+.Overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-scrim);
+  z-index: $z-index-modal;
+  @include flex-center;
+  padding: $spacing-md;
+  animation: fadeIn $transition-fast ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.Modal {
+  background: var(--color-surface);
+  border-radius: $shape-extra-large;
+  box-shadow: $elevation-3;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp $transition-base ease;
+}
+
+// ── Header ────────────────────────────────────────────────────────
+
+.Header {
+  @include flex-between;
+  padding: $spacing-lg $spacing-lg $spacing-md;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.Tabs {
+  @include flex-center;
+  gap: 0;
+  background: var(--color-surface-container);
+  border-radius: $shape-full;
+  padding: 4px;
+}
+
+.Tab {
+  @include button-reset;
+  @include label-large;
+  padding: $spacing-2 $spacing-5;
+  border-radius: $shape-full;
+  color: var(--color-on-surface-variant);
+  transition: all $transition-fast;
+
+  &.active {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: $font-weight-bold;
+    box-shadow: $elevation-1;
+  }
+
+  &:not(.active):hover {
+    color: var(--color-on-surface);
+  }
+}
+
+.CloseBtn {
+  @include button-reset;
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $shape-full;
+  color: var(--color-on-surface-variant);
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+  }
+}
+
+// ── Error Banner ──────────────────────────────────────────────────
+
+.ErrorBanner {
+  @include flex-center;
+  gap: $spacing-xs;
+  margin: $spacing-md $spacing-lg 0;
+  padding: $spacing-3 $spacing-4;
+  background: var(--color-error-container);
+  color: var(--color-error);
+  border-radius: $shape-small;
+  font-size: $typescale-body-small;
+  font-weight: $font-weight-medium;
+}
+
+// ── Form ──────────────────────────────────────────────────────────
+
+.Form {
+  @include flex-column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+}
+
+.Row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.Field {
+  @include flex-column;
+  gap: $spacing-xs;
+}
+
+.Label {
+  font-size: $typescale-label-medium;
+  font-weight: $font-weight-medium;
+  color: var(--color-on-surface-variant);
+}
+
+.Input {
+  padding: $spacing-3 $spacing-4;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: $shape-small;
+  background: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  font-size: $typescale-body-large;
+  font-family: $font-body;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+  outline: none;
+
+  &::placeholder {
+    color: var(--color-on-surface-variant);
+    opacity: 0.6;
+  }
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.12);
+    background: var(--color-surface);
+  }
+}
+
+.SubmitBtn {
+  @include filled-button;
+  width: 100%;
+  margin-top: $spacing-xs;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.SwitchLink {
+  @include button-reset;
+  text-align: center;
+  font-size: $typescale-body-small;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

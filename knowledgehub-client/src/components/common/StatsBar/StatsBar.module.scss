@@ -1,0 +1,79 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+// Palette colours from CSS custom properties — set by parent page or palette prop.
+
+// ========================================
+// Stats Bar
+// ========================================
+.statsContainer {
+  position: relative;
+  width: 100%;
+  margin-top: -80px;
+  z-index: 3;
+  padding: 0 $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: -60px;
+    padding: 0 $spacing-4;
+  }
+}
+
+.statsWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-4;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  @include organic-stat-card($palette-orange, 1);
+
+  &:nth-child(2) { @include organic-stat-card($palette-orange, 2); }
+  &:nth-child(3) { @include organic-stat-card($palette-orange, 3); }
+  &:nth-child(4) { @include organic-stat-card($palette-orange, 4); }
+
+  // Override per-card blob colours with CSS vars
+  &:nth-child(1)::before { background: color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 22%, transparent); }
+  &:nth-child(2)::before { background: color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 20%, transparent); }
+  &:nth-child(3)::before { background: color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 22%, transparent); }
+  &:nth-child(4)::before { background: color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 18%, transparent); }
+
+  .material-symbols-outlined {
+    color: var(--pal-p1, #{p1($palette-orange)});
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 30%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 20%, transparent) 100%
+    );
+  }
+}
+
+.statContent {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.statValue {
+  @include display-small;
+  color: $color-on-surface;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.statLabel {
+  @include body-medium;
+  color: $color-on-surface-variant;
+  margin-top: $spacing-1;
+}

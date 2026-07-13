@@ -1,0 +1,855 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../styles/mixins';
+@import '../../styles/organic-theme';
+
+// ─── Page Palette ────────────────────────────────────────────────
+$page-palette: $palette-orange;
+
+.communityDetail {
+  @include organic-page-wrapper($page-palette);
+}
+
+// ========================================
+// Hero Section with Organic Split Design
+// ========================================
+.hero {
+  @include organic-hero($page-palette);
+}
+
+.heroSplit {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 700px;
+  gap: 0;
+  z-index: 1;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}
+
+.heroImageSide {
+  @include organic-hero-image-side($page-palette);
+}
+
+.heroImageContainer {
+  @include organic-image-frame($page-palette);
+}
+
+@keyframes morphShape {
+  0%, 100% { border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%; }
+  25%       { border-radius: 55% 45% 60% 40% / 50% 50% 50% 50%; }
+  50%       { border-radius: 50% 50% 45% 55% / 60% 40% 60% 40%; }
+  75%       { border-radius: 40% 60% 55% 45% / 45% 55% 45% 55%; }
+}
+
+// Text Side - Organic Shape
+.heroTextSide {
+  @include organic-hero-text-side($page-palette);
+}
+
+.heroTextContent {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+}
+
+.badge {
+  @include label-large;
+  @include organic-badge($page-palette);
+  margin-bottom: $spacing-5;
+}
+
+.heroTitle {
+  @include display-large;
+  margin-bottom: $spacing-4;
+  line-height: 1.2;
+  font-weight: 900;
+
+  @media (max-width: $breakpoint-md) {
+    @include display-medium;
+  }
+}
+
+// Colorful title words
+.titleWord1 {
+  background: linear-gradient(135deg, p1($page-palette) 0%, color.adjust(p1($page-palette), $lightness: -15%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(p1($page-palette), 0.3));
+}
+
+.titleWord2 {
+  background: linear-gradient(135deg, p4($page-palette) 0%, color.adjust(p4($page-palette), $lightness: -20%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(p4($page-palette), 0.3));
+}
+
+.titleWord3 {
+  background: linear-gradient(135deg, p3($page-palette) 0%, color.adjust(p3($page-palette), $lightness: -20%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(p3($page-palette), 0.3));
+}
+
+.heroTagline {
+  @include headline-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-5;
+  line-height: 1.5;
+  font-weight: 500;
+  padding: $spacing-3 $spacing-4;
+  background: linear-gradient(135deg,
+    rgba(p2($page-palette), 0.15) 0%,
+    rgba(p1($page-palette), 0.08) 100%
+  );
+  border-radius: 16px 4px 16px 4px;
+  border-left: 4px solid p1($page-palette);
+
+  @media (max-width: $breakpoint-md) {
+    @include headline-small;
+  }
+}
+
+.heroMeta {
+  display: flex;
+  gap: $spacing-6;
+  @include body-large;
+  color: $color-on-surface;
+  margin-bottom: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  span {
+    @include organic-meta-chip($page-palette);
+  }
+}
+
+.heroActions {
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.shareButton {
+  @include title-medium;
+  @include organic-share-button($page-palette);
+}
+
+// ========================================
+// Floating Stats Cards
+// ========================================
+.statsContainer {
+  position: relative;
+  width: 100%;
+  margin-top: -80px;
+  z-index: 3;
+  padding: 0 $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: -60px;
+    padding: 0 $spacing-4;
+  }
+}
+
+.statsWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-4;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  @include organic-stat-card($page-palette, 1);
+
+  &:nth-child(2) { @include organic-stat-card($page-palette, 2); }
+  &:nth-child(3) { @include organic-stat-card($page-palette, 3); }
+  &:nth-child(4) { @include organic-stat-card($page-palette, 4); }
+}
+
+.statContent {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.statValue {
+  @include display-small;
+  color: $color-on-surface;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.statLabel {
+  @include body-medium;
+  color: $color-on-surface-variant;
+  margin-top: $spacing-1;
+}
+
+// ========================================
+// Main Container & Content Grid
+// ========================================
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-12 $spacing-6 $spacing-16;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-8 $spacing-4 $spacing-12;
+  }
+}
+
+.contentGrid {
+  @include organic-content-grid-blobs($page-palette);
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: $spacing-8;
+  align-items: start;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    gap: $spacing-6;
+  }
+}
+
+.mainContent {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110%;
+    height: 100%;
+    background: radial-gradient(ellipse at center,
+      rgba(p1($page-palette), 0.05) 0%,
+      rgba(p2($page-palette), 0.02) 50%,
+      transparent 70%
+    );
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+}
+
+// ========================================
+// Tab Navigation
+// ========================================
+.tabNavigation {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+  border-bottom: 2px solid $color-surface-container;
+  overflow-x: auto;
+  padding-bottom: $spacing-1;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $color-primary;
+    border-radius: 4px;
+  }
+}
+
+.tab {
+  @include title-medium;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-5;
+  background: transparent;
+  color: $color-on-surface-variant;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-weight: 500;
+  position: relative;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  &:hover {
+    @include organic-tab-hover($page-palette);
+  }
+}
+
+.activeTab {
+  @include organic-tab-active($page-palette);
+
+  .material-symbols-outlined {
+    color: $color-primary;
+  }
+}
+
+// ========================================
+// Tab Content
+// ========================================
+.tabContent {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contentTitle {
+  @include headline-large;
+  color: $color-on-surface;
+  margin-bottom: $spacing-6;
+  padding-bottom: $spacing-3;
+  @include organic-title-underline($page-palette);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, $color-primary 0%, p3($page-palette) 100%);
+  }
+}
+
+// Story Tab
+.storyTab {
+  @include organic-story-panel($page-palette);
+}
+
+.storyGrid {
+  display: grid;
+  gap: $spacing-6;
+  position: relative;
+  z-index: 1;
+}
+
+.storyLead {
+  @include title-large;
+  @include organic-highlight-block($page-palette);
+  color: $color-on-surface;
+  margin-bottom: $spacing-6;
+}
+
+.storyDetails {
+  @include body-large;
+  color: $color-on-surface-variant;
+  line-height: 1.9;
+
+  p {
+    margin-bottom: $spacing-5;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Journey Tab
+.journeyTab {
+  @include organic-journey-panel($page-palette);
+}
+
+// Media Tab
+.mediaTab {
+  @include organic-media-panel($page-palette);
+}
+
+.noContent {
+  @include body-large;
+  color: $color-on-surface-variant;
+  text-align: center;
+  padding: $spacing-12 $spacing-6;
+}
+
+// Products Tab
+.productsTab {
+  @include organic-products-panel($page-palette);
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: $spacing-6;
+  position: relative;
+  z-index: 1;
+}
+
+.productCard {
+  background: $color-surface-container-low;
+  border-radius: $organic-card-small;
+  overflow: hidden;
+  box-shadow: $elevation-1;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg,
+      rgba(p1($page-palette), 0.15) 0%,
+      rgba(p2($page-palette), 0.15) 100%
+    );
+    border-radius: 50% 40% 55% 45%;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    @include organic-product-card-hover($page-palette);
+
+    &::before { opacity: 1; }
+  }
+}
+
+.productImage {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: $color-surface-container;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .productCard:hover & img {
+    transform: scale(1.1);
+  }
+}
+
+.productInfo {
+  padding: $spacing-4;
+}
+
+.productName {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-2;
+}
+
+.productPrice {
+  @include title-small;
+  background: linear-gradient(135deg, p1($page-palette) 0%, color.adjust(p1($page-palette), $lightness: -8%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+// ========================================
+// Sidebar
+// ========================================
+.sidebar {
+  @media (max-width: $breakpoint-lg) {
+    order: -1; // Show sidebar first on mobile
+  }
+}
+
+.stickyWrapper {
+  position: sticky;
+  top: $spacing-8;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  z-index: 1;
+  @include organic-sidebar-glow($page-palette);
+
+  @media (max-width: $breakpoint-lg) {
+    position: static;
+  }
+}
+
+// ========================================
+// Leader Card (Modernized)
+// ========================================
+.leaderCard {
+  @include organic-sidebar-card($page-palette);
+}
+
+.leaderHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: $spacing-5;
+  border-bottom: 1px solid $color-surface-container;
+  margin-bottom: $spacing-5;
+  position: relative;
+  z-index: 1;
+}
+
+.leaderImage {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: $elevation-3;
+  margin-bottom: $spacing-4;
+  border: 4px solid $color-primary-container;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cuBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg,
+    p1($page-palette) 0%,
+    color.adjust(p1($page-palette), $lightness: -15%) 100%
+  );
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(p1($page-palette), 0.45), 0 0 0 3px rgba(p2($page-palette), 0.3);
+  border: 3px solid white;
+
+  .material-symbols-outlined {
+    color: white;
+    font-size: 24px;
+  }
+}
+
+.leaderBasicInfo {
+  width: 100%;
+}
+
+.leaderName {
+  @include title-large;
+  color: $color-on-surface;
+  margin-bottom: $spacing-2;
+  font-weight: 700;
+}
+
+.leaderRole {
+  @include body-large;
+  color: $color-primary;
+  font-weight: 600;
+  margin-bottom: $spacing-1;
+}
+
+.leaderOccupation {
+  @include body-medium;
+  color: $color-on-surface-variant;
+}
+
+// CU Relationship Section
+.cuRelationshipSection {
+  margin-top: $spacing-5;
+  padding-top: $spacing-5;
+  border-top: 1px solid $color-surface-container;
+}
+
+.cuHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-4;
+  color: $color-primary;
+
+  .material-symbols-outlined {
+    font-size: 24px;
+  }
+
+  h4 {
+    @include title-medium;
+    font-weight: 700;
+  }
+}
+
+.relationshipItem {
+  display: flex;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+  padding: $spacing-3;
+  background: linear-gradient(135deg,
+    rgba(p3($page-palette), 0.15) 0%,
+    rgba(p4($page-palette), 0.10) 50%,
+    rgba(p2($page-palette), 0.08) 100%
+  );
+  border-radius: $organic-item;
+  border: 1px solid rgba(p3($page-palette), 0.2);
+
+  &:last-child { margin-bottom: 0; }
+
+  strong {
+    @include label-large;
+    color: $color-on-surface;
+    display: block;
+    margin-bottom: $spacing-2;
+  }
+
+  ul {
+    @include body-small;
+    color: $color-on-surface-variant;
+    margin: 0;
+    padding-left: $spacing-5;
+  }
+
+  li {
+    margin-bottom: $spacing-1;
+    line-height: 1.5;
+  }
+}
+
+.itemIcon {
+  @include organic-icon-box($page-palette);
+}
+
+.collabTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  margin-top: $spacing-2;
+}
+
+.collabTag {
+  @include label-small;
+  @include organic-collab-tag($page-palette);
+}
+
+// ========================================
+// Quick Info Card
+// ========================================
+.quickInfoCard {
+  @include organic-quick-info-card($page-palette);
+}
+
+.quickInfoTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-5;
+  padding-bottom: $spacing-3;
+  @include organic-title-underline-green($page-palette);
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.quickInfoItem {
+  display: flex;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+  padding: $spacing-3;
+  border-radius: $organic-item;
+  background: $color-surface-container-low;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+
+  &:last-child { margin-bottom: 0; }
+
+  &:hover {
+    background: linear-gradient(135deg,
+      rgba(p2($page-palette), 0.25) 0%,
+      rgba(p4($page-palette), 0.15) 50%,
+      rgba(p3($page-palette), 0.10) 100%
+    );
+    transform: translateX(2px);
+  }
+
+  .material-symbols-outlined {
+    color: p1($page-palette);
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  > div { flex: 1; }
+}
+
+.quickInfoLabel {
+  @include label-medium;
+  color: $color-on-surface-variant;
+  margin-bottom: $spacing-1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quickInfoValue {
+  @include body-large;
+  color: $color-on-surface;
+  font-weight: 600;
+}
+
+// ========================================
+// Courses Card
+// ========================================
+.coursesCard {
+  background: white;
+  border-radius: $organic-card;
+  padding: $spacing-6;
+  box-shadow: $elevation-2;
+  border: 1px solid $color-surface-container;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -70px; right: -70px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle,
+      rgba(p1($page-palette), 0.15) 0%,
+      rgba(p3($page-palette), 0.12) 45%,
+      rgba(p4($page-palette), 0.10) 65%,
+      transparent 75%
+    );
+    border-radius: 55% 45% 60% 40%;
+    z-index: 0;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle,
+      rgba(p1($page-palette), 0.13) 0%,
+      rgba(p2($page-palette), 0.18) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60%;
+    z-index: 0;
+  }
+}
+
+.coursesTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-5;
+  padding-bottom: $spacing-3;
+  @include organic-title-underline-green($page-palette);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  position: relative;
+  z-index: 1;
+
+  .material-symbols-outlined {
+    color: p3($page-palette);
+    font-size: 24px;
+  }
+}
+
+.courseItem {
+  display: flex;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  margin-bottom: $spacing-3;
+  border-radius: $organic-item;
+  background: $color-surface-container-low;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+
+  &:last-child { margin-bottom: 0; }
+
+  &:hover {
+    @include organic-course-item-hover($page-palette);
+  }
+}
+
+.courseIcon {
+  @include organic-course-icon($page-palette);
+}
+
+.courseText {
+  flex: 1;
+}
+
+.courseName {
+  @include body-large;
+  color: $color-on-surface;
+  font-weight: 600;
+  margin-bottom: $spacing-1;
+  line-height: 1.3;
+}
+
+.courseMeta {
+  @include label-medium;
+  color: $color-on-surface-variant;
+}
+
+// ========================================
+// Not Found
+// ========================================
+.notFound {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  h1 {
+    @include headline-large;
+    color: $color-on-surface;
+  }
+}

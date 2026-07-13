@@ -1,0 +1,113 @@
+@import '../../../styles/mixins';
+
+.followButton {
+  position: fixed;
+  bottom: $spacing-6;
+  right: $spacing-6;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: $color-primary-container;
+  color: $color-on-primary-container;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $elevation-3;
+  transition: all 0.3s ease;
+  z-index: 100;
+  
+  @media (max-width: $breakpoint-md) {
+    bottom: $spacing-4;
+    right: $spacing-4;
+  }
+
+  span.material-symbols-outlined {
+    font-size: 28px;
+  }
+
+  &:hover {
+    box-shadow: $elevation-4;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.following {
+    background: $color-primary;
+    color: $color-on-primary;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 $spacing-2;
+  border-radius: 12px;
+  background: $color-tertiary;
+  color: $color-on-tertiary;
+  @include label-small;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid $color-surface;
+}
+
+.toast {
+  position: fixed;
+  bottom: $spacing-20;
+  right: $spacing-6;
+  background: $color-inverse-surface;
+  color: $color-inverse-on-surface;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $shape-extra-small;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  box-shadow: $elevation-3;
+  animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+  z-index: 101;
+
+  @media (max-width: $breakpoint-md) {
+    bottom: $spacing-16;
+    right: $spacing-4;
+    left: $spacing-4;
+  }
+
+  span.material-symbols-outlined {
+    font-size: 20px;
+  }
+
+  span:not(.material-symbols-outlined) {
+    @include body-medium;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}

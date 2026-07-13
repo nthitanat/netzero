@@ -1,0 +1,121 @@
+@import '../../../styles/mixins';
+
+// ── Positioning ───────────────────────────────────────────────────
+
+.Toast {
+  position: fixed;
+  top: $spacing-xl;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-index-tooltip; // 1060 — above modals
+
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-3;
+
+  min-width: 280px;
+  max-width: min(560px, calc(100vw - #{$spacing-xl} * 2));
+  padding: $spacing-3 $spacing-4 $spacing-3 $spacing-5;
+
+  border-radius: $shape-extra-large;
+  box-shadow: $elevation-3;
+
+  font-size: $typescale-body-medium;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-normal;
+
+  animation: toastSlideUp $motion-duration-medium1 $motion-easing-standard-decel both;
+
+  &.leaving {
+    animation: toastSlideDown $motion-duration-medium1 $motion-easing-standard-accel both;
+  }
+
+  // ── Variants ────────────────────────────────────────────────────
+
+  &.success {
+    background: var(--color-success);
+    color:      var(--color-on-success);
+
+    .Icon       { color: var(--color-on-success); }
+    .DismissBtn { color: var(--color-on-success); }
+  }
+
+  &.error {
+    background: var(--color-error);
+    color:      var(--color-on-error);
+
+    .Icon       { color: var(--color-on-error); }
+    .DismissBtn { color: var(--color-on-error); }
+  }
+
+  &.warning {
+    background: var(--color-warning);
+    color:      var(--color-on-warning);
+
+    .Icon       { color: var(--color-on-warning); }
+    .DismissBtn { color: var(--color-on-warning); }
+  }
+
+  &.info {
+    background: var(--color-info);
+    color:      var(--color-on-info);
+
+    .Icon       { color: var(--color-on-info); }
+    .DismissBtn { color: var(--color-on-info); }
+  }
+}
+
+// ── Inner elements ────────────────────────────────────────────────
+
+.Icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.Message {
+  flex: 1;
+  font-family: $font-body;
+}
+
+.DismissBtn {
+  @include button-reset;
+  @include flex-center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: $shape-full;
+  opacity: 0.75;
+  transition: opacity $transition-fast;
+
+  span {
+    font-size: 18px;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// ── Animations ────────────────────────────────────────────────────
+
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes toastSlideDown {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+}

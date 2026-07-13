@@ -1,0 +1,92 @@
+[
+  {
+    "id": "article-001",
+    "title": {
+      "th": "โอกาสของสินค้าไทยในตลาด GCC: มุมมองจากผู้เชี่ยวชาญ",
+      "en": "Opportunities for Thai Products in GCC Market: Expert Perspective"
+    },
+    "excerpt": {
+      "th": "ตลาด GCC มีมูลค่ากว่า 1.6 ล้านล้านดอลลาร์สหรัฐ และเป็นโอกาสทองสำหรับสินค้าไทยคุณภาพสูง โดยเฉพาะสินค้าออร์แกนิคและหัตถกรรม",
+      "en": "The GCC market is valued at over $1.6 trillion USD and represents a golden opportunity for high-quality Thai products, especially organic goods and handicrafts."
+    },
+    "content": {
+      "th": "ตลาดประเทศกลุ่ม GCC (Gulf Cooperation Council) ซึ่งประกอบด้วย Saudi Arabia, UAE, Kuwait, Qatar, Bahrain และ Oman มีมูลค่ารวมกว่า 1.6 ล้านล้านดอลลาร์สหรัฐ และมีประชากรกว่า 57 ล้านคน...",
+      "en": "The GCC (Gulf Cooperation Council) market, comprising Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, and Oman, has a combined value of over $1.6 trillion USD with a population of over 57 million..."
+    },
+    "category": "market-intel",
+    "author": {
+      "name": {
+        "th": "ผศ.ดร.วิชัย สุขสันต์",
+        "en": "Asst. Prof. Dr. Vichai Suksan"
+      },
+      "affiliation": {
+        "th": "คณะพาณิชยศาสตร์และการบัญชี จุฬาฯ",
+        "en": "Faculty of Commerce and Accountancy, Chulalongkorn University"
+      }
+    },
+    "publishedDate": "2026-03-15",
+    "tags": ["GCC", "market research", "export"],
+    "thumbnail": "images/articles/gcc-market.jpg",
+    "readTime": 8
+  },
+  {
+    "id": "article-002",
+    "title": {
+      "th": "Design Thinking สำหรับผู้ประกอบการชุมชน",
+      "en": "Design Thinking for Community Entrepreneurs"
+    },
+    "excerpt": {
+      "th": "เรียนรู้วิธีการใช้ Design Thinking เพื่อพัฒนาสินค้าชุมชนให้ตอบโจทย์ตลาดสากล ผ่านกรณีศึกษาจริง",
+      "en": "Learn how to use Design Thinking to develop community products that meet global market needs through real case studies."
+    },
+    "content": {
+      "th": "Design Thinking เป็นกระบวนการคิดเชิงออกแบบที่เน้นผู้ใช้เป็นศูนย์กลาง ซึ่งสามารถนำมาประยุกต์ใช้กับการพัฒนาสินค้าชุมชนได้อย่างมีประสิทธิภาพ...",
+      "en": "Design Thinking is a user-centered design process that can be effectively applied to community product development..."
+    },
+    "category": "knowledge",
+    "author": {
+      "name": {
+        "th": "ผศ.มาลี ศิลป์สวย",
+        "en": "Asst. Prof. Malee Sinsuay"
+      },
+      "affiliation": {
+        "th": "คณะศิลปกรรมศาสตร์ จุฬาฯ",
+        "en": "Faculty of Fine and Applied Arts, Chulalongkorn University"
+      }
+    },
+    "publishedDate": "2026-04-01",
+    "tags": ["design thinking", "co-design", "innovation"],
+    "thumbnail": "images/articles/design-thinking.jpg",
+    "readTime": 10
+  },
+  {
+    "id": "article-003",
+    "title": {
+      "th": "การปรับสินค้าให้เข้ากับวัฒนธรรมอาหรับ: คู่มือฉบับสมบูรณ์",
+      "en": "Adapting Products to Arab Culture: Complete Guide"
+    },
+    "excerpt": {
+      "th": "ทุกสิ่งที่ต้องรู้เกี่ยวกับการปรับสินค้า บรรจุภัณฑ์ และการสื่อสารให้เหมาะสมกับตลาดอาหรับ",
+      "en": "Everything you need to know about adapting products, packaging, and communication for the Arab market."
+    },
+    "content": {
+      "th": "การเข้าสู่ตลาดอาหรับไม่ได้หมายความว่าแค่แปลภาษา แต่ต้องเข้าใจวัฒนธรรม ค่านิยม และความเชื่ออย่างลึกซึ้ง...",
+      "en": "Entering the Arab market doesn't just mean translating language, but requires deep understanding of culture, values, and beliefs..."
+    },
+    "category": "market-intel",
+    "author": {
+      "name": {
+        "th": "ดร.สมศักดิ์ อินทรีย์",
+        "en": "Dr. Somsak Insee"
+      },
+      "affiliation": {
+        "th": "ศูนย์ศึกษาตะวันออกกลาง จุฬาฯ",
+        "en": "Middle East Studies Center, Chulalongkorn University"
+      }
+    },
+    "publishedDate": "2026-04-20",
+    "tags": ["localization", "Arab culture", "GCC"],
+    "thumbnail": "images/articles/arab-culture.jpg",
+    "readTime": 12
+  }
+]

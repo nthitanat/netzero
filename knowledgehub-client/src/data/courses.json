@@ -1,0 +1,281 @@
+[
+  {
+    "id": "course-001",
+    "communityId": "dot-dot-cafe-community",
+    "title": {
+      "th": "Connect the Dot: นิทรรศการและเทศกาลชุมชน",
+      "en": "'Connect the Dot' Exhibition & Community Festival"
+    },
+    "description": {
+      "th": "งานสามวัน 13–15 กุมภาพันธ์ รวมนิทรรศการฟื้นป่าน่าน เวิร์กชอป Eco-Print, Art & Craft, Contemplative Art, กิจกรรม My Dot Card, Bar Cha ชาต้นพันปี และดนตรีสดริมคลอง",
+      "en": "Three-day festival, 13–15 February, combining the Nan forest restoration exhibition, Eco-Print, Art & Craft, Contemplative Art workshops, My Dot Card community activity, ancient-tree Bar Cha, and canalside live music."
+    },
+    "fullDescription": {
+      "th": "DOT DOT เชื่อว่าทุกคนคือหนึ่ง 'จุด' ที่มีคุณค่า และเทศกาล Connect the Dot คือพื้นที่ที่เชื่อมจุดเหล่านั้นเข้าหากัน ตลอด 3 วัน 13–15 กุมภาพันธ์ ณ พื้นที่ริมคลองในกรุงเทพฯ\n\nงานเปิดด้วยนิทรรศการ 'Connect the Dot' ที่เล่าเรื่องการฟื้นป่าน่านจากมุมของชุมชนผู้ลงมือทำจริง ตามด้วยเวิร์กชอป Eco-Print โดย ECO Print by Pok และเวิร์กชอป Art & Craft โดย Judy & co.\n\nวันที่สองเปิดเวิร์กชอป Contemplative Art — สีน้ำ Contour Drawing พร้อมกิจกรรม My Dot Card\n\nตลอดทั้งสามวัน Bar Cha นำชาจากต้นพันปีในป่าห้วยหลวงมาให้จิบช้า ๆ และทุกเย็น 16.00–18.00 น. มีดนตรีสดแบบล้อมวงริมคลอง",
+      "en": "DOT DOT believes every person is a 'dot' — and the Connect the Dot Festival is the space that joins them together. Three full days, 13–15 February, at a canalside venue in Bangkok.\n\nThe festival opens with the 'Connect the Dot' exhibition telling the story of Nan forest restoration from the perspective of communities doing real hands-on work, plus the Eco-Print workshop by ECO Print by Pok and Art & Craft workshop by Judy & co.\n\nDay two brings the Contemplative Art watercolour Contour Drawing workshop and the My Dot Card community activity.\n\nAcross all three days, Bar Cha serves tea from thousand-year-old trees in Huay Luang forest. Every evening 16:00–18:00, intimate live music by the canal connects everyone as the sun sets."
+    },
+    "learningObjectives": [
+      {
+        "th": "เข้าใจเรื่องราวการฟื้นป่าน่านผ่านนิทรรศการ Connect the Dot",
+        "en": "Understand the Nan forest restoration story through the Connect the Dot exhibition"
+      },
+      {
+        "th": "ทดลองทำ Eco-Print พิมพ์ลายธรรมชาติลงบนผ้าด้วยตัวเอง",
+        "en": "Try Eco-Print — creating natural patterns on fabric by hand"
+      },
+      {
+        "th": "สร้างงาน Art & Craft และเวิร์กชอป Contemplative Art",
+        "en": "Create through Art & Craft and Contemplative Art workshops"
+      },
+      {
+        "th": "เชื่อมตัวเองเข้ากับชุมชนผ่านกิจกรรม My Dot Card",
+        "en": "Connect to the community through the My Dot Card activity"
+      },
+      {
+        "th": "สัมผัสชาต้นพันปีจาก Bar Cha และดนตรีสดริมคลอง",
+        "en": "Experience ancient-tree tea at Bar Cha and canalside live music"
+      }
+    ],
+    "prerequisites": {
+      "th": "ไม่จำเป็นต้องมีพื้นฐานใด ๆ เปิดรับทุกคน",
+      "en": "No prior experience required. Open to everyone."
+    },
+    "requirements": {
+      "th": "แนะนำให้สวมใส่เสื้อผ้าที่สะดวกสบาย สำหรับเวิร์กชอป Eco-Print ควรสวมเสื้อผ้าที่เปื้อนได้",
+      "en": "Comfortable clothes recommended. For the Eco-Print workshop, wear clothes that can get stained."
+    },
+    "curriculum": [
+      {
+        "sectionId": 1,
+        "title": {
+          "th": "วันที่ 1 — นิทรรศการ Connect the Dot",
+          "en": "Day 1 — Connect the Dot Exhibition"
+        },
+        "duration": "13 February",
+        "lessons": [
+          {
+            "lessonId": 1,
+            "title": {
+              "th": "นิทรรศการ: เรื่องเล่าจากป่าน่าน",
+              "en": "Exhibition: Stories from Nan Forest"
+            },
+            "type": "video",
+            "duration": "60 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-1-1.jpg",
+            "isPreview": true
+          },
+          {
+            "lessonId": 2,
+            "title": {
+              "th": "จุดเล็ก ๆ ของคุณกับการฟื้นฟูป่า",
+              "en": "Your Small Dot and Forest Restoration"
+            },
+            "type": "reading",
+            "duration": "20 min",
+            "isPreview": false
+          },
+          {
+            "lessonId": 3,
+            "title": {
+              "th": "กิจกรรม My Dot Card — เขียนจุดของคุณ",
+              "en": "My Dot Card Activity — Write Your Dot"
+            },
+            "type": "quiz",
+            "duration": "30 min",
+            "isPreview": false
+          }
+        ]
+      },
+      {
+        "sectionId": 2,
+        "title": {
+          "th": "วันที่ 1–2 — เวิร์กชอป Eco-Print & Art Craft",
+          "en": "Day 1–2 — Eco-Print & Art Craft Workshops"
+        },
+        "duration": "13–14 February",
+        "lessons": [
+          {
+            "lessonId": 4,
+            "title": {
+              "th": "Eco-Print: พิมพ์ลายดอกไม้และใบไม้ลงบนผ้า",
+              "en": "Eco-Print: Printing Flowers & Leaves on Fabric"
+            },
+            "type": "video",
+            "duration": "90 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-2-1.jpg",
+            "isPreview": true
+          },
+          {
+            "lessonId": 5,
+            "title": {
+              "th": "Art & Craft: ดอกไม้ประดิษฐ์ กิ๊บ และสร้อยข้อมือ",
+              "en": "Art & Craft: Handmade Flowers, Hair Clips & Bracelets"
+            },
+            "type": "video",
+            "duration": "90 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-2-2.jpg",
+            "isPreview": false
+          },
+          {
+            "lessonId": 6,
+            "title": {
+              "th": "เบื้องหลังนักสร้างสรรค์: ECO Print by Pok & Judy & co.",
+              "en": "Behind the Makers: ECO Print by Pok & Judy & co."
+            },
+            "type": "reading",
+            "duration": "15 min",
+            "isPreview": false
+          }
+        ]
+      },
+      {
+        "sectionId": 3,
+        "title": {
+          "th": "วันที่ 2 — Contemplative Art & My Dot Card",
+          "en": "Day 2 — Contemplative Art & My Dot Card"
+        },
+        "duration": "14 February",
+        "lessons": [
+          {
+            "lessonId": 7,
+            "title": {
+              "th": "Contemplative Art: วาดตามที่ตาเห็น โดยไม่ต้องสมบูรณ์แบบ",
+              "en": "Contemplative Art: Draw What You See, Without Perfection"
+            },
+            "type": "video",
+            "duration": "90 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-3-1.jpg",
+            "isPreview": false
+          },
+          {
+            "lessonId": 8,
+            "title": {
+              "th": "Contour Drawing: รู้จักตัวเองผ่านเส้น",
+              "en": "Contour Drawing: Know Yourself Through Lines"
+            },
+            "type": "video",
+            "duration": "60 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-3-2.jpg",
+            "isPreview": false
+          },
+          {
+            "lessonId": 9,
+            "title": {
+              "th": "My Dot Card: แขวนจุดของคุณไว้บนผนังชุมชน",
+              "en": "My Dot Card: Hang Your Dot on the Community Wall"
+            },
+            "type": "quiz",
+            "duration": "20 min",
+            "isPreview": false
+          }
+        ]
+      },
+      {
+        "sectionId": 4,
+        "title": {
+          "th": "วันที่ 3 — Bar Cha ชาต้นพันปี & ดนตรีสดริมคลอง",
+          "en": "Day 3 — Ancient-Tree Bar Cha & Canalside Live Music"
+        },
+        "duration": "15 February",
+        "lessons": [
+          {
+            "lessonId": 10,
+            "title": {
+              "th": "Bar Cha: ชาต้นพันปีจากป่าห้วยหลวง",
+              "en": "Bar Cha: Thousand-Year-Old Tea from Huay Luang Forest"
+            },
+            "type": "video",
+            "duration": "45 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-4-1.jpg",
+            "isPreview": false
+          },
+          {
+            "lessonId": 11,
+            "title": {
+              "th": "ดนตรีสดล้อมวงริมคลอง 16.00–18.00 น.",
+              "en": "Canalside Circle Live Music 16:00–18:00"
+            },
+            "type": "video",
+            "duration": "120 min",
+            "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            "thumbnail": "images/courses/lessons/dot-4-2.jpg",
+            "isPreview": false
+          },
+          {
+            "lessonId": 12,
+            "title": {
+              "th": "สะท้อนประสบการณ์: จุดของคุณเชื่อมกับชุมชนอย่างไร",
+              "en": "Reflection: How Does Your Dot Connect to the Community?"
+            },
+            "type": "reading",
+            "duration": "15 min",
+            "isPreview": false
+          }
+        ]
+      }
+    ],
+    "instructor": {
+      "name": {
+        "th": "ทีมผู้ก่อตั้ง DOT DOT",
+        "en": "DOT DOT Founding Team"
+      },
+      "title": {
+        "th": "ผู้ก่อตั้งและดูแลพื้นที่ชุมชน",
+        "en": "Founders & Community Space Curators"
+      },
+      "avatar": "images/communities/dot-dot-cafe-community/leader.jpg",
+      "bio": {
+        "th": "ทีมผู้ก่อตั้ง DOT DOT คือกลุ่มนักสร้างพื้นที่ชุมชนและผู้ประกอบการสังคมที่เปิดพื้นที่ริมคลองในกรุงเทพฯ เพื่อเชื่อม 'จุด' เล็ก ๆ ของผู้คนเข้าหากัน ผ่านกิจกรรม ศิลปะ นิทรรศการ ดนตรี และชาจากต้นพันปี",
+        "en": "The DOT DOT Founding Team are community space builders and social entrepreneurs who opened a canalside space in Bangkok to connect each person's small 'dot' to others — through activities, art, exhibitions, live music, and ancient-tree tea."
+      },
+      "affiliation": "DOT DOT Cafe & Community",
+      "coursesCount": 1,
+      "studentsCount": 0,
+      "rating": 5,
+      "socialLinks": {}
+    },
+    "duration": {
+      "hours": 24,
+      "sessions": 3
+    },
+    "level": "beginner",
+    "language": [
+      "th",
+      "en"
+    ],
+    "price": {
+      "amount": 0,
+      "currency": "THB"
+    },
+    "topics": [
+      {
+        "th": "นิทรรศการฟื้นป่าน่าน Connect the Dot",
+        "en": "Connect the Dot Nan forest restoration exhibition"
+      },
+      {
+        "th": "Eco-Print เวิร์กชอปพิมพ์ลายธรรมชาติ",
+        "en": "Eco-Print natural pattern workshop"
+      },
+      {
+        "th": "Art & Craft และ Contemplative Art",
+        "en": "Art & Craft and Contemplative Art workshops"
+      },
+      {
+        "th": "Bar Cha ชาต้นพันปีและดนตรีสดริมคลอง",
+        "en": "Ancient-tree Bar Cha and canalside live music"
+      }
+    ],
+    "certificate": false,
+    "maxStudents": 50,
+    "thumbnail": "images/courses/dot-cafe/cover-dot-workshop.jpg",
+    "featured": true,
+    "rating": 5,
+    "studentsEnrolled": 0
+  }
+]

@@ -1,0 +1,137 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+// Palette colours from CSS custom properties — set by parent page or palette prop.
+
+// ========================================
+// Linked List Card
+// ========================================
+.card {
+  background: white;
+  border-radius: $organic-card;
+  padding: $spacing-6;
+  box-shadow: $elevation-2;
+  border: 1px solid $color-surface-container;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -70px; right: -70px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 15%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 12%, transparent) 45%,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 10%, transparent) 65%,
+      transparent 75%
+    );
+    border-radius: 55% 45% 60% 40%;
+    z-index: 0;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 13%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 18%, transparent) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60%;
+    z-index: 0;
+  }
+}
+
+.cardTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-5;
+  padding-bottom: $spacing-3;
+  // organic-title-underline-green expanded with CSS vars
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, var(--pal-p3, #{p3($palette-orange)}) 0%, var(--pal-p4, #{p4($palette-orange)}) 100%) border-box;
+  border-bottom: 2px solid transparent;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  position: relative;
+  z-index: 1;
+
+  .material-symbols-outlined {
+    color: var(--pal-p3, #{p3($palette-orange)});
+    font-size: 24px;
+  }
+}
+
+.listItem {
+  display: flex;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  margin-bottom: $spacing-3;
+  border-radius: $organic-item;
+  background: $color-surface-container-low;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+
+  &:last-child { margin-bottom: 0; }
+
+  &:hover {
+    // organic-course-item-hover expanded with CSS vars
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 20%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 18%, transparent) 50%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 12%, transparent) 100%
+    );
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 15%, transparent);
+  }
+}
+
+.itemIcon {
+  // organic-course-icon expanded with CSS vars
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    var(--pal-p3, #{p3($palette-orange)}) 0%,
+    color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 85%, black) 100%
+  );
+  border-radius: 12px 3px 12px 3px;
+  box-shadow:
+    0 4px 10px color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 30%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 15%, transparent);
+
+  .material-symbols-outlined {
+    color: white;
+    font-size: 28px;
+  }
+}
+
+.itemText {
+  flex: 1;
+}
+
+.itemPrimary {
+  @include body-large;
+  color: $color-on-surface;
+  font-weight: 600;
+  margin-bottom: $spacing-1;
+  line-height: 1.3;
+}
+
+.itemSecondary {
+  @include label-medium;
+  color: $color-on-surface-variant;
+}

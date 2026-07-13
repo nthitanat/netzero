@@ -1,0 +1,135 @@
+@import '../../../styles/mixins';
+
+.Footer {
+  background: var(--color-inverse-surface);
+  color: var(--color-inverse-on-surface);
+  padding: $spacing-3xl 0 $spacing-xl 0;
+  margin-top: $spacing-3xl;
+}
+
+.Container {
+  @include container;
+}
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.Section {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.SectionTitle {
+  @include title-large;
+  color: var(--color-primary);
+  margin-bottom: $spacing-sm;
+}
+
+.SectionText {
+  @include body-medium;
+  color: var(--color-inverse-on-surface);
+  opacity: 0.8;
+  line-height: $line-height-relaxed;
+}
+
+.Links {
+  @include flex-column;
+  gap: $spacing-sm;
+}
+
+.Link {
+  @include body-medium;
+  color: var(--color-inverse-on-surface);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: all $transition-fast;
+  
+  &:hover {
+    opacity: 1;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+}
+
+.Contact {
+  @include flex-column;
+  gap: $spacing-sm;
+}
+
+.ContactItem {
+  @include flex-center;
+  gap: $spacing-sm;
+  justify-content: flex-start;
+  @include body-medium;
+  
+  .material-symbols-outlined {
+    color: var(--color-primary);
+    font-size: 20px;
+  }
+}
+
+.Divider {
+  height: 1px;
+  background: var(--color-outline-variant);
+  opacity: 0.3;
+  margin: $spacing-xl 0;
+}
+
+.Bottom {
+  @include flex-between;
+  align-items: center;
+  
+  @media (max-width: $breakpoint-md) {
+    @include flex-column;
+    gap: $spacing-md;
+    text-align: center;
+  }
+}
+
+.Copyright {
+  @include body-small;
+  opacity: 0.6;
+}
+
+.Social {
+  @include flex-center;
+  gap: $spacing-md;
+}
+
+.SocialLink {
+  @include button-reset;
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $shape-full;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-inverse-on-surface);
+  transition: all $transition-fast;
+  
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    transform: translateY(-2px);
+  }
+}
+
+.CULogo {
+  text-align: center;
+  padding-top: $spacing-lg;
+  opacity: 0.6;
+  
+  img {
+    height: 50px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.5;
+  }
+}

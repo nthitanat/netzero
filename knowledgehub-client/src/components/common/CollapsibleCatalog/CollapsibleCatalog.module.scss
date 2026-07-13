@@ -1,0 +1,191 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+$page-palette: $palette-orange;
+
+// ─── Wrapper ─────────────────────────────────────────────────────
+.CollapsibleCatalog {
+  // Organic asymmetric shape — wider top-left and bottom-right curves
+  border-radius: 32px 8px 32px 8px;
+  background: $color-surface-container-low;
+  border: 1px solid rgba(p1($page-palette), 0.18);
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+
+  // Blob — top right corner decoration
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle,
+      rgba(p1($page-palette), 0.18) 0%,
+      rgba(p2($page-palette), 0.12) 45%,
+      transparent 72%
+    );
+    border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  // Blob — bottom left corner decoration
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: -50px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle,
+      rgba(p3($page-palette), 0.14) 0%,
+      rgba(p2($page-palette), 0.10) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60% / 60% 40% 60% 40%;
+    pointer-events: none;
+    z-index: 0;
+    animation: float 26s ease-in-out infinite reverse;
+  }
+
+  &.open {
+    box-shadow:
+      0 8px 32px rgba(p1($page-palette), 0.12),
+      0 2px 8px rgba(p1($page-palette), 0.06);
+    border-color: rgba(p1($page-palette), 0.28);
+  }
+
+  &.closed {
+    box-shadow: $elevation-1;
+    border-radius: 32px 8px 32px 8px;
+  }
+}
+
+// ─── Header (button) ─────────────────────────────────────────────
+.Header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  background: linear-gradient(
+    135deg,
+    rgba(p1($page-palette), 0.10) 0%,
+    rgba(p2($page-palette), 0.08) 50%,
+    rgba(p3($page-palette), 0.05) 100%
+  );
+  border: none;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: background 0.25s ease;
+
+  // Organic divider line at the bottom — only visible when open
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: $spacing-lg;
+    right: $spacing-lg;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      p1($page-palette) 0%,
+      rgba(p2($page-palette), 0.6) 50%,
+      transparent 100%
+    );
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .CollapsibleCatalog.open & {
+    &::after { opacity: 1; }
+  }
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(p1($page-palette), 0.16) 0%,
+      rgba(p2($page-palette), 0.12) 50%,
+      rgba(p3($page-palette), 0.08) 100%
+    );
+  }
+}
+
+.HeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.TitleIcon {
+  font-size: 22px;
+  color: p1($page-palette);
+  // Small organic badge around the icon
+  background: linear-gradient(135deg,
+    rgba(p1($page-palette), 0.15) 0%,
+    rgba(p2($page-palette), 0.12) 100%
+  );
+  border-radius: 12px 4px 12px 4px;
+  padding: 4px;
+}
+
+.Title {
+  @include title-large;
+  color: $color-on-surface;
+  font-weight: 700;
+  // Subtle gradient on the text
+  background: linear-gradient(135deg,
+    $color-on-surface 0%,
+    color.adjust(p1($page-palette), $lightness: -20%) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.HeaderRight {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.CollapseHint {
+  @include label-medium;
+  color: $color-on-surface-variant;
+  background: rgba(p1($page-palette), 0.08);
+  padding: 2px $spacing-sm;
+  border-radius: $organic-tag;
+}
+
+.Chevron {
+  font-size: 22px;
+  color: p1($page-palette);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .CollapsibleCatalog.open & {
+    transform: rotate(0deg);
+  }
+
+  .CollapsibleCatalog.closed & {
+    transform: rotate(-180deg);
+  }
+}
+
+// ─── Body ────────────────────────────────────────────────────────
+.Body {
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.BodyInner {
+  padding: $spacing-sm $spacing-md $spacing-md;
+}

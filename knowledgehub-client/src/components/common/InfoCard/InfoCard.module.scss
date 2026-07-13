@@ -1,0 +1,92 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+// Palette colours from CSS custom properties — set by parent page or palette prop.
+
+// ========================================
+// Info Card
+// ========================================
+.infoCard {
+  @include organic-quick-info-card($palette-orange);
+  // Override gradient background with CSS vars
+  background: linear-gradient(135deg,
+    white 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 6%, transparent) 30%,
+    color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 10%, transparent) 60%,
+    color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 8%, transparent) 100%
+  );
+  &::before {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 18%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 12%, transparent) 50%,
+      transparent 70%
+    );
+  }
+  &::after {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 15%, transparent) 0%,
+      transparent 70%
+    );
+  }
+}
+
+.infoTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-5;
+  padding-bottom: $spacing-3;
+  // organic-title-underline-green expanded with CSS vars
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, var(--pal-p3, #{p3($palette-orange)}) 0%, var(--pal-p4, #{p4($palette-orange)}) 100%) border-box;
+  border-bottom: 2px solid transparent;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.infoItem {
+  display: flex;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+  padding: $spacing-3;
+  border-radius: $organic-item;
+  background: $color-surface-container-low;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 1;
+
+  &:last-child { margin-bottom: 0; }
+
+  &:hover {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 25%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 15%, transparent) 50%,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 10%, transparent) 100%
+    );
+    transform: translateX(2px);
+  }
+
+  .material-symbols-outlined {
+    color: var(--pal-p1, #{p1($palette-orange)});
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  > div { flex: 1; }
+}
+
+.infoLabel {
+  @include label-medium;
+  color: $color-on-surface-variant;
+  margin-bottom: $spacing-1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  @include body-large;
+  color: $color-on-surface;
+  font-weight: 600;
+}

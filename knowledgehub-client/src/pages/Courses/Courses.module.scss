@@ -1,0 +1,422 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../styles/mixins';
+@import '../../styles/organic-theme';
+
+$page-palette: $palette-cu-pink;
+
+// ─── Page Wrapper ─────────────────────────────────────────────────
+.Courses {
+  @include organic-page-wrapper($page-palette);
+  padding-top: $spacing-xl;
+}
+
+// ─── Catalog Section ──────────────────────────────────────────────
+.CatalogSection {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 $spacing-lg $spacing-xl;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-md $spacing-lg;
+  }
+}
+
+// ─── Slider ───────────────────────────────────────────────────────
+.SliderWrapper {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  position: relative;
+}
+
+.Slider {
+  display: flex;
+  gap: $spacing-md;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: $spacing-sm 0 $spacing-md;
+  flex: 1;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+// ─── Arrow Buttons ────────────────────────────────────────────────
+.ArrowBtn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(p1($page-palette), 0.3);
+  background: $color-surface;
+  color: p1($page-palette);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: $elevation-1;
+
+  .material-symbols-outlined { font-size: 22px; }
+
+  &:hover {
+    background: p1($page-palette);
+    color: #fff;
+    border-color: p1($page-palette);
+    box-shadow: $elevation-2;
+  }
+}
+
+// ─── Catalog Card ─────────────────────────────────────────────────
+.CatalogCard {
+  flex-shrink: 0;
+  width: 300px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: $color-surface-container-low;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  transition: all 0.25s ease;
+  box-shadow: $elevation-1;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $elevation-2;
+    border-color: rgba(p1($page-palette), 0.35);
+  }
+
+  &.active {
+    border-color: p1($page-palette);
+    box-shadow: 0 0 0 3px rgba(p1($page-palette), 0.18), $elevation-2;
+
+    .CardName {
+      color: p1($page-palette);
+    }
+  }
+}
+
+.CardImageWrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 10px 0 0 10px;
+}
+
+.CardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+
+  .CatalogCard:hover & {
+    transform: scale(1.06);
+  }
+}
+
+.ActiveBadge {
+  position: absolute;
+  top: $spacing-xs;
+  right: $spacing-xs;
+  width: 22px;
+  height: 22px;
+  background: p1($page-palette);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $elevation-2;
+
+  .material-symbols-outlined {
+    font-size: 14px;
+    color: #fff;
+  }
+}
+
+.CardInfo {
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.CardName {
+  @include title-medium;
+  color: $color-on-surface;
+  font-weight: 600;
+  margin: 0 0 $spacing-xs;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.CardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+}
+
+.CardDuration {
+  @include label-medium;
+  color: $color-on-surface-variant;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  .material-symbols-outlined { font-size: 13px; }
+}
+
+.CardLevel {
+  @include label-medium;
+  color: p1($page-palette);
+  background: rgba(p1($page-palette), 0.10);
+  border-radius: 20px;
+  padding: 1px 6px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// ─── Featured Section ─────────────────────────────────────────────
+.FeaturedSection {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 $spacing-lg $spacing-3xl;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-md $spacing-xl;
+  }
+}
+
+.FeaturedInner {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: $spacing-2xl;
+  background: $color-surface-container-low;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: $elevation-2;
+  border: 1px solid rgba(p1($page-palette), 0.12);
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Hero Side ────────────────────────────────────────────────────
+.FeaturedHero {
+  position: relative;
+  min-height: 320px;
+  overflow: hidden;
+
+  @media (max-width: 900px) {
+    min-height: 220px;
+  }
+}
+
+.FeaturedImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+
+  .FeaturedInner:hover & {
+    transform: scale(1.04);
+  }
+}
+
+.FeaturedOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(p1($page-palette), 0.45) 0%,
+    rgba(p2($page-palette), 0.15) 60%,
+    transparent 100%
+  );
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-lg;
+}
+
+.FeaturedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: rgba(#fff, 0.92);
+  color: p1($page-palette);
+  border-radius: 20px;
+  padding: $spacing-xs $spacing-md;
+  @include label-large;
+  font-weight: 700;
+  box-shadow: $elevation-1;
+
+  .material-symbols-outlined { font-size: 16px; }
+}
+
+// ─── Info Side ────────────────────────────────────────────────────
+.FeaturedBody {
+  padding: $spacing-xl $spacing-xl $spacing-xl 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  @media (max-width: 900px) {
+    padding: $spacing-lg;
+  }
+}
+
+.FeaturedTitle {
+  @include headline-medium;
+  color: $color-on-surface;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.FeaturedDesc {
+  @include body-large;
+  color: $color-on-surface-variant;
+  margin: 0;
+  line-height: 1.65;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ─── Stats Row ────────────────────────────────────────────────────
+.StatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+  border-top: 1px solid rgba(p1($page-palette), 0.12);
+  border-bottom: 1px solid rgba(p1($page-palette), 0.12);
+}
+
+.StatItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  @include body-medium;
+  color: $color-on-surface-variant;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+    color: p1($page-palette);
+  }
+}
+
+// ─── Objectives ───────────────────────────────────────────────────
+.ObjectivesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.ObjectivesTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-weight: 700;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: p1($page-palette);
+  }
+}
+
+.ObjectivesList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.ObjectiveItem {
+  @include body-medium;
+  color: $color-on-surface-variant;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-xs;
+
+  .material-symbols-outlined {
+    font-size: 16px;
+    color: p1($page-palette);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+// ─── CTA Footer ───────────────────────────────────────────────────
+.FeaturedFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-top: auto;
+  padding-top: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.PriceTag {
+  display: flex;
+  align-items: center;
+}
+
+.PriceFree {
+  @include title-large;
+  color: p1($page-palette);
+  font-weight: 700;
+  background: rgba(p1($page-palette), 0.10);
+  border-radius: 20px;
+  padding: $spacing-xs $spacing-md;
+}
+
+.PriceAmount {
+  @include title-large;
+  color: $color-on-surface;
+  font-weight: 700;
+}
+
+.CtaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: p1($page-palette);
+  color: #fff;
+  border-radius: 100px;
+  padding: $spacing-sm $spacing-xl;
+  @include label-large;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: $elevation-2;
+
+  .material-symbols-outlined { font-size: 20px; }
+
+  &:hover {
+    background: color.adjust(p1($page-palette), $lightness: -8%);
+    box-shadow: $elevation-3;
+    transform: translateY(-1px);
+  }
+}
+
