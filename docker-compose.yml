@@ -23,6 +23,10 @@ services:
       DEV_JWT_SECRET: ${DEV_JWT_SECRET}
       DEV_JWT_EXPIRES_IN: ${DEV_JWT_EXPIRES_IN}
       DEV_CORS_ORIGIN: ${DEV_CORS_ORIGIN}
+      DEV_SURVEYMONKEY_ACCESS_TOKEN: ${DEV_SURVEYMONKEY_ACCESS_TOKEN}
+      DEV_SURVEYMONKEY_SURVEY_ID: ${DEV_SURVEYMONKEY_SURVEY_ID}
+      DEV_SURVEYMONKEY_SURVEY_REDIRECT_URL: ${DEV_SURVEYMONKEY_SURVEY_REDIRECT_URL}
+      DEV_SURVEYMONKEY_WEBHOOK_SECRET: ${DEV_SURVEYMONKEY_WEBHOOK_SECRET}
       # Production variables
       PROD_DB_HOST: ${PROD_DB_HOST}
       PROD_DB_PORT: ${PROD_DB_PORT}
@@ -32,6 +36,10 @@ services:
       PROD_JWT_SECRET: ${PROD_JWT_SECRET}
       PROD_JWT_EXPIRES_IN: ${PROD_JWT_EXPIRES_IN}
       PROD_CORS_ORIGIN: ${PROD_CORS_ORIGIN}
+      PROD_SURVEYMONKEY_ACCESS_TOKEN: ${PROD_SURVEYMONKEY_ACCESS_TOKEN}
+      PROD_SURVEYMONKEY_SURVEY_ID: ${PROD_SURVEYMONKEY_SURVEY_ID}
+      PROD_SURVEYMONKEY_SURVEY_REDIRECT_URL: ${PROD_SURVEYMONKEY_SURVEY_REDIRECT_URL}
+      PROD_SURVEYMONKEY_WEBHOOK_SECRET: ${PROD_SURVEYMONKEY_WEBHOOK_SECRET}
       # Shared variables
       PORT: ${PORT}
       API_PREFIX: ${API_PREFIX}
@@ -47,7 +55,7 @@ services:
     networks:
       - netzero-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/api/v1/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -91,7 +99,7 @@ services:
     networks:
       - netzero-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3004/api/v1/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3004/health"]
       interval: 30s
       timeout: 10s
       retries: 3

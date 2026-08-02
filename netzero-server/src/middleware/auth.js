@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const UserEvent = require('../models/UserEvent');
 const EventProduct = require('../models/EventProduct');
+const config = require('../config/env');
 
 // JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
@@ -233,6 +234,23 @@ const checkEventOwnership = async (req, res, next) => {
   }
 };
 
+// Verifies the shared-secret Authorization header SurveyMonkey sends with
+// inbound webhook requests (this is not JWT auth - it's a static secret
+// configured on both sides when the webhook subscription is created).
+const authenticateSurveyMonkeyWebhook = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader || !config.surveyMonkey.webhookSecret || authHeader !== config.surveyMonkey.webhookSecret) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid webhook signature',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   authenticateToken,
   authorizeRoles,
@@ -240,5 +258,6 @@ module.exports = {
   optionalAuth,
   validateUserIdParam,
   authRateLimit,
-  checkEventOwnership
+  checkEventOwnership,
+  authenticateSurveyMonkeyWebhook
 };

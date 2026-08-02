@@ -27,6 +27,7 @@ const productRoutes = require('./src/routes/productRoutes');
 const reservationRoutes = require('./src/routes/reservationRoutes');
 const chatAppRoutes = require('./src/routes/chatAppRoutes');
 const surveyRoutes = require('./src/routes/surveyRoutes');
+const glocalRoutes = require('./src/routes/glocalRoutes');
 
 // Initialize Express app
 const app = express();
@@ -104,6 +105,7 @@ app.get('/', (req, res) => {
       userEvents: `${API_PREFIX}/${API_VERSION}/user-events`,
       products: `${API_PREFIX}/${API_VERSION}/products`,
       reservations: `${API_PREFIX}/${API_VERSION}/reservations`,
+      glocal: `${API_PREFIX}/${API_VERSION}/glocal`,
       health: '/health',
       apiInfo: '/'
     },
@@ -177,6 +179,15 @@ app.get('/', (req, res) => {
         confirm: `POST ${API_PREFIX}/${API_VERSION}/reservations/:id/confirm (Product Owner)`,
         cancel: `POST ${API_PREFIX}/${API_VERSION}/reservations/:id/cancel (Auth required)`,
         updateStatus: `PUT ${API_PREFIX}/${API_VERSION}/reservations/:id/status (Product Owner)`
+      },
+      glocal: {
+        verifyCheckin: `POST ${API_PREFIX}/${API_VERSION}/glocal/survey-checkins/verify`,
+        getAll: `GET ${API_PREFIX}/${API_VERSION}/glocal/survey-checkins (Admin only)`,
+        getById: `GET ${API_PREFIX}/${API_VERSION}/glocal/survey-checkins/:id (Admin only)`,
+        create: `POST ${API_PREFIX}/${API_VERSION}/glocal/survey-checkins (Admin only)`,
+        update: `PATCH ${API_PREFIX}/${API_VERSION}/glocal/survey-checkins/:id (Admin only)`,
+        delete: `DELETE ${API_PREFIX}/${API_VERSION}/glocal/survey-checkins/:id (Admin only)`,
+        webhook: `POST ${API_PREFIX}/${API_VERSION}/glocal/webhooks/surveymonkey (SurveyMonkey shared-secret auth)`
       }
     },
     timestamp: new Date().toISOString()
@@ -228,6 +239,7 @@ app.use(`${API_PREFIX}/${API_VERSION}/products`, productRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/reservations`, reservationRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/chatapps`, chatAppRoutes);
 app.use(`${API_PREFIX}/${API_VERSION}/surveys`, surveyRoutes);
+app.use(`${API_PREFIX}/${API_VERSION}/glocal`, glocalRoutes);
 
 // 404 handler
 app.use(notFound);

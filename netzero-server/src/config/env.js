@@ -75,6 +75,14 @@ const config = {
   // CORS configuration
   cors: {
     origin: getEnvVar('CORS_ORIGIN', 'http://localhost:3000').split(',')
+  },
+
+  // SurveyMonkey / Glocal check-in configuration
+  surveyMonkey: {
+    accessToken: getEnvVar('SURVEYMONKEY_ACCESS_TOKEN'),
+    surveyId: getEnvVar('SURVEYMONKEY_SURVEY_ID'),
+    redirectUrl: getEnvVar('SURVEYMONKEY_SURVEY_REDIRECT_URL'),
+    webhookSecret: getEnvVar('SURVEYMONKEY_WEBHOOK_SECRET')
   }
 };
 
