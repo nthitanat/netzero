@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 const bcrypt = require('bcryptjs');
 
 class User {
@@ -32,14 +31,7 @@ class User {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(User.getSchema());
-  }
   static async create(userData) {
-    // Ensure table exists
-    await User.ensureTable();
-    
     const { email, password, firstName, lastName, role = 'user', profileImage, phoneNumber, address } = userData;
     
     // Hash password
@@ -66,9 +58,6 @@ class User {
   }
 
   static async findByEmail(email) {
-    // Ensure table exists
-    await User.ensureTable();
-    
     const query = `
       SELECT id, email, password, firstName, lastName, role, profileImage, phoneNumber, address, 
              isActive, emailVerified, lastLogin, createdAt, updatedAt

@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../../config/database');
-const { ensureModelTable } = require('../../utils/databaseEnsure');
 
 class Survey {
   constructor(data) {
@@ -34,15 +33,8 @@ class Survey {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(Survey.getSchema());
-  }
-
   // Create a new survey
   static async create(surveyData) {
-    await Survey.ensureTable();
-    
     const {
       name,
       description = null,
@@ -67,8 +59,6 @@ class Survey {
 
   // Find all surveys with optional filters
   static async findAll(filters = {}) {
-    await Survey.ensureTable();
-    
     let query = `SELECT * FROM surveys WHERE 1=1`;
     const params = [];
 
@@ -103,8 +93,6 @@ class Survey {
 
   // Find survey by ID
   static async findById(survey_id) {
-    await Survey.ensureTable();
-    
     const query = `SELECT * FROM surveys WHERE survey_id = ?`;
     const rows = await executeQuery(query, [survey_id]);
     
@@ -117,8 +105,6 @@ class Survey {
 
   // Update survey
   static async updateById(survey_id, surveyData) {
-    await Survey.ensureTable();
-    
     const {
       name,
       description,
@@ -146,8 +132,6 @@ class Survey {
 
   // Delete survey
   static async deleteById(survey_id) {
-    await Survey.ensureTable();
-    
     const query = 'DELETE FROM surveys WHERE survey_id = ?';
     const [result] = await executeCommand(query, [survey_id]);
 
@@ -174,8 +158,6 @@ class Survey {
 
   // Get total count
   static async getTotalCount() {
-    await Survey.ensureTable();
-    
     const query = 'SELECT COUNT(*) as count FROM surveys';
     const rows = await executeQuery(query);
     return rows[0].count;

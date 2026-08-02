@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../../config/database');
-const { ensureModelTable } = require('../../utils/databaseEnsure');
 
 class Answer {
   constructor(data) {
@@ -38,15 +37,8 @@ class Answer {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(Answer.getSchema());
-  }
-
   // Create a new answer
   static async create(answerData) {
-    await Answer.ensureTable();
-    
     const {
       response_id,
       question_id,
@@ -71,8 +63,6 @@ class Answer {
 
   // Bulk create answers for a response
   static async createBulk(answersData) {
-    await Answer.ensureTable();
-    
     if (!answersData || answersData.length === 0) {
       return [];
     }
@@ -94,8 +84,6 @@ class Answer {
 
   // Find all answers for a response
   static async findByResponseId(response_id) {
-    await Answer.ensureTable();
-    
     const query = `
       SELECT a.*, q.question_text, q.question_type
       FROM answers a
@@ -110,8 +98,6 @@ class Answer {
 
   // Find all answers for a question (for aggregating responses)
   static async findByQuestionId(question_id) {
-    await Answer.ensureTable();
-    
     const query = `
       SELECT a.*, r.user_id, r.respondent_id, r.submitted_at
       FROM answers a
@@ -126,8 +112,6 @@ class Answer {
 
   // Find answer by ID
   static async findById(answer_id) {
-    await Answer.ensureTable();
-    
     const query = `
       SELECT a.*, q.question_text, q.question_type
       FROM answers a
@@ -146,8 +130,6 @@ class Answer {
 
   // Update answer
   static async updateById(answer_id, answerData) {
-    await Answer.ensureTable();
-    
     const {
       answer_text,
       answer_choice_id
@@ -170,8 +152,6 @@ class Answer {
 
   // Delete answer
   static async deleteById(answer_id) {
-    await Answer.ensureTable();
-    
     const query = 'DELETE FROM answers WHERE answer_id = ?';
     const [result] = await executeCommand(query, [answer_id]);
 
@@ -180,8 +160,6 @@ class Answer {
 
   // Delete all answers for a response
   static async deleteByResponseId(response_id) {
-    await Answer.ensureTable();
-    
     const query = 'DELETE FROM answers WHERE response_id = ?';
     const [result] = await executeCommand(query, [response_id]);
 
@@ -190,8 +168,6 @@ class Answer {
 
   // Get answer statistics for a question
   static async getStatsByQuestionId(question_id) {
-    await Answer.ensureTable();
-    
     const query = `
       SELECT 
         COUNT(*) as total_answers,
@@ -208,8 +184,6 @@ class Answer {
 
   // Get text answer distribution for a question (for text analysis)
   static async getTextAnswers(question_id, limit = 100) {
-    await Answer.ensureTable();
-    
     const query = `
       SELECT a.answer_text, r.submitted_at
       FROM answers a
@@ -225,8 +199,6 @@ class Answer {
 
   // Get choice distribution for a multiple choice question
   static async getChoiceDistribution(question_id) {
-    await Answer.ensureTable();
-    
     const query = `
       SELECT 
         answer_choice_id,

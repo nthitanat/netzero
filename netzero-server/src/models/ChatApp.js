@@ -1,5 +1,4 @@
 const { pool } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class ChatApp {
   // Database schema definition
@@ -31,10 +30,6 @@ class ChatApp {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(ChatApp.getSchema());
-  }
   constructor(data = {}) {
     this.id = data.id || null;
     this.owner_id = data.owner_id || null;
@@ -50,9 +45,6 @@ class ChatApp {
   // Get all chat applications
   static async getAll(filters = {}) {
     try {
-      // Ensure table exists
-      await ChatApp.ensureTable();
-      
       // Simplified query without JOINs
       let query = `
         SELECT 
@@ -111,9 +103,6 @@ class ChatApp {
   // Get chat application by ID
   static async getById(id) {
     try {
-      // Ensure table exists
-      await ChatApp.ensureTable();
-      
       const query = `
         SELECT 
           c.id,
@@ -182,9 +171,6 @@ class ChatApp {
   // Create new chat application
   async create() {
     try {
-      // Ensure table exists
-      await ChatApp.ensureTable();
-      
       const query = `
         INSERT INTO chatApps (
           id, owner_id, product_id, title, description, status, isActive

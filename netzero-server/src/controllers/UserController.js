@@ -2,7 +2,7 @@ const User = require('../models/User');
 
 class UserController {
   // Get user by ID
-  static async getUserById(req, res) {
+  static async getUserById(req, res, next) {
     try {
       const userId = parseInt(req.params.id);
       const requestingUserId = req.user.userId;
@@ -43,15 +43,12 @@ class UserController {
 
     } catch (error) {
       console.error('Get user error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error while retrieving user'
-      });
+      next(error);
     }
   }
 
   // Get all users (admin only)
-  static async getAllUsers(req, res) {
+  static async getAllUsers(req, res, next) {
     try {
       const requestingUserRole = req.user.role;
 
@@ -88,15 +85,12 @@ class UserController {
 
     } catch (error) {
       console.error('Get all users error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error while retrieving users'
-      });
+      next(error);
     }
   }
 
   // Update user
-  static async updateUser(req, res) {
+  static async updateUser(req, res, next) {
     try {
       const userId = parseInt(req.params.id);
       const requestingUserId = req.user.userId;
@@ -165,15 +159,12 @@ class UserController {
 
     } catch (error) {
       console.error('Update user error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error while updating user'
-      });
+      next(error);
     }
   }
 
   // Update password
-  static async updatePassword(req, res) {
+  static async updatePassword(req, res, next) {
     try {
       const userId = parseInt(req.params.id);
       const requestingUserId = req.user.userId;
@@ -255,15 +246,12 @@ class UserController {
 
     } catch (error) {
       console.error('Update password error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error while updating password'
-      });
+      next(error);
     }
   }
 
   // Delete user (soft delete)
-  static async deleteUser(req, res) {
+  static async deleteUser(req, res, next) {
     try {
       const userId = parseInt(req.params.id);
       const requestingUserId = req.user.userId;
@@ -319,15 +307,12 @@ class UserController {
 
     } catch (error) {
       console.error('Delete user error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error while deleting user'
-      });
+      next(error);
     }
   }
 
   // Get current user profile
-  static async getCurrentUser(req, res) {
+  static async getCurrentUser(req, res, next) {
     try {
       const userId = req.user.userId;
 
@@ -350,10 +335,7 @@ class UserController {
 
     } catch (error) {
       console.error('Get current user error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error while retrieving current user'
-      });
+      next(error);
     }
   }
 }

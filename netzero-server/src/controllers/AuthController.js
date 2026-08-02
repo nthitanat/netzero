@@ -7,7 +7,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 class AuthController {
   // Register new user
-  static async register(req, res) {
+  static async register(req, res, next) {
     try {
       const { email, password, firstName, lastName, phoneNumber, address } = req.body;
 
@@ -76,15 +76,12 @@ class AuthController {
 
     } catch (error) {
       console.error('Registration error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during registration'
-      });
+      next(error);
     }
   }
 
   // Login user
-  static async login(req, res) {
+  static async login(req, res, next) {
     try {
       const { email, password } = req.body;
 
@@ -138,15 +135,12 @@ class AuthController {
 
     } catch (error) {
       console.error('Login error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during login'
-      });
+      next(error);
     }
   }
 
   // Verify token and get current user
-  static async verifyToken(req, res) {
+  static async verifyToken(req, res, next) {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -179,30 +173,12 @@ class AuthController {
 
     } catch (error) {
       console.error('Token verification error:', error);
-      
-      if (error.name === 'JsonWebTokenError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid token'
-        });
-      }
-      
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Token expired'
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during token verification'
-      });
+      next(error);
     }
   }
 
   // Logout user (optional - for token blacklisting if implemented)
-  static async logout(req, res) {
+  static async logout(req, res, next) {
     try {
       // In a simple JWT implementation, logout is handled client-side by removing the token
       // For enhanced security, you could implement token blacklisting here
@@ -214,15 +190,12 @@ class AuthController {
 
     } catch (error) {
       console.error('Logout error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during logout'
-      });
+      next(error);
     }
   }
 
   // Refresh token
-  static async refreshToken(req, res) {
+  static async refreshToken(req, res, next) {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -263,18 +236,7 @@ class AuthController {
 
     } catch (error) {
       console.error('Token refresh error:', error);
-      
-      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid or expired token'
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during token refresh'
-      });
+      next(error);
     }
   }
 }

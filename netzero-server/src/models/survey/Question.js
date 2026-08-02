@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../../config/database');
-const { ensureModelTable } = require('../../utils/databaseEnsure');
 
 class Question {
   constructor(data) {
@@ -37,15 +36,8 @@ class Question {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(Question.getSchema());
-  }
-
   // Create a new question
   static async create(questionData) {
-    await Question.ensureTable();
-    
     const {
       survey_id,
       question_text,
@@ -70,8 +62,6 @@ class Question {
 
   // Find all questions for a survey
   static async findBySurveyId(survey_id) {
-    await Question.ensureTable();
-    
     const query = `
       SELECT * FROM questions 
       WHERE survey_id = ?
@@ -84,8 +74,6 @@ class Question {
 
   // Find question by ID
   static async findById(question_id) {
-    await Question.ensureTable();
-    
     const query = `SELECT * FROM questions WHERE question_id = ?`;
     const rows = await executeQuery(query, [question_id]);
     
@@ -98,8 +86,6 @@ class Question {
 
   // Update question
   static async updateById(question_id, questionData) {
-    await Question.ensureTable();
-    
     const {
       question_text,
       question_type,
@@ -125,8 +111,6 @@ class Question {
 
   // Delete question
   static async deleteById(question_id) {
-    await Question.ensureTable();
-    
     const query = 'DELETE FROM questions WHERE question_id = ?';
     const [result] = await executeCommand(query, [question_id]);
 
@@ -135,8 +119,6 @@ class Question {
 
   // Delete all questions for a survey
   static async deleteBySurveyId(survey_id) {
-    await Question.ensureTable();
-    
     const query = 'DELETE FROM questions WHERE survey_id = ?';
     const [result] = await executeCommand(query, [survey_id]);
 
@@ -145,8 +127,6 @@ class Question {
 
   // Reorder questions in a survey
   static async reorderQuestions(survey_id, questionOrder) {
-    await Question.ensureTable();
-    
     // questionOrder should be an array of { question_id, order_in_survey }
     const promises = questionOrder.map(({ question_id, order_in_survey }) => {
       const query = `
@@ -163,8 +143,6 @@ class Question {
 
   // Get count of questions in a survey
   static async getCountBySurveyId(survey_id) {
-    await Question.ensureTable();
-    
     const query = 'SELECT COUNT(*) as count FROM questions WHERE survey_id = ?';
     const rows = await executeQuery(query, [survey_id]);
     return rows[0].count;

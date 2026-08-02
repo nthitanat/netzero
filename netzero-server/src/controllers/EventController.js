@@ -4,7 +4,7 @@ const fs = require('fs');
 
 class EventController {
   // GET /api/v1/events - Get all events
-  static async getAllEvents(req, res) {
+  static async getAllEvents(req, res, next) {
     try {
       const events = await Event.findAll();
       
@@ -17,17 +17,12 @@ class EventController {
       });
     } catch (error) {
       console.error('Error in getAllEvents:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch events',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/events/:id - Get event by ID
-  static async getEventById(req, res) {
+  static async getEventById(req, res, next) {
     try {
       const eventId = req.params.id;
       
@@ -58,17 +53,12 @@ class EventController {
       });
     } catch (error) {
       console.error('Error in getEventById:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch event',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/events/:id/poster - Get event poster image
-  static async getEventPosterImage(req, res) {
+  static async getEventPosterImage(req, res, next) {
     try {
       const eventId = req.params.id;
       
@@ -108,29 +98,19 @@ class EventController {
         if (err) {
           console.error('Error sending poster image:', err);
           if (!res.headersSent) {
-            res.status(500).json({
-              success: false,
-              message: 'Failed to serve poster image',
-              error: err.message,
-              timestamp: new Date().toISOString()
-            });
+            next(err);
           }
         }
       });
 
     } catch (error) {
       console.error('Error in getEventPosterImage:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve poster image',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/events/:id/thumbnail - Get event thumbnail image
-  static async getEventThumbnail(req, res) {
+  static async getEventThumbnail(req, res, next) {
     try {
       const eventId = req.params.id;
       
@@ -170,29 +150,19 @@ class EventController {
         if (err) {
           console.error('Error sending thumbnail image:', err);
           if (!res.headersSent) {
-            res.status(500).json({
-              success: false,
-              message: 'Failed to serve thumbnail image',
-              error: err.message,
-              timestamp: new Date().toISOString()
-            });
+            next(err);
           }
         }
       });
 
     } catch (error) {
       console.error('Error in getEventThumbnail:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve thumbnail image',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/events/category/:category - Get events by category
-  static async getEventsByCategory(req, res) {
+  static async getEventsByCategory(req, res, next) {
     try {
       const category = req.params.category;
       
@@ -217,17 +187,12 @@ class EventController {
       });
     } catch (error) {
       console.error('Error in getEventsByCategory:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch events by category',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/events/search/:name - Get events by name (search)
-  static async getEventByName(req, res) {
+  static async getEventByName(req, res, next) {
     try {
       const name = req.params.name;
       
@@ -252,17 +217,12 @@ class EventController {
       });
     } catch (error) {
       console.error('Error in getEventByName:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to search events by name',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/events/recommended - Get recommended events
-  static async getRecommendedEvents(req, res) {
+  static async getRecommendedEvents(req, res, next) {
     try {
       const events = await Event.findRecommended();
       
@@ -275,17 +235,12 @@ class EventController {
       });
     } catch (error) {
       console.error('Error in getRecommendedEvents:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch recommended events',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/events - Create new event
-  static async createEvent(req, res) {
+  static async createEvent(req, res, next) {
     try {
       const {
         title,
@@ -356,27 +311,12 @@ class EventController {
 
     } catch (error) {
       console.error('Error in createEvent:', error);
-      
-      if (error.message.includes('already associated')) {
-        // This shouldn't happen in create, but just in case
-        return res.status(409).json({
-          success: false,
-          message: 'Event creation conflict',
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      res.status(500).json({
-        success: false,
-        message: 'Failed to create event',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // DELETE /api/v1/events/:id - Delete event (with ownership check)
-  static async deleteEvent(req, res) {
+  static async deleteEvent(req, res, next) {
     try {
       const eventId = req.params.id;
       const userId = req.user.id; // From auth middleware
@@ -419,26 +359,12 @@ class EventController {
       
     } catch (error) {
       console.error('Error in deleteEvent:', error);
-      
-      if (error.message.includes('permission')) {
-        return res.status(403).json({
-          success: false,
-          message: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete event',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/events/:id/cancel - Soft delete (cancel) event
-  static async cancelEvent(req, res) {
+  static async cancelEvent(req, res, next) {
     try {
       const eventId = req.params.id;
       const userId = req.user.id; // From auth middleware
@@ -481,26 +407,12 @@ class EventController {
       
     } catch (error) {
       console.error('Error in cancelEvent:', error);
-      
-      if (error.message.includes('permission')) {
-        return res.status(403).json({
-          success: false,
-          message: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      res.status(500).json({
-        success: false,
-        message: 'Failed to cancel event',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/events/:id - Update event (with ownership check)
-  static async updateEvent(req, res) {
+  static async updateEvent(req, res, next) {
     try {
       const eventId = req.params.id;
       const userId = req.user.id; // From auth middleware
@@ -548,21 +460,7 @@ class EventController {
       
     } catch (error) {
       console.error('Error in updateEvent:', error);
-      
-      if (error.message.includes('permission')) {
-        return res.status(403).json({
-          success: false,
-          message: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update event',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 }

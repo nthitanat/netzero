@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class UserEvent {
   // Database schema definition
@@ -25,11 +24,6 @@ class UserEvent {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(UserEvent.getSchema());
-  }
-
   constructor(data) {
     this.id = data.id;
     this.user_id = data.user_id;
@@ -40,9 +34,6 @@ class UserEvent {
   // Create a new user-event relationship
   static async create(userId, eventId) {
     try {
-      // Ensure table exists
-      await UserEvent.ensureTable();
-      
       const query = `
         INSERT INTO user_events (user_id, event_id)
         VALUES (?, ?)
@@ -62,9 +53,6 @@ class UserEvent {
   // Get all events for a specific user
   static async getEventsByUserId(userId) {
     try {
-      // Ensure table exists
-      await UserEvent.ensureTable();
-      
       const query = `
         SELECT 
           e.id,
@@ -91,9 +79,6 @@ class UserEvent {
   // Check if user owns/is associated with an event
   static async userOwnsEvent(userId, eventId) {
     try {
-      // Ensure table exists
-      await UserEvent.ensureTable();
-      
       const query = `
         SELECT id FROM user_events 
         WHERE user_id = ? AND event_id = ?

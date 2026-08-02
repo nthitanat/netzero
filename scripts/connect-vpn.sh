@@ -6,10 +6,13 @@ set -e  # Exit on any error
 
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/.env" ]; then
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    source "$PROJECT_ROOT/.env"
+elif [ -f "$SCRIPT_DIR/.env" ]; then
     source "$SCRIPT_DIR/.env"
 else
-    echo "❌ Error: .env file not found in scripts directory"
+    echo "❌ Error: .env file not found in project root or scripts directory"
     exit 1
 fi
 

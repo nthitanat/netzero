@@ -1,5 +1,4 @@
 const { pool } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class ProductReservation {
   // Database schema definition
@@ -40,10 +39,6 @@ class ProductReservation {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(ProductReservation.getSchema());
-  }
   constructor(data) {
     this.reservation_id = data.reservation_id;
     this.user_id = data.user_id;
@@ -64,9 +59,6 @@ class ProductReservation {
 
   // Create a new reservation
   static async create(reservationData) {
-    // Ensure table exists
-    await ProductReservation.ensureTable();
-    
     const {
       user_id,
       product_id,
@@ -105,9 +97,6 @@ class ProductReservation {
 
   // Find all reservations with optional filters
   static async findAll(filters = {}) {
-    // Ensure table exists
-    await ProductReservation.ensureTable();
-    
     let query = `
       SELECT 
         pr.*,

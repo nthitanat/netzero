@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 
 class ProductReservationController {
   // GET /api/v1/reservations - Get all reservations (with filters)
-  static async getAllReservations(req, res) {
+  static async getAllReservations(req, res, next) {
     try {
       const {
         user_id,
@@ -35,17 +35,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in getAllReservations:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch reservations',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/reservations/:id - Get reservation by ID
-  static async getReservationById(req, res) {
+  static async getReservationById(req, res, next) {
     try {
       const reservationId = req.params.id;
       
@@ -87,17 +82,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in getReservationById:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch reservation',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/reservations - Create a new reservation
-  static async createReservation(req, res) {
+  static async createReservation(req, res, next) {
     try {
       const {
         product_id,
@@ -250,17 +240,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in createReservation:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to create reservation',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/reservations/:id - Update reservation
-  static async updateReservation(req, res) {
+  static async updateReservation(req, res, next) {
     try {
       const reservationId = req.params.id;
       const userId = req.user.userId;
@@ -341,17 +326,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in updateReservation:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update reservation',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // DELETE /api/v1/reservations/:id - Delete reservation
-  static async deleteReservation(req, res) {
+  static async deleteReservation(req, res, next) {
     try {
       const reservationId = req.params.id;
       const userId = req.user.userId;
@@ -382,17 +362,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in deleteReservation:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete reservation',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/reservations/my - Get current user's reservations
-  static async getMyReservations(req, res) {
+  static async getMyReservations(req, res, next) {
     try {
       const userId = req.user.userId;
       const { status } = req.query;
@@ -411,17 +386,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in getMyReservations:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch user reservations',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/reservations/my-products - Get reservations for current user's products
-  static async getMyProductReservations(req, res) {
+  static async getMyProductReservations(req, res, next) {
     try {
       const userId = req.user.userId;
       const { status } = req.query;
@@ -440,17 +410,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in getMyProductReservations:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch product reservations',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/reservations/:id/confirm - Confirm reservation and reduce stock
-  static async confirmReservation(req, res) {
+  static async confirmReservation(req, res, next) {
     try {
       const reservationId = req.params.id;
       const userId = req.user.userId;
@@ -484,17 +449,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in confirmReservation:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to confirm reservation',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/reservations/:id/cancel - Cancel reservation
-  static async cancelReservation(req, res) {
+  static async cancelReservation(req, res, next) {
     try {
       const reservationId = req.params.id;
       const userId = req.user.userId;
@@ -528,17 +488,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in cancelReservation:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to cancel reservation',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/reservations/:id/status - Update reservation status (for product owners)
-  static async updateReservationStatus(req, res) {
+  static async updateReservationStatus(req, res, next) {
     try {
       const reservationId = req.params.id;
       const userId = req.user.userId;
@@ -581,17 +536,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in updateReservationStatus:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update reservation status',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/reservations/stats - Get reservation statistics for current user (as product owner)
-  static async getReservationStats(req, res) {
+  static async getReservationStats(req, res, next) {
     try {
       const userId = req.user.userId;
 
@@ -605,17 +555,12 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in getReservationStats:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch reservation statistics',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/:productId/reservations - Get reservations for a specific product
-  static async getProductReservations(req, res) {
+  static async getProductReservations(req, res, next) {
     try {
       const productId = req.params.productId;
       const userId = req.user.userId;
@@ -658,12 +603,7 @@ class ProductReservationController {
       });
     } catch (error) {
       console.error('Error in getProductReservations:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch product reservations',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 }

@@ -24,21 +24,21 @@ echo ""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Check if .env exists in scripts directory
-if [ ! -f "$SCRIPT_DIR/.env" ]; then
-    echo "⚠️  Warning: .env file not found in scripts directory!"
-    echo "📝 Please create the .env file with your configuration."
+# Check if .env exists in project root (primary) or scripts directory (fallback)
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    ENV_FILE="$PROJECT_ROOT/.env"
+elif [ -f "$SCRIPT_DIR/.env" ]; then
+    ENV_FILE="$SCRIPT_DIR/.env"
+else
+    echo "⚠️  Warning: .env file not found!"
+    echo "📝 Please create the .env file in the project root."
     echo ""
-    echo "You can copy from the example:"
-    echo "  cp $SCRIPT_DIR/.env.example $SCRIPT_DIR/.env"
-    echo ""
-    echo "Or run from project root:"
-    echo "  cp scripts/.env.example scripts/.env"
+    echo "Expected location: $PROJECT_ROOT/.env"
     exit 1
 fi
 
 echo "📁 Project root: $PROJECT_ROOT"
-echo "📁 Using env file: $SCRIPT_DIR/.env"
+echo "📁 Using env file: $ENV_FILE"
 echo ""
 
 # Kill processes using required ports
@@ -68,7 +68,7 @@ echo ""
 cd "$PROJECT_ROOT"
 
 echo "🐳 Building and starting containers in ${DEPLOYMENT_MODE:-development} mode..."
-docker-compose --env-file "$SCRIPT_DIR/.env" up -d --build
+docker-compose --env-file "$ENV_FILE" up -d --build
 
 echo ""
 echo "⏳ Waiting for services to be ready..."
@@ -76,7 +76,7 @@ sleep 10
 
 echo ""
 echo "📊 Container Status:"
-docker-compose --env-file "$SCRIPT_DIR/.env" ps
+docker-compose --env-file "$ENV_FILE" ps
 
 echo ""
 echo "✅ Application is starting up!"

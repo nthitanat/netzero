@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../../config/database');
-const { ensureModelTable } = require('../../utils/databaseEnsure');
 
 class Response {
   constructor(data) {
@@ -39,15 +38,8 @@ class Response {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(Response.getSchema());
-  }
-
   // Create a new response
   static async create(responseData) {
-    await Response.ensureTable();
-    
     const {
       user_id = null,
       survey_id,
@@ -72,8 +64,6 @@ class Response {
 
   // Find all responses for a survey
   static async findBySurveyId(survey_id, filters = {}) {
-    await Response.ensureTable();
-    
     let query = `
       SELECT r.*, u.firstName, u.lastName, u.email
       FROM responses r
@@ -110,8 +100,6 @@ class Response {
 
   // Find all responses by a user
   static async findByUserId(user_id, filters = {}) {
-    await Response.ensureTable();
-    
     let query = `
       SELECT r.*, s.name as survey_name
       FROM responses r
@@ -138,8 +126,6 @@ class Response {
 
   // Find response by ID
   static async findById(response_id) {
-    await Response.ensureTable();
-    
     const query = `
       SELECT r.*, u.firstName, u.lastName, u.email, s.name as survey_name
       FROM responses r
@@ -159,8 +145,6 @@ class Response {
 
   // Check if user already responded to a survey
   static async hasUserResponded(survey_id, user_id = null, respondent_id = null) {
-    await Response.ensureTable();
-    
     let query = 'SELECT COUNT(*) as count FROM responses WHERE survey_id = ?';
     const params = [survey_id];
 
@@ -180,8 +164,6 @@ class Response {
 
   // Get response count for a survey
   static async getCountBySurveyId(survey_id) {
-    await Response.ensureTable();
-    
     const query = 'SELECT COUNT(*) as count FROM responses WHERE survey_id = ?';
     const rows = await executeQuery(query, [survey_id]);
     return rows[0].count;
@@ -189,8 +171,6 @@ class Response {
 
   // Delete response
   static async deleteById(response_id) {
-    await Response.ensureTable();
-    
     const query = 'DELETE FROM responses WHERE response_id = ?';
     const [result] = await executeCommand(query, [response_id]);
 
@@ -199,8 +179,6 @@ class Response {
 
   // Delete all responses for a survey
   static async deleteBySurveyId(survey_id) {
-    await Response.ensureTable();
-    
     const query = 'DELETE FROM responses WHERE survey_id = ?';
     const [result] = await executeCommand(query, [survey_id]);
 
@@ -209,8 +187,6 @@ class Response {
 
   // Get response statistics for a survey
   static async getStatsBySurveyId(survey_id) {
-    await Response.ensureTable();
-    
     const query = `
       SELECT 
         COUNT(*) as total_responses,

@@ -9,7 +9,7 @@ class SurveyController {
   // ===========================================
 
   // GET /api/v1/surveys - Get all surveys
-  static async getAllSurveys(req, res) {
+  static async getAllSurveys(req, res, next) {
     try {
       const { active, upcoming, past, limit, offset } = req.query;
       
@@ -31,17 +31,12 @@ class SurveyController {
       });
     } catch (error) {
       console.error('Error in getAllSurveys:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch surveys',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/surveys/:id - Get survey by ID with questions
-  static async getSurveyById(req, res) {
+  static async getSurveyById(req, res, next) {
     try {
       const surveyId = req.params.id;
       
@@ -77,17 +72,12 @@ class SurveyController {
       });
     } catch (error) {
       console.error('Error in getSurveyById:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch survey',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/surveys - Create new survey
-  static async createSurvey(req, res) {
+  static async createSurvey(req, res, next) {
     try {
       const {
         name,
@@ -159,17 +149,12 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in createSurvey:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to create survey',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/surveys/:id - Update survey
-  static async updateSurvey(req, res) {
+  static async updateSurvey(req, res, next) {
     try {
       const surveyId = req.params.id;
       const { name, description, start_date, end_date } = req.body;
@@ -217,17 +202,12 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in updateSurvey:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update survey',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // DELETE /api/v1/surveys/:id - Delete survey
-  static async deleteSurvey(req, res) {
+  static async deleteSurvey(req, res, next) {
     try {
       const surveyId = req.params.id;
       
@@ -266,12 +246,7 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in deleteSurvey:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete survey',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
@@ -280,7 +255,7 @@ class SurveyController {
   // ===========================================
 
   // POST /api/v1/surveys/:id/questions - Add question to survey
-  static async addQuestion(req, res) {
+  static async addQuestion(req, res, next) {
     try {
       const surveyId = req.params.id;
       const { question_text, question_type, order_in_survey } = req.body;
@@ -329,12 +304,7 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in addQuestion:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to add question',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
@@ -343,7 +313,7 @@ class SurveyController {
   // ===========================================
 
   // POST /api/v1/surveys/:id/submit - Submit survey response
-  static async submitSurvey(req, res) {
+  static async submitSurvey(req, res, next) {
     try {
       const surveyId = req.params.id;
       const { answers, respondent_id } = req.body;
@@ -430,12 +400,7 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in submitSurvey:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to submit survey',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
@@ -444,7 +409,7 @@ class SurveyController {
   // ===========================================
 
   // GET /api/v1/surveys/:id/responses - Get all responses for a survey
-  static async getSurveyResponses(req, res) {
+  static async getSurveyResponses(req, res, next) {
     try {
       const surveyId = req.params.id;
       const { limit, offset, startDate, endDate } = req.query;
@@ -475,17 +440,12 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in getSurveyResponses:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch survey responses',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/surveys/:id/analytics - Get survey analytics
-  static async getSurveyAnalytics(req, res) {
+  static async getSurveyAnalytics(req, res, next) {
     try {
       const surveyId = req.params.id;
       
@@ -533,12 +493,7 @@ class SurveyController {
 
     } catch (error) {
       console.error('Error in getSurveyAnalytics:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch survey analytics',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 }

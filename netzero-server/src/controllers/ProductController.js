@@ -5,7 +5,7 @@ const { generateFileUrl, getRelativePath } = require('../middleware/imageUpload'
 
 class ProductController {
   // GET /api/v1/products - Get all products with optional filters
-  static async getAllProducts(req, res) {
+  static async getAllProducts(req, res, next) {
     try {
       const {
         category,
@@ -61,17 +61,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in getAllProducts:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch products',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/:id - Get product by ID
-  static async getProductById(req, res) {
+  static async getProductById(req, res, next) {
     try {
       const productId = req.params.id;
       
@@ -101,17 +96,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in getProductById:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/products - Create a new product
-  static async createProduct(req, res) {
+  static async createProduct(req, res, next) {
     try {
       const {
         project_id,
@@ -179,17 +169,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in createProduct:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to create product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/products/:id - Update product (only by owner or admin)
-  static async updateProduct(req, res) {
+  static async updateProduct(req, res, next) {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
@@ -265,11 +250,7 @@ class ProductController {
         // Admin can update any product directly
         const success = await Product.updateById(productId, updateData, product.user_id);
         if (!success) {
-          return res.status(500).json({
-            success: false,
-            message: 'Failed to update product',
-            timestamp: new Date().toISOString()
-          });
+          return next(new Error('Failed to update product'));
         }
       } else {
         // Regular user or community_head - check ownership in the model
@@ -293,17 +274,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in updateProduct:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // DELETE /api/v1/products/:id - Delete product (only by owner, community_head, or admin)
-  static async deleteProduct(req, res) {
+  static async deleteProduct(req, res, next) {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
@@ -335,17 +311,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in deleteProduct:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/my - Get current user's products
-  static async getMyProducts(req, res) {
+  static async getMyProducts(req, res, next) {
     try {
       const userId = req.user.userId;
       const { category, type } = req.query;
@@ -365,17 +336,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in getMyProducts:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch user products',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/search/:searchTerm - Search products
-  static async searchProducts(req, res) {
+  static async searchProducts(req, res, next) {
     try {
       const searchTerm = req.params.searchTerm;
       const { category, type, inStock } = req.query;
@@ -405,17 +371,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in searchProducts:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to search products',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/recommended - Get recommended products
-  static async getRecommendedProducts(req, res) {
+  static async getRecommendedProducts(req, res, next) {
     try {
       const products = await Product.findRecommended();
       
@@ -428,17 +389,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in getRecommendedProducts:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch recommended products',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/type/:type - Get products by type
-  static async getProductsByType(req, res) {
+  static async getProductsByType(req, res, next) {
     try {
       const type = req.params.type;
       
@@ -463,17 +419,12 @@ class ProductController {
       });
     } catch (error) {
       console.error('Error in getProductsByType:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch products by type',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/:id/thumbnail - Get product thumbnail image
-  static async getProductThumbnail(req, res) {
+  static async getProductThumbnail(req, res, next) {
     try {
       const productId = req.params.id;
       
@@ -509,29 +460,19 @@ class ProductController {
         if (err) {
           console.error('Error sending thumbnail image:', err);
           if (!res.headersSent) {
-            res.status(500).json({
-              success: false,
-              message: 'Failed to serve thumbnail image',
-              error: err.message,
-              timestamp: new Date().toISOString()
-            });
+            next(err);
           }
         }
       });
 
     } catch (error) {
       console.error('Error in getProductThumbnail:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve thumbnail image',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/:id/cover - Get product cover image
-  static async getProductCover(req, res) {
+  static async getProductCover(req, res, next) {
     try {
       const productId = req.params.id;
       
@@ -567,29 +508,19 @@ class ProductController {
         if (err) {
           console.error('Error sending cover image:', err);
           if (!res.headersSent) {
-            res.status(500).json({
-              success: false,
-              message: 'Failed to serve cover image',
-              error: err.message,
-              timestamp: new Date().toISOString()
-            });
+            next(err);
           }
         }
       });
 
     } catch (error) {
       console.error('Error in getProductCover:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve cover image',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/:id/images - Get all product images metadata
-  static async getAllProductImages(req, res) {
+  static async getAllProductImages(req, res, next) {
     try {
       const productId = req.params.id;
       
@@ -662,17 +593,12 @@ class ProductController {
 
     } catch (error) {
       console.error('Error in getAllProductImages:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve product images metadata',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/products/:id/images/:imageId - Get specific product image
-  static async getProductImages(req, res) {
+  static async getProductImages(req, res, next) {
     try {
       const productId = req.params.id;
       const imageId = req.params.imageId;
@@ -717,29 +643,19 @@ class ProductController {
         if (err) {
           console.error('Error sending product image:', err);
           if (!res.headersSent) {
-            res.status(500).json({
-              success: false,
-              message: 'Failed to serve product image',
-              error: err.message,
-              timestamp: new Date().toISOString()
-            });
+            next(err);
           }
         }
       });
 
     } catch (error) {
       console.error('Error in getProductImages:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve product image',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/products/:id/upload/thumbnail - Upload product thumbnail
-  static async uploadProductThumbnail(req, res) {
+  static async uploadProductThumbnail(req, res, next) {
     console.log('\n🔵 === THUMBNAIL UPLOAD REQUEST START ===');
     console.log('📋 Request Details:', {
       productId: req.params.id,
@@ -866,27 +782,12 @@ class ProductController {
 
     } catch (error) {
       console.error('❌ ERROR in uploadProductThumbnail:', error);
-      console.error('Error stack:', error.stack);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        errno: error.errno,
-        syscall: error.syscall,
-        path: error.path
-      });
-      console.log('🔵 === THUMBNAIL UPLOAD REQUEST END (ERROR) ===\n');
-
-      res.status(500).json({
-        success: false,
-        message: 'Failed to upload thumbnail',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/products/:id/upload/cover - Upload product cover image
-  static async uploadProductCover(req, res) {
+  static async uploadProductCover(req, res, next) {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
@@ -954,17 +855,12 @@ class ProductController {
 
     } catch (error) {
       console.error('Error in uploadProductCover:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to upload cover image',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/products/:id/upload/images - Upload product images
-  static async uploadProductImages(req, res) {
+  static async uploadProductImages(req, res, next) {
     try {
       const productId = req.params.id;
       const userId = req.user.userId;
@@ -1041,12 +937,7 @@ class ProductController {
 
     } catch (error) {
       console.error('Error in uploadProductImages:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to upload product images',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 }

@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class EventProduct {
   // Database schema definition
@@ -29,11 +28,6 @@ class EventProduct {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(EventProduct.getSchema());
-  }
-
   constructor(data) {
     this.id = data.id;
     this.event_id = data.event_id;
@@ -61,8 +55,6 @@ class EventProduct {
 
   // Create a new event product
   static async create(eventProductData) {
-    await EventProduct.ensureTable();
-    
     const {
       event_id,
       product_id,
@@ -91,8 +83,6 @@ class EventProduct {
 
   // Find event product by ID
   static async findById(id) {
-    await EventProduct.ensureTable();
-    
     const query = `
       SELECT ep.*, 
              e.title AS event_title, e.event_date, e.location AS event_location, e.status AS event_status,
@@ -114,8 +104,6 @@ class EventProduct {
 
   // Find all event products with optional filters
   static async findAll(filters = {}) {
-    await EventProduct.ensureTable();
-    
     let query = `
       SELECT ep.*, 
              e.title AS event_title, e.event_date, e.location AS event_location, e.status AS event_status,
@@ -150,8 +138,6 @@ class EventProduct {
 
   // Get all events for a specific product
   static async getEventsByProductId(productId) {
-    await EventProduct.ensureTable();
-    
     const query = `
       SELECT 
         e.id AS event_id,
@@ -175,8 +161,6 @@ class EventProduct {
 
   // Get all products for a specific event
   static async getProductsByEventId(eventId) {
-    await EventProduct.ensureTable();
-    
     const query = `
       SELECT 
         p.id AS product_id,
@@ -200,8 +184,6 @@ class EventProduct {
 
   // Update event product
   static async updateById(id, eventProductData) {
-    await EventProduct.ensureTable();
-    
     const {
       event_price,
       stock_quantity,
@@ -226,8 +208,6 @@ class EventProduct {
 
   // Update event product with stock calculation (updates both event_products and products tables)
   static async updateEventProduct(id, updateData, userId) {
-    await EventProduct.ensureTable();
-    
     const pool = require('../config/database').pool;
     const connection = await pool.getConnection();
     
@@ -324,8 +304,6 @@ class EventProduct {
 
   // Delete event product
   static async deleteById(id) {
-    await EventProduct.ensureTable();
-    
     const query = 'DELETE FROM event_products WHERE id = ?';
     const [result] = await executeCommand(query, [id]);
     
@@ -334,8 +312,6 @@ class EventProduct {
 
   // Check if event product already exists
   static async findByEventAndProduct(eventId, productId) {
-    await EventProduct.ensureTable();
-    
     const query = `
       SELECT * FROM event_products 
       WHERE event_id = ? AND product_id = ?

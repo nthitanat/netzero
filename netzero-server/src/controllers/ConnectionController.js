@@ -11,7 +11,7 @@ class ConnectionController {
    * Test basic connection from remote
    * GET /api/v1/connection/test
    */
-  static async testConnection(req, res) {
+  static async testConnection(req, res, next) {
     try {
       const timestamp = new Date().toISOString();
       const clientInfo = {
@@ -44,10 +44,7 @@ class ConnectionController {
 
     } catch (error) {
       console.error('Connection test error:', error);
-      res.error('Connection test failed', 500, {
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
@@ -55,7 +52,7 @@ class ConnectionController {
    * Test database connectivity specifically
    * GET /api/v1/connection/database
    */
-  static async testDatabaseConnection(req, res) {
+  static async testDatabaseConnection(req, res, next) {
     try {
       const startTime = Date.now();
       const isConnected = await testConnection();
@@ -84,10 +81,7 @@ class ConnectionController {
       }
     } catch (error) {
       console.error('Database connection test error:', error);
-      res.error('Database connection test failed', 500, {
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
@@ -95,7 +89,7 @@ class ConnectionController {
    * Comprehensive system status check
    * GET /api/v1/connection/status
    */
-  static async getSystemStatus(req, res) {
+  static async getSystemStatus(req, res, next) {
     try {
       const timestamp = new Date().toISOString();
       
@@ -157,10 +151,7 @@ class ConnectionController {
 
     } catch (error) {
       console.error('System status check error:', error);
-      res.error('System status check failed', 500, {
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 

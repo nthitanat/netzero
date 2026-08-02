@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 
 class Product {
   // Database schema definition
@@ -36,10 +35,6 @@ class Product {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(Product.getSchema());
-  }
   constructor(data) {
     this.id = data.id;
     this.project_id = data.project_id;
@@ -60,9 +55,6 @@ class Product {
 
   // Create a new product
   static async create(productData) {
-    // Ensure table exists
-    await Product.ensureTable();
-    
     const {
       project_id,
       title,
@@ -106,9 +98,6 @@ class Product {
 
   // Find all products with optional filters
   static async findAll(filters = {}) {
-    // Ensure table exists
-    await Product.ensureTable();
-    
     let query = `
       SELECT p.*, u.firstName, u.lastName, u.email as owner_email
       FROM products p

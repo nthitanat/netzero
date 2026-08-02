@@ -4,7 +4,7 @@ const { validationResult } = require('express-validator');
 class ChatAppController {
   
   // GET /api/v1/chatapps - Get all chat applications
-  static async getAllChatApps(req, res) {
+  static async getAllChatApps(req, res, next) {
     try {
       const filters = {};
 
@@ -38,17 +38,12 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error getting chat applications:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve chat applications',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/chatapps/:id - Get chat application by ID
-  static async getChatAppById(req, res) {
+  static async getChatAppById(req, res, next) {
     try {
       const { id } = req.params;
       const chatApp = await ChatApp.getById(id);
@@ -67,16 +62,12 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error getting chat application by ID:', error);
-      res.locals.error = {
-        message: 'Failed to retrieve chat application',
-        details: error.message
-      };
-      res.status(500);
+      next(error);
     }
   }
 
   // GET /api/v1/chatapps/my - Get current user's chat applications
-  static async getMyChatApps(req, res) {
+  static async getMyChatApps(req, res, next) {
     try {
       const userId = req.user.id;
       const chatApps = await ChatApp.getByUserId(userId);
@@ -91,16 +82,12 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error getting user chat applications:', error);
-      res.locals.error = {
-        message: 'Failed to retrieve your chat applications',
-        details: error.message
-      };
-      res.status(500);
+      next(error);
     }
   }
 
   // POST /api/v1/chatapps - Create new chat application
-  static async createChatApp(req, res) {
+  static async createChatApp(req, res, next) {
     try {
       // Check for validation errors
       const errors = validationResult(req);
@@ -131,16 +118,12 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error creating chat application:', error);
-      res.locals.error = {
-        message: 'Failed to create chat application',
-        details: error.message
-      };
-      res.status(500);
+      next(error);
     }
   }
 
   // PUT /api/v1/chatapps/:id - Update chat application
-  static async updateChatApp(req, res) {
+  static async updateChatApp(req, res, next) {
     try {
       // Check for validation errors
       const errors = validationResult(req);
@@ -190,16 +173,12 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error updating chat application:', error);
-      res.locals.error = {
-        message: 'Failed to update chat application',
-        details: error.message
-      };
-      res.status(500);
+      next(error);
     }
   }
 
   // DELETE /api/v1/chatapps/:id - Delete chat application
-  static async deleteChatApp(req, res) {
+  static async deleteChatApp(req, res, next) {
     try {
       const { id } = req.params;
       const userId = req.user.id;
@@ -234,16 +213,12 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error deleting chat application:', error);
-      res.locals.error = {
-        message: 'Failed to delete chat application',
-        details: error.message
-      };
-      res.status(500);
+      next(error);
     }
   }
 
   // GET /api/v1/chatapps/statistics - Get chat statistics
-  static async getChatStatistics(req, res) {
+  static async getChatStatistics(req, res, next) {
     try {
       const userId = req.query.user_id || (req.user.role !== 'admin' ? req.user.id : null);
       const statistics = await ChatApp.getStatistics(userId);
@@ -256,11 +231,7 @@ class ChatAppController {
       
     } catch (error) {
       console.error('❌ Error getting chat statistics:', error);
-      res.locals.error = {
-        message: 'Failed to retrieve chat statistics',
-        details: error.message
-      };
-      res.status(500);
+      next(error);
     }
   }
 }

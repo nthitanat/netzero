@@ -1,5 +1,4 @@
 const { executeQuery, executeCommand } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 
 // Helper function to convert ISO datetime to MySQL format
 const formatDateTimeForMySQL = (isoDateTime) => {
@@ -41,17 +40,9 @@ class Event {
     };
   }
 
-  // Ensure table exists before any operations
-  static async ensureTable() {
-    return await ensureModelTable(Event.getSchema());
-  }
-
   // Create a new event
   static async create(eventData) {
     try {
-      // Ensure table exists
-      await Event.ensureTable();
-      
       const {
         title,
         description,
@@ -118,9 +109,6 @@ class Event {
   // Get all events - simple implementation
   static async findAll() {
     try {
-      // Ensure table exists
-      await Event.ensureTable();
-      
       const query = 'SELECT * FROM events ORDER BY created_at DESC';
       const results = await executeQuery(query);
       return results.map(row => new Event(row));
@@ -132,9 +120,6 @@ class Event {
   // Get event by ID
   static async findById(id) {
     try {
-      // Ensure table exists
-      await Event.ensureTable();
-      
       const query = 'SELECT * FROM events WHERE id = ?';
       const results = await executeQuery(query, [id]);
       

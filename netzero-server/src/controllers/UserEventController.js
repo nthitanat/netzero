@@ -4,7 +4,7 @@ const Event = require('../models/Event');
 class UserEventController {
   
   // Get all events for a specific user
-  static async getUserEvents(req, res) {
+  static async getUserEvents(req, res, next) {
     try {
       const { userId } = req.params;
       
@@ -26,16 +26,12 @@ class UserEventController {
       
     } catch (error) {
       console.error('Error in getUserEvents:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve user events',
-        error: error.message
-      });
+      next(error);
     }
   }
 
   // Get events owned by the authenticated user
-  static async getMyEvents(req, res) {
+  static async getMyEvents(req, res, next) {
     try {
       const userId = req.user.userId || req.user.id;
       
@@ -57,16 +53,12 @@ class UserEventController {
       
     } catch (error) {
       console.error('Error in getMyEvents:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve your events',
-        error: error.message
-      });
+      next(error);
     }
   }
 
   // Create user-event relationship (join event)
-  static async joinEvent(req, res) {
+  static async joinEvent(req, res, next) {
     try {
       const { userId, eventId } = req.body;
       
@@ -97,24 +89,12 @@ class UserEventController {
       
     } catch (error) {
       console.error('Error in joinEvent:', error);
-      
-      if (error.message.includes('already associated')) {
-        return res.status(409).json({
-          success: false,
-          message: 'User is already joined to this event'
-        });
-      }
-      
-      res.status(500).json({
-        success: false,
-        message: 'Failed to join event',
-        error: error.message
-      });
+      next(error);
     }
   }
 
   // Remove user-event relationship (leave event)
-  static async leaveEvent(req, res) {
+  static async leaveEvent(req, res, next) {
     try {
       const { userId, eventId } = req.params;
       
@@ -142,16 +122,12 @@ class UserEventController {
       
     } catch (error) {
       console.error('Error in leaveEvent:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to leave event',
-        error: error.message
-      });
+      next(error);
     }
   }
 
   // Get all users for a specific event
-  static async getEventUsers(req, res) {
+  static async getEventUsers(req, res, next) {
     try {
       const { eventId } = req.params;
       
@@ -173,16 +149,12 @@ class UserEventController {
       
     } catch (error) {
       console.error('Error in getEventUsers:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve event users',
-        error: error.message
-      });
+      next(error);
     }
   }
 
   // Check if user owns/is associated with an event
-  static async checkOwnership(req, res) {
+  static async checkOwnership(req, res, next) {
     try {
       const { userId, eventId } = req.params;
       
@@ -204,11 +176,7 @@ class UserEventController {
       
     } catch (error) {
       console.error('Error in checkOwnership:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to check ownership',
-        error: error.message
-      });
+      next(error);
     }
   }
 }

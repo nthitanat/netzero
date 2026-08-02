@@ -5,7 +5,7 @@ const Event = require('../models/Event');
 
 class EventProductController {
   // GET /api/v1/event-products - Get all event products with optional filters
-  static async getAllEventProducts(req, res) {
+  static async getAllEventProducts(req, res, next) {
     try {
       const { event_id, product_id, status } = req.query;
 
@@ -25,17 +25,12 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in getAllEventProducts:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch event products',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/event-products/:id - Get event product by ID
-  static async getEventProductById(req, res) {
+  static async getEventProductById(req, res, next) {
     try {
       const eventProductId = req.params.id;
 
@@ -65,17 +60,12 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in getEventProductById:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch event product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/event-products/product/:productId/events - Get all events for a product
-  static async getEventsByProductId(req, res) {
+  static async getEventsByProductId(req, res, next) {
     try {
       const productId = req.params.productId;
 
@@ -112,17 +102,12 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in getEventsByProductId:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch events for product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // GET /api/v1/event-products/event/:eventId/products - Get all products for an event
-  static async getProductsByEventId(req, res) {
+  static async getProductsByEventId(req, res, next) {
     try {
       const eventId = req.params.eventId;
 
@@ -159,18 +144,13 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in getProductsByEventId:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch products for event',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // POST /api/v1/event-products - Create a new event product
   // Requires authentication and checks event ownership via middleware
-  static async createEventProduct(req, res) {
+  static async createEventProduct(req, res, next) {
     try {
       const {
         event_id,
@@ -300,18 +280,13 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in createEventProduct:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to create event product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PUT /api/v1/event-products/:id - Update event product
   // Requires authentication and checks event ownership via middleware
-  static async updateEventProduct(req, res) {
+  static async updateEventProduct(req, res, next) {
     try {
       const eventProductId = req.params.id;
 
@@ -414,11 +389,7 @@ class EventProductController {
       const success = await EventProduct.updateById(eventProductId, updateData);
 
       if (!success) {
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to update event product',
-          timestamp: new Date().toISOString()
-        });
+        return next(new Error('Failed to update event product'));
       }
 
       // Update product's unassigned_stock_quantity if stock_quantity was changed
@@ -437,18 +408,13 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in updateEventProduct:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to update event product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // PATCH /api/v1/event-products/:id - Update event product with stock calculation
   // Updates both event_products and products tables in a transaction
-  static async patchEventProduct(req, res) {
+  static async patchEventProduct(req, res, next) {
     try {
       const eventProductId = req.params.id;
       const userId = req.user.userId || req.user.id;
@@ -524,23 +490,12 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in patchEventProduct:', error);
-      
-      // Handle specific error messages
-      const statusCode = error.message.includes('not found') ? 404 :
-                        error.message.includes('Access denied') ? 403 :
-                        error.message.includes('Insufficient') ? 400 : 500;
-      
-      res.status(statusCode).json({
-        success: false,
-        message: 'Failed to update event product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 
   // DELETE /api/v1/event-products/:id - Delete event product
-  static async deleteEventProduct(req, res) {
+  static async deleteEventProduct(req, res, next) {
     try {
       const eventProductId = req.params.id;
 
@@ -581,11 +536,7 @@ class EventProductController {
       const success = await EventProduct.deleteById(eventProductId);
 
       if (!success) {
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to delete event product',
-          timestamp: new Date().toISOString()
-        });
+        return next(new Error('Failed to delete event product'));
       }
 
       res.status(200).json({
@@ -595,12 +546,7 @@ class EventProductController {
       });
     } catch (error) {
       console.error('Error in deleteEventProduct:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to delete event product',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      });
+      next(error);
     }
   }
 }

@@ -6,7 +6,6 @@ const morgan = require('morgan');
 
 // Import configuration and middleware
 const { testConnection } = require('./src/config/database');
-const { initializeDatabase } = require('./src/initDatabase');
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 const { apiLimiter } = require('./src/middleware/rateLimiter');
 const { 
@@ -254,7 +253,7 @@ process.on('SIGINT', () => {
 });
 
 // Start server
-const server = app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 NetZero API Server Starting...');
   console.log('═══════════════════════════════════════');
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -269,17 +268,6 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🛍️  Products API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/products`);
   console.log(`📝 Reservations API: http://localhost:${PORT}${API_PREFIX}/${API_VERSION}/reservations`);
   console.log('═══════════════════════════════════════');
-  
-  // Initialize database structure
-  console.log('🔍 Initializing database structure...');
-  try {
-    await initializeDatabase();
-    console.log('✅ Database structure initialization completed');
-  } catch (error) {
-    console.error('❌ Database initialization failed:', error.message);
-    console.log('⚠️  Server started but database initialization failed');
-  }
-  
   console.log('🎉 NetZero API Server is ready!');
 });
 

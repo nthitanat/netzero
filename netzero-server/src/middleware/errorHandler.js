@@ -1,44 +1,80 @@
+// Message substrings (from application-level `throw new Error(...)` calls in
+// models/controllers) mapped to the HTTP status code they should produce.
+// Centralizing this here means any thrown Error anywhere in the app gets a
+// consistent status code, instead of each controller re-implementing its own
+// (partial, inconsistent) copy of this classification.
+const MESSAGE_STATUS_RULES = [
+  { pattern: /already associated|already joined|already exists/i, statusCode: 409 },
+  { pattern: /access denied|permission/i, statusCode: 403 },
+  { pattern: /not found/i, statusCode: 404 },
+  { pattern: /insufficient|invalid|required/i, statusCode: 400 }
+];
+
+function classifyByMessage(message = '') {
+  const rule = MESSAGE_STATUS_RULES.find(({ pattern }) => pattern.test(message));
+  return rule ? rule.statusCode : null;
+}
+
 // Global error handling middleware
 const errorHandler = (err, req, res, next) => {
   console.error('Error Stack:', err.stack);
-  
-  // Default error
-  let error = { ...err };
-  error.message = err.message;
+
+  let statusCode = err.statusCode;
+  let message = err.message;
+  // Whether `message` is safe to expose to the client. Known/expected error
+  // types (validation, duplicate entry, "not found", etc.) carry app-generated
+  // messages that are safe. Anything unrecognized may contain raw DB/internal
+  // details and must not be leaked to the client.
+  let exposeMessage = Boolean(statusCode);
 
   // MySQL duplicate entry error
   if (err.code === 'ER_DUP_ENTRY') {
-    const message = 'Duplicate field value entered';
-    error = { message, statusCode: 400 };
+    statusCode = 400;
+    message = 'Duplicate field value entered';
+    exposeMessage = true;
   }
 
-  // MySQL validation error
+  // MySQL "table doesn't exist" error
   if (err.code === 'ER_NO_SUCH_TABLE') {
-    const message = 'Database table not found';
-    error = { message, statusCode: 500 };
+    statusCode = 500;
+    message = 'Database table not found';
+    exposeMessage = true;
   }
 
   // MySQL connection error
   if (err.code === 'ECONNREFUSED') {
-    const message = 'Database connection failed';
-    error = { message, statusCode: 500 };
+    statusCode = 500;
+    message = 'Database connection failed';
+    exposeMessage = true;
   }
 
   // Validation error
   if (err.name === 'ValidationError') {
-    const message = Object.values(err.errors).map(val => val.message).join(', ');
-    error = { message, statusCode: 400 };
+    message = Object.values(err.errors).map(val => val.message).join(', ');
+    statusCode = 400;
+    exposeMessage = true;
   }
 
   // JSON parse error
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    const message = 'Invalid JSON format';
-    error = { message, statusCode: 400 };
+    statusCode = 400;
+    message = 'Invalid JSON format';
+    exposeMessage = true;
   }
 
-  res.status(error.statusCode || 500).json({
+  // Fall back to classifying plain `throw new Error('...')` from app code
+  // (e.g. "Access denied", "Product not found", "Insufficient stock").
+  if (!statusCode) {
+    const classified = classifyByMessage(err.message);
+    if (classified) {
+      statusCode = classified;
+      exposeMessage = true;
+    }
+  }
+
+  res.status(statusCode || 500).json({
     success: false,
-    message: error.message || 'Internal Server Error',
+    message: exposeMessage && message ? message : 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 };
