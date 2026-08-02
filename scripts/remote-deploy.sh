@@ -28,7 +28,7 @@ source "$ENV_FILE"
 # ── Path constants (adapt per project) ───────────────────────
 DEPLOY_PATH=/www/knowledgehub-deploy          # git workspace on remote
 CLIENT_DIR=knowledgehub-client                # subfolder containing the React app
-WEB_ROOT=/www/wwwroot/engagement.chula.ac.th/chula-glocal-market  # nginx document root
+WEB_ROOT=/www/wwwroot/engagement.chula.ac.th/glocal  # nginx document root
 
 # ── Check dependencies ────────────────────────────────────────
 for cmd in sshpass scp ssh; do

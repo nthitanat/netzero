@@ -12,6 +12,7 @@ import CommunityDetail from './pages/CommunityDetail/CommunityDetail';
 import Showroom from './pages/Showroom/Showroom';
 import Courses from './pages/Courses/Courses';
 import CourseDetail from './pages/CourseDetail/CourseDetail';
+import CheckIn from './pages/CheckIn/CheckIn';
 import './styles/main.scss';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
                   <Route path="/showroom" element={<Showroom />} />
                   <Route path="/courses" element={<Courses />} />
                   <Route path="/courses/:id" element={<CourseDetail />} />
+                  <Route path="/check-in" element={<CheckIn />} />
                 </Routes>
               </main>
               <Footer />
