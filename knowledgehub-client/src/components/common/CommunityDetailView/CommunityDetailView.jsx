@@ -65,10 +65,17 @@ const CommunityDetailView = ({ slug }) => {
     );
   }
 
+  const hasTimeline = community.timeline && community.timeline.length > 0;
+  const hasMedia = (community.images && community.images.length > 0) || (community.videos && community.videos.length > 0);
+
   const tabs = [
     { key: 'story', icon: 'auto_stories', label: language === 'th' ? 'เรื่องราว' : 'Story' },
-    { key: 'journey', icon: 'timeline', label: language === 'th' ? 'เส้นทาง' : 'Journey' },
-    { key: 'media', icon: 'photo_library', label: language === 'th' ? 'สื่อ' : 'Media' },
+    ...(hasTimeline
+      ? [{ key: 'journey', icon: 'timeline', label: language === 'th' ? 'เส้นทาง' : 'Journey' }]
+      : []),
+    ...(hasMedia
+      ? [{ key: 'media', icon: 'photo_library', label: language === 'th' ? 'สื่อ' : 'Media' }]
+      : []),
     ...(products.length > 0
       ? [{ key: 'products', icon: 'shopping_bag', label: language === 'th' ? 'ผลิตภัณฑ์' : 'Products' }]
       : []),
@@ -76,13 +83,17 @@ const CommunityDetailView = ({ slug }) => {
 
   const quickInfoItems = [
     { icon: 'location_on', label: language === 'th' ? 'สถานที่' : 'Location', value: community.province },
-    { icon: 'category', label: language === 'th' ? 'ประเภท' : 'Category', value: community.category },
-    {
-      icon: 'public',
-      label: language === 'th' ? 'ตลาด' : 'Markets',
-      value: community.targetMarkets?.join(', ').toUpperCase(),
+    community.eventDateTime && {
+      icon: 'event',
+      label: language === 'th' ? 'วันและเวลา' : 'Date & Time',
+      value: t(community.eventDateTime),
     },
-  ];
+  ].filter(Boolean);
+
+  const hasProfileData = Boolean(
+    community.leader &&
+    (community.leader.image || t(community.leader.name) || t(community.leader.role) || t(community.leader.occupation))
+  );
 
   const profileSections = (community.leader.cuAlumni && community.leader.cuRelationship)
     ? [{
@@ -118,7 +129,7 @@ const CommunityDetailView = ({ slug }) => {
         tagline={t(community.tagline)}
         meta={[
           { icon: 'location_on', text: community.province },
-          { icon: 'category', text: community.category },
+          ...(community.eventDateTime ? [{ icon: 'event', text: t(community.eventDateTime) }] : []),
         ]}
         actions={
           <>
@@ -230,15 +241,17 @@ const CommunityDetailView = ({ slug }) => {
           {/* Sidebar */}
           <aside className={styles.sidebar}>
             <div className={styles.stickyWrapper}>
-              <ProfileCard
-                image={community.leader.image}
-                imageAlt={t(community.leader.name)}
-                name={t(community.leader.name)}
-                role={t(community.leader.role)}
-                occupation={t(community.leader.occupation)}
-                badge={community.leader.cuAlumni ? { icon: 'school', title: 'CU Alumni' } : null}
-                sections={profileSections}
-              />
+              {hasProfileData && (
+                <ProfileCard
+                  image={community.leader.image}
+                  imageAlt={t(community.leader.name)}
+                  name={t(community.leader.name)}
+                  role={t(community.leader.role)}
+                  occupation={t(community.leader.occupation)}
+                  badge={community.leader.cuAlumni ? { icon: 'school', title: 'CU Alumni' } : null}
+                  sections={profileSections}
+                />
+              )}
 
               <InfoCard
                 title={language === 'th' ? 'ข้อมูลด่วน' : 'Quick Info'}

@@ -19,18 +19,6 @@ export const getAllCommunities = async (params = {}) => {
     communities = communities.filter(c => c.region === params.region);
   }
   
-  // Filter by category
-  if (params.category) {
-    communities = communities.filter(c => c.category === params.category);
-  }
-  
-  // Filter by target market
-  if (params.targetMarket) {
-    communities = communities.filter(c => 
-      c.targetMarkets.includes(params.targetMarket)
-    );
-  }
-  
   return {
     data: {
       communities,

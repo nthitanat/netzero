@@ -13,13 +13,10 @@
     "type": "group",
     "region": "central",
     "province": "Bangkok",
-    "category": "education",
-    "targetMarkets": [
-      "local",
-      "asean",
-      "europe",
-      "gcc"
-    ],
+    "eventDateTime": {
+      "th": "3–4 สิงหาคม 2569",
+      "en": "3–4 August 2026"
+    },
     "story": {
       "th": "ศูนย์กลางความรู้ตลาดท้องถิ่นโลก (Chula-Glocalized Market Community) เป็นโครงการของจุฬาลงกรณ์มหาวิทยาลัย ที่มุ่งสร้างเครือข่ายชุมชนผู้ประกอบการไทยให้สามารถเชื่อมต่อตลาดท้องถิ่นสู่เวทีโลก ผ่านการอบรมเชิงปฏิบัติการ การวิจัย และการสนับสนุนอย่างครบวงจร โดยอาศัยแนวคิด 'Glocalization' — การผสานจุดแข็งของวัฒนธรรมและภูมิปัญญาท้องถิ่นเข้ากับโอกาสในตลาดโลก",
       "en": "The Chula-Glocalized Market Knowledge Hub is a Chulalongkorn University initiative dedicated to building a community network that empowers Thai entrepreneurs to bridge local markets with the global stage — through workshops, research, and comprehensive support, grounded in the 'Glocalization' concept of combining local cultural strengths with global market opportunities."
@@ -33,7 +30,6 @@
         "th": "ทีมวิจัย จุฬาลงกรณ์มหาวิทยาลัย",
         "en": "Chulalongkorn University Research Team"
       },
-      "image": "images/communities/chula-glocalized-market-community/leader.jpg",
       "role": {
         "th": "ผู้ดำเนินโครงการ",
         "en": "Programme Coordinators"
@@ -158,11 +154,6 @@
     "type": "group",
     "region": "central",
     "province": "Bangkok",
-    "category": "mixed",
-    "targetMarkets": [
-      "local",
-      "asean"
-    ],
     "story": {
       "th": "DOT DOT Cafe & Community คือพื้นที่ริมคลองในกรุงเทพฯ ที่ทำหน้าที่เชื่อม 'จุด' เล็ก ๆ ของผู้คนเข้าหากัน ทั้งคนในเมืองด้วยกัน และคนเมืองกับชุมชนผู้ลงมือทำจริงในป่าน่าน ผ่านกิจกรรม เวิร์กชอป นิทรรศการ ดนตรี และชาจากต้นพันปี",
       "en": "DOT DOT Cafe & Community is a canalside space in Bangkok that acts as a connector — linking each person's small 'dot' to others, and bridging city dwellers to real-action communities restoring the forests of Nan, through activities, workshops, exhibitions, live music, and ancient-tree tea."
@@ -176,7 +167,6 @@
         "th": "ทีมผู้ก่อตั้ง DOT DOT",
         "en": "DOT DOT Founding Team"
       },
-      "image": "images/communities/dot-dot-cafe-community/leader.jpg",
       "role": {
         "th": "ผู้ก่อตั้งและดูแลพื้นที่ชุมชน",
         "en": "Founders & Community Space Curators"
@@ -226,16 +216,7 @@
         "image": "images/communities/dot-dot-cafe-community/timeline-2.jpg"
       }
     ],
-    "videos": [
-      {
-        "title": {
-          "th": "Connect the Dot — นิทรรศการฟื้นป่าน่าน",
-          "en": "Connect the Dot — Nan Forest Restoration Exhibition"
-        },
-        "url": "https://www.facebook.com/profile.php?id=61586116156707",
-        "thumbnail": "images/communities/dot-dot-cafe-community/video-1-thumb.jpg"
-      }
-    ],
+    "videos": [],
     "members": [
       {
         "name": {
@@ -306,15 +287,7 @@
       }
     ],
     "image": "images/communities/dot-dot-cafe-community/cover.jpg",
-    "images": [
-      "images/communities/dot-dot-cafe-community/gallery-my-dot-card.jpg",
-      "images/communities/dot-dot-cafe-community/gallery-eco-print.jpg",
-      "images/communities/dot-dot-cafe-community/gallery-art-craft.jpg",
-      "images/communities/dot-dot-cafe-community/gallery-contemplative-art.jpg",
-      "images/communities/dot-dot-cafe-community/gallery-exhibition.jpg",
-      "images/communities/dot-dot-cafe-community/gallery-live-music.jpg",
-      "images/communities/dot-dot-cafe-community/gallery-bar-cha.jpg"
-    ],
+    "images": [],
     "stats": {
       "members": null,
       "productsCount": 2,
@@ -344,12 +317,6 @@
     "type": "group",
     "region": "central",
     "province": "Bangkok",
-    "category": "trade",
-    "targetMarkets": [
-      "gcc",
-      "asean",
-      "europe"
-    ],
     "story": {
       "th": "TOGA (Thai Trade & Innovation to Global Association) คือสมาคมการค้าที่มุ่งเชื่อมผู้ประกอบการไทยเข้าสู่ตลาดโลก โดยเฉพาะภูมิภาคตะวันออกกลาง ผ่านโปรแกรม Business Matching การเยี่ยมชมตลาดจริง และการสร้างเครือข่ายพันธมิตรระดับ VIP กับนักธุรกิจชั้นนำจากซาอุดีอาระเบียและบาห์เรน",
       "en": "TOGA (Thai Trade & Innovation to Global Association) is a trade association dedicated to connecting Thai entrepreneurs with global markets — particularly the Middle East — through Business Matching programmes, real market surveys, and VIP networking with top-tier business leaders from Saudi Arabia and Bahrain."
@@ -363,7 +330,6 @@
         "th": "คณะผู้บริหาร TOGA",
         "en": "TOGA Executive Committee"
       },
-      "image": "images/communities/toga-thai-trade-innovation/leader.jpg",
       "role": {
         "th": "นายกสมาคมและคณะผู้บริหาร",
         "en": "Association President & Executive Committee"
@@ -387,54 +353,8 @@
         ]
       }
     },
-    "timeline": [
-      {
-        "year": "2023",
-        "title": {
-          "th": "ก่อตั้งสมาคม TOGA",
-          "en": "TOGA Association Founded"
-        },
-        "description": {
-          "th": "ก่อตั้งสมาคมการค้าและนวัตกรรมไทยสู่สากล (TOGA) เพื่อเชื่อมผู้ประกอบการไทยกับตลาดโลก โดยเฉพาะภูมิภาคตะวันออกกลาง",
-          "en": "Founded TOGA to bridge Thai entrepreneurs with global markets, with a primary focus on the Middle East region"
-        },
-        "image": "images/communities/toga-thai-trade-innovation/timeline-1.jpg"
-      },
-      {
-        "year": "2024",
-        "title": {
-          "th": "Business Matching ซาอุดีอาระเบีย รุ่นแรก",
-          "en": "First Saudi Arabia Business Matching Programme"
-        },
-        "description": {
-          "th": "เปิดตัวโปรแกรม Business Matching ครั้งแรกสู่ซาอุดีอาระเบีย นำผู้ประกอบการไทยเข้าพบนักธุรกิจและสำรวจตลาดในริยาด",
-          "en": "Launched inaugural Business Matching trip to Saudi Arabia, taking Thai entrepreneurs to meet business executives and survey markets in Riyadh"
-        },
-        "image": "images/communities/toga-thai-trade-innovation/timeline-2.jpg"
-      },
-      {
-        "year": "2025",
-        "title": {
-          "th": "Thailand Exclusive Business Matching 2025 — ซาอุฯ & บาห์เรน",
-          "en": "Thailand Exclusive Business Matching 2025 — Saudi Arabia & Bahrain"
-        },
-        "description": {
-          "th": "ขยายโปรแกรมสู่ 2 ประเทศ 3 เมือง (ริยาด – ดัมมาม – มานามา) 3–7 ธันวาคม 2568 รวม Thai Festival in Bahrain 2025 และ VIP Networking กับนักธุรกิจชั้นนำจากทั้งสองประเทศ",
-          "en": "Expanded programme to 2 countries and 3 cities (Riyadh – Dammam – Manama), 3–7 December 2025, including Thai Festival in Bahrain 2025 and VIP Networking with top executives from both countries"
-        },
-        "image": "images/communities/toga-thai-trade-innovation/timeline-3.jpg"
-      }
-    ],
-    "videos": [
-      {
-        "title": {
-          "th": "4 เหตุผลที่ต้องบุกตลาด Middle East ตอนนี้",
-          "en": "4 Reasons to Enter the Middle East Market Now"
-        },
-        "url": "https://www.youtube.com/watch?v=PLACEHOLDER",
-        "thumbnail": "images/communities/toga-thai-trade-innovation/video-1-thumb.jpg"
-      }
-    ],
+    "timeline": [],
+    "videos": [],
     "members": [
       {
         "name": {
@@ -480,14 +400,7 @@
       }
     ],
     "image": "images/communities/toga-thai-trade-innovation/cover.jpg",
-    "images": [
-      "images/communities/toga-thai-trade-innovation/gallery-riyadh.jpg",
-      "images/communities/toga-thai-trade-innovation/gallery-boulevard-world.jpg",
-      "images/communities/toga-thai-trade-innovation/gallery-ithra-cultural-center.jpg",
-      "images/communities/toga-thai-trade-innovation/gallery-business-matching.jpg",
-      "images/communities/toga-thai-trade-innovation/gallery-thai-festival-bahrain.jpg",
-      "images/communities/toga-thai-trade-innovation/gallery-manama-souk.jpg"
-    ],
+    "images": [],
     "stats": {
       "members": null,
       "productsCount": 1,
@@ -518,12 +431,6 @@
     "type": "community",
     "region": "north",
     "province": "Nan",
-    "category": "mixed",
-    "targetMarkets": [
-      "asean",
-      "europe",
-      "gcc"
-    ],
     "story": {
       "th": "ชุมชนชาวม้งบ้านขุนสถาน ตั้งอยู่ในเขตอุทยานแห่งชาติขุนสถาน อำเภอนาน้อย จังหวัดน่าน เป็นชุมชนเก่าแก่อายุกว่า 200 ปี ที่ชาวม้งเข้ามาตั้งถิ่นฐานบริเวณต้นน้ำลำห้วยขุนสถานตั้งแต่ พ.ศ. 2335 ปัจจุบันชุมชนได้พลิกฟื้นจากการทำเกษตรเชิงเดี่ยวที่ใช้สารเคมีเข้มข้น สู่การปลูกพืชในระบบ GAP และเกษตรอินทรีย์ภายใต้โครงการหลวง พร้อมกับสืบทอดงานผ้าปักม้งและวิถีชีวิตบนดอยสูง",
       "en": "The Hmong community of Ban Khun Sathan, nestled within Khun Sathan National Park in Na Noi District, Nan Province, is an ancient settlement over 200 years old. Hmong families first settled at the headwaters of the Khun Sathan stream around 1792. Today the community has transformed from chemical-intensive monocropping into GAP-certified greenhouse farming and certified organic agriculture under the Royal Project, while preserving traditional Hmong embroidery and highland ways of life."
@@ -537,7 +444,6 @@
         "th": "นายชวกร สุพัตสันต์สกุล (เดิม แสนย่าง)",
         "en": "Mr. Chawakorn Supatsansakul (formerly Saen Yang)"
       },
-      "image": "images/communities/hmong-nan-khun-sathan/leader.jpg",
       "role": {
         "th": "ผู้นำเกษตรกรโครงการหลวงขุนสถาน",
         "en": "Lead Farmer, Khun Sathan Royal Project"
@@ -577,98 +483,8 @@
         ]
       }
     },
-    "timeline": [
-      {
-        "year": "1792",
-        "title": {
-          "th": "ก่อตั้งหมู่บ้านขุนสถาน",
-          "en": "Founding of Ban Khun Sathan"
-        },
-        "description": {
-          "th": "นายหนู่เปา แสนย่าง เป็นชาวม้งคนแรกที่เข้ามาตั้งถิ่นฐานบริเวณต้นน้ำลำห้วยขุนสถาน ตามด้วยตระกูล แสนโซ้ง และ แซ่ม้า",
-          "en": "Mr. Nu Pao Saen Yang, the first Hmong settler, established the village at the headwaters of Khun Sathan stream, followed by the Saen Song and Sae Ma families"
-        },
-        "image": "images/communities/hmong-nan-khun-sathan/timeline-1.jpg"
-      },
-      {
-        "year": "2009",
-        "title": {
-          "th": "เริ่มโครงการหลวงขุนสถาน",
-          "en": "Launch of Khun Sathan Royal Project"
-        },
-        "description": {
-          "th": "วันที่ 21 ตุลาคม 2552 ก่อตั้งโครงการพัฒนาพื้นที่สูงแบบโครงการหลวงขุนสถาน เพื่อแก้ปัญหาการบุกรุกป่าต้นน้ำและส่งเสริมเกษตรยั่งยืน",
-          "en": "On 21 October 2009, the Khun Sathan Royal Project Highland Development was established to address watershed deforestation and promote sustainable agriculture"
-        },
-        "image": "images/communities/hmong-nan-khun-sathan/timeline-2.jpg"
-      },
-      {
-        "year": "2014",
-        "title": {
-          "th": "เริ่มปลูกพืชในโรงเรือนระบบ GAP",
-          "en": "Greenhouse GAP Farming Begins"
-        },
-        "description": {
-          "th": "ครอบครัวพ่อเชาว์เริ่มปลูกพริกหวานและมะเขือเทศเชอรี่ในโรงเรือนระบบ GAP ลดการใช้สารเคมีและลดพื้นที่ปลูกพืชเชิงเดี่ยว",
-          "en": "Father Chao's family started growing bell peppers and cherry tomatoes in GAP-certified greenhouses, reducing chemical use and monoculture footprint"
-        },
-        "image": "images/communities/hmong-nan-khun-sathan/timeline-3.jpg"
-      },
-      {
-        "year": "2020",
-        "title": {
-          "th": "ขยายสู่อะโวคาโดอินทรีย์",
-          "en": "Expansion into Organic Avocado"
-        },
-        "description": {
-          "th": "ปลูกอะโวคาโดพันธุ์แฮสและบัคคาเนียในระบบอินทรีย์บนพื้นที่ 8 ไร่ ใช้ปุ๋ยหมักและปุ๋ยคอก พร้อมเตรียมปลูกกาแฟแซมในอนาคต",
-          "en": "Hass and Buccaneer avocados planted organically on 8 rai using compost and manure, with plans to interplant coffee in the future"
-        },
-        "image": "images/communities/hmong-nan-khun-sathan/timeline-4.jpg"
-      },
-      {
-        "year": "2024",
-        "title": {
-          "th": "ร้านอาหารจุดปลายฟ้าและการท่องเที่ยวเชิงเกษตร",
-          "en": "Jud Plai Fa Restaurant and Agri-Tourism"
-        },
-        "description": {
-          "th": "เปิดร้านอาหาร 'จุดปลายฟ้า' บริการช่วงเทศกาล พร้อมบริการเช่าชุดม้งสำหรับถ่ายภาพ ร่วมมือกับหัวหน้าอุทยานในการพัฒนาเส้นทางท่องเที่ยว",
-          "en": "Launched 'Jud Plai Fa' restaurant for peak tourist seasons, with Hmong costume photo rentals, in cooperation with the National Park leadership to develop tourism routes"
-        },
-        "image": "images/communities/hmong-nan-khun-sathan/timeline-5.jpg"
-      },
-      {
-        "year": "2025",
-        "title": {
-          "th": "ร่วมมือกับจุฬาลงกรณ์มหาวิทยาลัย",
-          "en": "Collaboration with Chulalongkorn University"
-        },
-        "description": {
-          "th": "ส่งผลิตภัณฑ์อะโวคาโดและพริกหวานไปทดสอบตลาดที่จุฬาฯ พร้อมเริ่มเครือข่ายการศึกษาดูงานและพัฒนาชุมชนร่วมกับคณาจารย์",
-          "en": "Avocado and bell pepper products test-marketed at Chulalongkorn University, with the launch of academic field-study networks and joint community development initiatives"
-        },
-        "image": "images/communities/hmong-nan-khun-sathan/timeline-6.jpg"
-      }
-    ],
-    "videos": [
-      {
-        "title": {
-          "th": "วิถีเกษตรอินทรีย์บนดอยขุนสถาน",
-          "en": "Organic Highland Farming at Khun Sathan"
-        },
-        "url": "https://www.youtube.com/watch?v=PLACEHOLDER",
-        "thumbnail": "images/communities/hmong-nan-khun-sathan/video-1-thumb.jpg"
-      },
-      {
-        "title": {
-          "th": "ผ้าปักม้ง: ภูมิปัญญาที่สืบทอดจากแม่สู่ลูก",
-          "en": "Hmong Embroidery: Wisdom Passed from Mother to Daughter"
-        },
-        "url": "https://www.youtube.com/watch?v=PLACEHOLDER",
-        "thumbnail": "images/communities/hmong-nan-khun-sathan/video-2-thumb.jpg"
-      }
-    ],
+    "timeline": [],
+    "videos": [],
     "members": [
       {
         "name": {
@@ -751,14 +567,7 @@
       }
     ],
     "image": "images/communities/hmong-nan-khun-sathan/cover.jpg",
-    "images": [
-      "images/communities/hmong-nan-khun-sathan/gallery-1.jpg",
-      "images/communities/hmong-nan-khun-sathan/gallery-2.jpg",
-      "images/communities/hmong-nan-khun-sathan/gallery-3.jpg",
-      "images/communities/hmong-nan-khun-sathan/gallery-4.jpg",
-      "images/communities/hmong-nan-khun-sathan/gallery-5.jpg",
-      "images/communities/hmong-nan-khun-sathan/gallery-6.jpg"
-    ],
+    "images": [],
     "stats": {
       "members": 200,
       "productsCount": 6,
@@ -772,5 +581,470 @@
     },
     "link": null,
     "needRegister": 0
+  },
+  {
+    "type": "group",
+    "image": "images/communities/healthy-life-happy-life-sa-kaeo/gallery-3.jpg",
+    "images": [
+      "images/communities/healthy-life-happy-life-sa-kaeo/gallery-1.jpg",
+      "images/communities/healthy-life-happy-life-sa-kaeo/gallery-2.jpg",
+      "images/communities/healthy-life-happy-life-sa-kaeo/gallery-3.jpg",
+      "images/communities/healthy-life-happy-life-sa-kaeo/gallery-4.jpg"
+    ],
+    "videos": [],
+    "members": [],
+    "timeline": [],
+    "needRegister": 0,
+    "id": "healthy-life-happy-life-sa-kaeo",
+    "slug": "healthy-life-happy-life-sa-kaeo",
+    "name": {
+      "th": "กลุ่มวิสาหกิจชุมชนสุขภาพดี ชีวีมีสุข",
+      "en": "Healthy Life Happy Life Community Enterprise"
+    },
+    "tagline": {
+      "th": "ชาดอกไม้และผลิตภัณฑ์สมุนไพรจากเกษตรกรสระแก้วที่ปลูกแบบฟื้นฟูระบบนิเวศ",
+      "en": "Flower tea and herbal products from Sa Kaeo farmers using ecosystem-restorative cultivation"
+    },
+    "region": "east",
+    "province": "Sa Kaeo",
+    "story": {
+      "th": "เป็นผลิตภัณฑ์แปรรูปจากดอกไม้และสมุนไพร โดยการรวมตัวของเกษตรกรจากจังหวัดสระแก้ว ปลูกแบบฟื้นฟูระบบนิเวศ ให้เกิดระบบนิเวศดูแลกันและกัน และผลพลอยได้เป็นวัตถุดิบที่ปลอดภัย",
+      "en": "A line of processed flower and herbal products created by farmers in Sa Kaeo. The group cultivates through ecosystem restoration, allowing the ecosystem to support itself while producing safe raw materials as a beneficial by-product."
+    },
+    "storyDetails": {
+      "th": "สินค้า: ชาดอกไม้, ผลิตภัณฑ์สมุนไพร, ยาดมส้มโอมือ, พิมเสนน้ำ\n\nช่องทางติดต่อ: Facebook laphasRada, Instagram laphasrada_th",
+      "en": "Products: flower tea, herbal products, Buddha's hand citron inhaler, liquid borneol inhaler.\n\nContact channels: Facebook laphasRada, Instagram laphasrada_th."
+    },
+    "leader": {
+      "name": {
+        "th": "คุณลภัสรดา",
+        "en": "Khun Laphasrada"
+      },
+      "role": {
+        "th": "ตัวแทนกลุ่ม",
+        "en": "Group Representative"
+      },
+      "cuAlumni": false,
+      "occupation": {
+        "th": "ผู้ประกอบการผลิตภัณฑ์สมุนไพร",
+        "en": "Herbal Product Entrepreneur"
+      },
+      "graduationYear": null,
+      "faculty": null,
+      "major": null,
+      "cuRelationship": {
+        "researchProjects": [],
+        "advisor": null,
+        "collaborations": []
+      },
+      "image": "images/communities/healthy-life-happy-life-sa-kaeo/gallery-4.jpg"
+    },
+    "stats": {
+      "members": null,
+      "productsCount": 4,
+      "coursesCount": 0,
+      "establishedYear": null
+    },
+    "contact": {
+      "phone": null,
+      "email": null,
+      "facebook": "laphasRada",
+      "instagram": "laphasrada_th",
+      "line": null,
+      "website": null
+    },
+    "link": null
+  },
+  {
+    "type": "group",
+    "image": "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-17.jpg",
+    "images": [
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-1.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-2.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-3.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-4.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-5.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-6.png",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-7.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-8.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-9.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-10.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-11.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-12.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-13.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-14.png",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-15.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-16.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-17.jpg",
+      "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-18.png"
+    ],
+    "videos": [],
+    "members": [],
+    "timeline": [],
+    "needRegister": 0,
+    "id": "akaliko-organic-garden-ubon-ratchathani",
+    "slug": "akaliko-organic-garden-ubon-ratchathani",
+    "name": {
+      "th": "สวนอะกาลิโก อุบลราชธานี",
+      "en": "Akaliko Organic Garden, Ubon Ratchathani"
+    },
+    "tagline": {
+      "th": "สวนเกษตรอินทรีย์มาตรฐาน Organic Thailand ในอำเภอนาเยีย จังหวัดอุบลราชธานี",
+      "en": "An Organic Thailand-certified garden in Na Yia District, Ubon Ratchathani"
+    },
+    "region": "northeast",
+    "province": "Ubon Ratchathani",
+    "story": {
+      "th": "สวนอะกาลิโกผลิตผลภายใต้มาตรฐาน Organic Thailand เป็นเวลา 9 ปี บนพื้นที่ 10 ไร่ ตั้งอยู่ที่อำเภอนาเยีย จังหวัดอุบลราชธานี มีการเลี้ยงไส้เดือนและใช้ปุ๋ยมูลไส้เดือน",
+      "en": "Akaliko Organic Garden has produced crops under the Organic Thailand standard for 9 years on a 10-rai farm in Na Yia District, Ubon Ratchathani, using earthworm cultivation and vermicompost."
+    },
+    "storyDetails": {
+      "th": "สินค้า: พริกไทย, มะนาวออร์แกนิค\n\nปัจจุบันมีพืช 6 ชนิดที่จำหน่าย เช่น อินทผลัม พริกไทย และมะนาว ให้กับผู้รักสุขภาพ ร้านอาหาร และโรงแรม\n\nช่องทางติดต่อ: Facebook สวนอะกาลิโก อุบลราชธานี",
+      "en": "Products: pepper and organic lime.\n\nThe garden currently sells 6 types of crops, including dates, pepper, and lime, to health-conscious consumers, restaurants, and hotels.\n\nContact channel: Facebook สวนอะกาลิโก อุบลราชธานี."
+    },
+    "leader": {
+      "name": {
+        "th": "สวนอะกาลิโก",
+        "en": "Akaliko Garden"
+      },
+      "role": {
+        "th": "ผู้ผลิตเกษตรอินทรีย์",
+        "en": "Organic Producer"
+      },
+      "cuAlumni": false,
+      "occupation": {
+        "th": "เกษตรกรอินทรีย์",
+        "en": "Organic Farmer"
+      },
+      "graduationYear": null,
+      "faculty": null,
+      "major": null,
+      "cuRelationship": {
+        "researchProjects": [],
+        "advisor": null,
+        "collaborations": []
+      },
+      "image": "images/communities/akaliko-organic-garden-ubon-ratchathani/gallery-18.png"
+    },
+    "stats": {
+      "members": null,
+      "productsCount": 2,
+      "coursesCount": 0,
+      "establishedYear": null
+    },
+    "contact": {
+      "phone": null,
+      "email": null,
+      "facebook": "สวนอะกาลิโก อุบลราชธานี",
+      "instagram": null,
+      "line": null,
+      "website": null
+    },
+    "link": null
+  },
+  {
+    "type": "group",
+    "image": "images/communities/luna-wawe-chiang-rai/gallery-20.jpg",
+    "images": [
+      "images/communities/luna-wawe-chiang-rai/gallery-1.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-2.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-3.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-4.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-5.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-6.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-7.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-8.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-9.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-10.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-11.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-12.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-13.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-14.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-15.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-16.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-17.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-18.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-19.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-20.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-21.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-22.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-23.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-24.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-25.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-26.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-27.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-28.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-29.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-30.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-31.jpg",
+      "images/communities/luna-wawe-chiang-rai/gallery-32.jpg"
+    ],
+    "videos": [],
+    "members": [],
+    "timeline": [],
+    "needRegister": 0,
+    "id": "luna-wawe-chiang-rai",
+    "slug": "luna-wawe-chiang-rai",
+    "name": {
+      "th": "LUNA WAWE เชียงราย",
+      "en": "LUNA WAWE, Chiang Rai"
+    },
+    "tagline": {
+      "th": "ชาอัสสัม แมคคาเดเมีย และผลิตภัณฑ์ดูแลผิวจากใบชาบนดอยวาวี",
+      "en": "Assam tea, macadamia, and tea-leaf skincare from Doi Wa Wi"
+    },
+    "region": "north",
+    "province": "Chiang Rai",
+    "story": {
+      "th": "LUNA WAWE นำเสนอชาอัสสัมปลอดสารเคมีภายใต้แนวคิด “ชากับป่าอยู่บ้านเดียวกัน” จากดอยวาวี ควบคู่กับแมคคาเดเมียจากพื้นที่สูง และผลิตภัณฑ์รีเซ็ตผิวประจำวันจากใบชา",
+      "en": "LUNA WAWE offers chemical-free Assam tea from Doi Wa Wi under the idea that tea and forest can live together, alongside highland macadamia and daily skin-reset products made from tea leaves."
+    },
+    "storyDetails": {
+      "th": "สินค้า: ชาอัสสัมปลอดสารเคมี “ชากับป่าอยู่บ้านเดียวกัน” จากดอยวาวี, แมคคาเดเมียจากดอยวาวี, ผลิตภัณฑ์รีเซ็ตผิวประจำวันจากใบชา\n\nชาอัสสัมปลอดสารเคมีจากดอยวาวีเกิดจากแนวคิดการทำไร่ชาเพื่ออนุรักษ์ผืนป่า คืนต้นไม้สู่ธรรมชาติ และสร้างป่าเพื่อความยั่งยืนส่งต่อสู่ลูกหลาน\n\nแมคคาเดเมียจากดอยวาวีเติบโตบนพื้นที่ตำบลวาวีที่สูงกว่า 1,000-1,500 เมตรจากระดับน้ำทะเล มีอากาศหนาวเย็นตลอดปีและดินอุดมสมบูรณ์ เมล็ดมีรสชาติเอกลักษณ์: มัน หอม กรอบ เนื้อแน่น ละมุน และหวานธรรมชาติ โดยไม่มีกลิ่นหืน\n\nผลิตภัณฑ์รีเซ็ตผิวประจำวันจากใบชาเป็นการยกระดับและเพิ่มมูลค่าใบชา โดยคัดสรรคุณค่าจากยอดอ่อนใบชาสายพันธุ์ดีบนดอยวาวี ผ่านกระบวนการสกัดอย่างพิถีพิถันเพื่อรักษาสารบำรุงผิว\n\nช่องทางติดต่อ: คุณ Nut Wong โทร. 094-120-6187, คุณ Ching Yng โทร. 062-429-9656\n\nข้อมูลจากทางร้านค้า: Profile of The Lunarwawe (Thai).pdf",
+      "en": "Products: chemical-free Assam tea from Doi Wa Wi under the concept “tea and forest live in the same home,” macadamia from Doi Wa Wi, and daily skin-reset products from tea leaves.\n\nThe chemical-free Assam tea is produced with a forest-conservation approach, returning trees to nature and building sustainable forest for future generations.\n\nDoi Wa Wi macadamia grows at 1,000-1,500 meters above sea level in cool weather and fertile soil. Its distinctive qualities are rich aroma, crisp texture, dense yet delicate kernels, natural sweetness, and no rancid odor.\n\nThe daily skin-reset products upgrade and add value to tea leaves by carefully selecting pure benefits from young tea shoots on Doi Wa Wi and extracting them to preserve skin-nourishing compounds.\n\nContact: Khun Nut Wong, 094-120-6187; Khun Ching Yng, 062-429-9656.\n\nStore-provided reference: Profile of The Lunarwawe (Thai).pdf."
+    },
+    "leader": {
+      "name": {
+        "th": "คุณ Nut Wong / คุณ Ching Yng",
+        "en": "Nut Wong / Ching Yng"
+      },
+      "role": {
+        "th": "ผู้ติดต่อร้านค้า",
+        "en": "Store Contacts"
+      },
+      "cuAlumni": false,
+      "occupation": {
+        "th": "ผู้ประกอบการผลิตภัณฑ์ชาและแมคคาเดเมีย",
+        "en": "Tea and Macadamia Product Entrepreneurs"
+      },
+      "graduationYear": null,
+      "faculty": null,
+      "major": null,
+      "cuRelationship": {
+        "researchProjects": [],
+        "advisor": null,
+        "collaborations": []
+      },
+      "image": "images/communities/luna-wawe-chiang-rai/gallery-32.jpg"
+    },
+    "stats": {
+      "members": null,
+      "productsCount": 3,
+      "coursesCount": 0,
+      "establishedYear": null
+    },
+    "contact": {
+      "phone": "094-120-6187, 062-429-9656",
+      "email": null,
+      "facebook": null,
+      "instagram": null,
+      "line": null,
+      "website": null
+    },
+    "link": null
+  },
+  {
+    "type": "group",
+    "image": "images/communities/garditchen-chom-bueng-selection/gallery-1.jpg",
+    "images": [
+      "images/communities/garditchen-chom-bueng-selection/gallery-1.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-2.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-3.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-4.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-5.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-6.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-7.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-8.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-9.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-10.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-11.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-12.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-13.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-14.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-15.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-16.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-17.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-18.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-19.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-20.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-21.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-22.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-23.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-24.jpg",
+      "images/communities/garditchen-chom-bueng-selection/gallery-25.jpg"
+    ],
+    "videos": [],
+    "members": [],
+    "timeline": [],
+    "needRegister": 0,
+    "id": "garditchen-chom-bueng-selection",
+    "slug": "garditchen-chom-bueng-selection",
+    "name": {
+      "th": "GARDITCHEN กิจการเพื่อสังคมจอมบึงซีเล็คชั่น",
+      "en": "GARDITCHEN, Chom Bueng Selection Social Enterprise"
+    },
+    "tagline": {
+      "th": "หน้าร้านรวมผลผลิตเกษตรและสินค้าแปรรูปจากสมาชิกจอมบึงซีเล็คชั่น",
+      "en": "A shopfront for agricultural produce and processed goods from Chom Bueng Selection members"
+    },
+    "region": "west",
+    "province": "Ratchaburi",
+    "story": {
+      "th": "GARDITCHEN หรือ “ร้านสวนถึงครัว” เป็นกิจการเพื่อสังคมที่ต่อยอดจากโครงการจอมบึงซีเล็คชั่น รวบรวมผลผลิตทางการเกษตรและสินค้าแปรรูปจากสมาชิกที่เพาะปลูกในรูปแบบเศรษฐกิจพอเพียง โคกหนองนา และศูนย์เรียนรู้",
+      "en": "GARDITCHEN, or “garden to kitchen shop,” is a social enterprise developed from Chom Bueng Selection. It gathers agricultural produce and processed goods from members who cultivate through sufficiency economy, Khok Nong Na, and learning-center models."
+    },
+    "storyDetails": {
+      "th": "สินค้า: ผลผลิตทางการเกษตร และสินค้าแปรรูปจากสมาชิกที่เพาะปลูกในรูปแบบเศรษฐกิจพอเพียง โคกหนองนา และศูนย์เรียนรู้\n\nจากพื้นที่ของชุมชนชาวบ้านในเขตตำบลจอมบึงที่ใกล้เขตชุมชนเมืองและกรุงเทพฯ เรื่องราวของสวนแต่ละแปลง ที่มาของสินค้า ความสวยงามของแพคเกจ และคุณภาพของสินค้าในราคายุติธรรม ทำให้สามารถนำสินค้าเหล่านี้ออกสู่สังคมได้มากขึ้นผ่านโครงการ “ร้านสวนถึงครัว” หรือ “GARDITCHEN SHOP”\n\nโครงการนี้เป็นการต่อยอดจากจอมบึงซีเล็คชั่นที่รวบรวมสินค้าจากสมาชิกไปจำหน่ายให้ผู้สนใจ เปรียบเหมือนหน้าร้านที่รวมสินค้าและเรื่องราวของสมาชิกจอมบึงซีเล็คชั่น พร้อมช่วยแก้ปัญหาคุณภาพชีวิตของชาวบ้านผ่านการตลาดซื้อขาย เพื่อเพิ่มและสร้างรายได้ให้คนในพื้นที่อย่างยั่งยืน\n\nอำเภอจอมบึงเป็นพื้นที่เกษตรที่อยู่ไม่ไกลจากเขตเมือง สินค้าของชุมชนมีการออกแบบบรรจุภัณฑ์เหมาะสม มีเรื่องราวของสวนที่น่าสนใจ และมีราคาที่เหมาะสมและยุติธรรม จึงเกิดการรวมกลุ่มในชื่อ “จอมบึงซีเล็คชั่น” เพื่อขับเคลื่อนกิจกรรมตามวิถีปรัชญาเศรษฐกิจพอเพียงและทฤษฎีบันไดเก้าขั้น โดยเฉพาะขั้นที่ 8 คือการค้าจนสำเร็จเป็นรูปธรรม โมเดล และขยายต่อยอดได้ต่อไป\n\nช่องทางติดต่อ: Facebook เพจจอมบึงซีเล็คชั่น, LINE OA จอมบึงซีเลคชั่น",
+      "en": "Products: agricultural produce and processed goods from members who cultivate through sufficiency economy, Khok Nong Na, and learning-center models.\n\nFrom the community areas of Chom Bueng, close to urban areas and Bangkok, each garden's story, product origin, attractive packaging, and fair-priced quality help bring these goods to wider society through “GARDITCHEN SHOP.”\n\nThe shop builds on Chom Bueng Selection by gathering members' products for interested buyers. It acts as a storefront that carries both goods and member stories, while improving local quality of life through market access and sustainable income generation.\n\nChom Bueng is an agricultural district near urban markets. The community's products feature suitable packaging, interesting garden stories, and fair pricing. This led to the “Chom Bueng Selection” collective, which advances sufficiency economy practices and the nine-step theory, especially step 8: successful trade as a concrete, scalable model.\n\nContact channels: Facebook เพจจอมบึงซีเล็คชั่น, LINE OA จอมบึงซีเลคชั่น."
+    },
+    "leader": {
+      "name": {
+        "th": "จอมบึงซีเล็คชั่น",
+        "en": "Chom Bueng Selection"
+      },
+      "role": {
+        "th": "กลุ่มกิจการเพื่อสังคม",
+        "en": "Social Enterprise Group"
+      },
+      "cuAlumni": false,
+      "occupation": {
+        "th": "เครือข่ายผู้ผลิตสินค้าเกษตรและสินค้าแปรรูป",
+        "en": "Agricultural and Processed Product Producer Network"
+      },
+      "graduationYear": null,
+      "faculty": null,
+      "major": null,
+      "cuRelationship": {
+        "researchProjects": [],
+        "advisor": null,
+        "collaborations": []
+      },
+      "image": "images/communities/garditchen-chom-bueng-selection/gallery-25.jpg"
+    },
+    "stats": {
+      "members": null,
+      "productsCount": 1,
+      "coursesCount": 0,
+      "establishedYear": null
+    },
+    "contact": {
+      "phone": null,
+      "email": null,
+      "facebook": "เพจจอมบึงซีเล็คชั่น",
+      "instagram": null,
+      "line": "จอมบึงซีเลคชั่น",
+      "website": null
+    },
+    "link": null
+  },
+  {
+    "type": "group",
+    "image": "images/communities/rao-kon-thai-foundation-network/gallery-40.jpg",
+    "images": [
+      "images/communities/rao-kon-thai-foundation-network/gallery-1.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-2.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-3.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-4.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-5.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-6.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-7.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-8.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-9.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-10.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-11.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-12.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-13.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-14.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-15.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-16.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-17.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-18.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-19.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-20.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-21.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-22.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-23.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-24.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-25.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-26.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-27.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-28.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-29.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-30.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-31.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-32.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-33.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-34.png",
+      "images/communities/rao-kon-thai-foundation-network/gallery-35.png",
+      "images/communities/rao-kon-thai-foundation-network/gallery-36.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-37.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-38.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-39.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-40.jpg",
+      "images/communities/rao-kon-thai-foundation-network/gallery-41.jpg"
+    ],
+    "videos": [],
+    "members": [],
+    "timeline": [],
+    "needRegister": 0,
+    "id": "rao-kon-thai-foundation-network",
+    "slug": "rao-kon-thai-foundation-network",
+    "name": {
+      "th": "กลุ่มมูลนิธิเราคนไทย",
+      "en": "Rao Kon Thai Foundation Network"
+    },
+    "tagline": {
+      "th": "เครือข่ายสินค้าและชุมชนจากกลุ่มมูลนิธิเราคนไทย",
+      "en": "A product and community network from the Rao Kon Thai Foundation group"
+    },
+    "region": "national",
+    "province": "Thailand",
+    "story": {
+      "th": "กลุ่มมูลนิธิเราคนไทยรวบรวมสินค้าและเครือข่ายชุมชนหลายกลุ่ม โดยมีคุณเบลเป็นผู้ประสานข้อมูลร้านค้า",
+      "en": "The Rao Kon Thai Foundation group gathers products and community networks across several groups, with Khun Belle coordinating the store information."
+    },
+    "storyDetails": {
+      "th": "สินค้าและกลุ่มที่เกี่ยวข้อง: Hive food (วช.), บ้านสวนอิ่มสุข (ลงทะเบียนไปแล้วค่ะ), วิสาหกิจชุมชน “มือเธอมือฉัน” จ.ปัตตานี, ชุมชนพิกุลทอง, สบู่ Botanique, กลุ่มเวชพร จ.สุรินทร์, กุหลาบ รศ.ดร.ดุสิต (ม.ธรรมศาสตร์), Zenyxth(Neuro Cosmatic)\n\nประวัติความเป็นมาและช่องทางติดต่อยังไม่ได้ระบุในเอกสารต้นทาง",
+      "en": "Related products and groups: Hive food (NRCT), Baan Suan Im Suk (already registered), “Mue Thoe Mue Chan” Community Enterprise in Pattani, Phikun Thong Community, Botanique soap, Wetchaporn Group in Surin, roses by Assoc. Prof. Dr. Dusit (Thammasat University), and Zenyxth(Neuro Cosmatic).\n\nBackground and contact channels were not specified in the source document."
+    },
+    "leader": {
+      "name": {
+        "th": "คุณเบล",
+        "en": "Khun Belle"
+      },
+      "role": {
+        "th": "ผู้ประสานงานกลุ่ม",
+        "en": "Group Coordinator"
+      },
+      "cuAlumni": false,
+      "occupation": {
+        "th": "ผู้ประสานเครือข่ายสินค้าและชุมชน",
+        "en": "Product and Community Network Coordinator"
+      },
+      "graduationYear": null,
+      "faculty": null,
+      "major": null,
+      "cuRelationship": {
+        "researchProjects": [],
+        "advisor": null,
+        "collaborations": []
+      },
+      "image": "images/communities/rao-kon-thai-foundation-network/gallery-33.jpg"
+    },
+    "stats": {
+      "members": null,
+      "productsCount": 8,
+      "coursesCount": 0,
+      "establishedYear": null
+    },
+    "contact": {
+      "phone": null,
+      "email": null,
+      "facebook": null,
+      "instagram": null,
+      "line": null,
+      "website": null
+    },
+    "link": null
   }
 ]

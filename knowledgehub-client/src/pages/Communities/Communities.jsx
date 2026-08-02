@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { getAllCommunities } from '../../api/dataService';
 import Loading from '../../components/common/Loading/Loading';
@@ -8,9 +9,10 @@ import styles from './Communities.module.scss';
 
 export default function Communities() {
   const { language } = useLanguage();
+  const { slug: activeSlug } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [communities, setCommunities] = useState([]);
-  const [activeSlug, setActiveSlug] = useState(null);
   const sliderRef = useRef(null);
 
   const t = (content) => {
@@ -26,8 +28,6 @@ export default function Communities() {
         const response = await getAllCommunities();
         const list = response.data.communities;
         setCommunities(list);
-        const featured = list.find(c => c.featured) || list[0];
-        if (featured) setActiveSlug(featured.slug);
       } catch (error) {
         console.error('Error fetching communities:', error);
       } finally {
@@ -36,6 +36,14 @@ export default function Communities() {
     };
     fetchData();
   }, []);
+
+  // Default to the featured (or first) community's URL when no slug is present
+  useEffect(() => {
+    if (!loading && !activeSlug && communities.length > 0) {
+      const featured = communities.find(c => c.featured) || communities[0];
+      if (featured) navigate(`/communities/${featured.slug}`, { replace: true });
+    }
+  }, [loading, activeSlug, communities, navigate]);
 
   const scroll = (dir) => {
     if (!sliderRef.current) return;
@@ -65,7 +73,7 @@ export default function Communities() {
                 <button
                   key={community.id}
                   className={`${styles.CatalogCard} ${activeSlug === community.slug ? styles.active : ''}`}
-                  onClick={() => setActiveSlug(community.slug)}
+                  onClick={() => navigate(`/communities/${community.slug}`)}
                 >
                   <div className={styles.CardImageWrap}>
                     <img
@@ -86,7 +94,6 @@ export default function Communities() {
                         <span className="material-symbols-outlined">location_on</span>
                         {community.province}
                       </span>
-                      <span className={styles.CardCategory}>{community.category}</span>
                     </div>
                   </div>
                 </button>

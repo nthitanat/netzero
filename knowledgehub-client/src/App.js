@@ -8,7 +8,6 @@ import Footer from './components/common/Footer/Footer';
 import Landing from './pages/Landing/Landing';
 import About from './pages/About/About';
 import Communities from './pages/Communities/Communities';
-import CommunityDetail from './pages/CommunityDetail/CommunityDetail';
 import Showroom from './pages/Showroom/Showroom';
 import Courses from './pages/Courses/Courses';
 import CourseDetail from './pages/CourseDetail/CourseDetail';
@@ -28,8 +27,7 @@ function App() {
                   <Route path="/" element={<Landing />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/communities" element={<Communities />} />
-                  <Route path="/communities/:slug" element={<CommunityDetail />} />
-                  <Route path="/showroom" element={<Showroom />} />
+                  <Route path="/communities/:slug" element={<Communities />} />
                   <Route path="/courses" element={<Courses />} />
                   <Route path="/courses/:id" element={<CourseDetail />} />
                   <Route path="/check-in" element={<CheckIn />} />

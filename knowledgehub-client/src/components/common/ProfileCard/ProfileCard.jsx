@@ -28,14 +28,16 @@ const ProfileCard = ({ image, imageAlt, name, role, occupation, badge = null, se
   <div className={styles.profileCard}>
     {/* Avatar + basic info */}
     <div className={styles.profileHeader}>
-      <div className={styles.profileImage}>
-        <img src={image} alt={imageAlt} />
-        {badge && (
-          <div className={styles.profileBadge} title={badge.title}>
-            <span className="material-symbols-outlined">{badge.icon}</span>
-          </div>
-        )}
-      </div>
+      {image && (
+        <div className={styles.profileImage}>
+          <img src={image} alt={imageAlt} />
+          {badge && (
+            <div className={styles.profileBadge} title={badge.title}>
+              <span className="material-symbols-outlined">{badge.icon}</span>
+            </div>
+          )}
+        </div>
+      )}
       <div className={styles.profileBasicInfo}>
         <h3 className={styles.profileName}>{name}</h3>
         <p className={styles.profileRole}>{role}</p>
