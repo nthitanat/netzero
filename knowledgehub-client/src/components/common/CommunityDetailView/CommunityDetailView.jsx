@@ -23,7 +23,7 @@ const CommunityDetailView = ({ slug }) => {
   const [products, setProducts] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('story');
+  const [activeTab, setActiveTab] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
 
   const t = (content) => {
@@ -38,11 +38,19 @@ const CommunityDetailView = ({ slug }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setActiveTab('story');
         const response = await getCommunityBySlug(slug);
-        setCommunity(response.data.community);
-        setProducts(response.data.products);
+        const newCommunity = response.data.community;
+        const newProducts = response.data.products;
+        setCommunity(newCommunity);
+        setProducts(newProducts);
         setCourses(response.data.courses);
+
+        const newHasTimeline = newCommunity.timeline && newCommunity.timeline.length > 0;
+        const newHasMedia = (newCommunity.images && newCommunity.images.length > 0) || (newCommunity.videos && newCommunity.videos.length > 0);
+        if (newHasTimeline) setActiveTab('journey');
+        else if (newHasMedia) setActiveTab('media');
+        else if (newProducts.length > 0) setActiveTab('products');
+        else setActiveTab(null);
       } catch (error) {
         console.error('Error fetching community:', error);
       } finally {
@@ -69,7 +77,6 @@ const CommunityDetailView = ({ slug }) => {
   const hasMedia = (community.images && community.images.length > 0) || (community.videos && community.videos.length > 0);
 
   const tabs = [
-    { key: 'story', icon: 'auto_stories', label: language === 'th' ? 'เรื่องราว' : 'Story' },
     ...(hasTimeline
       ? [{ key: 'journey', icon: 'timeline', label: language === 'th' ? 'เส้นทาง' : 'Journey' }]
       : []),
@@ -163,79 +170,76 @@ const CommunityDetailView = ({ slug }) => {
             </button>
           </>
         }
-      />
+      >
+        {(t(community.story) || community.storyDetails) && (
+          <div className={styles.heroStory}>
+            {t(community.story) && <p className={styles.storyLead}>{t(community.story)}</p>}
+            {community.storyDetails && (
+              <div className={styles.storyDetails}>
+                {t(community.storyDetails).split('\n\n').map((paragraph, index) => (
+                  paragraph.trim() && <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </SplitHero>
 
       <div className={styles.container}>
         <div className={styles.contentGrid}>
           {/* Main content */}
           <div className={styles.mainContent}>
-            <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+            {tabs.length > 0 && (
+              <>
+                <TabNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-            <div className={styles.tabContent}>
-              {activeTab === 'story' && (
-                <div className={styles.storyTab}>
-                  <h2 className={styles.contentTitle}>
-                    {language === 'th' ? 'เรื่องราวของเรา' : 'Our Story'}
-                  </h2>
-                  <div className={styles.storyGrid}>
-                    <div className={styles.storyMain}>
-                      <p className={styles.storyLead}>{t(community.story)}</p>
-                      {community.storyDetails && (
-                        <div className={styles.storyDetails}>
-                          {t(community.storyDetails).split('\n\n').map((paragraph, index) => (
-                            paragraph.trim() && <p key={index}>{paragraph}</p>
-                          ))}
-                        </div>
+                <div className={styles.tabContent}>
+                  {activeTab === 'journey' && community.timeline && community.timeline.length > 0 && (
+                    <div className={styles.journeyTab}>
+                      <h2 className={styles.contentTitle}>
+                        {language === 'th' ? 'เส้นทางความสำเร็จ' : 'Our Journey'}
+                      </h2>
+                      <Timeline items={community.timeline} />
+                    </div>
+                  )}
+
+                  {activeTab === 'media' && (
+                    <div className={styles.mediaTab}>
+                      <h2 className={styles.contentTitle}>
+                        {language === 'th' ? 'ภาพและวิดีโอ' : 'Photos & Videos'}
+                      </h2>
+                      {((community.images && community.images.length > 0) || (community.videos && community.videos.length > 0)) ? (
+                        <MediaGallery images={community.images} videos={community.videos} />
+                      ) : (
+                        <p className={styles.noContent}>
+                          {language === 'th' ? 'ยังไม่มีสื่อในขณะนี้' : 'No media available yet'}
+                        </p>
                       )}
                     </div>
-                  </div>
-                </div>
-              )}
+                  )}
 
-              {activeTab === 'journey' && community.timeline && community.timeline.length > 0 && (
-                <div className={styles.journeyTab}>
-                  <h2 className={styles.contentTitle}>
-                    {language === 'th' ? 'เส้นทางความสำเร็จ' : 'Our Journey'}
-                  </h2>
-                  <Timeline items={community.timeline} />
-                </div>
-              )}
-
-              {activeTab === 'media' && (
-                <div className={styles.mediaTab}>
-                  <h2 className={styles.contentTitle}>
-                    {language === 'th' ? 'ภาพและวิดีโอ' : 'Photos & Videos'}
-                  </h2>
-                  {((community.images && community.images.length > 0) || (community.videos && community.videos.length > 0)) ? (
-                    <MediaGallery images={community.images} videos={community.videos} />
-                  ) : (
-                    <p className={styles.noContent}>
-                      {language === 'th' ? 'ยังไม่มีสื่อในขณะนี้' : 'No media available yet'}
-                    </p>
+                  {activeTab === 'products' && products.length > 0 && (
+                    <div className={styles.productsTab}>
+                      <h2 className={styles.contentTitle}>
+                        {language === 'th' ? 'ผลิตภัณฑ์' : 'Products'}
+                      </h2>
+                      <div className={styles.productsGrid}>
+                        {products.map((product) => (
+                          <ItemCard
+                            key={product.id}
+                            to={`/showroom/${product.slug}`}
+                            image={product.image}
+                            imageAlt={t(product.name)}
+                            title={t(product.name)}
+                            subtitle={`${product.price} THB`}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
-              )}
-
-              {activeTab === 'products' && products.length > 0 && (
-                <div className={styles.productsTab}>
-                  <h2 className={styles.contentTitle}>
-                    {language === 'th' ? 'ผลิตภัณฑ์' : 'Products'}
-                  </h2>
-                  <div className={styles.productsGrid}>
-                    {products.map((product) => (
-                      <ItemCard
-                        key={product.id}
-                        to={`/showroom/${product.slug}`}
-                        image={product.image}
-                        imageAlt={t(product.name)}
-                        title={t(product.name)}
-                        subtitle={`${product.price} THB`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Sidebar */}

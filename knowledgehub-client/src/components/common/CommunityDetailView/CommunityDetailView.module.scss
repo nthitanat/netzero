@@ -408,14 +408,8 @@ $page-palette: $palette-orange;
   }
 }
 
-// Story Tab
-.storyTab {
-  @include organic-story-panel($page-palette);
-}
-
-.storyGrid {
-  display: grid;
-  gap: $spacing-6;
+// Story (rendered inside the hero)
+.heroStory {
   position: relative;
   z-index: 1;
 }

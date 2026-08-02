@@ -12,8 +12,9 @@ import styles from './SplitHero.module.scss';
  *  - tagline    {string}    Sub-headline shown below title
  *  - meta       {Array<{ icon: string, text: string }>}  Icon+text chips
  *  - actions    {ReactNode} Buttons / action row rendered below meta
+ *  - children   {ReactNode} Extra content rendered below tagline (e.g. story text)
  */
-const SplitHero = ({ image, imageAlt, badge, title, tagline, meta = [], actions, palette }) => {
+const SplitHero = ({ image, imageAlt, badge, title, tagline, meta = [], actions, palette, children }) => {
   const imageContainerRef = useRef(null);
 
   const handleImageLoad = (e) => {
@@ -60,6 +61,8 @@ const SplitHero = ({ image, imageAlt, badge, title, tagline, meta = [], actions,
             </h1>
 
             {tagline && <p className={styles.heroTagline}>{tagline}</p>}
+
+            {children && <div className={styles.heroExtra}>{children}</div>}
 
             {meta.length > 0 && (
               <div className={styles.heroMeta}>
