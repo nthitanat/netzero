@@ -3,9 +3,10 @@
  * This will DELETE all existing questions and insert new ones
  */
 
+const fs = require('fs');
+const path = require('path');
 const { executeQuery, executeCommand } = require('../src/config/database');
 const { v4: uuidv4 } = require('uuid');
-const ProductSurvey = require('../src/models/ProductSurvey');
 
 const thaiQuestions = [
   // Criterion 1: Net-zero commitment & boundary (C14)
@@ -331,6 +332,33 @@ async function cleanOldData() {
   }
 }
 
+/**
+ * Recreate the survey tables from the canonical SQL migration file, since the
+ * "ensure database" auto-migration workflow has been removed. This keeps this
+ * script self-contained after cleanOldData() drops the tables.
+ */
+async function recreateTables() {
+  console.log('🔨 Recreating tables from sql/create_products_survey_tables.sql...');
+
+  const sqlPath = path.join(__dirname, '../sql/create_products_survey_tables.sql');
+  const sqlContent = fs.readFileSync(sqlPath, 'utf8');
+
+  // Strip line comments and split into individual statements on `;`
+  const statements = sqlContent
+    .split('\n')
+    .filter(line => !line.trim().startsWith('--'))
+    .join('\n')
+    .split(';')
+    .map(stmt => stmt.trim())
+    .filter(Boolean);
+
+  for (const statement of statements) {
+    await executeCommand(statement);
+  }
+
+  console.log('✅ Tables recreated successfully');
+}
+
 async function insertThaiQuestions() {
   console.log('📝 Inserting 28 Thai survey questions...\n');
   
@@ -398,12 +426,10 @@ async function main() {
     // Clean old data
     await cleanOldData();
     
-    console.log('\n⏳ Ensuring tables are created...\n');
+    console.log('\n⏳ Recreating tables...\n');
     
-    // Trigger table creation using the model's ensureTable method
-    await ProductSurvey.ProductSurveyQuestion.ensureTable();
-    await ProductSurvey.ProductSurveyResponse.ensureTable();
-    await ProductSurvey.ProductSurveyAnswer.ensureTable();
+    // Recreate tables from the canonical SQL migration file
+    await recreateTables();
     
     console.log('✅ All tables are ready!\n');
     

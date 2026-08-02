@@ -1,5 +1,4 @@
 const { executeQuery, getConnection } = require('../config/database');
-const { ensureModelTable } = require('../utils/databaseEnsure');
 const { v4: uuidv4 } = require('uuid');
 
 /**
@@ -60,20 +59,10 @@ class ProductSurveyQuestion {
   }
 
   /**
-   * Ensure table exists before any operations
-   */
-  static async ensureTable() {
-    return await ensureModelTable(ProductSurveyQuestion.getSchema());
-  }
-
-  /**
    * Get all active survey questions
    * @returns {Promise<Array<ProductSurveyQuestion>>}
    */
   static async findAllActive() {
-    // Ensure table exists
-    await ProductSurveyQuestion.ensureTable();
-    
     const query = `
       SELECT 
         id, question_id, question_text, scoring_criteria, weight, is_active,
@@ -94,9 +83,6 @@ class ProductSurveyQuestion {
    * @returns {Promise<ProductSurveyQuestion|null>}
    */
   static async findById(id) {
-    // Ensure table exists
-    await ProductSurveyQuestion.ensureTable();
-    
     const query = `
       SELECT id, question_text, weight, is_active, created_at, updated_at
       FROM products_survey_question
@@ -117,9 +103,6 @@ class ProductSurveyQuestion {
       return [];
     }
 
-    // Ensure table exists
-    await ProductSurveyQuestion.ensureTable();
-
     const placeholders = ids.map(() => '?').join(',');
     const query = `
       SELECT id, question_id, question_text, scoring_criteria, weight, is_active,
@@ -139,9 +122,6 @@ class ProductSurveyQuestion {
    * @returns {Promise<ProductSurveyQuestion>}
    */
   static async create(questionData) {
-    // Ensure table exists
-    await ProductSurveyQuestion.ensureTable();
-    
     const id = uuidv4();
     const { question_text, weight = 1.0, is_active = true } = questionData;
     
@@ -162,9 +142,6 @@ class ProductSurveyQuestion {
    * @returns {Promise<ProductSurveyQuestion|null>}
    */
   static async updateById(id, updateData) {
-    // Ensure table exists
-    await ProductSurveyQuestion.ensureTable();
-    
     const { question_text, weight, is_active } = updateData;
     
     const updates = [];
@@ -206,9 +183,6 @@ class ProductSurveyQuestion {
    * @returns {Promise<boolean>}
    */
   static async deleteById(id) {
-    // Ensure table exists
-    await ProductSurveyQuestion.ensureTable();
-    
     const query = `
       UPDATE products_survey_question
       SET is_active = false, updated_at = NOW()
@@ -292,21 +266,11 @@ class ProductSurveyResponse {
   }
 
   /**
-   * Ensure table exists before any operations
-   */
-  static async ensureTable() {
-    return await ensureModelTable(ProductSurveyResponse.getSchema());
-  }
-
-  /**
    * Find response by ID
    * @param {string} id
    * @returns {Promise<ProductSurveyResponse|null>}
    */
   static async findById(id) {
-    // Ensure table exists
-    await ProductSurveyResponse.ensureTable();
-    
     const query = `
       SELECT id, product_id, status, alignment_level, overall_score,
              ai_comment, ai_raw_result, criteria_breakdown,
@@ -325,9 +289,6 @@ class ProductSurveyResponse {
    * @returns {Promise<Array<ProductSurveyResponse>>}
    */
   static async findByProductId(productId) {
-    // Ensure table exists
-    await ProductSurveyResponse.ensureTable();
-    
     const query = `
       SELECT id, product_id, status, alignment_level, overall_score,
              ai_comment, ai_raw_result, criteria_breakdown,
@@ -347,9 +308,6 @@ class ProductSurveyResponse {
    * @returns {Promise<number>}
    */
   static async getLatestTrialCount(productId) {
-    // Ensure table exists
-    await ProductSurveyResponse.ensureTable();
-    
     const query = `
       SELECT MAX(trial_count) as max_trial
       FROM products_survey_response
@@ -366,9 +324,6 @@ class ProductSurveyResponse {
    * @returns {Promise<ProductSurveyResponse>}
    */
   static async create(responseData) {
-    // Ensure table exists
-    await ProductSurveyResponse.ensureTable();
-    
     const id = uuidv4();
     const { 
       product_id, 
@@ -403,9 +358,6 @@ class ProductSurveyResponse {
    * @returns {Promise<ProductSurveyResponse|null>}
    */
   static async updateById(id, updateData) {
-    // Ensure table exists
-    await ProductSurveyResponse.ensureTable();
-    
     const { 
       status, 
       alignment_level, 
@@ -472,9 +424,6 @@ class ProductSurveyResponse {
    * @returns {Promise<Array<ProductSurveyResponse>>}
    */
   static async findByStatus(status) {
-    // Ensure table exists
-    await ProductSurveyResponse.ensureTable();
-    
     const query = `
       SELECT id, product_id, status, ai_comment, ai_raw_result, 
              trial_count, created_at, updated_at
@@ -547,21 +496,11 @@ class ProductSurveyAnswer {
   }
 
   /**
-   * Ensure table exists before any operations
-   */
-  static async ensureTable() {
-    return await ensureModelTable(ProductSurveyAnswer.getSchema());
-  }
-
-  /**
    * Find answer by ID
    * @param {string} id
    * @returns {Promise<ProductSurveyAnswer|null>}
    */
   static async findById(id) {
-    // Ensure table exists
-    await ProductSurveyAnswer.ensureTable();
-    
     const query = `
       SELECT id, survey_response_id, question_id, score, comment, 
              created_at, updated_at
@@ -579,9 +518,6 @@ class ProductSurveyAnswer {
    * @returns {Promise<Array<ProductSurveyAnswer>>}
    */
   static async findBySurveyResponseId(surveyResponseId) {
-    // Ensure table exists
-    await ProductSurveyAnswer.ensureTable();
-    
     const query = `
       SELECT 
         psa.id, psa.survey_response_id, psa.question_id, psa.score, 
@@ -603,9 +539,6 @@ class ProductSurveyAnswer {
    * @returns {Promise<ProductSurveyAnswer>}
    */
   static async create(answerData) {
-    // Ensure table exists
-    await ProductSurveyAnswer.ensureTable();
-    
     const id = uuidv4();
     const { 
       survey_response_id, 
@@ -637,9 +570,6 @@ class ProductSurveyAnswer {
     if (!answersData || answersData.length === 0) {
       return [];
     }
-
-    // Ensure table exists
-    await ProductSurveyAnswer.ensureTable();
 
     const connection = await getConnection();
     
@@ -696,9 +626,6 @@ class ProductSurveyAnswer {
    * @returns {Promise<ProductSurveyAnswer|null>}
    */
   static async updateById(id, updateData) {
-    // Ensure table exists
-    await ProductSurveyAnswer.ensureTable();
-    
     const { score, comment } = updateData;
     
     const updates = [];

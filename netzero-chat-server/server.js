@@ -17,13 +17,6 @@ const {
 const chatRoutes = require('./src/routes/chatRoutes');
 const productSurveyRoutes = require('./src/routes/productSurveyRoutes');
 
-// Import models for auto-migration
-const { 
-  ProductSurveyQuestion,
-  ProductSurveyResponse,
-  ProductSurveyAnswer 
-} = require('./src/models/ProductSurvey');
-
 // Initialize Express app
 const app = express();
 const PORT = process.env.CHAT_PORT || 3004;
@@ -223,22 +216,6 @@ const server = app.listen(PORT, '0.0.0.0', async () => {
   
   if (isConnected) {
     console.log('✅ Chat Server - Database connected successfully');
-    
-    // Auto-migrate database tables
-    console.log('🔄 Ensuring database tables exist...');
-    try {
-      await ProductSurveyQuestion.ensureTable();
-      console.log('✅ Product Survey Question table ready');
-      
-      await ProductSurveyResponse.ensureTable();
-      console.log('✅ Product Survey Response table ready');
-      
-      await ProductSurveyAnswer.ensureTable();
-      console.log('✅ Product Survey Answer table ready');
-    } catch (error) {
-      console.error('❌ Error ensuring tables:', error);
-      console.log('⚠️  Chat server started but some tables may be missing');
-    }
   } else {
     console.log('❌ Database connection failed');
     console.log('⚠️  Chat server started but database is not available');
