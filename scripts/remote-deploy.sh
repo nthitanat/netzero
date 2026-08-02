@@ -157,9 +157,11 @@ DEPLOY_PATH=/www/netzero-deploy
 deploy_app() {
     echo "📂 Preparing repository on remote host..."
 
-    # Create /www directory if needed
+    # Create only the project deployment directory. Do not chown all of /www:
+    # /www/server/data contains MySQL data files that must remain owned by mysql.
     echo "$REMOTE_SUDO_PASS" | sudo -S mkdir -p /www
-    echo "$REMOTE_SUDO_PASS" | sudo -S chown -R $USER:$USER /www || true
+    echo "$REMOTE_SUDO_PASS" | sudo -S mkdir -p "$DEPLOY_PATH"
+    echo "$REMOTE_SUDO_PASS" | sudo -S chown -R $USER:$USER "$DEPLOY_PATH" || true
 
     if [ ! -d "$DEPLOY_PATH/.git" ]; then
         echo "Cloning repository into $DEPLOY_PATH..."
@@ -367,14 +369,14 @@ sleep 5
 
 # Check if services are responding
 echo -e "${YELLOW}Testing API endpoint...${NC}"
-if curl -f -s "http://$REMOTE_HOST:3001/api/v1/health" > /dev/null 2>&1; then
+if curl -f -s "http://$REMOTE_HOST:3001/health" > /dev/null 2>&1; then
     echo -e "${GREEN}✅ API Server is responding${NC}"
 else
     echo -e "${YELLOW}⚠️  API Server health check failed (may still be starting up)${NC}"
 fi
 
 echo -e "${YELLOW}Testing Chat Server endpoint...${NC}"
-if curl -f -s "http://$REMOTE_HOST:3004/api/v1/health" > /dev/null 2>&1; then
+if curl -f -s "http://$REMOTE_HOST:3004/health" > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Chat Server is responding${NC}"
 else
     echo -e "${YELLOW}⚠️  Chat Server health check failed (may still be starting up)${NC}"
