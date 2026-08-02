@@ -412,6 +412,10 @@ $page-palette: $palette-orange;
 .heroStory {
   position: relative;
   z-index: 1;
+
+  @media (max-width: $breakpoint-md) {
+    text-align: center;
+  }
 }
 
 .storyLead {
