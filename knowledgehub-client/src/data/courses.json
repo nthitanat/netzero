@@ -1,5 +1,35 @@
 [
   {
+    "id": "course-002",
+    "format": "mini",
+    "communityId": null,
+    "title": {
+      "th": "การขนส่งและโลจิสติกส์เพื่อการประกอบการเพื่อสังคม",
+      "en": "Transportation and Logistics for Social Enterprises"
+    },
+    "description": {
+      "th": "หน่วยการเรียนรู้เพื่อความเข้าใจในระบบ Supply Chain และการจัดการโลจิสติกส์ที่มีประสิทธิภาพเพื่อสร้างผลกระทบเชิงบวกทางสังคม",
+      "en": "A learning unit to build understanding of supply chain systems and efficient logistics management for creating positive social impact."
+    },
+    "video": {
+      "url": "https://www.youtube.com/watch?v=TTDop4Fzrf8",
+      "duration": "57 min"
+    },
+    "level": "beginner",
+    "language": [
+      "th",
+      "en"
+    ],
+    "price": {
+      "amount": 0,
+      "currency": "THB"
+    },
+    "certificate": false,
+    "featured": true,
+    "rating": null,
+    "studentsEnrolled": 0
+  },
+  {
     "id": "course-001",
     "communityId": "dot-dot-cafe-community",
     "title": {
@@ -274,7 +304,7 @@
     "certificate": false,
     "maxStudents": 50,
     "thumbnail": "images/courses/dot-cafe/cover-dot-workshop.jpg",
-    "featured": true,
+    "featured": false,
     "rating": 5,
     "studentsEnrolled": 0
   }

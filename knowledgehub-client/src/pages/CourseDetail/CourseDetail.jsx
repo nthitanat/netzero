@@ -5,6 +5,7 @@ import { getCourseById } from '../../api/dataService';
 import Loading from '../../components/common/Loading/Loading';
 import CurriculumAccordion from '../../components/course/CurriculumAccordion/CurriculumAccordion';
 import EnrollmentCard from '../../components/course/EnrollmentCard/EnrollmentCard';
+import { getYouTubeEmbedUrl } from '../../utils/youtube';
 import styles from './CourseDetail.module.scss';
 
 const CourseDetail = () => {
@@ -45,6 +46,58 @@ const CourseDetail = () => {
     return (
       <div className={styles.notFound}>
         <h1>{language === 'th' ? 'ไม่พบหลักสูตร' : 'Course Not Found'}</h1>
+      </div>
+    );
+  }
+
+  if (course.format === 'mini') {
+    return (
+      <div className={styles.courseDetail}>
+        <section className={styles.header}>
+          <div className={styles.headerContent}>
+            <div className={styles.breadcrumb}>
+              <span>{language === 'th' ? 'หลักสูตร' : 'Courses'}</span>
+              <span className="material-symbols-outlined">chevron_right</span>
+              <span>{t(course.title)}</span>
+            </div>
+            <h1 className={styles.courseTitle}>{t(course.title)}</h1>
+            <p className={styles.courseDescription}>{t(course.description)}</p>
+
+            <div className={styles.courseMeta}>
+              <span>
+                <span className="material-symbols-outlined">schedule</span>
+                {course.video?.duration}
+              </span>
+              <span>
+                <span className="material-symbols-outlined">translate</span>
+                {course.language?.map(lang => lang.toUpperCase()).join(', ')}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <div className={styles.container}>
+          <div className={styles.miniContent}>
+            <div className={styles.miniVideoWrap}>
+              <iframe
+                className={styles.miniVideo}
+                src={getYouTubeEmbedUrl(course.video?.url)}
+                title={t(course.title)}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>
+                {language === 'th' ? 'เกี่ยวกับบทเรียนนี้' : 'About This Lesson'}
+              </h2>
+              <div className={styles.fullDescription}>
+                <p>{t(course.description)}</p>
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     );
   }

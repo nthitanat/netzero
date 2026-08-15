@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getAllCourses } from '../../api/dataService';
 import Loading from '../../components/common/Loading/Loading';
 import CollapsibleCatalog from '../../components/common/CollapsibleCatalog/CollapsibleCatalog';
+import { getYouTubeThumbnail } from '../../utils/youtube';
 import styles from './Courses.module.scss';
 
 export default function Courses() {
@@ -49,6 +50,13 @@ export default function Courses() {
     return t(map[level] || { th: level, en: level });
   };
 
+  const thumbnailFor = (course, fallback) => {
+    if (course.format === 'mini') {
+      return getYouTubeThumbnail(course.video?.url) || fallback;
+    }
+    return (course.thumbnail && !course.thumbnail.startsWith('/')) ? course.thumbnail : fallback;
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -77,7 +85,7 @@ export default function Courses() {
                 >
                   <div className={styles.CardImageWrap}>
                     <img
-                      src={(course.thumbnail && !course.thumbnail.startsWith('/')) ? course.thumbnail : 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400'}
+                      src={thumbnailFor(course, 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400')}
                       alt={t(course.title)}
                       className={styles.CardImage}
                     />
@@ -88,11 +96,18 @@ export default function Courses() {
                     )}
                   </div>
                   <div className={styles.CardInfo}>
-                    <p className={styles.CardName}>{t(course.title)}</p>
+                    <p className={styles.CardName}>
+                      {course.format === 'mini' && (
+                        <span className={styles.MiniTag}>{language === 'th' ? 'มินิ' : 'Mini'}</span>
+                      )}
+                      {t(course.title)}
+                    </p>
                     <div className={styles.CardMeta}>
                       <span className={styles.CardDuration}>
                         <span className="material-symbols-outlined">schedule</span>
-                        {course.duration?.hours || '—'} {language === 'th' ? 'ชม.' : 'hrs'}
+                        {course.format === 'mini'
+                          ? (course.video?.duration || '—')
+                          : `${course.duration?.hours || '—'} ${language === 'th' ? 'ชม.' : 'hrs'}`}
                       </span>
                       <span className={styles.CardLevel}>{levelLabel(course.level)}</span>
                     </div>
@@ -119,14 +134,18 @@ export default function Courses() {
             {/* Hero */}
             <div className={styles.FeaturedHero}>
               <img
-                src={(activeCourse.thumbnail && !activeCourse.thumbnail.startsWith('/')) ? activeCourse.thumbnail : 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800'}
+                src={thumbnailFor(activeCourse, 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800')}
                 alt={t(activeCourse.title)}
                 className={styles.FeaturedImage}
               />
               <div className={styles.FeaturedOverlay}>
                 <span className={styles.FeaturedTag}>
-                  <span className="material-symbols-outlined">local_library</span>
-                  {language === 'th' ? 'คอร์สแนะนำ' : 'Featured Course'}
+                  <span className="material-symbols-outlined">
+                    {activeCourse.format === 'mini' ? 'play_circle' : 'local_library'}
+                  </span>
+                  {activeCourse.format === 'mini'
+                    ? (language === 'th' ? 'บทเรียนสั้น' : 'Mini Lesson')
+                    : (language === 'th' ? 'คอร์สแนะนำ' : 'Featured Course')}
                 </span>
               </div>
             </div>
@@ -140,12 +159,16 @@ export default function Courses() {
               <div className={styles.StatsRow}>
                 <div className={styles.StatItem}>
                   <span className="material-symbols-outlined">schedule</span>
-                  <span>{activeCourse.duration?.hours} {language === 'th' ? 'ชั่วโมง' : 'hours'}</span>
+                  {activeCourse.format === 'mini'
+                    ? <span>{activeCourse.video?.duration}</span>
+                    : <span>{activeCourse.duration?.hours} {language === 'th' ? 'ชั่วโมง' : 'hours'}</span>}
                 </div>
-                <div className={styles.StatItem}>
-                  <span className="material-symbols-outlined">group</span>
-                  <span>{activeCourse.studentsEnrolled?.toLocaleString()} {language === 'th' ? 'ผู้เรียน' : 'students'}</span>
-                </div>
+                {activeCourse.format !== 'mini' && (
+                  <div className={styles.StatItem}>
+                    <span className="material-symbols-outlined">group</span>
+                    <span>{activeCourse.studentsEnrolled?.toLocaleString()} {language === 'th' ? 'ผู้เรียน' : 'students'}</span>
+                  </div>
+                )}
                 <div className={styles.StatItem}>
                   <span className="material-symbols-outlined">signal_cellular_alt</span>
                   <span>{levelLabel(activeCourse.level)}</span>
@@ -186,7 +209,9 @@ export default function Courses() {
                 </div>
                 <Link to={`/courses/${activeCourse.id}`} className={styles.CtaButton}>
                   <span className="material-symbols-outlined">play_circle</span>
-                  {language === 'th' ? 'ดูรายละเอียด' : 'View Course'}
+                  {activeCourse.format === 'mini'
+                    ? (language === 'th' ? 'ดูวิดีโอ' : 'Watch Video')
+                    : (language === 'th' ? 'ดูรายละเอียด' : 'View Course')}
                 </Link>
               </div>
             </div>

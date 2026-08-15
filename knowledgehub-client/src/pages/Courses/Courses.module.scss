@@ -161,6 +161,18 @@ $page-palette: $palette-cu-pink;
   overflow: hidden;
 }
 
+.MiniTag {
+  @include label-medium;
+  display: inline-block;
+  color: p1($page-palette);
+  background: rgba(p1($page-palette), 0.12);
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-weight: 700;
+  margin-right: $spacing-xs;
+  vertical-align: middle;
+}
+
 .CardMeta {
   display: flex;
   align-items: center;
