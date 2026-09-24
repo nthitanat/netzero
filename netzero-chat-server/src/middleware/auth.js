@@ -1,130 +1,57 @@
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
+const config = require('../config/env');
 
-// JWT configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+function readBearerToken(req) {
+  const [scheme, token] = (req.headers.authorization || '').split(' ');
+  return scheme === 'Bearer' && token ? token : null;
+}
 
-// Authentication middleware - verifies JWT token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
+function authenticateToken(req, res, next) {
+  const token = readBearerToken(req);
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Access token required',
-      timestamp: new Date().toISOString()
-    });
+    return res.status(401).json({ success: false, message: 'Access token required', timestamp: new Date().toISOString() });
   }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid or expired token',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    req.user = user;
-    next();
-  });
-};
-
-// Authorization middleware - checks user roles
-const authorizeRoles = (...allowedRoles) => {
-  return (req, res, next) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Access denied. User not authenticated'
-        });
-      }
-
-      if (!allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. Insufficient privileges'
-        });
-      }
-
-      next();
-
-    } catch (error) {
-      console.error('Chat Server - Authorization error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during authorization'
-      });
-    }
-  };
-};
-
-// Optional authentication middleware - doesn't require token
-const optionalAuth = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    const payload = jwt.verify(token, config.jwt.secret);
+    req.user = { ...payload, userId: payload.userId ?? payload.id };
+    next();
+  } catch {
+    return res.status(403).json({ success: false, message: 'Invalid or expired token', timestamp: new Date().toISOString() });
+  }
+}
 
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        
-        if (decoded) {
-          req.user = {
-            userId: decoded.userId,
-            email: decoded.email,
-            role: decoded.role
-          };
-        }
-      } catch (error) {
-        // Token is invalid or expired, but we continue without authentication
-        console.log('Chat Server - Optional auth - invalid token:', error.message);
-      }
+function authorizeRoles(...allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Access denied. User not authenticated', timestamp: new Date().toISOString() });
     }
-
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Insufficient privileges', timestamp: new Date().toISOString() });
+    }
     next();
+  };
+}
 
-  } catch (error) {
-    console.error('Chat Server - Optional authentication error:', error);
-    // Continue without authentication on error
-    next();
+function optionalAuth(req, res, next) {
+  const token = readBearerToken(req);
+  if (token) {
+    try {
+      const payload = jwt.verify(token, config.jwt.secret);
+      req.user = { ...payload, userId: payload.userId ?? payload.id };
+    } catch {
+      // Optional authentication allows anonymous requests.
+    }
   }
-};
-
-// Rate limiting middleware for chat endpoints
-const chatRateLimit = (req, res, next) => {
-  // Basic rate limiting for chat endpoints
-  // In production, use express-rate-limit with Redis
-  
-  const key = `chat_requests_${req.ip}`;
-  const requests = req.session ? req.session[key] || 0 : 0;
-  const maxRequests = 100; // 100 requests per window
-  const windowMs = 60 * 1000; // 1 minute
-
-  if (requests >= maxRequests) {
-    return res.status(429).json({
-      success: false,
-      message: 'Too many chat requests. Please try again later'
-    });
-  }
-
-  // Store request count (simplified - use Redis in production)
-  if (req.session) {
-    req.session[key] = requests + 1;
-    setTimeout(() => {
-      if (req.session && req.session[key]) {
-        delete req.session[key];
-      }
-    }, windowMs);
-  }
-
   next();
-};
+}
 
-module.exports = {
-  authenticateToken,
-  authorizeRoles,
-  optionalAuth,
-  chatRateLimit
-};
+const chatRateLimit = rateLimit({
+  windowMs: config.welcomeChat.rateLimitWindowMs,
+  max: config.welcomeChat.rateLimitMax,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many chat requests. Please try again later' }
+});
+
+module.exports = { authenticateToken, authorizeRoles, optionalAuth, chatRateLimit };

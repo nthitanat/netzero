@@ -1,312 +1,106 @@
 const { pool } = require('../config/database');
 
-class ChatApp {
-  // Database schema definition
-  static getSchema() {
-    return {
-      tableName: 'chatApps',
-      columns: {
-        id: 'VARCHAR(255) PRIMARY KEY',
-        owner_id: 'INT NOT NULL',
-        product_id: 'INT NULL',
-        title: 'VARCHAR(255) NOT NULL',
-        description: 'TEXT NULL',
-        status: "ENUM('active', 'closed', 'archived') DEFAULT 'active'",
-        isActive: 'BOOLEAN DEFAULT TRUE',
-        createdAt: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-        updatedAt: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
-      },
-      foreignKeys: [
-        'FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE',
-        'FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL'
-      ],
-      indexes: [
-        'INDEX idx_chatApps_owner_id (owner_id)',
-        'INDEX idx_chatApps_product_id (product_id)',
-        'INDEX idx_chatApps_status (status)',
-        'INDEX idx_chatApps_isActive (isActive)',
-        'INDEX idx_chatApps_createdAt (createdAt)'
-      ]
-    };
-  }
+const CHAT_APP_COLUMNS = `
+  id, owner_id, product_id, title, description, status,
+  isActive, createdAt, updatedAt
+`;
+const UPDATE_COLUMNS = Object.freeze({
+  title: 'title',
+  description: 'description',
+  status: 'status'
+});
 
-  constructor(data = {}) {
-    this.id = data.id || null;
-    this.owner_id = data.owner_id || null;
-    this.product_id = data.product_id || null;
-    this.title = data.title || '';
-    this.description = data.description || '';
-    this.status = data.status || 'active';
-    this.isActive = data.isActive !== undefined ? data.isActive : true;
-    this.createdAt = data.createdAt || null;
-    this.updatedAt = data.updatedAt || null;
-  }
-
-  // Get all chat applications
-  static async getAll(filters = {}) {
-    try {
-      // Simplified query without JOINs
-      let query = `
-        SELECT 
-          c.id,
-          c.owner_id,
-          c.product_id,
-          c.title,
-          c.description,
-          c.status,
-          c.isActive,
-          c.createdAt,
-          c.updatedAt
-        FROM chatApps c
-        WHERE c.isActive = ?
-      `;
-
-      const params = [1];
-
-      // Add filters with proper type conversion
-      if (filters.owner_id && filters.owner_id !== 'undefined' && filters.owner_id !== '') {
-        query += ' AND c.owner_id = ?';
-        params.push(parseInt(filters.owner_id));
-      }
-
-      if (filters.product_id && filters.product_id !== 'undefined' && filters.product_id !== '') {
-        query += ' AND c.product_id = ?';
-        params.push(parseInt(filters.product_id));
-      }
-
-      if (filters.status && filters.status !== 'undefined' && filters.status !== '' && filters.status !== 'all') {
-        query += ' AND c.status = ?';
-        params.push(filters.status);
-      }
-
-      query += ' ORDER BY c.createdAt DESC';
-
-      // Always add a limit (default to 50 if not specified) - use string interpolation instead of parameter
-      let limitValue = 50;
-      if (filters.limit && filters.limit !== 'undefined' && filters.limit !== '' && parseInt(filters.limit) > 0) {
-        limitValue = parseInt(filters.limit);
-      }
-      query += ` LIMIT ${limitValue}`;
-
-      const [rows] = await pool.execute(query, params);
-      console.log('Debug - Raw rows returned:', rows);
-      console.log('Debug - Number of rows:', rows.length);
-      
-      const mappedResults = rows.map(row => new ChatApp(row));
-      console.log('Debug - Mapped results:', mappedResults);
-      return mappedResults;
-    } catch (error) {
-      throw new Error(`Error getting chat applications: ${error.message}`);
-    }
-  }
-
-  // Get chat application by ID
-  static async getById(id) {
-    try {
-      const query = `
-        SELECT 
-          c.id,
-          c.owner_id,
-          c.product_id,
-          c.title,
-          c.description,
-          c.status,
-          c.isActive,
-          c.createdAt,
-          c.updatedAt,
-          u.firstName AS ownerFirstName,
-          u.lastName AS ownerLastName,
-          u.email AS ownerEmail,
-          p.title AS productName,
-          p.type AS productType,
-          p.price AS productPrice
-        FROM chatApps c
-        JOIN users u ON c.owner_id = u.id
-        JOIN products p ON c.product_id = p.id
-        WHERE c.id = ? AND c.isActive = TRUE
-      `;
-    
-      const [rows] = await pool.execute(query, [id]);
-      console.log('rows', rows);
-      return rows.length > 0 ? new ChatApp(rows[0]) : null;
-    } catch (error) {
-      throw new Error(`Error getting chat application by ID: ${error.message}`);
-    }
-  }
-
-  // Get chat applications by user ID
-  static async getByUserId(userId) {
-    try {
-      const query = `
-        SELECT 
-          c.id,
-          c.owner_id,
-          c.product_id,
-          c.title,
-          c.description,
-          c.status,
-          c.isActive,
-          c.createdAt,
-          c.updatedAt,
-          u.firstName AS ownerFirstName,
-          u.lastName AS ownerLastName,
-          u.email AS ownerEmail,
-          p.title AS productName,
-          p.type AS productType,
-          p.price AS productPrice
-        FROM chatApps c
-        JOIN users u ON c.owner_id = u.id
-        JOIN products p ON c.product_id = p.id
-        WHERE c.owner_id = ? AND c.isActive = TRUE
-        ORDER BY c.createdAt DESC
-      `;
-
-      const [rows] = await pool.execute(query, [userId]);
-      return rows.map(row => new ChatApp(row));
-    } catch (error) {
-      throw new Error(`Error getting chat applications by user ID: ${error.message}`);
-    }
-  }
-
-  // Create new chat application
-  async create() {
-    try {
-      const query = `
-        INSERT INTO chatApps (
-          id, owner_id, product_id, title, description, status, isActive
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      `;
-
-      // Generate UUID for chat ID
-      const chatId = `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-      const [result] = await pool.execute(query, [
-        chatId,
-        this.owner_id,
-        this.product_id,
-        this.title,
-        this.description,
-        this.status,
-        this.isActive
-      ]);
-
-      if (result.affectedRows > 0) {
-        this.id = chatId;
-        return await ChatApp.getById(chatId);
-      }
-
-      throw new Error('Failed to create chat application');
-    } catch (error) {
-      throw new Error(`Error creating chat application: ${error.message}`);
-    }
-  }
-
-  // Update chat application
-  async update(updateData) {
-    try {
-      const allowedFields = ['title', 'description', 'status'];
-      const updateFields = [];
-      const params = [];
-
-      allowedFields.forEach(field => {
-        if (updateData[field] !== undefined) {
-          updateFields.push(`${field} = ?`);
-          params.push(updateData[field]);
-        }
-      });
-
-      if (updateFields.length === 0) {
-        throw new Error('No valid fields to update');
-      }
-
-      // Add updatedAt
-      updateFields.push('updatedAt = CURRENT_TIMESTAMP');
-      params.push(this.id);
-
-      const query = `
-        UPDATE chatApps 
-        SET ${updateFields.join(', ')}
-        WHERE id = ? AND isActive = TRUE
-      `;
-
-      const [result] = await pool.execute(query, params);
-
-      if (result.affectedRows > 0) {
-        // Update instance properties
-        Object.assign(this, updateData);
-        return await ChatApp.getById(this.id);
-      }
-
-      throw new Error('Chat application not found or no changes made');
-    } catch (error) {
-      throw new Error(`Error updating chat application: ${error.message}`);
-    }
-  }
-
-  // Soft delete chat application
-  async delete() {
-    try {
-      const query = `
-        UPDATE chatApps 
-        SET isActive = FALSE, updatedAt = CURRENT_TIMESTAMP
-        WHERE id = ? AND isActive = TRUE
-      `;
-
-      const [result] = await pool.execute(query, [this.id]);
-
-      if (result.affectedRows > 0) {
-        this.isActive = false;
-        return true;
-      }
-
-      throw new Error('Chat application not found');
-    } catch (error) {
-      throw new Error(`Error deleting chat application: ${error.message}`);
-    }
-  }
-
-  // Check if user owns the chat application
-  static async isOwner(chatId, userId) {
-    try {
-      const query = `
-        SELECT owner_id 
-        FROM chatApps 
-        WHERE id = ? AND isActive = TRUE
-      `;
-
-      const [rows] = await pool.execute(query, [chatId]);
-      return rows.length > 0 && rows[0].owner_id === userId;
-    } catch (error) {
-      throw new Error(`Error checking chat ownership: ${error.message}`);
-    }
-  }
-
-  // Get chat statistics
-  static async getStatistics(userId = null) {
-    try {
-      let query = `
-        SELECT 
-          COUNT(*) as totalChats,
-          SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as activeChats,
-          SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closedChats,
-          SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) as archivedChats
-        FROM chatApps
-        WHERE isActive = TRUE
-      `;
-
-      const params = [];
-
-      if (userId) {
-        query += ' AND owner_id = ?';
-        params.push(userId);
-      }
-
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
-    } catch (error) {
-      throw new Error(`Error getting chat statistics: ${error.message}`);
-    }
-  }
+function mapChatApp(row) {
+  return {
+    chatId: row.id,
+    ownerId: row.owner_id,
+    productId: row.product_id,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    isActive: Boolean(row.isActive),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt
+  };
 }
 
-module.exports = ChatApp;
+async function findAll(filters = {}, { tx } = {}) {
+  const database = tx || pool;
+  let query = `SELECT ${CHAT_APP_COLUMNS} FROM chatApps WHERE isActive = TRUE`;
+  const values = [];
+  const columns = { ownerId: 'owner_id', productId: 'product_id', status: 'status' };
+  for (const [name, column] of Object.entries(columns)) {
+    if (filters[name] === undefined) continue;
+    query += ` AND ${column} = ?`;
+    values.push(filters[name]);
+  }
+  query += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
+  values.push(String(filters.limit), String(filters.offset));
+  const [rows] = await database.execute(query, values);
+  return rows.map(mapChatApp);
+}
+
+async function findById(chatId, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(
+    `SELECT ${CHAT_APP_COLUMNS} FROM chatApps WHERE id = ? AND isActive = TRUE`,
+    [chatId]
+  );
+  return rows[0] ? mapChatApp(rows[0]) : null;
+}
+
+async function insert(chatApp, { tx } = {}) {
+  const database = tx || pool;
+  const [result] = await database.execute(`
+    INSERT INTO chatApps (id, owner_id, product_id, title, description, status, isActive)
+    VALUES (?, ?, ?, ?, ?, ?, TRUE)
+  `, [
+    chatApp.chatId, chatApp.ownerId, chatApp.productId,
+    chatApp.title, chatApp.description ?? null, chatApp.status
+  ]);
+  return result.affectedRows > 0;
+}
+
+async function updateById({ chatId, ownerId, updates }, { tx } = {}) {
+  const database = tx || pool;
+  const fields = Object.entries(updates).filter(([name]) => UPDATE_COLUMNS[name]);
+  if (fields.length === 0) return false;
+  const assignments = fields.map(([name]) => `${UPDATE_COLUMNS[name]} = ?`).join(', ');
+  const values = fields.map(([, value]) => value);
+  const [result] = await database.execute(`
+    UPDATE chatApps SET ${assignments}, updatedAt = CURRENT_TIMESTAMP
+    WHERE id = ? AND owner_id = ? AND isActive = TRUE
+  `, [...values, chatId, ownerId]);
+  return result.affectedRows > 0;
+}
+
+async function deactivateById({ chatId, ownerId }, { tx } = {}) {
+  const database = tx || pool;
+  const [result] = await database.execute(`
+    UPDATE chatApps SET isActive = FALSE, updatedAt = CURRENT_TIMESTAMP
+    WHERE id = ? AND owner_id = ? AND isActive = TRUE
+  `, [chatId, ownerId]);
+  return result.affectedRows > 0;
+}
+
+async function getStatistics(ownerId, { tx } = {}) {
+  const database = tx || pool;
+  const values = ownerId === null ? [] : [ownerId];
+  const scope = ownerId === null ? '' : ' AND owner_id = ?';
+  const [rows] = await database.execute(`
+    SELECT COUNT(*) AS totalChats,
+      SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS activeChats,
+      SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) AS closedChats,
+      SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) AS archivedChats
+    FROM chatApps WHERE isActive = TRUE${scope}
+  `, values);
+  const row = rows[0];
+  return {
+    totalChats: row.totalChats,
+    activeChats: row.activeChats,
+    closedChats: row.closedChats,
+    archivedChats: row.archivedChats
+  };
+}
+
+module.exports = { findAll, findById, insert, updateById, deactivateById, getStatistics };

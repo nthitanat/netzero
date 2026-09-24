@@ -1,248 +1,108 @@
 const AiProductSurveyService = require('../services/AiProductSurveyService');
-const { ProductSurveyQuestion } = require('../models/ProductSurvey');
-const { validationResult } = require('express-validator');
+const { sendSuccess } = require('../middleware/response');
 
-/**
- * Product Survey Controller
- * Handles HTTP requests for product survey evaluation
- */
-class ProductSurveyController {
-  /**
-   * POST /api/v1/products/:productId/surveys
-   * Submit product survey for AI evaluation
-   */
-  static async submitSurvey(req, res) {
-    try {
-      // Validate request
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation error',
-          errors: errors.array()
-        });
-      }
-
-      const { productId } = req.params;
-      const { answers } = req.body;
-
-      console.log(`📝 Product Survey Submission - Product: ${productId}`);
-      console.log(`   Answers: ${answers.length} responses`);
-
-      // Call service to evaluate survey
-      const result = await AiProductSurveyService.evaluateProductSurvey({
-        productId,
-        answers
-      });
-
-      // Return success response
-      res.status(201).json({
-        success: true,
-        message: 'Survey evaluated successfully',
-        data: {
-          surveyResponseId: result.surveyResponseId,
-          productId: result.productId,
-          status: result.status,
-          alignmentLevel: result.alignmentLevel,
-          overallScore: result.overallScore,
-          aiComment: result.aiComment,
-          criteriaBreakdown: result.criteriaBreakdown,
-          aiRawResult: result.aiRawResult
-        },
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('❌ Error submitting survey:', error);
-
-      // Handle specific error types
-      if (error.message.includes('not found')) {
-        return res.status(404).json({
-          success: false,
-          message: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (error.message.includes('Duplicate') || 
-          error.message.includes('Inactive') || 
-          error.message.includes('Validation')) {
-        return res.status(400).json({
-          success: false,
-          message: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (error.message.includes('AI') || 
-          error.message.includes('OpenAI') ||
-          error.message.includes('timeout')) {
-        return res.status(502).json({
-          success: false,
-          message: 'AI service temporarily unavailable',
-          details: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Generic error
-      res.status(500).json({
-        success: false,
-        message: 'Failed to evaluate survey',
-        details: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
-
-  /**
-   * GET /api/v1/products/:productId/surveys
-   * Get survey history for a product
-   */
-  static async getSurveyHistory(req, res) {
-    try {
-      const { productId } = req.params;
-
-      console.log(`📊 Get Survey History - Product: ${productId}`);
-
-      const history = await AiProductSurveyService.getProductSurveyHistory(productId);
-
-      res.status(200).json({
-        success: true,
-        message: 'Survey history retrieved successfully',
-        data: {
-          productId,
-          surveyCount: history.length,
-          surveys: history
-        },
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('❌ Error getting survey history:', error);
-
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve survey history',
-        details: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
-
-  /**
-   * GET /api/v1/products/surveys/:surveyResponseId
-   * Get a specific survey response with answers
-   */
-  static async getSurveyResponse(req, res) {
-    try {
-      const { surveyResponseId } = req.params;
-
-      console.log(`📄 Get Survey Response: ${surveyResponseId}`);
-
-      const surveyResponse = await AiProductSurveyService.getSurveyResponse(surveyResponseId);
-
-      res.status(200).json({
-        success: true,
-        message: 'Survey response retrieved successfully',
-        data: surveyResponse,
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('❌ Error getting survey response:', error);
-
-      if (error.message.includes('not found')) {
-        return res.status(404).json({
-          success: false,
-          message: error.message,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve survey response',
-        details: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
-
-  /**
-   * GET /api/v1/products/surveys/questions
-   * Get all active survey questions
-   */
-  static async getQuestions(req, res) {
-    try {
-      console.log('📋 Get Survey Questions');
-
-      const questions = await ProductSurveyQuestion.findAllActive();
-
-      res.status(200).json({
-        success: true,
-        message: 'Survey questions retrieved successfully',
-        data: {
-          questionCount: questions.length,
-          questions: questions.map(q => ({
-            id: q.id,
-            questionId: q.question_id,
-            questionText: q.question_text,
-            scoringCriteria: q.scoring_criteria,
-            weight: q.weight,
-            criterionCode: q.criterion_code,
-            criterionNameTh: q.criterion_name_th,
-            standardReference: q.standard_reference,
-            displayOrder: q.display_order
-          }))
-        },
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('❌ Error getting survey questions:', error);
-
-      res.status(500).json({
-        success: false,
-        message: 'Failed to retrieve survey questions',
-        details: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
-
-  /**
-   * GET /api/v1/products/surveys/health
-   * Health check for product survey service
-   */
-  static async healthCheck(req, res) {
-    try {
-      // Check if we can connect to database and OpenAI
-      const questions = await ProductSurveyQuestion.findAllActive();
-
-      res.status(200).json({
-        success: true,
-        message: 'Product Survey service is healthy',
-        data: {
-          service: 'product-survey',
-          database: 'connected',
-          questionsAvailable: questions.length,
-          aiService: 'configured'
-        },
-        timestamp: new Date().toISOString()
-      });
-
-    } catch (error) {
-      console.error('❌ Health check failed:', error);
-
-      res.status(503).json({
-        success: false,
-        message: 'Product Survey service is unhealthy',
-        details: error.message,
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
+function serializeQuestion(question) {
+  return {
+    id: question.id,
+    questionId: question.questionId,
+    questionText: question.questionText,
+    scoringCriteria: question.scoringCriteria,
+    weight: question.weight,
+    criterionCode: question.criterionCode,
+    criterionNameTh: question.criterionNameTh,
+    standardReference: question.standardReference,
+    displayOrder: question.displayOrder
+  };
 }
 
-module.exports = ProductSurveyController;
+function serializeAnswer(answer) {
+  return {
+    id: answer.answerId,
+    survey_response_id: answer.surveyResponseId,
+    question_id: answer.questionId,
+    score: answer.score,
+    comment: answer.comment,
+    question_text: answer.questionText,
+    weight: answer.weight,
+    created_at: answer.createdAt,
+    updated_at: answer.updatedAt
+  };
+}
+
+function serializeResponse(response) {
+  return {
+    id: response.surveyResponseId,
+    product_id: response.productId,
+    status: response.status,
+    alignment_level: response.alignmentLevel,
+    overall_score: response.overallScore,
+    ai_comment: response.aiComment,
+    ai_raw_result: response.aiRawResult,
+    criteria_breakdown: response.criteriaBreakdown,
+    trial_count: response.trialCount,
+    created_at: response.createdAt,
+    updated_at: response.updatedAt,
+    ...(response.answers && { answers: response.answers.map(serializeAnswer) })
+  };
+}
+
+async function submitSurvey(req, res) {
+  const result = await AiProductSurveyService.evaluateProductSurvey({
+    productId: req.validated.params.productId,
+    answers: req.validated.body.answers
+  });
+  return sendSuccess(res, {
+    message: 'Survey evaluated successfully',
+    statusCode: 201,
+    data: {
+      surveyResponseId: result.surveyResponseId,
+      productId: result.productId,
+      status: result.status,
+      alignmentLevel: result.alignmentLevel,
+      overallScore: result.overallScore,
+      aiComment: result.aiComment,
+      criteriaBreakdown: result.criteriaBreakdown,
+      aiRawResult: result.aiRawResult
+    }
+  });
+}
+
+async function getSurveyHistory(req, res) {
+  const productId = req.validated.params.productId;
+  const history = await AiProductSurveyService.getProductSurveyHistory({ productId });
+  return sendSuccess(res, {
+    message: 'Survey history retrieved successfully',
+    data: { productId, surveyCount: history.length, surveys: history.map(serializeResponse) }
+  });
+}
+
+async function getSurveyResponse(req, res) {
+  const response = await AiProductSurveyService.getSurveyResponse({
+    surveyResponseId: req.validated.params.surveyResponseId
+  });
+  return sendSuccess(res, {
+    message: 'Survey response retrieved successfully',
+    data: serializeResponse(response)
+  });
+}
+
+async function getQuestions(req, res) {
+  const questions = await AiProductSurveyService.listQuestions();
+  return sendSuccess(res, {
+    message: 'Survey questions retrieved successfully',
+    data: { questionCount: questions.length, questions: questions.map(serializeQuestion) }
+  });
+}
+
+async function healthCheck(req, res) {
+  const health = await AiProductSurveyService.healthCheck();
+  return sendSuccess(res, { message: 'Product Survey service is healthy', data: health });
+}
+
+module.exports = {
+  submitSurvey,
+  getSurveyHistory,
+  getSurveyResponse,
+  getQuestions,
+  healthCheck
+};

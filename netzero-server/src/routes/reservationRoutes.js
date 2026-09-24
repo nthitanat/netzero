@@ -1,41 +1,30 @@
 const express = require('express');
-const router = express.Router();
-const ProductReservationController = require('../controllers/ProductReservationController');
+const ReservationController = require('../controllers/ProductReservationController');
 const { authenticateToken } = require('../middleware/auth');
+const { asyncHandler } = require('../middleware/errorHandler');
+const { validateRequest } = require('../middleware/validateRequest');
+const {
+  reservationIdParams,
+  reservationFilters,
+  statusFilter,
+  createReservationBody,
+  updateReservationBody,
+  updateStatusBody
+} = require('../validators/reservationValidator');
 
-// All reservation routes require authentication
+const router = express.Router();
+router.use(authenticateToken);
 
-// GET /api/v1/reservations - Get all reservations (with filters)
-router.get('/', authenticateToken, ProductReservationController.getAllReservations);
-
-// GET /api/v1/reservations/my - Get current user's reservations
-router.get('/my', authenticateToken, ProductReservationController.getMyReservations);
-
-// GET /api/v1/reservations/my-products - Get reservations for current user's products (seller view)
-router.get('/my-products', authenticateToken, ProductReservationController.getMyProductReservations);
-
-// GET /api/v1/reservations/stats - Get reservation statistics for current user (as product owner)
-router.get('/stats', authenticateToken, ProductReservationController.getReservationStats);
-
-// GET /api/v1/reservations/:id - Get reservation by ID
-router.get('/:id', authenticateToken, ProductReservationController.getReservationById);
-
-// POST /api/v1/reservations - Create a new reservation
-router.post('/', authenticateToken, ProductReservationController.createReservation);
-
-// PUT /api/v1/reservations/:id - Update reservation
-router.put('/:id', authenticateToken, ProductReservationController.updateReservation);
-
-// DELETE /api/v1/reservations/:id - Delete reservation
-router.delete('/:id', authenticateToken, ProductReservationController.deleteReservation);
-
-// POST /api/v1/reservations/:id/confirm - Confirm reservation and reduce stock
-router.post('/:id/confirm', authenticateToken, ProductReservationController.confirmReservation);
-
-// POST /api/v1/reservations/:id/cancel - Cancel reservation
-router.post('/:id/cancel', authenticateToken, ProductReservationController.cancelReservation);
-
-// PUT /api/v1/reservations/:id/status - Update reservation status (for product owners)
-router.put('/:id/status', authenticateToken, ProductReservationController.updateReservationStatus);
+router.get('/', validateRequest({ query: reservationFilters }), asyncHandler(ReservationController.getAllReservations));
+router.get('/my', validateRequest({ query: statusFilter }), asyncHandler(ReservationController.getMyReservations));
+router.get('/my-products', validateRequest({ query: statusFilter }), asyncHandler(ReservationController.getMyProductReservations));
+router.get('/stats', asyncHandler(ReservationController.getReservationStats));
+router.get('/:id', validateRequest({ params: reservationIdParams }), asyncHandler(ReservationController.getReservationById));
+router.post('/', validateRequest({ body: createReservationBody }), asyncHandler(ReservationController.createReservation));
+router.put('/:id', validateRequest({ params: reservationIdParams, body: updateReservationBody }), asyncHandler(ReservationController.updateReservation));
+router.delete('/:id', validateRequest({ params: reservationIdParams }), asyncHandler(ReservationController.deleteReservation));
+router.post('/:id/confirm', validateRequest({ params: reservationIdParams }), asyncHandler(ReservationController.confirmReservation));
+router.post('/:id/cancel', validateRequest({ params: reservationIdParams }), asyncHandler(ReservationController.cancelReservation));
+router.put('/:id/status', validateRequest({ params: reservationIdParams, body: updateStatusBody }), asyncHandler(ReservationController.updateReservationStatus));
 
 module.exports = router;

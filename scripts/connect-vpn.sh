@@ -7,12 +7,10 @@ set -e  # Exit on any error
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-if [ -f "$PROJECT_ROOT/.env" ]; then
-    source "$PROJECT_ROOT/.env"
-elif [ -f "$SCRIPT_DIR/.env" ]; then
-    source "$SCRIPT_DIR/.env"
+if [ -f "$PROJECT_ROOT/.env.production" ]; then
+    source "$PROJECT_ROOT/.env.production"
 else
-    echo "❌ Error: .env file not found in project root or scripts directory"
+    echo "❌ Error: .env.production file not found in project root"
     exit 1
 fi
 
@@ -54,8 +52,7 @@ echo "📡 Establishing VPN connection to $VPN_HOST..."
 
 # Check if SUDO_PASSWORD is set
 if [ -z "$SUDO_PASSWORD" ]; then
-    echo "❌ Error: SUDO_PASSWORD not set in .env file"
-    echo "💡 Please add SUDO_PASSWORD=your_mac_password to scripts/.env"
+    echo "❌ Error: SUDO_PASSWORD not set in .env.production file"
     exit 1
 fi
 

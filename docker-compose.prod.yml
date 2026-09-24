@@ -1,0 +1,80 @@
+name: netzero-deploy
+
+services:
+  netzero-server:
+    build:
+      context: ./netzero-server
+      target: production
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:?Set NODE_ENV in .env.production}
+      PORT: ${PORT:?Set PORT in .env.production}
+      API_PREFIX: ${API_PREFIX:?Set API_PREFIX in .env.production}
+      API_VERSION: ${API_VERSION:?Set API_VERSION in .env.production}
+      DB_HOST: ${DB_HOST:?Set DB_HOST in .env.production}
+      DB_PORT: ${DB_PORT:?Set DB_PORT in .env.production}
+      DB_USER: ${DB_USER:?Set DB_USER in .env.production}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env.production}
+      DB_NAME: ${DB_NAME:?Set DB_NAME in .env.production}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env.production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:?Set JWT_EXPIRES_IN in .env.production}
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN in .env.production}
+      UPLOAD_DIR: ${UPLOAD_DIR:?Set UPLOAD_DIR in .env.production}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:?Set MAX_FILE_SIZE in .env.production}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:?Set RATE_LIMIT_WINDOW_MS in .env.production}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:?Set RATE_LIMIT_MAX_REQUESTS in .env.production}
+      SURVEYMONKEY_ACCESS_TOKEN: ${SURVEYMONKEY_ACCESS_TOKEN:-}
+      SURVEYMONKEY_SURVEY_ID: ${SURVEYMONKEY_SURVEY_ID:-}
+      SURVEYMONKEY_SURVEY_REDIRECT_URL: ${SURVEYMONKEY_SURVEY_REDIRECT_URL:-}
+      SURVEYMONKEY_WEBHOOK_SECRET: ${SURVEYMONKEY_WEBHOOK_SECRET:-}
+    ports:
+      - "${PORT:?Set PORT in .env.production}:${PORT:?Set PORT in .env.production}"
+    volumes:
+      - ./netzero-server/files:/app/files
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - netzero-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:$$PORT/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  netzero-chat-server:
+    build:
+      context: ./netzero-chat-server
+      target: production
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:?Set NODE_ENV in .env.production}
+      CHAT_PORT: ${CHAT_PORT:?Set CHAT_PORT in .env.production}
+      API_PREFIX: ${API_PREFIX:?Set API_PREFIX in .env.production}
+      API_VERSION: ${API_VERSION:?Set API_VERSION in .env.production}
+      CHAT_DB_HOST: ${CHAT_DB_HOST:?Set CHAT_DB_HOST in .env.production}
+      CHAT_DB_PORT: ${CHAT_DB_PORT:?Set CHAT_DB_PORT in .env.production}
+      CHAT_DB_USER: ${CHAT_DB_USER:?Set CHAT_DB_USER in .env.production}
+      CHAT_DB_PASSWORD: ${CHAT_DB_PASSWORD:?Set CHAT_DB_PASSWORD in .env.production}
+      CHAT_DB_NAME: ${CHAT_DB_NAME:?Set CHAT_DB_NAME in .env.production}
+      CHAT_JWT_SECRET: ${CHAT_JWT_SECRET:?Set CHAT_JWT_SECRET in .env.production}
+      CHAT_JWT_EXPIRES_IN: ${CHAT_JWT_EXPIRES_IN:?Set CHAT_JWT_EXPIRES_IN in .env.production}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?Set OPENAI_API_KEY in .env.production}
+      CHAT_VECTOR_STORE_ID: ${CHAT_VECTOR_STORE_ID:?Set CHAT_VECTOR_STORE_ID in .env.production}
+      CHAT_CORS_ORIGINS: ${CHAT_CORS_ORIGINS:?Set CHAT_CORS_ORIGINS in .env.production}
+    ports:
+      - "${CHAT_PORT:?Set CHAT_PORT in .env.production}:${CHAT_PORT:?Set CHAT_PORT in .env.production}"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - netzero-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:$$CHAT_PORT/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  netzero-network:
+    driver: bridge

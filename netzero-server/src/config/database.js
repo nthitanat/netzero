@@ -1,100 +1,36 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
-
-// Import environment configuration
 const config = require('./env');
 
-// Use database configuration from env helper
-const dbConfig = config.database;
+const pool = mysql.createPool(config.database);
 
-// Create connection pool
-const pool = mysql.createPool(dbConfig);
-
-// Test connection function
-const testConnection = async () => {
+async function testConnection() {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Database connected successfully');
     connection.release();
     return true;
   } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
+    console.error('Database connection failed:', error.message);
     return false;
   }
-};
+}
 
-// Execute query function for SELECT operations (returns rows only)
-const executeQuery = async (query, params = []) => {
-  try {
-    const [rows] = await pool.execute(query, params);
-    return rows;
-  } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
-  }
-};
-
-// Execute command function for INSERT, UPDATE, DELETE operations (returns full result)
-const executeCommand = async (query, params = []) => {
-  try {
-    const result = await pool.execute(query, params);
-    return result;
-  } catch (error) {
-    console.error('Database command error:', error);
-    throw error;
-  }
-};
-
-// Execute transaction function for multiple operations
-const executeTransaction = async (operations) => {
+async function withTransaction(operation) {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-    
-    const results = [];
-    for (const { query, params = [] } of operations) {
-      const result = await connection.execute(query, params);
-      results.push(result);
-    }
-    
+    const value = await operation(connection);
     await connection.commit();
-    return results;
+    return value;
   } catch (error) {
     await connection.rollback();
-    console.error('Database transaction error:', error);
     throw error;
   } finally {
     connection.release();
   }
-};
+}
 
-// Get connection from pool
-const getConnection = async () => {
-  try {
-    return await pool.getConnection();
-  } catch (error) {
-    console.error('Error getting database connection:', error);
-    throw error;
-  }
-};
+async function closePool() {
+  await pool.end();
+}
 
-// Close pool function
-const closePool = async () => {
-  try {
-    await pool.end();
-    console.log('📴 Database pool closed');
-  } catch (error) {
-    console.error('Error closing database pool:', error);
-  }
-};
-
-module.exports = {
-  pool,
-  testConnection,
-  executeQuery,
-  executeCommand,
-  executeTransaction,
-  getConnection,
-  closePool,
-  dbConfig
-};
+module.exports = { pool, testConnection, withTransaction, closePool };

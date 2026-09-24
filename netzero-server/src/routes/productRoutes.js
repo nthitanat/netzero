@@ -1,85 +1,50 @@
 const express = require('express');
-const router = express.Router();
 const ProductController = require('../controllers/ProductController');
 const { authenticateToken } = require('../middleware/auth');
+const { asyncHandler } = require('../middleware/errorHandler');
+const { validateRequest } = require('../middleware/validateRequest');
 const { uploadSingle, uploadMultiple, handleUploadError } = require('../middleware/imageUpload');
+const {
+  productIdParams,
+  productImageParams,
+  productTypeParams,
+  productSearchParams,
+  productFilters,
+  myProductFilters,
+  searchFilters,
+  pageQuery,
+  createProductBody,
+  updateProductBody
+} = require('../validators/productValidator');
 
-// Public routes (no authentication required)
+const router = express.Router();
 
-// GET /api/v1/products - Get all products with optional filters
-router.get('/', ProductController.getAllProducts);
-
-// GET /api/v1/products/type/:type - Get products by type (market, willing, barter)
-router.get('/type/:type', ProductController.getProductsByType);
-
-// GET /api/v1/products/recommended - Get recommended products
-router.get('/recommended', ProductController.getRecommendedProducts);
-
-// GET /api/v1/products/search/:searchTerm - Search products
-router.get('/search/:searchTerm', ProductController.searchProducts);
-
-// GET /api/v1/products/my - Get current user's products (must be before /:id route)
-router.get('/my', authenticateToken, ProductController.getMyProducts);
-
-// GET /api/v1/products/:id - Get product by ID (must be after specific routes)
-router.get('/:id', ProductController.getProductById);
-
-// Image retrieval routes (public)
-// GET /api/v1/products/:id/thumbnail - Get product thumbnail image
-router.get('/:id/thumbnail', ProductController.getProductThumbnail);
-router.options('/:id/thumbnail', (req, res) => {
+function imageOptions(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
-  res.sendStatus(200);
-});
+  return res.sendStatus(200);
+}
 
-// GET /api/v1/products/:id/cover - Get product cover image
-router.get('/:id/cover', ProductController.getProductCover);
-router.options('/:id/cover', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
-  res.sendStatus(200);
-});
-
-// GET /api/v1/products/:id/images/:imageId - Get specific product image (more specific route first)
-router.get('/:id/images/:imageId', ProductController.getProductImages);
-router.options('/:id/images/:imageId', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
-  res.sendStatus(200);
-});
-
-// GET /api/v1/products/:id/images - Get all product images metadata (less specific route second)
-router.get('/:id/images', ProductController.getAllProductImages);
-router.options('/:id/images', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
-  res.sendStatus(200);
-});
-
-// Protected routes (authentication required)
-
-// POST /api/v1/products - Create a new product
-router.post('/', authenticateToken, ProductController.createProduct);
-
-// PUT /api/v1/products/:id - Update product (only by owner or admin)
-router.put('/:id', authenticateToken, ProductController.updateProduct);
-
-// DELETE /api/v1/products/:id - Delete product (only by owner or admin)
-router.delete('/:id', authenticateToken, ProductController.deleteProduct);
-
-// Image upload routes (protected)
-// POST /api/v1/products/:id/upload/thumbnail - Upload product thumbnail
-router.post('/:id/upload/thumbnail', authenticateToken, uploadSingle('thumbnail'), handleUploadError, ProductController.uploadProductThumbnail);
-
-// POST /api/v1/products/:id/upload/cover - Upload product cover image
-router.post('/:id/upload/cover', authenticateToken, uploadSingle('cover'), handleUploadError, ProductController.uploadProductCover);
-
-// POST /api/v1/products/:id/upload/images - Upload product images
-router.post('/:id/upload/images', authenticateToken, uploadMultiple('images', 10), handleUploadError, ProductController.uploadProductImages);
+router.get('/', validateRequest({ query: productFilters }), asyncHandler(ProductController.getAllProducts));
+router.get('/type/:type', validateRequest({ params: productTypeParams, query: pageQuery }), asyncHandler(ProductController.getProductsByType));
+router.get('/recommended', validateRequest({ query: pageQuery }), asyncHandler(ProductController.getRecommendedProducts));
+router.get('/search/:searchTerm', validateRequest({ params: productSearchParams, query: searchFilters }), asyncHandler(ProductController.searchProducts));
+router.get('/my', authenticateToken, validateRequest({ query: myProductFilters }), asyncHandler(ProductController.getMyProducts));
+router.get('/:id/thumbnail', validateRequest({ params: productIdParams }), asyncHandler(ProductController.getProductThumbnail));
+router.options('/:id/thumbnail', imageOptions);
+router.get('/:id/cover', validateRequest({ params: productIdParams }), asyncHandler(ProductController.getProductCover));
+router.options('/:id/cover', imageOptions);
+router.get('/:id/images/:imageId', validateRequest({ params: productImageParams }), asyncHandler(ProductController.getProductImages));
+router.options('/:id/images/:imageId', imageOptions);
+router.get('/:id/images', validateRequest({ params: productIdParams }), asyncHandler(ProductController.getAllProductImages));
+router.options('/:id/images', imageOptions);
+router.get('/:id', validateRequest({ params: productIdParams }), asyncHandler(ProductController.getProductById));
+router.post('/', authenticateToken, validateRequest({ body: createProductBody }), asyncHandler(ProductController.createProduct));
+router.put('/:id', authenticateToken, validateRequest({ params: productIdParams, body: updateProductBody }), asyncHandler(ProductController.updateProduct));
+router.delete('/:id', authenticateToken, validateRequest({ params: productIdParams }), asyncHandler(ProductController.deleteProduct));
+router.post('/:id/upload/thumbnail', authenticateToken, validateRequest({ params: productIdParams }), uploadSingle('thumbnail'), handleUploadError, asyncHandler(ProductController.uploadProductThumbnail));
+router.post('/:id/upload/cover', authenticateToken, validateRequest({ params: productIdParams }), uploadSingle('cover'), handleUploadError, asyncHandler(ProductController.uploadProductCover));
+router.post('/:id/upload/images', authenticateToken, validateRequest({ params: productIdParams }), uploadMultiple('images', 10), handleUploadError, asyncHandler(ProductController.uploadProductImages));
 
 module.exports = router;

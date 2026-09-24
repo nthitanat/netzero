@@ -15,10 +15,15 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-if [ -f "$PROJECT_ROOT/.env" ]; then
-    source "$PROJECT_ROOT/.env"
+if [ -f "$PROJECT_ROOT/.env.production" ]; then
+    source "$PROJECT_ROOT/.env.production"
 else
-    echo -e "${RED}❌ Error: .env file not found in project root${NC}"
+    echo -e "${RED}❌ Error: .env.production file not found in project root${NC}"
+    exit 1
+fi
+
+if [[ "$NODE_ENV" != "production" || -z "${CHAT_VECTOR_STORE_ID:-}" ]]; then
+    echo -e "${RED}❌ Set NODE_ENV=production and CHAT_VECTOR_STORE_ID in .env.production before deploying${NC}"
     exit 1
 fi
 
@@ -27,8 +32,8 @@ echo ""
 
 # Show menu for action selection
 echo -e "${YELLOW}Select an action:${NC}"
-echo "1) Full Deploy (git pull + build + restart containers)"
-echo "2) Quick Update (git pull + restart containers, no rebuild)"
+echo "1) Full Deploy (git pull + client build + API build)"
+echo "2) API Update (git pull + API build, no client build)"
 echo "3) Start containers"
 echo "4) Stop containers"
 echo "5) Restart containers"
@@ -53,22 +58,6 @@ esac
 
 echo ""
 echo -e "${GREEN}✅ Action selected: $ACTION${NC}"
-echo ""
-
-# FORCE PRODUCTION MODE for remote deployment
-echo -e "${YELLOW}🔧 Forcing PRODUCTION mode for remote operations...${NC}"
-export DEPLOYMENT_MODE=production
-
-# Create a temporary production .env file
-TEMP_ENV_FILE=$(mktemp)
-trap "rm -f $TEMP_ENV_FILE" EXIT
-
-# Copy .env from project root and override DEPLOYMENT_MODE
-cp "$PROJECT_ROOT/.env" "$TEMP_ENV_FILE"
-sed -i.bak 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' "$TEMP_ENV_FILE"
-rm -f "$TEMP_ENV_FILE.bak"
-
-echo -e "${GREEN}✅ Environment set to: PRODUCTION${NC}"
 echo ""
 
 # Step 1: Check VPN connection
@@ -122,20 +111,20 @@ fi
 
 echo -e "${GREEN}✅ SSH tools ready${NC}"
 
-# Step 4: Upload .env file to remote server (since it's in .gitignore)
+# Step 4: Upload .env.production to the remote server
 echo ""
-echo -e "${BLUE}📤 Step 4: Uploading .env file to remote server...${NC}"
+echo -e "${BLUE}📤 Step 4: Uploading .env.production file to remote server...${NC}"
 
-# Upload .env file from project root to remote server
-sshpass -p "$REMOTE_PASSWORD" scp -P "$REMOTE_PORT" \
+# Upload the production configuration file
+sshpass -p "$REMOTE_PASSWORD" scp -p -P "$REMOTE_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
     -o PreferredAuthentications=password \
     -o PubkeyAuthentication=no \
-    "$PROJECT_ROOT/.env" \
-    "$REMOTE_USER@$REMOTE_HOST:/tmp/.env.netzero"
+    "$PROJECT_ROOT/.env.production" \
+    "$REMOTE_USER@$REMOTE_HOST:/tmp/.env.production.netzero"
 
-echo -e "${GREEN}✅ .env file uploaded from project root${NC}"
+echo -e "${GREEN}✅ .env.production file uploaded from project root${NC}"
 
 # Step 5: Execute action on remote server
 echo ""
@@ -173,22 +162,20 @@ deploy_app() {
         git reset --hard origin/main || git pull origin main
     fi
 
-    echo "📤 Deploying .env file to project root..."
-    if [ -f /tmp/.env.netzero ]; then
+    echo "📤 Deploying .env.production file to project root..."
+    if [ -f /tmp/.env.production.netzero ]; then
         # Copy to project root only (single source of truth)
-        cp /tmp/.env.netzero "$DEPLOY_PATH/.env"
-        rm /tmp/.env.netzero
-        echo "✅ .env file deployed to project root"
+        cp /tmp/.env.production.netzero "$DEPLOY_PATH/.env.production"
+        rm /tmp/.env.production.netzero
+        chmod 600 "$DEPLOY_PATH/.env.production"
+        rm -f "$DEPLOY_PATH/.env" "$DEPLOY_PATH/netzero-server/.env" "$DEPLOY_PATH/netzero-client/.env"
+        echo "✅ .env.production file deployed to project root"
     else
-        echo "⚠️  Warning: .env file not found in /tmp"
+        echo "⚠️  Warning: .env.production file not found in /tmp"
     fi
 
     echo "🔧 Setting up environment for production..."
     cd "$DEPLOY_PATH"
-    # Update .env to force production mode
-    if [ -f .env ]; then
-        sed -i 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' .env 2>/dev/null || true
-    fi
 
     echo "🏗️ Building React client for production..."
     cd "$DEPLOY_PATH/netzero-client"
@@ -201,12 +188,10 @@ deploy_app() {
     
     # Build with production environment variables
     echo "Setting production environment variables for React build..."
-    source "$DEPLOY_PATH/.env"
-    export REACT_APP_API_BASE_URL="$PROD_REACT_APP_API_BASE_URL"
-    export REACT_APP_CHAT_API_BASE_URL="$PROD_REACT_APP_CHAT_API_BASE_URL"
-    export REACT_APP_USE_REAL_TREE_API="$PROD_REACT_APP_USE_REAL_TREE_API"
-    export REACT_APP_TREE_IMAGES_BASE_URL="$PROD_REACT_APP_TREE_IMAGES_BASE_URL"
-    export REACT_APP_ENABLE_API_LOGGING="$PROD_REACT_APP_ENABLE_API_LOGGING"
+    source "$DEPLOY_PATH/.env.production"
+    export REACT_APP_API_BASE_URL REACT_APP_CHAT_API_BASE_URL
+    export REACT_APP_USE_REAL_TREE_API
+    export REACT_APP_STATIC_ASSET_BASE_URL
     
     npm run build
 
@@ -219,20 +204,20 @@ deploy_app() {
 
     echo "🐳 Building and starting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env up -d --build netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
 
     echo "🧹 Cleaning workspace (remote tmp)..."
-    rm -rf /tmp/* || true
+    rm -f /tmp/.env.production.netzero
 
     echo "✅ Deployment complete!"
 
     echo ""
     echo "📊 Container status:"
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
-# Function to update (git pull + restart, no rebuild)
+# Function to update the APIs without rebuilding the separately served client
 update_app() {
     echo "📥 Updating application from repository..."
 
@@ -246,48 +231,46 @@ update_app() {
     git fetch --all --prune
     git reset --hard origin/main || git pull origin main
 
-    echo "📤 Updating .env file in project root..."
-    if [ -f /tmp/.env.netzero ]; then
+    echo "📤 Updating .env.production file in project root..."
+    if [ -f /tmp/.env.production.netzero ]; then
         # Copy to project root only (single source of truth)
-        cp /tmp/.env.netzero "$DEPLOY_PATH/.env"
-        rm /tmp/.env.netzero
-        echo "✅ .env file updated in project root"
+        cp /tmp/.env.production.netzero "$DEPLOY_PATH/.env.production"
+        rm /tmp/.env.production.netzero
+        chmod 600 "$DEPLOY_PATH/.env.production"
+        rm -f "$DEPLOY_PATH/.env" "$DEPLOY_PATH/netzero-server/.env" "$DEPLOY_PATH/netzero-client/.env"
+        echo "✅ .env.production file updated in project root"
     else
-        echo "⚠️  Warning: .env file not found in /tmp"
+        echo "⚠️  Warning: .env.production file not found in /tmp"
     fi
 
     echo "🔧 Setting up environment for production..."
-    if [ -f .env ]; then
-        sed -i 's/^DEPLOYMENT_MODE=.*/DEPLOYMENT_MODE=production/' .env 2>/dev/null || true
-    fi
-
-    echo "🔄 Restarting Docker containers (server + chat only)..."
+    echo "🔄 Rebuilding Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env restart netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
 
     echo "✅ Update complete!"
 
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to start containers
 start_containers() {
     echo "🚀 Starting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env up -d netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml up -d netzero-server netzero-chat-server
     echo "✅ Containers started!"
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to stop containers
 stop_containers() {
     echo "🛑 Stopping Docker containers..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env down
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml down
     echo "✅ Containers stopped!"
 }
 
@@ -295,25 +278,25 @@ stop_containers() {
 restart_containers() {
     echo "🔄 Restarting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env restart netzero-server netzero-chat-server
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml restart netzero-server netzero-chat-server
     echo "✅ Containers restarted!"
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to view logs
 view_logs() {
     echo "📋 Viewing container logs (Press Ctrl+C to exit)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env logs -f --tail=100
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml logs -f --tail=100
 }
 
 # Function to show status
 show_status() {
     echo "📊 Container status:"
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker-compose --env-file .env ps
+    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
     echo ""
     echo "💾 Disk usage:"
     echo "$REMOTE_SUDO_PASS" | sudo -S docker system df

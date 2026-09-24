@@ -3,25 +3,9 @@ import { axiosInstance } from './client';
 import { ApiResponse, ApiError, API_ERROR_TYPES, API_STATUS } from './types';
 import { storageService } from '../utils/storage';
 
-// Determine chat server URL based on environment
-const getChatServerURL = () => {
-  // Check if we have an environment variable set
-  if (process.env.REACT_APP_CHAT_SERVER_URL) {
-    return process.env.REACT_APP_CHAT_SERVER_URL;
-  }
-  
-  // Auto-detect based on NODE_ENV
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3004/api/v1';
-  }
-  
-  // Production URL - adjust this to your production chat server URL
-  return 'https://engagement.chula.ac.th/netzero-api-chat/api/v1';
-};
-
 // Create a separate axios instance for chat server
 const chatServerInstance = axios.create({
-  baseURL: getChatServerURL(),
+  baseURL: process.env.REACT_APP_CHAT_API_BASE_URL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

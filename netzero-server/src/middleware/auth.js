@@ -1,263 +1,64 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const UserEvent = require('../models/UserEvent');
-const EventProduct = require('../models/EventProduct');
 const config = require('../config/env');
 
-// JWT configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+function readBearerToken(req) {
+  const [scheme, token] = (req.headers.authorization || '').split(' ');
+  return scheme === 'Bearer' && token ? token : null;
+}
 
-// Authentication middleware - verifies JWT token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
+function authenticateToken(req, res, next) {
+  const token = readBearerToken(req);
   if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: 'Access token required',
-      timestamp: new Date().toISOString()
-    });
+    return res.status(401).json({ success: false, message: 'Access token required', timestamp: new Date().toISOString() });
   }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid or expired token',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    req.user = user;
+  try {
+    const payload = jwt.verify(token, config.jwt.secret);
+    req.user = { ...payload, userId: payload.userId ?? payload.id };
     next();
-  });
-};
+  } catch {
+    return res.status(403).json({ success: false, message: 'Invalid or expired token', timestamp: new Date().toISOString() });
+  }
+}
 
-// Authorization middleware - checks user roles
-const authorizeRoles = (...allowedRoles) => {
+function authorizeRoles(...allowedRoles) {
   return (req, res, next) => {
-    try {
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Access denied. User not authenticated'
-        });
-      }
-
-      if (!allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. Insufficient privileges'
-        });
-      }
-
-      next();
-
-    } catch (error) {
-      console.error('Authorization error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Internal server error during authorization'
-      });
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Access denied. User not authenticated', timestamp: new Date().toISOString() });
     }
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Access denied. Insufficient privileges', timestamp: new Date().toISOString() });
+    }
+    next();
   };
-};
+}
 
-// Middleware to check if user owns the resource or is admin
-const authorizeOwnerOrAdmin = (req, res, next) => {
+async function optionalAuth(req, res, next) {
+  const token = readBearerToken(req);
+  if (!token) return next();
   try {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. User not authenticated'
-      });
+    const payload = jwt.verify(token, config.jwt.secret);
+    const user = await User.findById(payload.userId ?? payload.id);
+    if (user) {
+      req.user = { userId: user.userId, email: user.email, role: user.role };
     }
-
-    const resourceUserId = parseInt(req.params.id);
-    const requestingUserId = req.user.userId;
-    const requestingUserRole = req.user.role;
-
-    // Allow if user is admin or owns the resource
-    if (requestingUserRole === 'admin' || resourceUserId === requestingUserId) {
-      return next();
-    }
-
-    return res.status(403).json({
-      success: false,
-      message: 'Access denied. You can only access your own resources'
-    });
-
-  } catch (error) {
-    console.error('Owner/Admin authorization error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error during authorization'
-    });
+  } catch {
+    // Optional authentication allows anonymous requests.
   }
-};
-
-// Optional authentication middleware - doesn't require token
-const optionalAuth = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
-
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await User.findById(decoded.userId);
-        
-        if (user) {
-          req.user = {
-            userId: decoded.userId,
-            email: decoded.email,
-            role: decoded.role
-          };
-        }
-      } catch (error) {
-        // Token is invalid or expired, but we continue without authentication
-        console.log('Optional auth - invalid token:', error.message);
-      }
-    }
-
-    next();
-
-  } catch (error) {
-    console.error('Optional authentication error:', error);
-    // Continue without authentication on error
-    next();
-  }
-};
-
-// Middleware to validate user ID parameter
-const validateUserIdParam = (req, res, next) => {
-  try {
-    const userId = parseInt(req.params.id);
-    
-    if (isNaN(userId) || userId <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid user ID parameter'
-      });
-    }
-
-    req.params.id = userId; // Ensure it's stored as integer
-    next();
-
-  } catch (error) {
-    console.error('User ID validation error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error during validation'
-    });
-  }
-};
-
-// Rate limiting middleware for authentication endpoints
-const authRateLimit = (req, res, next) => {
-  // This is a basic implementation. For production, use a proper rate limiting library
-  // like express-rate-limit with Redis store
-  
-  const key = `auth_attempts_${req.ip}`;
-  const attempts = req.session ? req.session[key] || 0 : 0;
-  const maxAttempts = 5;
-  const windowMs = 15 * 60 * 1000; // 15 minutes
-
-  if (attempts >= maxAttempts) {
-    return res.status(429).json({
-      success: false,
-      message: 'Too many authentication attempts. Please try again later'
-    });
-  }
-
-  // Store attempt count (this is simplified - use Redis in production)
-  if (req.session) {
-    req.session[key] = attempts + 1;
-    setTimeout(() => {
-      if (req.session && req.session[key]) {
-        delete req.session[key];
-      }
-    }, windowMs);
-  }
-
   next();
-};
+}
 
-// Middleware to check if user owns the event
-const checkEventOwnership = async (req, res, next) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. User not authenticated'
-      });
-    }
-
-    const userId = req.user.userId || req.user.id;
-    let eventId;
-
-    // Get event_id from different sources
-    if (req.body.event_id) {
-      eventId = req.body.event_id;
-    } else if (req.params.eventId) {
-      eventId = req.params.eventId;
-    } else if (req.params.id) {
-      // If updating/deleting an event product, get event_id from the event product
-      const eventProduct = await EventProduct.findById(req.params.id);
-      if (eventProduct) {
-        eventId = eventProduct.event_id;
-      }
-    }
-
-    if (!eventId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Event ID not found in request'
-      });
-    }
-
-    // Check if user owns this event
-    const userEvent = await UserEvent.findByEventAndUser(eventId, userId);
-    
-    // Set flag on request object
-    req.userOwnsEvent = !!userEvent;
-    
-    next();
-
-  } catch (error) {
-    console.error('Event ownership check error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error during event ownership check'
-    });
+function authenticateSurveyMonkeyWebhook(req, res, next) {
+  const credential = req.headers.authorization;
+  if (!credential || !config.surveyMonkey.webhookSecret || credential !== config.surveyMonkey.webhookSecret) {
+    return res.status(401).json({ success: false, message: 'Invalid webhook signature', timestamp: new Date().toISOString() });
   }
-};
-
-// Verifies the shared-secret Authorization header SurveyMonkey sends with
-// inbound webhook requests (this is not JWT auth - it's a static secret
-// configured on both sides when the webhook subscription is created).
-const authenticateSurveyMonkeyWebhook = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-
-  if (!authHeader || !config.surveyMonkey.webhookSecret || authHeader !== config.surveyMonkey.webhookSecret) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid webhook signature',
-      timestamp: new Date().toISOString()
-    });
-  }
-
   next();
-};
+}
 
 module.exports = {
   authenticateToken,
   authorizeRoles,
-  authorizeOwnerOrAdmin,
   optionalAuth,
-  validateUserIdParam,
-  authRateLimit,
-  checkEventOwnership,
   authenticateSurveyMonkeyWebhook
 };

@@ -1,0 +1,94 @@
+name: netzero-dev
+
+services:
+  netzero-server:
+    build:
+      context: ./netzero-server
+      target: development
+    command: npm run dev -- --legacy-watch
+    init: true
+    environment:
+      NODE_ENV: ${NODE_ENV:?Set NODE_ENV in .env.development}
+      PORT: ${PORT:?Set PORT in .env.development}
+      API_PREFIX: ${API_PREFIX:?Set API_PREFIX in .env.development}
+      API_VERSION: ${API_VERSION:?Set API_VERSION in .env.development}
+      DB_HOST: ${DB_HOST:?Set DB_HOST in .env.development}
+      DB_PORT: ${DB_PORT:?Set DB_PORT in .env.development}
+      DB_USER: ${DB_USER:?Set DB_USER in .env.development}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env.development}
+      DB_NAME: ${DB_NAME:?Set DB_NAME in .env.development}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env.development}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:?Set JWT_EXPIRES_IN in .env.development}
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN in .env.development}
+      UPLOAD_DIR: ${UPLOAD_DIR:?Set UPLOAD_DIR in .env.development}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:?Set MAX_FILE_SIZE in .env.development}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:?Set RATE_LIMIT_WINDOW_MS in .env.development}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:?Set RATE_LIMIT_MAX_REQUESTS in .env.development}
+      SURVEYMONKEY_ACCESS_TOKEN: ${SURVEYMONKEY_ACCESS_TOKEN:-}
+      SURVEYMONKEY_SURVEY_ID: ${SURVEYMONKEY_SURVEY_ID:-}
+      SURVEYMONKEY_SURVEY_REDIRECT_URL: ${SURVEYMONKEY_SURVEY_REDIRECT_URL:-}
+      SURVEYMONKEY_WEBHOOK_SECRET: ${SURVEYMONKEY_WEBHOOK_SECRET:-}
+    ports:
+      - "${PORT:?Set PORT in .env.development}:${PORT:?Set PORT in .env.development}"
+    volumes:
+      - ./netzero-server:/app
+      - server_node_modules:/app/node_modules
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  netzero-chat-server:
+    build:
+      context: ./netzero-chat-server
+      target: development
+    command: npm run dev -- --legacy-watch
+    init: true
+    environment:
+      NODE_ENV: ${NODE_ENV:?Set NODE_ENV in .env.development}
+      CHAT_PORT: ${CHAT_PORT:?Set CHAT_PORT in .env.development}
+      API_PREFIX: ${API_PREFIX:?Set API_PREFIX in .env.development}
+      API_VERSION: ${API_VERSION:?Set API_VERSION in .env.development}
+      CHAT_DB_HOST: ${CHAT_DB_HOST:?Set CHAT_DB_HOST in .env.development}
+      CHAT_DB_PORT: ${CHAT_DB_PORT:?Set CHAT_DB_PORT in .env.development}
+      CHAT_DB_USER: ${CHAT_DB_USER:?Set CHAT_DB_USER in .env.development}
+      CHAT_DB_PASSWORD: ${CHAT_DB_PASSWORD:?Set CHAT_DB_PASSWORD in .env.development}
+      CHAT_DB_NAME: ${CHAT_DB_NAME:?Set CHAT_DB_NAME in .env.development}
+      CHAT_JWT_SECRET: ${CHAT_JWT_SECRET:?Set CHAT_JWT_SECRET in .env.development}
+      CHAT_JWT_EXPIRES_IN: ${CHAT_JWT_EXPIRES_IN:?Set CHAT_JWT_EXPIRES_IN in .env.development}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CHAT_VECTOR_STORE_ID: ${CHAT_VECTOR_STORE_ID:-}
+      CHAT_CORS_ORIGINS: ${CHAT_CORS_ORIGINS:?Set CHAT_CORS_ORIGINS in .env.development}
+    ports:
+      - "${CHAT_PORT:?Set CHAT_PORT in .env.development}:${CHAT_PORT:?Set CHAT_PORT in .env.development}"
+    volumes:
+      - ./netzero-chat-server:/app
+      - chat_node_modules:/app/node_modules
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+  netzero-client:
+    build:
+      context: ./netzero-client
+      target: development
+    init: true
+    environment:
+      NODE_ENV: ${NODE_ENV:?Set NODE_ENV in .env.development}
+      HOST: 0.0.0.0
+      PORT: ${CLIENT_PORT:?Set CLIENT_PORT in .env.development}
+      CHOKIDAR_USEPOLLING: "true"
+      REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:?Set REACT_APP_API_BASE_URL in .env.development}
+      REACT_APP_CHAT_API_BASE_URL: ${REACT_APP_CHAT_API_BASE_URL:?Set REACT_APP_CHAT_API_BASE_URL in .env.development}
+      REACT_APP_USE_REAL_TREE_API: ${REACT_APP_USE_REAL_TREE_API:?Set REACT_APP_USE_REAL_TREE_API in .env.development}
+      REACT_APP_STATIC_ASSET_BASE_URL: ${REACT_APP_STATIC_ASSET_BASE_URL:-}
+    ports:
+      - "${CLIENT_PORT:?Set CLIENT_PORT in .env.development}:${CLIENT_PORT:?Set CLIENT_PORT in .env.development}"
+    volumes:
+      - ./netzero-client:/app
+      - client_node_modules:/app/node_modules
+    depends_on:
+      - netzero-server
+      - netzero-chat-server
+
+volumes:
+  server_node_modules:
+  chat_node_modules:
+  client_node_modules:

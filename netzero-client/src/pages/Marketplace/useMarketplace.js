@@ -179,12 +179,17 @@ const useMarketplace = (type = "market") => {
         // Fetch initial products with pagination
         await fetchProducts();
 
-        // Get categories and regions from a larger sample for filter options
-        const metaResponse = await productsService.getProducts({ 
-          type: type, 
-          limit: 1000
-        });
-        const allProducts = metaResponse.data;
+        // Get categories and regions from all products in allowed page sizes
+        const allProducts = [];
+        const pageSize = 100;
+        let offset = 0;
+        let page;
+        do {
+          const metaResponse = await productsService.getProducts({ type, limit: pageSize, offset });
+          page = metaResponse.data;
+          allProducts.push(...page);
+          offset += page.length;
+        } while (page.length === pageSize);
         
         const uniqueCategories = [...new Set(allProducts.map(product => product.category))];
         const uniqueRegions = [...new Set(allProducts.map(product => product.address || 'Unknown'))];

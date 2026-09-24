@@ -1,37 +1,27 @@
 const express = require('express');
-const router = express.Router();
 const EventProductController = require('../controllers/EventProductController');
-const { authenticateToken, checkEventOwnership } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
+const { asyncHandler } = require('../middleware/errorHandler');
+const { validateRequest } = require('../middleware/validateRequest');
+const {
+  eventProductIdParams,
+  productIdParams,
+  eventIdParams,
+  eventProductFilters,
+  createEventProductBody,
+  updateEventProductBody,
+  patchEventProductBody
+} = require('../validators/eventProductValidator');
 
-// Public routes (no authentication required)
+const router = express.Router();
 
-// GET /api/v1/event-products - Get all event products with optional filters
-router.get('/', EventProductController.getAllEventProducts);
-
-// GET /api/v1/event-products/product/:productId/events - Get all events for a specific product
-router.get('/product/:productId/events', EventProductController.getEventsByProductId);
-
-// GET /api/v1/event-products/event/:eventId/products - Get all products for a specific event
-router.get('/event/:eventId/products', EventProductController.getProductsByEventId);
-
-// GET /api/v1/event-products/:id - Get event product by ID
-router.get('/:id', EventProductController.getEventProductById);
-
-// Protected routes (authentication required)
-
-// POST /api/v1/event-products - Create a new event product
-// Uses checkEventOwnership middleware to determine status (confirmed if owner, pending otherwise)
-router.post('/', authenticateToken, checkEventOwnership, EventProductController.createEventProduct);
-
-// PUT /api/v1/event-products/:id - Update event product
-// Uses checkEventOwnership middleware to check if user can confirm the product
-router.put('/:id', authenticateToken, checkEventOwnership, EventProductController.updateEventProduct);
-
-// PATCH /api/v1/event-products/:id - Update event product with stock calculation
-// Only requires authentication (ownership checked in controller/model)
-router.patch('/:id', authenticateToken, EventProductController.patchEventProduct);
-
-// DELETE /api/v1/event-products/:id - Delete event product
-router.delete('/:id', authenticateToken, EventProductController.deleteEventProduct);
+router.get('/', validateRequest({ query: eventProductFilters }), asyncHandler(EventProductController.getAllEventProducts));
+router.get('/product/:productId/events', validateRequest({ params: productIdParams }), asyncHandler(EventProductController.getEventsByProductId));
+router.get('/event/:eventId/products', validateRequest({ params: eventIdParams }), asyncHandler(EventProductController.getProductsByEventId));
+router.get('/:id', validateRequest({ params: eventProductIdParams }), asyncHandler(EventProductController.getEventProductById));
+router.post('/', authenticateToken, validateRequest({ body: createEventProductBody }), asyncHandler(EventProductController.createEventProduct));
+router.put('/:id', authenticateToken, validateRequest({ params: eventProductIdParams, body: updateEventProductBody }), asyncHandler(EventProductController.updateEventProduct));
+router.patch('/:id', authenticateToken, validateRequest({ params: eventProductIdParams, body: patchEventProductBody }), asyncHandler(EventProductController.patchEventProduct));
+router.delete('/:id', authenticateToken, validateRequest({ params: eventProductIdParams }), asyncHandler(EventProductController.deleteEventProduct));
 
 module.exports = router;

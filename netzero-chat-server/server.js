@@ -1,27 +1,27 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const config = require('./src/config/env');
 
 // Import configuration and middleware
 const { testConnection } = require('./src/config/database');
 const { 
   errorHandler, 
   notFound, 
-  requestLogger, 
-  responseFormatter 
+  requestLogger
 } = require('./src/middleware/errorHandler');
 
 // Import routes
 const chatRoutes = require('./src/routes/chatRoutes');
 const productSurveyRoutes = require('./src/routes/productSurveyRoutes');
+const systemRoutes = require('./src/routes/systemRoutes');
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.CHAT_PORT || 3004;
-const API_PREFIX = process.env.API_PREFIX || '/api';
-const API_VERSION = process.env.API_VERSION || 'v1';
+const port = config.port;
+const apiPrefix = config.apiPrefix;
+const apiVersion = config.apiVersion;
 
 // Trust proxy for rate limiting behind reverse proxy
 app.set('trust proxy', 1);
@@ -39,16 +39,7 @@ app.use(helmet({
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',  // React development server (CRA default)
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',  // NetZero client port
-    'http://127.0.0.1:3001',
-    'http://10.201.188.99:3001', // Network access
-    'https://engagement.chula.ac.th', // Production domain
-    'http://161.200.199.67', // Production server IP
-    'http://161.200.199.67:3001' // Production server IP with port
-  ],
+  origin: config.cors.origins,
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -56,124 +47,21 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Request logging
-if (process.env.NODE_ENV === 'development') {
+if (config.isDevelopment) {
   app.use(morgan('dev'));
 }
 app.use(requestLogger);
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: config.bodyLimit }));
+app.use(express.urlencoded({ extended: true, limit: config.bodyLimit }));
 
-// Response formatting
-app.use(responseFormatter);
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'NetZero Chat Server is running',
-    service: 'netzero-chat-server',
-    environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0',
-    port: PORT,
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    timestamp: new Date().toISOString()
-  });
-});
-
-// API information endpoint
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Welcome to NetZero Chat API',
-    service: 'netzero-chat-server',
-    version: '1.0.0',
-    documentation: {
-      chat: `${API_PREFIX}/${API_VERSION}/chat`,
-      productSurvey: `${API_PREFIX}/${API_VERSION}/products`,
-      health: '/health'
-    },
-    endpoints: {
-      chat: {
-        welcome: `GET ${API_PREFIX}/${API_VERSION}/chat/:chatid`,
-        sendMessage: `POST ${API_PREFIX}/${API_VERSION}/chat/:chatid/message`,
-        getHistory: `GET ${API_PREFIX}/${API_VERSION}/chat/:chatid/history`,
-        health: `GET ${API_PREFIX}/${API_VERSION}/chat/health`
-      },
-      productSurvey: {
-        submitSurvey: `POST ${API_PREFIX}/${API_VERSION}/products/:productId/surveys`,
-        getSurveyHistory: `GET ${API_PREFIX}/${API_VERSION}/products/:productId/surveys`,
-        getSurveyResponse: `GET ${API_PREFIX}/${API_VERSION}/products/surveys/:surveyResponseId`,
-        getQuestions: `GET ${API_PREFIX}/${API_VERSION}/products/surveys/questions`,
-        health: `GET ${API_PREFIX}/${API_VERSION}/products/surveys/health`
-      }
-    },
-    usage: {
-      authentication: 'Bearer token required for most endpoints',
-      rateLimit: '100 requests per minute per IP',
-      messageFormat: {
-        send: {
-          method: 'POST',
-          url: '/api/v1/chat/{chatid}/message',
-          body: { message: 'Your message here' },
-          headers: { 'Authorization': 'Bearer your-jwt-token' }
-        },
-        submitSurvey: {
-          method: 'POST',
-          url: '/api/v1/products/{productId}/surveys',
-          body: { 
-            answers: [
-              { questionId: 'q001', score: 8 },
-              { questionId: 'q002', score: 7 }
-            ]
-          },
-          headers: { 'Authorization': 'Bearer your-jwt-token (optional)' }
-        }
-      }
-    },
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Database connection test endpoint
-app.get('/db-test', async (req, res) => {
-  try {
-    const isConnected = await testConnection();
-    
-    if (isConnected) {
-      res.status(200).json({
-        success: true,
-        message: 'Chat Server - Database connection successful',
-        database: {
-          host: process.env.DB_HOST,
-          port: process.env.DB_PORT,
-          database: process.env.DB_NAME,
-          user: process.env.DB_USER
-        },
-        timestamp: new Date().toISOString()
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: 'Chat Server - Database connection failed',
-        timestamp: new Date().toISOString()
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Chat Server - Database connection error',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
+// System routes
+app.use('/', systemRoutes);
 
 // API Routes
-app.use(`${API_PREFIX}/${API_VERSION}/chat`, chatRoutes);
-app.use(`${API_PREFIX}/${API_VERSION}/products`, productSurveyRoutes);
+app.use(`${apiPrefix}/${apiVersion}/chat`, chatRoutes);
+app.use(`${apiPrefix}/${apiVersion}/products`, productSurveyRoutes);
 
 // 404 handler
 app.use(notFound);
@@ -199,15 +87,15 @@ process.on('SIGINT', () => {
 });
 
 // Start server
-const server = app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(port, '0.0.0.0', async () => {
   console.log('🚀 NetZero Chat Server Starting...');
   console.log('═══════════════════════════════════════');
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Server: http://0.0.0.0:${PORT}`);
-  console.log(`🔗 Health Check: http://localhost:${PORT}/health`);
-  console.log(`🗄️  Database Test: http://localhost:${PORT}/db-test`);
-  console.log(`📚 API Base: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}`);
-  console.log(`💬 Chat API: http://127.0.0.1:${PORT}${API_PREFIX}/${API_VERSION}/chat`);
+  console.log(`📍 Environment: ${config.env}`);
+  console.log(`🌐 Server: http://0.0.0.0:${port}`);
+  console.log(`🔗 Health Check: http://localhost:${port}/health`);
+  console.log(`🗄️  Database Test: http://localhost:${port}/db-test`);
+  console.log(`📚 API Base: http://127.0.0.1:${port}${apiPrefix}/${apiVersion}`);
+  console.log(`💬 Chat API: http://127.0.0.1:${port}${apiPrefix}/${apiVersion}/chat`);
   console.log('═══════════════════════════════════════');
   
   // Test database connection on startup

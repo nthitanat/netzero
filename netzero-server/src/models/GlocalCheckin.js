@@ -1,190 +1,158 @@
-const { executeQuery, executeCommand } = require('../config/database');
+const { pool } = require('../config/database');
 
-class GlocalCheckin {
-  constructor(data) {
-    this.id = data.id;
-    this.survey_id = data.survey_id;
-    this.identifier_type = data.identifier_type;
-    this.identifier_value = data.identifier_value;
-    this.surveymonkey_response_id = data.surveymonkey_response_id;
-    this.status = data.status;
-    this.checked_in_at = data.checked_in_at;
-    this.completed_at = data.completed_at;
-    this.last_synced_at = data.last_synced_at;
-    this.created_at = data.created_at;
-    this.updated_at = data.updated_at;
-  }
+const CHECKIN_COLUMNS = `
+  id, survey_id, identifier_type, identifier_value,
+  surveymonkey_response_id, status, checked_in_at,
+  completed_at, last_synced_at, created_at, updated_at
+`;
+const UPDATE_COLUMNS = Object.freeze({
+  status: 'status',
+  surveyMonkeyResponseId: 'surveymonkey_response_id',
+  completedAt: 'completed_at',
+  lastSyncedAt: 'last_synced_at'
+});
 
-  // Database schema definition
-  static getSchema() {
-    return {
-      tableName: 'glocal_checkins',
-      columns: {
-        id: 'INT AUTO_INCREMENT PRIMARY KEY',
-        survey_id: 'VARCHAR(64) NOT NULL',
-        identifier_type: "ENUM('email') NOT NULL DEFAULT 'email'",
-        identifier_value: 'VARCHAR(255) NOT NULL',
-        surveymonkey_response_id: 'VARCHAR(64) NULL',
-        status: "ENUM('not_started','partial','completed') NOT NULL DEFAULT 'not_started'",
-        checked_in_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-        completed_at: 'TIMESTAMP NULL DEFAULT NULL',
-        last_synced_at: 'TIMESTAMP NULL DEFAULT NULL',
-        created_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-        updated_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
-      },
-      indexes: [
-        'UNIQUE INDEX uq_glocal_checkins_survey_identifier (survey_id, identifier_type, identifier_value)',
-        'INDEX idx_glocal_checkins_status (status)'
-      ]
-    };
-  }
-
-  static async create(data) {
-    const {
-      survey_id,
-      identifier_type = 'email',
-      identifier_value,
-      surveymonkey_response_id = null,
-      status = 'not_started',
-      completed_at = null,
-      last_synced_at = null
-    } = data;
-
-    const query = `
-      INSERT INTO glocal_checkins
-        (survey_id, identifier_type, identifier_value, surveymonkey_response_id, status, completed_at, last_synced_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const [result] = await executeCommand(query, [
-      survey_id, identifier_type, identifier_value, surveymonkey_response_id, status, completed_at, last_synced_at
-    ]);
-
-    return result.insertId;
-  }
-
-  // Insert or update a check-in row keyed on (survey_id, identifier_type, identifier_value)
-  static async upsert(data) {
-    const {
-      survey_id,
-      identifier_type = 'email',
-      identifier_value,
-      surveymonkey_response_id = null,
-      status = 'not_started',
-      completed_at = null,
-      last_synced_at = null
-    } = data;
-
-    const query = `
-      INSERT INTO glocal_checkins
-        (survey_id, identifier_type, identifier_value, surveymonkey_response_id, status, completed_at, last_synced_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        surveymonkey_response_id = VALUES(surveymonkey_response_id),
-        status = VALUES(status),
-        completed_at = COALESCE(VALUES(completed_at), completed_at),
-        last_synced_at = VALUES(last_synced_at),
-        updated_at = CURRENT_TIMESTAMP
-    `;
-
-    await executeCommand(query, [
-      survey_id, identifier_type, identifier_value, surveymonkey_response_id, status, completed_at, last_synced_at
-    ]);
-
-    return GlocalCheckin.findByIdentifier(survey_id, identifier_value, identifier_type);
-  }
-
-  static async findAll(filters = {}) {
-    let query = 'SELECT * FROM glocal_checkins WHERE 1=1';
-    const params = [];
-
-    if (filters.survey_id) {
-      query += ' AND survey_id = ?';
-      params.push(filters.survey_id);
-    }
-
-    if (filters.status) {
-      query += ' AND status = ?';
-      params.push(filters.status);
-    }
-
-    query += ' ORDER BY created_at DESC';
-
-    if (filters.limit) {
-      query += ' LIMIT ?';
-      params.push(filters.limit);
-    }
-
-    if (filters.offset) {
-      query += ' OFFSET ?';
-      params.push(filters.offset);
-    }
-
-    const rows = await executeQuery(query, params);
-    return rows.map(row => new GlocalCheckin(row));
-  }
-
-  static async count(filters = {}) {
-    let query = 'SELECT COUNT(*) AS total FROM glocal_checkins WHERE 1=1';
-    const params = [];
-
-    if (filters.survey_id) {
-      query += ' AND survey_id = ?';
-      params.push(filters.survey_id);
-    }
-
-    if (filters.status) {
-      query += ' AND status = ?';
-      params.push(filters.status);
-    }
-
-    const rows = await executeQuery(query, params);
-    return rows[0].total;
-  }
-
-  static async findById(id) {
-    const rows = await executeQuery('SELECT * FROM glocal_checkins WHERE id = ?', [id]);
-    return rows.length ? new GlocalCheckin(rows[0]) : null;
-  }
-
-  static async findByIdentifier(survey_id, identifier_value, identifier_type = 'email') {
-    const rows = await executeQuery(
-      'SELECT * FROM glocal_checkins WHERE survey_id = ? AND identifier_type = ? AND identifier_value = ?',
-      [survey_id, identifier_type, identifier_value]
-    );
-    return rows.length ? new GlocalCheckin(rows[0]) : null;
-  }
-
-  static async updateById(id, updates) {
-    const allowedFields = ['status', 'surveymonkey_response_id', 'completed_at', 'last_synced_at'];
-    const fields = [];
-    const params = [];
-
-    for (const key of allowedFields) {
-      if (updates[key] !== undefined) {
-        fields.push(`${key} = ?`);
-        params.push(updates[key]);
-      }
-    }
-
-    if (fields.length === 0) {
-      return false;
-    }
-
-    params.push(id);
-    const query = `UPDATE glocal_checkins SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
-    const [result] = await executeCommand(query, params);
-    return result.affectedRows > 0;
-  }
-
-  static async deleteById(id) {
-    const [result] = await executeCommand('DELETE FROM glocal_checkins WHERE id = ?', [id]);
-    return result.affectedRows > 0;
-  }
-
-  toJSON() {
-    return { ...this };
-  }
+function mapCheckin(row) {
+  return {
+    checkinId: row.id,
+    surveyId: row.survey_id,
+    identifierType: row.identifier_type,
+    identifierValue: row.identifier_value,
+    surveyMonkeyResponseId: row.surveymonkey_response_id,
+    status: row.status,
+    checkedInAt: row.checked_in_at,
+    completedAt: row.completed_at,
+    lastSyncedAt: row.last_synced_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
 }
 
-module.exports = GlocalCheckin;
+async function insert(checkin, { tx } = {}) {
+  const database = tx || pool;
+  const [result] = await database.execute(`
+    INSERT INTO glocal_checkins (
+      survey_id, identifier_type, identifier_value, surveymonkey_response_id,
+      status, completed_at, last_synced_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+  `, [
+    checkin.surveyId,
+    checkin.identifierType,
+    checkin.identifierValue,
+    checkin.surveyMonkeyResponseId ?? null,
+    checkin.status,
+    checkin.completedAt ?? null,
+    checkin.lastSyncedAt ?? null
+  ]);
+  return result.insertId;
+}
+
+async function upsert(checkin, { tx } = {}) {
+  const database = tx || pool;
+  await database.execute(`
+    INSERT INTO glocal_checkins (
+      survey_id, identifier_type, identifier_value, surveymonkey_response_id,
+      status, completed_at, last_synced_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      surveymonkey_response_id = VALUES(surveymonkey_response_id),
+      status = VALUES(status),
+      completed_at = COALESCE(VALUES(completed_at), completed_at),
+      last_synced_at = VALUES(last_synced_at),
+      updated_at = CURRENT_TIMESTAMP
+  `, [
+    checkin.surveyId,
+    checkin.identifierType,
+    checkin.identifierValue,
+    checkin.surveyMonkeyResponseId ?? null,
+    checkin.status,
+    checkin.completedAt ?? null,
+    checkin.lastSyncedAt ?? null
+  ]);
+  return findByIdentifier({
+    surveyId: checkin.surveyId,
+    identifierValue: checkin.identifierValue,
+    identifierType: checkin.identifierType
+  }, { tx });
+}
+
+async function findById(checkinId, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(
+    `SELECT ${CHECKIN_COLUMNS} FROM glocal_checkins WHERE id = ?`,
+    [checkinId]
+  );
+  return rows[0] ? mapCheckin(rows[0]) : null;
+}
+
+async function findByIdentifier({ surveyId, identifierValue, identifierType = 'email' }, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(`
+    SELECT ${CHECKIN_COLUMNS} FROM glocal_checkins
+    WHERE survey_id = ? AND identifier_type = ? AND identifier_value = ?
+  `, [surveyId, identifierType, identifierValue]);
+  return rows[0] ? mapCheckin(rows[0]) : null;
+}
+
+function buildFilterQuery(filters) {
+  let clause = ' WHERE 1 = 1';
+  const values = [];
+  if (filters.surveyId !== undefined) {
+    clause += ' AND survey_id = ?';
+    values.push(filters.surveyId);
+  }
+  if (filters.status !== undefined) {
+    clause += ' AND status = ?';
+    values.push(filters.status);
+  }
+  return { clause, values };
+}
+
+async function findAll(filters = {}, { tx } = {}) {
+  const database = tx || pool;
+  const { clause, values } = buildFilterQuery(filters);
+  const [rows] = await database.execute(`
+    SELECT ${CHECKIN_COLUMNS} FROM glocal_checkins ${clause}
+    ORDER BY created_at DESC LIMIT ? OFFSET ?
+  `, [...values, String(filters.limit), String(filters.offset)]);
+  return rows.map(mapCheckin);
+}
+
+async function count(filters = {}, { tx } = {}) {
+  const database = tx || pool;
+  const { clause, values } = buildFilterQuery(filters);
+  const [rows] = await database.execute(
+    `SELECT COUNT(*) AS total FROM glocal_checkins ${clause}`,
+    values
+  );
+  return rows[0].total;
+}
+
+async function updateById(checkinId, updates, { tx } = {}) {
+  const database = tx || pool;
+  const fields = Object.entries(updates).filter(([name]) => UPDATE_COLUMNS[name]);
+  if (fields.length === 0) return false;
+  const assignments = fields.map(([name]) => `${UPDATE_COLUMNS[name]} = ?`).join(', ');
+  const values = fields.map(([, value]) => value);
+  const [result] = await database.execute(`
+    UPDATE glocal_checkins SET ${assignments}, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+  `, [...values, checkinId]);
+  return result.affectedRows > 0;
+}
+
+async function deleteById(checkinId, { tx } = {}) {
+  const database = tx || pool;
+  const [result] = await database.execute('DELETE FROM glocal_checkins WHERE id = ?', [checkinId]);
+  return result.affectedRows > 0;
+}
+
+module.exports = {
+  insert,
+  upsert,
+  findById,
+  findByIdentifier,
+  findAll,
+  count,
+  updateById,
+  deleteById
+};

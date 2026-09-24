@@ -1,184 +1,83 @@
-const UserEvent = require('../models/UserEvent');
-const Event = require('../models/Event');
+const UserEventService = require('../services/UserEventService');
+const { sendSuccess } = require('../middleware/response');
 
-class UserEventController {
-  
-  // Get all events for a specific user
-  static async getUserEvents(req, res, next) {
-    try {
-      const { userId } = req.params;
-      
-      // Validate userId
-      if (!userId || isNaN(parseInt(userId))) {
-        return res.status(400).json({
-          success: false,
-          message: 'Valid user ID is required'
-        });
-      }
-
-      const events = await UserEvent.getEventsByUserId(parseInt(userId));
-      
-      res.status(200).json({
-        success: true,
-        message: 'User events retrieved successfully',
-        data: events
-      });
-      
-    } catch (error) {
-      console.error('Error in getUserEvents:', error);
-      next(error);
-    }
-  }
-
-  // Get events owned by the authenticated user
-  static async getMyEvents(req, res, next) {
-    try {
-      const userId = req.user.userId || req.user.id;
-      
-      // Validate userId from auth token
-      if (!userId || isNaN(parseInt(userId))) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid authentication token'
-        });
-      }
-
-      const events = await UserEvent.getEventsByUserId(parseInt(userId));
-      
-      res.status(200).json({
-        success: true,
-        message: 'My events retrieved successfully',
-        data: events
-      });
-      
-    } catch (error) {
-      console.error('Error in getMyEvents:', error);
-      next(error);
-    }
-  }
-
-  // Create user-event relationship (join event)
-  static async joinEvent(req, res, next) {
-    try {
-      const { userId, eventId } = req.body;
-      
-      // Validate input
-      if (!userId || !eventId || isNaN(parseInt(userId)) || isNaN(parseInt(eventId))) {
-        return res.status(400).json({
-          success: false,
-          message: 'Valid user ID and event ID are required'
-        });
-      }
-
-      // Check if event exists
-      const event = await Event.findById(parseInt(eventId));
-      if (!event) {
-        return res.status(404).json({
-          success: false,
-          message: 'Event not found'
-        });
-      }
-
-      const userEventId = await UserEvent.create(parseInt(userId), parseInt(eventId));
-      
-      res.status(201).json({
-        success: true,
-        message: 'User joined event successfully',
-        data: { id: userEventId }
-      });
-      
-    } catch (error) {
-      console.error('Error in joinEvent:', error);
-      next(error);
-    }
-  }
-
-  // Remove user-event relationship (leave event)
-  static async leaveEvent(req, res, next) {
-    try {
-      const { userId, eventId } = req.params;
-      
-      // Validate input
-      if (!userId || !eventId || isNaN(parseInt(userId)) || isNaN(parseInt(eventId))) {
-        return res.status(400).json({
-          success: false,
-          message: 'Valid user ID and event ID are required'
-        });
-      }
-
-      const removed = await UserEvent.remove(parseInt(userId), parseInt(eventId));
-      
-      if (!removed) {
-        return res.status(404).json({
-          success: false,
-          message: 'User-event relationship not found'
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'User left event successfully'
-      });
-      
-    } catch (error) {
-      console.error('Error in leaveEvent:', error);
-      next(error);
-    }
-  }
-
-  // Get all users for a specific event
-  static async getEventUsers(req, res, next) {
-    try {
-      const { eventId } = req.params;
-      
-      // Validate eventId
-      if (!eventId || isNaN(parseInt(eventId))) {
-        return res.status(400).json({
-          success: false,
-          message: 'Valid event ID is required'
-        });
-      }
-
-      const users = await UserEvent.getUsersByEventId(parseInt(eventId));
-      
-      res.status(200).json({
-        success: true,
-        message: 'Event users retrieved successfully',
-        data: users
-      });
-      
-    } catch (error) {
-      console.error('Error in getEventUsers:', error);
-      next(error);
-    }
-  }
-
-  // Check if user owns/is associated with an event
-  static async checkOwnership(req, res, next) {
-    try {
-      const { userId, eventId } = req.params;
-      
-      // Validate input
-      if (!userId || !eventId || isNaN(parseInt(userId)) || isNaN(parseInt(eventId))) {
-        return res.status(400).json({
-          success: false,
-          message: 'Valid user ID and event ID are required'
-        });
-      }
-
-      const ownsEvent = await UserEvent.userOwnsEvent(parseInt(userId), parseInt(eventId));
-      
-      res.status(200).json({
-        success: true,
-        message: 'Ownership check completed',
-        data: { ownsEvent }
-      });
-      
-    } catch (error) {
-      console.error('Error in checkOwnership:', error);
-      next(error);
-    }
-  }
+function serializeUserEvent(event) {
+  return {
+    id: event.eventId,
+    title: event.title,
+    description: event.description,
+    event_date: event.eventDate,
+    location: event.location,
+    status: event.status,
+    created_at: event.createdAt,
+    joined_at: event.joinedAt
+  };
 }
 
-module.exports = UserEventController;
+function serializeEventUser(user) {
+  return {
+    id: user.userId,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    joined_at: user.joinedAt
+  };
+}
+
+async function getUserEvents(req, res) {
+  const events = await UserEventService.getUserEvents({ userId: req.validated.params.userId });
+  return sendSuccess(res, {
+    message: 'User events retrieved successfully',
+    data: events.map(serializeUserEvent)
+  });
+}
+
+async function getMyEvents(req, res) {
+  const events = await UserEventService.getMyEvents({ actor: req.user });
+  return sendSuccess(res, {
+    message: 'My events retrieved successfully',
+    data: events.map(serializeUserEvent)
+  });
+}
+
+async function joinEvent(req, res) {
+  const { userId, eventId } = req.validated.body;
+  const userEventId = await UserEventService.joinEvent({ actor: req.user, userId, eventId });
+  return sendSuccess(res, {
+    message: 'User joined event successfully',
+    data: { id: userEventId },
+    statusCode: 201
+  });
+}
+
+async function leaveEvent(req, res) {
+  const { userId, eventId } = req.validated.params;
+  await UserEventService.leaveEvent({ actor: req.user, userId, eventId });
+  return sendSuccess(res, { message: 'User left event successfully' });
+}
+
+async function getEventUsers(req, res) {
+  const users = await UserEventService.getEventUsers({ eventId: req.validated.params.eventId });
+  return sendSuccess(res, {
+    message: 'Event users retrieved successfully',
+    data: users.map(serializeEventUser)
+  });
+}
+
+async function checkOwnership(req, res) {
+  const { userId, eventId } = req.validated.params;
+  const ownsEvent = await UserEventService.checkOwnership({ userId, eventId });
+  return sendSuccess(res, {
+    message: 'Ownership check completed',
+    data: { ownsEvent }
+  });
+}
+
+module.exports = {
+  getUserEvents,
+  getMyEvents,
+  joinEvent,
+  leaveEvent,
+  getEventUsers,
+  checkOwnership
+};

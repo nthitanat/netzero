@@ -1,8 +1,16 @@
 # NetZero Server Documentation
 
-This folder contains comprehensive documentation for the NetZero server project, with a focus on the database architecture improvements.
+This folder contains the NetZero backend architecture guide and supporting API/database documentation.
 
 ## 📚 Documentation Files
+
+### 🧭 [GENERAL_ARCHITECTURE.md](./GENERAL_ARCHITECTURE.md)
+
+**NetZero backend target architecture and migration guide**
+
+- Defines the route → middleware → controller → service → model boundaries, plus the role of pure utilities and external adapters
+- Distinguishes the target design from the current implementation and preserves the existing `/api/v1` client contract during migration
+- Covers the function-based resource coding pattern, transactions, field mapping, errors, uploads, integrations, and a migration checklist
 
 ### 📖 [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md)
 **Complete technical documentation for the centralized database architecture**
@@ -33,19 +41,19 @@ This folder contains comprehensive documentation for the NetZero server project,
 ## 🎯 Quick Start
 
 ### For New Developers
-1. Start with **[DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md)** to understand the system
-2. Reference **[MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)** when writing new database code
-3. Follow the examples and best practices outlined in both documents
+1. Start with **[GENERAL_ARCHITECTURE.md](./GENERAL_ARCHITECTURE.md)** for layer responsibilities and migration status
+2. Read **[DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md)** for database helper details
+3. Reference **[DATABASE_ARCHITECTURE_MIGRATION_GUIDE.md](./DATABASE_ARCHITECTURE_MIGRATION_GUIDE.md)** when changing database code
 
 ### For Existing Code Migration
-1. Review **[MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md)** for step-by-step instructions
-2. Use the **Quick Migration Checklist** to ensure you cover all steps
-3. Test thoroughly using the validation strategies provided
+1. Review **[GENERAL_ARCHITECTURE.md](./GENERAL_ARCHITECTURE.md)** for layer boundaries and current migration status
+2. Use **[DATABASE_ARCHITECTURE_MIGRATION_GUIDE.md](./DATABASE_ARCHITECTURE_MIGRATION_GUIDE.md)** for database-helper changes
+3. Verify endpoint contracts and transaction behavior as each resource moves between layers
 
 ### For Architectural Review
-1. Read **[CONVERSATION_SUMMARY.md](./CONVERSATION_SUMMARY.md)** for context and decisions
-2. Review **[DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md)** for technical details
-3. Consider the future roadmap and extension points
+1. Review **[GENERAL_ARCHITECTURE.md](./GENERAL_ARCHITECTURE.md)** for the target and current gaps
+2. Review **[DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md)** for database helper details
+3. Compare the target with the current routes, controllers, services, and models
 
 ## 🏗️ Architecture Overview
 
@@ -108,16 +116,16 @@ This folder contains comprehensive documentation for the NetZero server project,
 | Model | Status | Notes |
 |-------|--------|-------|
 | **User** | ✅ **Migrated** | Complete migration with all centralized functions |
-| **Product** | 🔄 **Legacy** | Still uses `pool.execute()` - migration optional |
-| **ProductReservation** | 🔄 **Legacy** | Still uses `pool.execute()` - migration optional |
-| **Event** | 🔄 **Partial** | Uses original `executeQuery` - can upgrade |
+| **Product** | ✅ **Helper-based** | Uses `executeQuery` and `executeCommand` |
+| **ProductReservation** | 🔄 **Direct pool** | Uses `pool.execute()` and owns a transaction in the model |
+| **Event** | ✅ **Helper-based** | Uses `executeQuery` and `executeCommand` |
 
 ## 📞 Support & Questions
 
 For questions about:
 - **Implementation**: Reference [DATABASE_ARCHITECTURE.md](./DATABASE_ARCHITECTURE.md) examples
-- **Migration**: Follow [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) step-by-step
-- **Architecture Decisions**: Review [CONVERSATION_SUMMARY.md](./CONVERSATION_SUMMARY.md)
+- **Migration**: Follow [DATABASE_ARCHITECTURE_MIGRATION_GUIDE.md](./DATABASE_ARCHITECTURE_MIGRATION_GUIDE.md) for database-helper changes
+- **Architecture Decisions**: Review [GENERAL_ARCHITECTURE.md](./GENERAL_ARCHITECTURE.md) for layer responsibilities and migration priorities
 
 ## 📋 Maintenance Notes
 

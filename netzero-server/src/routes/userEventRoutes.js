@@ -1,25 +1,22 @@
 const express = require('express');
-const router = express.Router();
 const UserEventController = require('../controllers/UserEventController');
 const { authenticateToken } = require('../middleware/auth');
-const { checkEventOwnership, checkEventOwnershipOrAdmin, optionalEventOwnership } = require('../middleware/eventOwnership');
+const { asyncHandler } = require('../middleware/errorHandler');
+const { validateRequest } = require('../middleware/validateRequest');
+const {
+  userIdParams,
+  eventIdParams,
+  userEventParams,
+  joinEventBody
+} = require('../validators/userEventValidator');
 
-// Get all events for a specific user
-router.get('/user/:userId/events', UserEventController.getUserEvents);
+const router = express.Router();
 
-// Join an event (create user-event relationship)
-router.post('/join', authenticateToken, UserEventController.joinEvent);
-
-// Leave an event (remove user-event relationship)
-router.delete('/user/:userId/event/:eventId', authenticateToken, UserEventController.leaveEvent);
-
-// Get all users for a specific event
-router.get('/event/:eventId/users', UserEventController.getEventUsers);
-
-// Check if user owns/is associated with an event
-router.get('/user/:userId/event/:eventId/ownership', UserEventController.checkOwnership);
-
-// Protected route: Get events owned by authenticated user
-router.get('/my-events', authenticateToken, UserEventController.getMyEvents);
+router.get('/my-events', authenticateToken, asyncHandler(UserEventController.getMyEvents));
+router.get('/user/:userId/events', validateRequest({ params: userIdParams }), asyncHandler(UserEventController.getUserEvents));
+router.post('/join', authenticateToken, validateRequest({ body: joinEventBody }), asyncHandler(UserEventController.joinEvent));
+router.delete('/user/:userId/event/:eventId', authenticateToken, validateRequest({ params: userEventParams }), asyncHandler(UserEventController.leaveEvent));
+router.get('/event/:eventId/users', validateRequest({ params: eventIdParams }), asyncHandler(UserEventController.getEventUsers));
+router.get('/user/:userId/event/:eventId/ownership', validateRequest({ params: userEventParams }), asyncHandler(UserEventController.checkOwnership));
 
 module.exports = router;

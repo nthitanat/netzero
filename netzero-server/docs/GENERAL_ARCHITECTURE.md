@@ -1,2173 +1,385 @@
-# General Architecture Documentation
+# NetZero General Architecture
 
-**Last Updated**: April 11, 2026 (added Internal Service-to-Service API section)  
-**Purpose**: Comprehensive guide to the Node.js/Express API architecture  
-**Audience**: Future developers and AI assistants working with this codebase
+**Status:** Target architecture and migration guide. It is not a claim that every current endpoint already follows these rules.
+**Last reviewed:** September 24, 2026
+**Scope:** `netzero-server` and the equivalent backend boundaries in `netzero-chat-server`. The React client has its own component architecture; its API contract is part of this guide.
 
----
+## 1. Purpose and system map
 
-## Table of Contents
-
-1. [Architecture Overview](#architecture-overview)
-2. [Layer Responsibilities](#layer-responsibilities)
-3. [Config Files](#config-files-srcconfigjs)
-4. [Data Flow Patterns](#data-flow-patterns)
-5. [Case Conversion System](#case-conversion-system)
-6. [Naming Conventions](#naming-conventions)
-7. [Error Handling](#error-handling)
-8. [Adding New Resources](#adding-new-resources)
-9. [Image Upload Workflow](#image-upload-workflow)
-10. [Foreign Key JOIN Rules](#foreign-key-join-rules)
-11. [Internal Service-to-Service API](#internal-service-to-service-api)
-12. [Common Pitfalls](#common-pitfalls)
-
----
-
-## Architecture Overview
-
-This application follows a **layered architecture** pattern with clear separation of concerns:
+NetZero has a React client, a main Express API, a separate Express chat and product-survey API, and MySQL databases. The main API serves users, events, event participation, products, event products, reservations, surveys, chat applications, and Glocal check-ins. The chat API serves conversations and AI product-survey evaluation. The client calls both APIs.
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT REQUEST                           │
-│                    (HTTP with camelCase JSON)                    │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                    ┌────────▼────────┐
-                    │     ROUTES      │  Define endpoints, apply middleware
-                    │  (*.routes.js)  │
-                    └────────┬────────┘
-                             │
-            ┌────────────────┼────────────────┐
-            │                │                │
-    ┌───────▼───────┐ ┌─────▼─────┐ ┌───────▼────────┐
-    │  MIDDLEWARE   │ │ MIDDLEWARE│ │   MIDDLEWARE   │
-    │ (auth, role,  │ │ (validate)│ │ (emailVerified)│
-    │  rate limit)  │ │           │ │                │
-    └───────┬───────┘ └─────┬─────┘ └───────┬────────┘
-            └────────────────┼────────────────┘
-                             │ (validated camelCase)
-                    ┌────────▼────────┐
-                    │   CONTROLLERS   │  Handle HTTP layer, format responses
-                    │ (*.controller.js│
-                    └────────┬────────┘
-                             │ (business objects)
-                    ┌────────▼────────┐
-                    │    SERVICES     │  Business logic, orchestration
-                    │  (*.service.js) │
-                    └────────┬────────┘
-                             │ (domain objects)
-                    ┌────────▼────────┐
-                    │     MODELS      │  Data access, SQL, case conversion
-                    │  (*.model.js)   │
-                    └────────┬────────┘
-                             │ (snake_case SQL)
-                    ┌────────▼────────┐
-                    │    DATABASE     │  MySQL with snake_case columns
-                    │   (SQL tables)  │
-                    └─────────────────┘
+netzero-client/src/api/*
+      | HTTP
+      +--------------------------+
+      |                          |
+      v                          v
+netzero-server              netzero-chat-server
+routes                      routes
+  -> middleware               -> middleware
+  -> controllers              -> controllers
+  -> services                 -> services
+  -> models / adapters        -> models / adapters
+  -> MySQL / files / APIs     -> MySQL / AI provider
 ```
 
-### Key Architectural Principles
+Within **each backend**, use this request path:
 
-1. **Single Responsibility**: Each layer has ONE clear purpose
-2. **Dependency Direction**: Only flows downward (controllers → services → models)
-3. **Object Passing**: Always pass complete objects, not individual parameters
-4. **Case Consistency**: API uses camelCase, Database uses snake_case, automatic conversion
-5. **Error Propagation**: Throws errors up, middleware catches and formats responses
+```
+HTTP request
+  -> route (method, path, ordered middleware)
+  -> middleware (authentication, coarse authorization, input validation, upload/webhook transport)
+  -> controller (HTTP input/output)
+  -> service (business rules, orchestration, transaction ownership)
+  -> model (database access and row mapping)
+  -> MySQL
+```
 
----
+An external API client or file-storage adapter is another dependency of a **service**, not a model. The service coordinates it with model calls. No layer may skip the service to place business rules in a controller or route. **Utilities are shared helpers, not another request-processing layer.** Cross-cutting infrastructure such as logging, configuration, database pooling, and error handling supports these layers without becoming a place for feature logic.
 
-## Layer Responsibilities
+### Non-negotiable rules
 
-### 1. Routes (`src/routes/*.routes.js`)
+1. **Single responsibility:** each layer owns the work listed below.
+2. **Dependency direction:** routes call middleware/controllers; controllers call services; services call models and external adapters; models call the database. Do not import controllers into services, or services into models.
+3. **Object passing:** pass one named input object and, when needed, a separate execution context (for example a transaction). Do not grow long positional-argument lists.
+4. **Case boundary:** use camelCase inside controllers/services and in new public contracts. Map to the database's actual column names in models. Existing `/api/v1` fields remain compatible until a deliberate versioned migration.
+5. **Error propagation:** services throw typed application errors; controllers forward errors; one error handler formats HTTP responses. Do not infer status codes from error-message text.
+6. **Transaction ownership:** the service defines the unit of work. Every database operation in that unit uses the same connection. Models execute SQL but do not independently commit a business workflow.
+7. **Utility boundary:** shared utilities are small, pure, reusable functions. A `utils/` filename does not permit business decisions, SQL, HTTP, filesystem writes, or provider calls.
+8. **Function-based target:** new and fully migrated application modules export functions or factory functions; do not declare application classes. Existing classes are a migration state, not the target style.
+9. **No hidden implementation claim:** examples in this document are target patterns. Check the migration status below before assuming a named file or helper exists.
+10. **Pagination contract:** validate `limit` as a positive integer and `offset` as a nonnegative integer, and enforce the endpoint's maximum page size. In the current mysql2/MySQL setup, keep `LIMIT ? OFFSET ?` parameterized but bind those validated values as decimal strings (`String(limit)`, `String(offset)`); binding JavaScript numbers causes `ER_WRONG_ARGUMENTS`. Clients that need a full collection must request successive pages within the limit, not send an oversized `limit`.
 
-**Purpose**: Define API endpoints and orchestrate middleware chains
+## 2. Responsibilities and allowed dependencies
 
-**Responsibilities**:
-- Define HTTP endpoints (GET, POST, PUT, DELETE)
-- Apply middleware in correct order
-- Route to appropriate controller methods
-- **NO business logic** - only routing and middleware application
+| Layer | Owns | Must not own | May depend on |
+| --- | --- | --- | --- |
+| Routes | URL, method, middleware order, controller binding | Business decisions, SQL, response construction | Middleware, validators, controllers |
+| Middleware | Authentication, role gates, request parsing/validation, rate limits, webhook authentication, upload transport | Multi-step business workflows, database mutations | Shared auth/config helpers; a narrowly scoped read dependency only when unavoidable |
+| Validators | Request shape, types, limits, allowed values; cross-field input rules | Database existence/ownership checks | Validation library and pure helpers |
+| Controllers | Read validated HTTP input and actor, call one service operation, select status/headers, serialize response | SQL, stock/ownership rules, transactions, provider calls | Services, response/error helpers |
+| Services | Business rules, data-dependent authorization, orchestration across models/adapters, transaction boundary | `req`, `res`, HTTP response writing, raw SQL | Models, transaction helper, external adapters, domain helpers |
+| Models | Parameterized SQL, persistence, row-to-domain mapping, database-level conditional updates | HTTP, provider calls, cross-resource policy | Database connection/transaction context |
+| Adapters | SurveyMonkey/AI calls, binary file storage, provider-specific translation | HTTP response formatting, core domain decisions | Provider SDK/API or storage backend |
+| Utilities | Pure formatting, parsing, and conversion reused across features | Business workflows, database/network/file I/O, Express request/response handling | Built-in language APIs and other pure utilities |
 
-**Typical Structure**:
-```javascript
-const express = require('express');
-const router = express.Router();
-const resourceController = require('../controllers/resource.controller');
-const { validate } = require('../middleware/validate.middleware');
-const { authenticateToken } = require('../middleware/auth.middleware');
-const { requireRole } = require('../middleware/role.middleware');
-const { resourceSchema } = require('../validators/resource.validator');
+A service may call another service only when it represents a distinct reusable operation and does not create a dependency cycle. Prefer one orchestration service for a workflow that spans several models.
 
-// Protected admin endpoint
-router.post(
-  '/',
-  authenticateToken,           // 1. Authenticate
-  requireEmailVerified,        // 2. Verify email
-  requireRole(['admin']),      // 3. Authorize
-  validate(resourceSchema),    // 4. Validate
-  resourceController.create    // 5. Handle request
-);
+### Authentication versus authorization
 
-// Owner-or-admin endpoint (validate params BEFORE ownership check)
-router.put(
-  '/:id',
+- Authentication middleware verifies a JWT or webhook credential and attaches a consistent actor identity. Normalize legacy `req.user.id` versus `req.user.userId` at this boundary.
+- Role middleware may reject a request based only on the authenticated role (for example, an admin-only route).
+- A service must make the final decision when access depends on stored ownership, reservation state, event association, or another business fact. A model should also scope sensitive writes by the relevant owner/status when possible.
+- Validate/parse parameters before middleware that reads them. Never rely on client-supplied `user_id` to identify the acting user.
+
+## 3. Repository layout and naming
+
+Keep existing public paths and existing route/controller/model names during migration. Add layers beside them. A target main-API resource looks like this:
+
+```text
+netzero-server/
+  server.js                         # Express setup and route mounts only
+  src/
+    routes/productRoutes.js         # existing naming style
+    middleware/auth.js              # shared transport concerns
+    middleware/errorHandler.js
+    validators/productValidator.js # target: request schemas
+    controllers/ProductController.js
+    services/ProductService.js      # target: business operations
+    models/Product.js
+    adapters/                      # target: external services/file storage
+    utils/                         # target: pure shared helpers only
+    config/database.js              # pool and transaction helper
+    config/env.js
+  sql/                              # schema migrations and setup scripts
+```
+
+Use the same structure in `netzero-chat-server` where applicable. Its existing `src/services/AiProductSurveyService.js` is an example of the intended service location, though any direct SQL in that service should move into models. Existing PascalCase filenames such as `ProductController.js` may export functions after migration; a filename does not require a class.
+
+For **new resources**, choose one singular feature stem and use it across files. This matches the repository's current per-layer casing while giving new files a predictable name:
+
+| Layer | Filename pattern | Product example |
+| --- | --- | --- |
+| Route | `routes/<feature>Routes.js` | `routes/productRoutes.js` |
+| Validator | `validators/<feature>Validator.js` | `validators/productValidator.js` |
+| Controller | `controllers/<Feature>Controller.js` | `controllers/ProductController.js` |
+| Service | `services/<Feature>Service.js` | `services/ProductService.js` |
+| Model | `models/<Feature>.js` | `models/Product.js` |
+| Adapter | `adapters/<provider>Client.js` or a specific storage name | `adapters/surveyMonkeyClient.js` |
+| Pure utility | `utils/<purpose>.js` | `utils/caseConverter.js` |
+
+`<feature>` is lowerCamelCase and `<Feature>` is PascalCase; for example, `eventProduct` and `EventProduct`. Keep existing filenames such as `reservationRoutes.js` and `ProductReservationController.js` while migrating behavior so imports remain stable. Record a naming exception rather than renaming one side of a resource without its callers. File naming is separate from the functional export pattern and from the public URL.
+
+Main API route groups currently mounted in `netzero-server/server.js` are `events`, `connection`, `auth`, `users`, `user-events`, `event-products`, `products`, `reservations`, `chatapps`, `surveys`, and `glocal`. The chat server mounts `chat` and product-survey routes. Do not copy country, institution, research-network, email-verification, or ASEM internal API examples from the previous document; they are not NetZero resources.
+
+## 4. Request lifecycle
+
+For a protected JSON write:
+
+1. Global security, CORS, rate limiting, request ID, logging, and body parsing run in `server.js`.
+2. The route applies authentication, coarse role checks, parameter/body validation, then the controller. If a role check needs a parsed parameter, validation comes first.
+3. The controller constructs one input object from validated values and the authenticated actor. It does not spread business decisions across HTTP handlers.
+4. The service loads required records, checks domain rules and data-dependent permission, owns a transaction if multiple writes must succeed together, and returns a domain result.
+5. Models run parameterized SQL using the supplied transaction context and return mapped domain objects.
+6. The controller selects status/headers and formats the response. An error goes to the central error handler.
+
+A public read omits authentication only when its route is intentionally public. A webhook uses its dedicated credential check instead of JWT. A multipart upload adds upload parsing after authentication and before the controller; the service still authorizes the resource and coordinates metadata/storage.
+
+### Target route/controller/service/model sketch
+
+The following illustrates responsibilities; `validate`, `withTransaction`, and the service methods are **proposed interfaces**, not existing NetZero functions.
+
+```js
+// routes/reservationRoutes.js
+router.post('/',
   authenticateToken,
-  requireEmailVerified,
-  validate(idParamSchema, 'params'),   // validate first so param is parsed
-  validate(updateSchema, 'body'),
-  requireOwnerOrAdmin('id'),           // reads req.params.id
-  resourceController.update
+  validate(createReservationSchema),
+  asyncHandler(ProductReservationController.createReservation)
 );
 
-module.exports = router;
-```
-
-**Middleware Execution Order** (protected routes):
-1. Rate limiting (auth routes only — `authLimiter`, `passwordResetLimiter`, etc.)
-2. Authentication (`authenticateToken`)
-3. Email verification (`requireEmailVerified`) — currently only applied in user routes
-4. Authorization (`requireRole` / `requireAdmin` / `requireOwnerOrAdmin`)
-5. Validation (`validate`)
-6. Controller method
-
-> **Note on owner-check routes**: When `requireOwnerOrAdmin` is used, param validation (`validate(idParamSchema, 'params')`) runs **before** the ownership check because it needs `req.params.id` to be parsed.
-
-**Public routes** (no authentication):
-Some endpoints skip authentication entirely:
-- `GET /countries`, `GET /institutions`, `GET /research-networks` — public list endpoints
-- Auth public endpoints: register, login, verify-email, forgot-password, reset-password, refresh-token
-
----
-
-### 2. Middleware (`src/middleware/*.middleware.js`)
-
-**Purpose**: Cross-cutting concerns that run before controllers
-
-**Available Middleware**:
-
-#### `auth.middleware.js`
-- `authenticateToken` - Verifies JWT, attaches `req.user`
-- Must run FIRST on protected routes
-
-#### `role.middleware.js`
-- `requireRole(roles)` - Factory; check user role against allowed list
-- `requireAdmin` - Shorthand for `requireRole(['admin'])`; used by country, institution, researchNetwork routes
-- `requireAdminOrModerator` - Shorthand for `requireRole(['admin', 'moderator'])`
-- `requireOwnerOrAdmin(paramName)` - Allow owner or admin/moderator (reads `req.params[paramName]`)
-- All depend on `authenticateToken` running first
-
-#### `emailVerified.middleware.js`
-- `requireEmailVerified` - Blocks unverified email users
-- Depends on `authenticateToken` running first
-- **Currently only applied in user routes** — country, institution, and researchNetwork admin routes do not enforce it
-
-#### `validate.middleware.js`
-- `validate(schema, 'body')` - Validates with Joi schema
-- Supports: `'body'`, `'query'`, `'params'`
-- Strips unknown fields automatically
-
-#### `rateLimiter.middleware.js`
-Exports four rate limiters (runs **before** validation on auth routes). All values are read from environment variables with sensible defaults — **`.env` files are the single source of truth** for rate limit configuration.
-
-| Limiter | Env vars (window / max) | Defaults | Applies to |
-|---------|------------------------|----------|------------|
-| `apiLimiter` | `RATE_LIMIT_WINDOW_MS` / `RATE_LIMIT_MAX_REQUESTS` | 15 min / 100 | General API (not currently mounted on routes) |
-| `authLimiter` | `AUTH_RATE_LIMIT_WINDOW_MS` / `AUTH_RATE_LIMIT_MAX_REQUESTS` | 15 min / 10 (skips successful) | register, login |
-| `passwordResetLimiter` | `PASSWORD_RESET_RATE_LIMIT_WINDOW_MS` / `PASSWORD_RESET_RATE_LIMIT_MAX_REQUESTS` | 1 hour / 3 | forgot-password |
-| `emailVerificationLimiter` | `EMAIL_VERIFICATION_RATE_LIMIT_WINDOW_MS` / `EMAIL_VERIFICATION_RATE_LIMIT_MAX_REQUESTS` | 1 hour / 5 | resend-verification |
-
-All return `429` with the standard `errorResponse` format
-
-#### `errorHandler.middleware.js`
-- `asyncHandler()` - Wraps async controllers, catches errors
-- Global error handler (applied in `server.js`)
-
-**Middleware Pattern**:
-```javascript
-const middlewareFunction = (req, res, next) => {
-  // 1. Check condition
-  if (condition) {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-  
-  // 2. Modify request if needed
-  req.customProperty = value;
-  
-  // 3. Pass to next middleware
-  next();
-};
-```
-
----
-
-### 3. Validators (`src/validators/*.validator.js`)
-
-**Purpose**: Define Joi schemas for request validation in **camelCase**
-
-**Responsibilities**:
-- Define field validation rules
-- Use camelCase for all field names
-- Export schemas for use in routes
-
-**Standard Schema Pattern**:
-```javascript
-const Joi = require('joi');
-
-const createResourceSchema = Joi.object({
-  name: Joi.string()
-    .max(255)
-    .required()
-    .messages({
-      'string.max': 'Name cannot exceed 255 characters',
-      'any.required': 'Name is required'
-    }),
-  
-  categoryId: Joi.number()      // camelCase!
-    .integer()
-    .positive()
-    .optional(),
-  
-  isActive: Joi.boolean().truthy('true', '1').falsy('false', '0')  // camelCase! accepts true/false/1/0/"true"/"false"/"1"/"0"
-    .default(true)
-});
-
-const updateResourceSchema = Joi.object({
-  name: Joi.string().max(255).optional(),
-  categoryId: Joi.number().integer().positive().optional(),
-  isActive: Joi.boolean().truthy('true', '1').falsy('false', '0').optional()
-}).min(1); // At least one field required
-
-module.exports = {
-  createResourceSchema,
-  updateResourceSchema
-};
-```
-
-**Common Field Patterns**:
-```javascript
-// Required string
-name: Joi.string().max(255).required()
-
-// Optional string
-description: Joi.string().max(1000).optional()
-
-// Foreign key
-parentId: Joi.number().integer().positive().optional()
-
-// Email
-email: Joi.string().email().required()
-
-// Boolean — always include .truthy/.falsy to accept 1/0/"true"/"false" (e.g. form-data, query strings)
-isActive: Joi.boolean().truthy('true', '1').falsy('false', '0').default(true)
-
-// Enum
-role: Joi.string().valid('user', 'moderator', 'admin').default('user')
-
-// Password
-password: Joi.string()
-  .min(8)
-  .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
-  .required()
-```
-
-**Shared / Reusable Schema Patterns**:
-
-Several validators export common schemas that are reused across resources:
-
-```javascript
-// ID parameter validation (country, institution, researchNetwork, user validators)
-const idParamSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
-});
-
-// Pagination query validation (institution, user validators)
-const paginationQuerySchema = Joi.object({
-  page: Joi.number().integer().min(1).default(1),
-  limit: Joi.number().integer().min(1).max(100).default(20),
-  includeDeleted: Joi.boolean().default(false)  // user validator only
-});
-
-// Delete query validation (user validator)
-const deleteQuerySchema = Joi.object({
-  hard: Joi.boolean().default(false)            // soft vs hard delete
-});
-```
-
-**Auth Validator Schemas** (`auth.validator.js`):
-
-| Schema | Fields | Used for |
-|--------|--------|----------|
-| `registerSchema` | email, username, password, firstName, lastName, bestContactEmail, institutionId, department, areasOfExpertise, countryId, researchNetworkId, fieldOfStudy | `POST /auth/register` |
-| `loginSchema` | email, password | `POST /auth/login` |
-| `refreshTokenSchema` | refreshToken | `POST /auth/refresh-token` |
-| `emailSchema` | email | Resend verification / forgot password |
-| `resetPasswordSchema` | token, newPassword | `POST /auth/reset-password` |
-| `changePasswordSchema` | currentPassword, newPassword | `POST /auth/change-password` |
-| `verifyTokenQuerySchema` | token (query param) | `GET /auth/verify-email?token=...` |
-
----
-
-### 4. Controllers (`src/controllers/*.controller.js`)
-
-**Purpose**: Handle HTTP request/response cycle, format API responses
-
-**Responsibilities**:
-- Extract data from `req.params`, `req.query`, `req.body`
-- Call appropriate service method with complete objects
-- Format responses using `response.util.js`
-- Handle HTTP status codes
-- **NO business logic** - only HTTP coordination
-
-**Standard Controller Pattern**:
-```javascript
-const resourceService = require('../services/resource.service');
-const { successResponse, paginatedResponse } = require('../utils/response.util');
-const { asyncHandler } = require('../middleware/errorHandler.middleware');
-
-/**
- * Create new resource
- * POST /api/v1/resources
- */
-const createResource = asyncHandler(async (req, res) => {
-  // 1. Call service with entire req.body (already validated)
-  const resource = await resourceService.createResource(req.body);
-  
-  // 2. Return formatted response
-  return successResponse(res, { resource }, 'Resource created successfully', 201);
-});
-
-/**
- * Get resource by ID
- * GET /api/v1/resources/:id
- */
-const getResourceById = asyncHandler(async (req, res) => {
-  // 1. Extract and parse parameters
-  const { id } = req.params;
-  
-  // 2. Call service
-  const resource = await resourceService.getResourceById(parseInt(id, 10));
-  
-  // 3. Return response
-  return successResponse(res, { resource }, 'Resource retrieved successfully');
-});
-
-/**
- * Update resource
- * PUT /api/v1/resources/:id
- */
-const updateResource = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  
-  // Pass entire req.body as updates object
-  const resource = await resourceService.updateResource(parseInt(id, 10), req.body);
-  
-  return successResponse(res, { resource }, 'Resource updated successfully');
-});
-
-/**
- * List resources with pagination
- * GET /api/v1/resources
- */
-const listResources = asyncHandler(async (req, res) => {
-  const { page, limit } = req.query;
-  
-  const result = await resourceService.listResources(page, limit);
-  
-  return paginatedResponse(
-    res,
-    result.items,
-    result.page,
-    result.limit,
-    result.total,
-    'Resources retrieved successfully'
-  );
-});
-
-/**
- * Delete resource
- * DELETE /api/v1/resources/:id
- */
-const deleteResource = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { hard } = req.query; // For soft/hard delete
-  
-  await resourceService.deleteResource(parseInt(id, 10), hard === 'true');
-  
-  return successResponse(res, null, 'Resource deleted successfully');
-});
-
-module.exports = {
-  createResource,
-  getResourceById,
-  updateResource,
-  listResources,
-  deleteResource
-};
-```
-
-**Response Utilities**:
-```javascript
-// Standard success
-successResponse(res, data, message, statusCode)
-
-// Paginated lists
-paginatedResponse(res, items, page, limit, total, message)
-
-// Error (usually via error handler middleware)
-errorResponse(res, message, statusCode, code, details)
-```
-
-**Rules**:
-- ✅ **DO**: Pass entire `req.body` to services
-- ✅ **DO**: Use `asyncHandler()` wrapper for async functions
-- ✅ **DO**: Parse IDs with `parseInt(id, 10)`
-- ❌ **DON'T**: Extract individual fields from `req.body`
-- ❌ **DON'T**: Put business logic in controllers
-- ❌ **DON'T**: Call models directly
-
-> **Known exception**: `auth.controller.js` `login` extracts `{ email, password }` from `req.body` and passes them as individual arguments to `authService.login(email, password)`. This deviates from the "pass entire object" rule — new controllers should still pass `req.body` as a single object.
-
----
-
-### 5. Services (`src/services/*.service.js`)
-
-**Purpose**: Implement business logic and orchestrate operations
-
-**Responsibilities**:
-- Business rules and validation
-- Orchestrate multiple model calls
-- Cross-resource operations
-- Transaction coordination
-- Logging business events
-- **NO HTTP concerns** - throw errors, let middleware handle responses
-
-**Standard Service Pattern**:
-```javascript
-const resourceModel = require('../models/resource.model');
-const relatedModel = require('../models/related.model');
-const logger = require('../utils/logger.util');
-
-/**
- * Create new resource
- * @param {Object} data - Resource data (camelCase)
- * @returns {Promise<Object>} Created resource (camelCase)
- */
-const createResource = async (data) => {
-  // 1. Business validation
-  const existing = await resourceModel.findByName(data.name);
-  if (existing) {
-    throw new Error('Resource with this name already exists');
-  }
-  
-  // 2. Validate foreign keys if present
-  if (data.categoryId) {
-    const category = await relatedModel.findById(data.categoryId);
-    if (!category) {
-      throw new Error('Category not found');
-    }
-  }
-  
-  // 3. Call model to create
-  const resource = await resourceModel.createResource(data);
-  
-  // 4. Log business event
-  logger.info(`Resource created: ${resource.id} - ${resource.name}`);
-  
-  // 5. Return result (already camelCase from model)
-  return resource;
-};
-
-/**
- * Get resource by ID
- * @param {number} id - Resource ID
- * @returns {Promise<Object>} Resource object (camelCase)
- */
-const getResourceById = async (id) => {
-  const resource = await resourceModel.findResourceById(id);
-  
-  if (!resource) {
-    throw new Error('Resource not found');
-  }
-  
-  return resource;
-};
-
-/**
- * Update resource
- * @param {number} id - Resource ID
- * @param {Object} updates - Fields to update (camelCase)
- * @returns {Promise<Object>} Updated resource (camelCase)
- */
-const updateResource = async (id, updates) => {
-  // 1. Verify resource exists
-  const resource = await resourceModel.findResourceById(id);
-  if (!resource) {
-    throw new Error('Resource not found');
-  }
-  
-  // 2. Validate uniqueness if name is being changed
-  if (updates.name && updates.name !== resource.name) {
-    const existing = await resourceModel.findByName(updates.name);
-    if (existing) {
-      throw new Error('Resource with this name already exists');
-    }
-  }
-  
-  // 3. Validate foreign keys if present
-  if (updates.categoryId && updates.categoryId !== resource.categoryId) {
-    const category = await relatedModel.findById(updates.categoryId);
-    if (!category) {
-      throw new Error('Category not found');
-    }
-  }
-  
-  // 4. Update resource
-  const updated = await resourceModel.updateResource(id, updates);
-  
-  // 5. Log
-  logger.info(`Resource updated: ${id}`);
-  
-  return updated;
-};
-
-/**
- * List resources with pagination
- * @param {number} page - Page number
- * @param {number} limit - Items per page
- * @returns {Promise<Object>} { items, total, page, limit }
- */
-const listResources = async (page = 1, limit = 20) => {
-  const items = await resourceModel.getAllResources(page, limit);
-  const total = await resourceModel.countResources();
-  
-  return {
-    items,
-    total,
-    page: parseInt(page, 10),
-    limit: parseInt(limit, 10)
-  };
-};
-
-/**
- * Delete resource
- * @param {number} id - Resource ID
- * @param {boolean} hard - Hard delete vs soft delete
- * @returns {Promise<Object>} Result message
- */
-const deleteResource = async (id, hard = false) => {
-  const resource = await resourceModel.findResourceById(id, true); // Include deleted
-  
-  if (!resource) {
-    throw new Error('Resource not found');
-  }
-  
-  if (hard) {
-    await resourceModel.hardDeleteResource(id);
-    logger.warn(`Resource hard deleted: ${id}`);
-    return { message: 'Resource permanently deleted' };
-  } else {
-    await resourceModel.softDeleteResource(id);
-    logger.info(`Resource soft deleted: ${id}`);
-    return { message: 'Resource deleted successfully' };
-  }
-};
-
-module.exports = {
-  createResource,
-  getResourceById,
-  updateResource,
-  listResources,
-  deleteResource
-};
-```
-
-**Service Best Practices**:
-- ✅ **DO**: Validate business rules
-- ✅ **DO**: Check foreign key existence
-- ✅ **DO**: Check uniqueness constraints
-- ✅ **DO**: Log important business events
-- ✅ **DO**: Throw descriptive errors
-- ✅ **DO**: Work with camelCase objects
-  - ✅ **DO**: Use `beginTransaction()` / `commit()` / `rollback()` from `db.util.js` for multi-step writes
-
----
-
-### 6. Models (`src/models/*.model.js`)
-
-**Purpose**: Data access layer, SQL queries, case conversion
-
-**Responsibilities**:
-- Execute SQL queries
-- Convert between camelCase (API) and snake_case (database)
-- Return consistent data structures
-- Handle soft deletes
-- **NO business logic** - only data access
-
-**Standard Model Pattern**:
-```javascript
-const { query, queryOne } = require('../utils/db.util');
-const { toSnakeCase, toCamelCase, toCamelCaseArray } = require('../utils/caseConverter.util');
-
-/**
- * Create new resource
- * @param {Object} data - Resource data (camelCase)
- * @returns {Promise<Object>} Created resource (camelCase)
- */
-const createResource = async (data) => {
-  // 1. Convert camelCase input to snake_case for database
-  const snakeData = toSnakeCase(data);
-  
-  // 2. Prepare SQL with snake_case columns
-  const sql = `
-    INSERT INTO resources (
-      name, category_id, is_active, created_at
-    ) VALUES (?, ?, ?, NOW())
-  `;
-  
-  // 3. Execute query with snake_case data
-  const result = await query(sql, [
-    snakeData.name,
-    snakeData.category_id || null,
-    snakeData.is_active ?? true
-  ]);
-  
-  // 4. Return via findById (automatic camelCase conversion)
-  return findResourceById(result.insertId);
-};
-
-/**
- * Find resource by ID
- * @param {number} id - Resource ID
- * @param {boolean} includeDeleted - Include soft-deleted resources
- * @returns {Promise<Object|null>} Resource (camelCase) or null
- */
-const findResourceById = async (id, includeDeleted = false) => {
-  // 1. Write SQL with snake_case columns
-  let sql = `
-    SELECT r.*,
-           c.name AS category_name
-    FROM resources r
-    LEFT JOIN categories c ON r.category_id = c.id
-    WHERE r.id = ?
-  `;
-  
-  // 2. Handle soft deletes
-  if (!includeDeleted) {
-    sql += ' AND r.deleted_at IS NULL';
-  }
-  
-  // 3. Execute query
-  const result = await queryOne(sql, [id]);
-  
-  // 4. Convert snake_case result to camelCase
-  return result ? toCamelCase(result) : null;
-};
-
-/**
- * Get all resources with pagination
- * @param {number} page - Page number
- * @param {number} limit - Items per page
- * @returns {Promise<Array>} Array of resources (camelCase)
- */
-const getAllResources = async (page = 1, limit = 20) => {
-  const offset = (page - 1) * limit;
-  
-  const sql = `
-    SELECT r.*,
-           c.name AS category_name
-    FROM resources r
-    LEFT JOIN categories c ON r.category_id = c.id
-    WHERE r.deleted_at IS NULL
-    ORDER BY r.created_at DESC
-    LIMIT ? OFFSET ?
-  `;
-  
-  const results = await query(sql, [parseInt(limit, 10), offset]);
-  
-  // Convert array of snake_case to camelCase
-  return toCamelCaseArray(results);
-};
-
-/**
- * Count total resources
- * @returns {Promise<number>} Total count
- */
-const countResources = async () => {
-  const sql = `SELECT COUNT(*) as count FROM resources WHERE deleted_at IS NULL`;
-  const result = await queryOne(sql);
-  return result.count;
-};
-
-/**
- * Update resource
- * @param {number} id - Resource ID
- * @param {Object} updates - Fields to update (camelCase)
- * @returns {Promise<Object>} Updated resource (camelCase)
- */
-const updateResource = async (id, updates) => {
-  // 1. Convert camelCase updates to snake_case
-  const snakeUpdates = toSnakeCase(updates);
-  
-  // 2. Define allowed fields (snake_case)
-  const allowedFields = ['name', 'category_id', 'is_active'];
-  
-  // 3. Build dynamic UPDATE query
-  const fields = [];
-  const values = [];
-  
-  for (const [key, value] of Object.entries(snakeUpdates)) {
-    if (allowedFields.includes(key)) {
-      fields.push(`${key} = ?`);
-      values.push(value);
-    }
-  }
-  
-  // 4. Execute update
-  if (fields.length > 0) {
-    values.push(id);
-    await query(
-      `UPDATE resources SET ${fields.join(', ')}, updated_at = NOW() WHERE id = ?`,
-      values
-    );
-  }
-  
-  // 5. Return updated resource (automatic camelCase)
-  return findResourceById(id);
-};
-
-/**
- * Soft delete resource
- * @param {number} id - Resource ID
- * @returns {Promise<void>}
- */
-const softDeleteResource = async (id) => {
-  const sql = `UPDATE resources SET deleted_at = NOW() WHERE id = ?`;
-  await query(sql, [id]);
-};
-
-/**
- * Hard delete resource
- * @param {number} id - Resource ID
- * @returns {Promise<void>}
- */
-const hardDeleteResource = async (id) => {
-  const sql = `DELETE FROM resources WHERE id = ?`;
-  await query(sql, [id]);
-};
-
-/**
- * Find resource by name
- * @param {string} name - Resource name
- * @returns {Promise<Object|null>} Resource (camelCase) or null
- */
-const findByName = async (name) => {
-  const sql = `SELECT * FROM resources WHERE name = ? AND deleted_at IS NULL`;
-  const result = await queryOne(sql, [name]);
-  return result ? toCamelCase(result) : null;
-};
-
-module.exports = {
-  createResource,
-  findResourceById,
-  getAllResources,
-  countResources,
-  updateResource,
-  softDeleteResource,
-  hardDeleteResource,
-  findByName
-};
-```
-
-**Model Best Practices**:
-- ✅ **DO**: Use `toSnakeCase()` on all inputs
-- ✅ **DO**: Use `toCamelCase()` on single results
-- ✅ **DO**: Use `toCamelCaseArray()` on array results
-- ✅ **DO**: Write SQL with snake_case column names
-- ✅ **DO**: Handle soft deletes with `deleted_at IS NULL`
-- ✅ **DO**: Use prepared statements (parameterized queries)
-- ✅ **DO**: Join related tables and alias names (e.g., `category_name`) — follow the [Foreign Key JOIN Rules](#foreign-key-join-rules)
-- ❌ **DON'T**: Return snake_case to services
-- ❌ **DON'T**: Put business logic in models
-- ❌ **DON'T**: Handle HTTP concerns
-
----
-
-### 7. Utils (`src/utils/*.util.js`)
-
-**Purpose**: Reusable helper functions
-
-**Available Utilities**:
-
-#### `caseConverter.util.js`
-```javascript
-toSnakeCase(obj)         // { firstName } → { first_name }
-toCamelCase(obj)         // { first_name } → { firstName }
-toCamelCaseArray(arr)    // Convert array of objects
-```
-
-#### `response.util.js`
-```javascript
-successResponse(res, data, message, statusCode)
-errorResponse(res, message, statusCode, code, details)
-paginatedResponse(res, items, page, limit, total, message)
-validationErrorResponse(res, errors)
-```
-
-#### `db.util.js`
-```javascript
-initializePool()             // Create mysql2 connection pool (called once at startup)
-getPool()                    // Return pool instance (lazy-initializes if needed)
-query(sql, params)           // Execute query, return array
-queryOne(sql, params)        // Execute query, return single object
-beginTransaction()           // Get connection with transaction started; returns connection
-commit(connection)           // Commit transaction and release connection
-rollback(connection)         // Rollback transaction and release connection
-ensureDatabaseExists()       // Auto-create database if missing (called at startup)
-testConnection()             // Run SELECT 1 to verify DB connectivity
-closePool()                  // End the pool and set it to null (graceful shutdown)
-```
-
-#### `logger.util.js`
-Winston-backed logger. Writes to console (colorized in dev) + `logs/error.log` + `logs/combined.log` (5 MB rotation, 5 files max). Level is `debug` in development, `info` in production.
-```javascript
-logger.info(message)                // Info level
-logger.warn(message)                // Warning level
-logger.error(message)               // Error level
-logger.debug(message)               // Debug level (development only)
-logger.info(message, { key: val })  // Structured metadata as second argument
-```
-
-#### `jwt.util.js`
-```javascript
-generateAccessToken(payload)        // Access token; expiry read from jwt.config.js
-generateRefreshToken(payload)       // Refresh token; expiry read from jwt.config.js
-verifyToken(token)                  // Verify & decode; throws if invalid or expired
-decodeToken(token)                  // Decode without verification (inspection only)
-getExpiryDate(expiresIn)            // Convert '15m'/'7d' string → Date object
-```
-
-#### `token.util.js`
-Generates and manages **non-JWT** tokens (email verification, password reset).
-```javascript
-generateSecureToken(bytes)          // crypto.randomBytes hex token (default 32 bytes)
-getTokenExpiry(seconds)             // Returns Date of now + N seconds
-isTokenExpired(expiryDate)          // Returns true if expiry Date is in the past
-hashString(data)                    // SHA256 hex hash; use for storing tokens securely
-```
-
-#### `validation.util.js`
-Lower-level validation helpers used alongside Joi schemas.
-```javascript
-isValidEmail(email)                 // Regex email check, returns boolean
-isValidUsername(username)           // Alphanumeric/underscore/hyphen, 3–30 chars
-validatePasswordStrength(password)  // Returns { valid: boolean, message: string }
-sanitizeInput(input)                // Trim + strip < > to prevent XSS
-formatJoiErrors(joiError)           // Normalize Joi error → [{ field, message }]
-```
-
-#### `service.util.js`
-Business-layer guards used inside service functions.
-```javascript
-assertHasUpdates(textUpdates, filePaths)
-// Throws 400 if both objects are empty.
-// Use in every PUT service that accepts multipart/form-data.
-// Joi's .min(1) cannot see req.files, so it would incorrectly reject
-// image-only updates. This check covers both text and file updates.
-//
-// Example:
-//   const { tempImagePaths = {}, ...updates } = data;
-//   assertHasUpdates(updates, tempImagePaths);
-```
-
-> **Rule**: Every multipart PUT service **must** call `assertHasUpdates(updates, tempImagePaths)` immediately after destructuring `data`. Do **not** add `.min(1)` to the Joi update schema — it is blind to `req.files`.
-
-#### `tableSync.util.js`
-Reads `src/config/tableSchemas.js` and auto-creates/verifies tables at server startup. **Not called directly in application code** — only invoked in `server.js`.
-```javascript
-syncAllTables()              // Creates or verifies all tables defined in tableSchemas.js
-syncTable(tableName, schema) // Sync a single table (create or alter)
-tableExists(tableName)       // Check whether a table exists in the current database
-```
-
-**Key behaviours**:
-- **Topological sort** — resolves FK-dependency order via Kahn's algorithm (with circular-dependency fallback).
-- **Interactive confirmation** — prompts before CREATE TABLE or ADD COLUMN; auto-confirms in production or non-TTY environments.
-- **Missing FK detection** — detects existing columns that lack a declared foreign key constraint and offers to add them.
-- **Type mismatch warnings** — warns when a column's DB type differs from the schema (requires manual ALTER).
-- **Extra column warnings** — warns about DB columns not present in the schema (never auto-drops them).
-
----
-
-## Config Files (`src/config/`)
-
-**Purpose**: Centralize environment-specific settings; loaded once at startup.
-
-| File | What it does |
-|------|-------------|
-| `env.config.js` | Loads `.env.<NODE_ENV>` (e.g. `.env.development`, `.env.production`). Must be `require`d **first** in `server.js`. Exports `{ nodeEnv, isProduction, isDevelopment, isTest }`. |
-| `db.config.js` | MySQL connection pool settings (host, port, credentials, charset `utf8mb4`, collation `utf8mb4_unicode_ci`). Notable defaults: `connectionLimit: 20`, `multipleStatements: false` (security — prevents stacked-query SQL injection), `enableKeepAlive: true`. Consumed by `db.util.js`. |
-| `jwt.config.js` | JWT `secret`, `accessTokenExpiry`, `refreshTokenExpiry` from env vars, plus static `issuer: 'asem-server'` and `audience: 'asem-client'` (both are embedded in tokens and validated by `verifyToken`). Consumed by `jwt.util.js`. |
-| `email.config.js` | SMTP host/port/auth settings, `from.email` / `from.name` (sender identity), `frontendUrl` (base URL for verification/reset links), and `verification.enabled` flag (`EMAIL_VERIFICATION_ENABLED`). Consumed by `email.service.js`. |
-| `tableSchemas.js` | Declarative table definitions. Consumed by `tableSync.util.js` at startup. **Add new tables here — not as raw SQL.** |
-
-**Environment file naming convention** (loaded by `env.config.js`):
-```
-.env.development   ← NODE_ENV=development
-.env.production    ← NODE_ENV=production
-.env.test          ← NODE_ENV=test
-```
-
-**Environment Variables Reference** (rate limiting):
-
-All rate limit values are configured in `.env` files — the middleware reads them via `process.env` with fallback defaults.
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `RATE_LIMIT_WINDOW_MS` | API limiter window (ms) | `900000` (15 min) |
-| `RATE_LIMIT_MAX_REQUESTS` | API limiter max requests per window | `100` |
-| `AUTH_RATE_LIMIT_WINDOW_MS` | Auth limiter window (ms) | `900000` (15 min) |
-| `AUTH_RATE_LIMIT_MAX_REQUESTS` | Auth limiter max requests (skips successful) | `10` |
-| `PASSWORD_RESET_RATE_LIMIT_WINDOW_MS` | Password reset limiter window (ms) | `3600000` (1 hour) |
-| `PASSWORD_RESET_RATE_LIMIT_MAX_REQUESTS` | Password reset limiter max requests | `3` |
-| `EMAIL_VERIFICATION_RATE_LIMIT_WINDOW_MS` | Email verification limiter window (ms) | `3600000` (1 hour) |
-| `EMAIL_VERIFICATION_RATE_LIMIT_MAX_REQUESTS` | Email verification limiter max requests | `5` |
-| `INTERNAL_API_KEY` | Secret key for internal service-to-service endpoints (`/internal/v1/*`) — never share with public clients | *(required)* |
-
----
-
-## Data Flow Patterns
-
-### CREATE Flow (POST)
-
-```
-1. CLIENT
-   POST /api/v1/resources
-   { "name": "Example", "categoryId": 5, "isActive": true }
-
-2. ROUTE
-   - authenticateToken
-   - validate(createResourceSchema)
-   - resourceController.create
-
-3. CONTROLLER
-   const resource = await resourceService.createResource(req.body);
-   // req.body = { name, categoryId, isActive } (camelCase)
-
-4. SERVICE
-   - Check if name exists
-   - Validate categoryId exists
-   const resource = await resourceModel.createResource(data);
-   // data = { name, categoryId, isActive } (camelCase)
-
-5. MODEL
-   const snakeData = toSnakeCase(data);
-   // snakeData = { name, category_id, is_active } (snake_case)
-   
-   INSERT INTO resources (name, category_id, is_active) VALUES (?, ?, ?)
-   
-   return findResourceById(insertId);
-   // Returns: { id, name, categoryId, isActive } (camelCase)
-
-6. RESPONSE
-   {
-     "success": true,
-     "message": "Resource created successfully",
-     "data": {
-       "resource": {
-         "id": 123,
-         "name": "Example",
-         "categoryId": 5,
-         "categoryName": "Category Name",
-         "isActive": true,
-         "createdAt": "2026-03-15T10:30:00.000Z"
-       }
-     }
-   }
-```
-
-### READ Flow (GET)
-
-```
-1. CLIENT
-   GET /api/v1/resources/123
-
-2. ROUTE
-   - authenticateToken
-   - validate(idParamSchema, 'params')
-   - resourceController.getById
-
-3. CONTROLLER
-   const resource = await resourceService.getResourceById(id);
-
-4. SERVICE
-   const resource = await resourceModel.findResourceById(id);
-   if (!resource) throw new Error('Resource not found');
-   return resource;
-
-5. MODEL
-   SELECT * FROM resources WHERE id = ? AND deleted_at IS NULL
-   return toCamelCase(result);
-   // Converts: { category_id } → { categoryId }
-
-6. RESPONSE
-   { "success": true, "data": { "resource": {...} } }
-```
-
-### UPDATE Flow (PUT)
-
-```
-1. CLIENT
-   PUT /api/v1/resources/123
-   { "name": "Updated", "categoryId": 7 }
-
-2. ROUTE
-   - authenticateToken
-   - validate(updateResourceSchema)
-   - resourceController.update
-
-3. CONTROLLER
-   const resource = await resourceService.updateResource(id, req.body);
-   // req.body = { name, categoryId } (camelCase)
-
-4. SERVICE
-   - Get existing resource
-   - Check name uniqueness
-   - Validate new categoryId
-   const updated = await resourceModel.updateResource(id, updates);
-   // updates = { name, categoryId } (camelCase)
-
-5. MODEL
-   const snakeUpdates = toSnakeCase(updates);
-   // snakeUpdates = { name, category_id } (snake_case)
-   
-   UPDATE resources SET name = ?, category_id = ? WHERE id = ?
-   
-   return findResourceById(id);
-   // Returns camelCase
-
-6. RESPONSE
-   { "success": true, "data": { "resource": {...} } }
-```
-
-### LIST Flow (GET with pagination)
-
-```
-1. CLIENT
-   GET /api/v1/resources?page=2&limit=20
-
-2. ROUTE
-   - validate(paginationSchema, 'query')
-   - resourceController.list
-
-3. CONTROLLER
-   const result = await resourceService.listResources(page, limit);
-   return paginatedResponse(res, result.items, ...);
-
-4. SERVICE
-   const items = await resourceModel.getAllResources(page, limit);
-   const total = await resourceModel.countResources();
-   return { items, total, page, limit };
-
-5. MODEL
-   SELECT * FROM resources WHERE deleted_at IS NULL LIMIT ? OFFSET ?
-   return toCamelCaseArray(results);
-
-6. RESPONSE
-   {
-     "success": true,
-     "data": {
-       "items": [...],
-       "pagination": {
-         "page": 2,
-         "limit": 20,
-         "total": 150,
-         "pages": 8,
-         "hasNext": true,
-         "hasPrev": true
-       }
-     }
-   }
-```
-
----
-
-## Case Conversion System
-
-### The Problem
-
-- **API Layer**: JavaScript uses camelCase convention
-- **Database Layer**: SQL uses snake_case convention
-- **Mismatches cause silent failures** (fields dropped in updates)
-
-### The Solution
-
-**Automatic conversion at the model boundary**:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Controllers & Services: camelCase                        │
-│ { firstName, institutionId, isActive }                  │
-└──────────────────────┬──────────────────────────────────┘
-                       │
-              ┌────────▼────────┐
-              │  toSnakeCase()  │ ◄── CONVERSION BOUNDARY
-              └────────┬────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────┐
-│ Models & Database: snake_case                            │
-│ { first_name, institution_id, is_active }               │
-└──────────────────────┬──────────────────────────────────┘
-                       │
-              ┌────────▼────────┐
-              │  toCamelCase()  │ ◄── CONVERSION BOUNDARY
-              └────────┬────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────┐
-│ Return to Services: camelCase                            │
-│ { firstName, institutionId, isActive }                  │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Conversion Rules
-
-**Input Conversion** (toSnakeCase):
-```javascript
-firstName       → first_name
-institutionId   → institution_id
-isActive        → is_active
-emailVerified   → email_verified
-```
-
-**Output Conversion** (toCamelCase):
-```javascript
-first_name      → firstName
-institution_id  → institutionId
-is_active       → isActive
-email_verified  → emailVerified
-category_name   → categoryName  (joined columns too!)
-```
-
-### Where Conversions Happen
-
-| Location | Function | Purpose |
-|----------|----------|---------|
-| **Model CREATE** | `toSnakeCase(data)` | Convert API input to SQL |
-| **Model UPDATE** | `toSnakeCase(updates)` | Convert API input to SQL |
-| **Model READ (single)** | `toCamelCase(result)` | Convert SQL output to API |
-| **Model READ (array)** | `toCamelCaseArray(results)` | Convert SQL output to API |
-
-### Critical Rules
-
-✅ **DO**:
-- Convert at model boundary ONLY
-- Controllers/Services always use camelCase
-- SQL queries always use snake_case
-- Return from models ALWAYS in camelCase
-
-❌ **DON'T**:
-- Convert in controllers or services
-- Mix camelCase and snake_case in same layer
-- Manually map field names
-- Return snake_case from models
-
----
-
-## Naming Conventions
-
-### Files
-
-| Type | Pattern | Example |
-|------|---------|---------|
-| Routes | `*.routes.js` | `user.routes.js` |
-| Controllers | `*.controller.js` | `user.controller.js` |
-| Services | `*.service.js` | `user.service.js` |
-| Models | `*.model.js` | `user.model.js` |
-| Validators | `*.validator.js` | `user.validator.js` |
-| Middleware | `*.middleware.js` | `auth.middleware.js` |
-| Utils | `*.util.js` | `response.util.js` |
-
-### Functions
-
-**Controllers** (HTTP action names):
-```javascript
-createResource
-getResourceById
-updateResource
-deleteResource
-listResources
-```
-
-**Services** (business action names):
-```javascript
-createResource
-getResourceById
-updateResource
-deleteResource
-listResources
-validateResourceOwnership
-```
-
-**Models** (data action names):
-```javascript
-createResource
-findResourceById
-findResourceByName
-getAllResources
-countResources
-updateResource
-softDeleteResource
-hardDeleteResource
-```
-
-### Variables
-
-| Layer | Convention | Example |
-|-------|-----------|---------|
-| Controllers | camelCase | `const user = ...` |
-| Services | camelCase | `const userId = ...` |
-| Models | camelCase (in code) | `const snakeData = ...` |
-| Database | snake_case (columns) | `first_name`, `institution_id` |
-| API | camelCase (JSON) | `{ "firstName": "John" }` |
-
----
-
-## Error Handling
-
-### Error Propagation Pattern
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ LAYER           │ ACTION                                 │
-├─────────────────┼────────────────────────────────────────┤
-│ Model           │ Throw Error('User not found')         │
-│                 │        ↓                               │
-│ Service         │ [Let propagate OR catch & rethrow]    │
-│                 │        ↓                               │
-│ Controller      │ [asyncHandler catches]                │
-│                 │        ↓                               │
-│ Error Middleware│ Format error response                 │
-│                 │        ↓                               │
-│ Client          │ Receive JSON error                    │
-└─────────────────┴────────────────────────────────────────┘
-```
-
-### Throwing Errors (Services & Models)
-
-```javascript
-// Not found
-if (!resource) {
-  throw new Error('Resource not found');
-}
-
-// Validation failed
-if (existingName) {
-  throw new Error('Resource with this name already exists');
-}
-
-// Forbidden
-if (resource.userId !== currentUserId) {
-  throw new Error('You can only edit your own resources');
-}
-
-// Invalid state
-if (resource.deletedAt) {
-  throw new Error('Cannot update deleted resource');
-}
-```
-
-### Error Response Format
-
-```javascript
-// Validation error
-{
-  "success": false,
-  "error": {
-    "message": "Validation failed",
-    "code": "VALIDATION_ERROR",
-    "details": [
-      { "field": "email", "message": "Email is required" }
-    ]
-  }
-}
-
-// Business logic error
-{
-  "success": false,
-  "error": {
-    "message": "Resource not found",
-    "code": "NOT_FOUND"
-  }
-}
-
-// Authentication error
-{
-  "success": false,
-  "error": {
-    "message": "Invalid or expired token",
-    "code": "UNAUTHORIZED"
-  }
-}
-```
-
-### Error Middleware
-
-Located in `src/middleware/errorHandler.middleware.js`:
-
-- Catches all thrown errors
-- Determines status code from error type
-- Formats consistent error responses
-- Logs errors server-side
-
----
-
-## Adding New Resources
-
-Follow this checklist when adding a new resource (e.g., "products"):
-
-### 1. Database Table (`src/config/tableSchemas.js`)
-
-**Do NOT write raw SQL.** Add a new entry to `src/config/tableSchemas.js`. The `tableSync.util.js` utility reads this file at server startup and auto-creates or verifies the table in FK-dependency order.
-
-```javascript
-// In src/config/tableSchemas.js → tableSchemas object
-products: {
-  tableName: 'products',
-  columns: {
-    id:          { type: 'INT', primaryKey: true, autoIncrement: true, nullable: false },
-    name:        { type: 'VARCHAR(255)', nullable: false },
-    category_id: { type: 'INT', nullable: true,
-                   foreignKey: { table: 'categories', column: 'id', onDelete: 'SET NULL' } },
-    is_active:   { type: 'BOOLEAN', default: 'true', nullable: false },
-    created_at:  { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP', nullable: false },
-    updated_at:  { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', nullable: false },
-    deleted_at:  { type: 'TIMESTAMP', nullable: true, default: 'NULL' }
-  },
-  indexes: [
-    { name: 'idx_product_name', columns: ['name'] },
-    { name: 'idx_deleted',      columns: ['deleted_at'] }
-  ]
-}
-```
-
-**Rules**:
-- Use snake_case for all column names
-- Declare `foreignKey` for FK columns — creation order is resolved automatically
-- `tableSync` will `ADD COLUMN` for new columns added to existing tables
-
-### 2. Model (`src/models/product.model.js`)
-
-```javascript
-const { query, queryOne } = require('../utils/db.util');
-const { toSnakeCase, toCamelCase, toCamelCaseArray } = require('../utils/caseConverter.util');
-
-// Implement:
-// - createProduct(data)
-// - findProductById(id, includeDeleted)
-// - getAllProducts(page, limit)
-// - countProducts()
-// - updateProduct(id, updates)
-// - softDeleteProduct(id)
-// - hardDeleteProduct(id)
-// - findProductByName(name)
-
-module.exports = { ... };
-```
-
-### 3. Validator (`src/validators/product.validator.js`)
-
-```javascript
-const Joi = require('joi');
-
-const createProductSchema = Joi.object({
-  name: Joi.string().max(255).required(),
-  categoryId: Joi.number().integer().positive().optional(),  // camelCase!
-  isActive: Joi.boolean().truthy('true', '1').falsy('false', '0').default(true)  // camelCase!
-});
-
-const updateProductSchema = Joi.object({
-  name: Joi.string().max(255).optional(),
-  categoryId: Joi.number().integer().positive().optional(),
-  isActive: Joi.boolean().truthy('true', '1').falsy('false', '0').optional()
-}).min(1);
-
-const productIdParamSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
-});
-
-module.exports = { ... };
-```
-
-### 4. Service (`src/services/product.service.js`)
-
-```javascript
-const productModel = require('../models/product.model');
-const logger = require('../utils/logger.util');
-
-// Implement:
-// - createProduct(data)
-// - getProductById(id)
-// - updateProduct(id, updates)
-// - deleteProduct(id, hard)
-// - listProducts(page, limit)
-
-module.exports = { ... };
-```
-
-### 5. Controller (`src/controllers/product.controller.js`)
-
-```javascript
-const productService = require('../services/product.service');
-const { successResponse, paginatedResponse } = require('../utils/response.util');
-const { asyncHandler } = require('../middleware/errorHandler.middleware');
-
-// Implement:
-// - createProduct
-// - getProductById
-// - updateProduct
-// - deleteProduct
-// - listProducts
-
-module.exports = { ... };
-```
-
-### 6. Routes (`src/routes/product.routes.js`)
-
-```javascript
-const express = require('express');
-const router = express.Router();
-const productController = require('../controllers/product.controller');
-const { validate } = require('../middleware/validate.middleware');
-const { authenticateToken } = require('../middleware/auth.middleware');
-const { requireRole } = require('../middleware/role.middleware');
-const { 
-  createProductSchema,
-  updateProductSchema,
-  productIdParamSchema
-} = require('../validators/product.validator');
-
-router.use(authenticateToken);
-
-router.get('/', productController.listProducts);
-router.post('/', requireRole(['admin']), validate(createProductSchema), productController.createProduct);
-router.get('/:id', validate(productIdParamSchema, 'params'), productController.getProductById);
-router.put('/:id', requireRole(['admin']), validate(productIdParamSchema, 'params'), validate(updateProductSchema), productController.updateProduct);
-router.delete('/:id', requireRole(['admin']), validate(productIdParamSchema, 'params'), productController.deleteProduct);
-
-module.exports = router;
-```
-
-### 7. Register Routes (`src/routes/index.js`)
-
-```javascript
-const productRoutes = require('./product.routes');
-
-router.use('/products', productRoutes);
-```
-
-### 8. Non-CRUD Actions
-
-For actions beyond standard CRUD (e.g., restore a soft-deleted resource), use `POST /:id/<action>`:
-
-```javascript
-// Restore soft-deleted user (admin only) — from user.routes.js
-router.post(
-  '/:id/restore',
-  requireEmailVerified,
-  requireRole(['admin']),
-  validate(userIdParamSchema, 'params'),
-  userController.restoreUser
-);
-```
-
-### Testing Checklist
-
-- [ ] POST /api/v1/products - Create with camelCase input
-- [ ] GET /api/v1/products/:id - Returns camelCase response
-- [ ] GET /api/v1/products - Returns paginated camelCase array
-- [ ] PUT /api/v1/products/:id - Updates with camelCase input
-- [ ] DELETE /api/v1/products/:id - Soft delete works
-- [ ] Database has snake_case columns
-- [ ] Validation errors return correct format
-- [ ] Auth/authorization middleware works
-
----
-
-## Image Upload Workflow
-
-This section describes the general pattern for adding file upload capability to any resource. It uses **multer** (multipart parsing) + **sharp** (resize/compress) + **Express static** (serving). Images are stored on the server disk (on-premise), not in external object storage.
-
-### Packages
-
-| Package | Role |
-|---|---|
-| `multer` | Parses `multipart/form-data` requests; holds file buffers in memory |
-| `sharp` | Resizes and converts buffers to WebP before writing to disk |
-| `express.static` | Serves the saved files as public HTTP URLs (built into Express) |
-
-### Storage Layout
-
-All uploads live under `uploads/` in the project root, which is bind-mounted to the container via `docker-compose` volumes:
-
-```
-uploads/
-  tmp/
-    {timestamp}-{random}/     ← written by processImages middleware; auto-cleaned
-      {fieldName}.webp
-      {fieldName}.webp
-  {resource}/
-    {resource_id}/             ← final permanent location
-      {fieldName}.webp
-      {fieldName}.webp
-```
-
-The database stores only the **relative URL path** (e.g. `/uploads/products/42/cover.webp`), not binary data.
-
-> **Field names are defined per resource.** A resource decides which image fields it needs (e.g. `cover`, `avatar`, `logo`) and declares them when configuring `uploadFields`. There is no globally mandated set of image field names.
-
-### Upload Middleware (`src/middleware/upload.middleware.js`)
-
-Two exports that slot into any route chain:
-
-```javascript
-const { uploadFields, processImages } = require('../middleware/upload.middleware');
-```
-
-**`uploadFields`** — multer instance with:
-- `storage: memoryStorage()` — files held in buffer, not written to disk yet
-- `limits: { fileSize: 5MB }` — hard cap per file
-- `fileFilter: imageOnly` — whitelist `image/jpeg`, `image/png`, `image/webp`; rejects others with 400
-- `.fields([...])` — declares which field names to accept; **all fields are optional**
-
-**`processImages`** — wrapped with `asyncHandler`; for each buffer in `req.files`:
-1. Looks up the resize spec for the field name
-2. Runs `sharp` to resize to defined dimensions and convert to WebP
-3. Writes output to `/uploads/tmp/{timestamp}-{random}/`
-4. Attaches `req.tempImagePaths = { {fieldName}Path?, ... }` for the service to consume
-5. Skips silently if no files were uploaded
-
-**Registering image fields for a resource:**
-
-Edit `upload.middleware.js` to add the resource's field names and desired dimensions:
-
-```javascript
-// Example: declare which fields this middleware accepts and their resize specs
-const IMAGE_SPECS = {
-  // Define field name → { width, height } per your resource's needs
-  cover:   { width: 800,  height: 600  },
-  avatar:  { width: 200,  height: 200  },
-  logo:    { width: 400,  height: 200  },
-  // ... add more as needed
-};
-
-const uploadFields = multer({ ... }).fields(
-  Object.keys(IMAGE_SPECS).map(name => ({ name, maxCount: 1 }))
-);
-```
-
-> Use `fit: 'cover'` for crops to exact dimensions, or `fit: 'inside'` to preserve aspect ratio. Format is always WebP at quality 85.
-
-### Route Chain Order
-
-Upload middleware slots **after** role authorization and **before** body validation:
-
-```javascript
-// POST — create with optional images
-router.post(
-  '/',
-  authenticateToken,              // 1. Authenticate
-  requireRole([...]),             // 2. Authorize
-  uploadFields,                   // 3. Parse multipart, hold buffers in memory
-  processImages,                  // 4. Resize + write to /uploads/tmp/
-  validate(createSchema, 'body'), // 5. Validate text fields only
-  resourceController.create       // 6. Handle request
-);
-
-// PUT — update with optional new images
-// Params validated BEFORE uploadFields so req.params.id is available
-router.put(
-  '/:id',
-  authenticateToken,
-  requireRole([...]),
-  validate(idParamSchema, 'params'),  // validate params first
-  uploadFields,
-  processImages,
-  validate(updateSchema, 'body'),
-  resourceController.update
-);
-```
-
-> **Note**: Image fields are **not** declared in Joi schemas. They arrive via `req.files` (parsed by multer) and `req.tempImagePaths` (set by `processImages`), not `req.body`. The Joi schema only validates text fields.
-
-### Controller Pattern
-
-Pass `req.tempImagePaths` alongside `req.body` as a single object — no special handling needed per field:
-
-```javascript
-const createResource = asyncHandler(async (req, res) => {
-  const resource = await resourceService.createResource({
-    ...req.body,
-    authorId: req.user.id,
-    tempImagePaths: req.tempImagePaths || {}  // {} if no images uploaded
+// controllers/ProductReservationController.js
+async function createReservation(req, res) {
+  const reservation = await ReservationService.createReservation({
+    actor: req.user,
+    data: req.body
   });
-  return successResponse(res, { resource }, 'Resource created successfully', 201);
-});
-
-const updateResource = asyncHandler(async (req, res) => {
-  const resource = await resourceService.updateResource(
-    parseInt(req.params.id, 10),
-    {
-      ...req.body,
-      tempImagePaths: req.tempImagePaths || {}
-    }
-  );
-  return successResponse(res, { resource }, 'Resource updated successfully');
-});
-```
-
-### Service Pattern
-
-The service moves files from `tmp/` to the final directory and keeps the DB in sync. Use a transaction for multi-step create operations:
-
-```javascript
-const createResource = async (data) => {
-  const { tempImagePaths = {}, ...resourceData } = data;
-
-  const connection = await beginTransaction();
-  try {
-    // 1. INSERT row (image URL columns = NULL initially)
-    const insertId = await resourceModel.createResource(resourceData);
-
-    // 2. Move temp files → /uploads/{resource}/{id}/ and get URL map
-    const imageUrls = Object.keys(tempImagePaths).length > 0
-      ? moveImages(insertId, tempImagePaths)  // returns { {fieldName}Url: '/uploads/...' }
-      : {};
-
-    // 3. UPDATE row with final URL paths (only if images were uploaded)
-    if (Object.keys(imageUrls).length > 0) {
-      await resourceModel.updateResource(insertId, imageUrls);
-    }
-
-    await commit(connection);
-    return resourceModel.findResourceById(insertId);
-  } catch (err) {
-    await rollback(connection);
-    fs.rm(tempDir, { recursive: true, force: true }, () => {});
-    throw err;
-  }
-};
-
-const updateResource = async (id, data) => {
-  const { tempImagePaths = {}, ...updates } = data;
-
-  // New upload overwrites the file at the same path — URL in DB stays unchanged
-  const imageUrls = Object.keys(tempImagePaths).length > 0
-    ? moveImages(id, tempImagePaths)
-    : {};
-
-  return resourceModel.updateResource(id, { ...updates, ...imageUrls });
-};
-
-const deleteResource = async (id) => {
-  await resourceModel.softDeleteResource(id);
-  // Remove all images for this resource from disk
-  fs.rm(path.join(UPLOADS_DIR, String(id)), { recursive: true, force: true }, () => {});
-};
-```
-
-**`moveImages` helper** (defined in the service file):
-- Creates `/uploads/{resource}/{id}/` directory
-- `fs.renameSync` each temp file to `{fieldName}.webp` in the final directory
-- Returns `{ {fieldName}Url: '/uploads/{resource}/{id}/{fieldName}.webp', ... }`
-
-### Model Pattern
-
-Each image field is a plain `VARCHAR(500) NULL` column. Name the column after the image's purpose (`{fieldName}_url`). Include all image URL columns in the `allowedFields` whitelist:
-
-```javascript
-// In tableSchemas.js — name columns after your resource's image fields
-cover_url:  { type: 'VARCHAR(500)', nullable: true, default: 'NULL' },
-avatar_url: { type: 'VARCHAR(500)', nullable: true, default: 'NULL' },
-
-// In model updateResource — add image URL columns to the allowed whitelist
-const allowedFields = [
-  'name', /* ... other text fields ... */,
-  'cover_url', 'avatar_url'  // add your resource's image URL columns here
-];
-```
-
-### Serving Images
-
-In `server.js`, registered once before route mounting (already in place):
-
-```javascript
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'), { dotfiles: 'deny' }));
-```
-
-Clients access images directly via the URL stored in the DB field:
-```
-GET /uploads/{resource}/{id}/{fieldName}.webp
-```
-
-### Docker Volume (required)
-
-Already added to both `docker-compose.dev.yml` and `docker-compose.prod.yml`:
-
-```yaml
-volumes:
-  - ./uploads:/app/uploads
-```
-
-This ensures images persist across container restarts and rebuilds.
-
-### Image Resize Configuration
-
-Define dimensions in `upload.middleware.js` under `IMAGE_SPECS`. Choose values appropriate for the field's purpose in your UI:
-
-```javascript
-const IMAGE_SPECS = {
-  fieldName: { width: W, height: H }
-  // width/height in pixels; uses fit: 'cover' by default
-};
-```
-
-All images are saved as **WebP at quality 85** regardless of the original format. Adjust quality in `upload.middleware.js` if needed.
-
-### Security Checklist
-
-- ✅ MIME type whitelist in multer `fileFilter` (JPEG, PNG, WebP only)
-- ✅ File size limit enforced by multer (`5MB` per file)
-- ✅ User-supplied filenames are never used — filenames derived from field name only
-- ✅ `express.static` served with `dotfiles: 'deny'`
-- ✅ Upload directory is outside the `src/` code tree
-- ✅ Image URLs stored as relative paths — no external redirects
-
-### Adding Image Upload to a New Resource (Checklist)
-
-- [ ] Decide which image fields the resource needs and their purpose (e.g. `cover`, `logo`)
-- [ ] Add `{fieldName}_url VARCHAR(500) NULL` columns to the `tableSchemas.js` entry
-- [ ] Add `{fieldName}_url` columns to model `allowedFields` in `updateResource`
-- [ ] Register field names and dimensions in `IMAGE_SPECS` in `upload.middleware.js`
-- [ ] Add `uploadFields`, `processImages` to the route chain (after role, before validate)
-- [ ] Pass `tempImagePaths: req.tempImagePaths || {}` in controller create/update
-- [ ] Add `moveImages` + transaction logic in service create; overwrite logic in service update
-- [ ] Add `fs.rm(imageDir, ...)` in service delete
-- [ ] Create `uploads/{resource}/` directory with a `.gitkeep` file
-
----
-
-## Foreign Key JOIN Rules
-
-When writing a `SELECT` query in a model, use this decision table to determine whether to `LEFT JOIN` the referenced table and include its name column in the result.
-
-| Situation | JOIN needed? | Reason |
-|---|---|---|
-| FK references a **lookup / reference table** (e.g. countries, categories, statuses) | ✅ Yes | The client needs a display label alongside the ID without making a second request |
-| FK references **users as an author / owner** | ✅ Yes | The client needs a display name (username, first/last name) alongside the author ID |
-| FK is the **primary context** of the query — the client already has the parent resource | ❌ No | e.g. fetching discussions *by announcement ID*: the client already knows the announcement |
-| **Self-referencing FK** (parent–child on the same table) | ❌ No | Recursive joins are impractical; fetch the parent separately if needed |
-| The referenced table **has no human-readable name** or the FK is purely internal | ❌ No | Nothing useful to surface in the response |
-
-### Rule of thumb
-
-> If the client would need the referenced record's name to **render a UI label** without making another API call, JOIN it and include both the ID and the name in the response. If the client already has the context from the parent request, skip the JOIN.
-
-### Response convention
-
-When a JOIN is added, always return **both** the FK ID and the resolved name as sibling fields:
-
-```javascript
-// SQL (snake_case)
-SELECT r.*,
-       c.name AS country_name,
-       i.name AS institution_name
-FROM resources r
-LEFT JOIN countries c ON r.country_id = c.id
-LEFT JOIN institutions i ON r.institution_id = i.id
-
-// Resulting camelCase response (after toCamelCase)
-{
-  "countryId": 1,
-  "countryName": "Thailand",
-  "institutionId": 5,
-  "institutionName": "Chulalongkorn University"
+  return successResponse(res, reservation, 'Reservation created', 201);
 }
-```
+module.exports = { createReservation };
 
-This means the consumer **never needs a separate lookup call** just to display a name.
-
----
-
-## Internal Service-to-Service API
-
-This section describes the pattern for internal HTTP endpoints that are consumed by other ASEM services (e.g., asem-mailer), not by end users.
-
-### Motivation
-
-asem-mailer needs to resolve a recipient list (email + name) from asem-server before sending a bulk campaign. Instead of duplicating the users table or sharing a database connection, asem-server exposes a dedicated internal endpoint protected by a **separate API key** — never the same key as the public API.
-
-### Route Prefix
-
-Internal routes are mounted at `/internal/v1/` — **completely separate** from `/api/v1/`. This makes it easy to block the prefix at a network/proxy layer if needed.
-
-```
-/api/v1/*        ← Public REST API — JWT authentication
-/internal/v1/*   ← Internal service-to-service — INTERNAL_API_KEY authentication
-```
-
-### Authentication: `authenticateInternalApiKey`
-
-Located in `src/middleware/auth.middleware.js`, exported alongside `authenticateToken` and `optionalAuth`.
-
-```javascript
-const authenticateInternalApiKey = (req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-  if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
-    return errorResponse(res, 'Invalid or missing internal API key', 401, 'UNAUTHORIZED');
-  }
-  next();
-};
-```
-
-**Rules**:
-- `INTERNAL_API_KEY` is a **separate** env var from any public API key
-- Internal routes apply `authenticateInternalApiKey` **only** — no JWT, no role check
-- Zero changes to `authenticateToken`, `optionalAuth`, or any existing `/api/v1` route
-
-### Existing Internal Endpoints
-
-| Method | Path | Middleware | Description |
-|--------|------|-----------|-------------|
-| `GET` | `/internal/v1/users/emails` | `authenticateInternalApiKey`, `validate(userEmailsQuerySchema, 'query')` | Return `[{ email, firstName, lastName }]` for active non-deleted users, with optional filters |
-
-**Query parameters** for `GET /internal/v1/users/emails`:
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `researchNetworkId` | number (optional) | Filter by research network |
-| `countryId` | number (optional) | Filter by country |
-| `institutionId` | number (optional) | Filter by institution |
-| `isActive` | boolean (default `true`) | Filter by active status |
-
-**Response shape**:
-```json
-{
-  "success": true,
-  "data": {
-    "entries": [
-      { "email": "user@example.com", "firstName": "Jane", "lastName": "Doe" }
-    ]
-  },
-  "message": "User emails retrieved successfully"
+// services/ReservationService.js
+async function createReservation({ actor, data }) {
+  return withTransaction(async (tx) => {
+    const product = await Product.findById(data.productId, { tx });
+    assertReservable({ actor, product, data });
+    return ProductReservation.insert({
+      ...data,
+      userId: actor.userId,
+      status: 'pending'
+    }, { tx });
+  });
 }
+module.exports = { createReservation };
+
+// models/ProductReservation.js
+async function insert(reservation, { tx }) {
+  // Parameterized SQL only; map camelCase fields to the current schema.
+  const [result] = await tx.execute(SQL_INSERT_RESERVATION, valuesForInsert(reservation));
+  return findById(result.insertId, { tx });
+}
+async function findById(reservationId, { tx }) {
+  const [rows] = await tx.execute(SQL_SELECT_RESERVATION, [reservationId]);
+  return rows[0] ? mapReservation(rows[0]) : null;
+}
+module.exports = { insert, findById };
 ```
 
-**Response fields**: `email`, `firstName`, `lastName` **only** — passwords, tokens, and all other sensitive fields are never returned.
+In a real implementation, use the transaction only when required by the complete workflow, and keep a consistent connection in every model call inside it. This sketch does not prescribe when stock is deducted; preserve the established reservation/confirmation semantics until that workflow is explicitly redesigned.
 
-### File Structure
+### Standard resource coding pattern
 
-```
-src/
-  middleware/
-    auth.middleware.js          ← authenticateInternalApiKey added here
-  validators/
-    internalUser.validator.js   ← userEmailsQuerySchema
-  models/
-    user.model.js               ← findUserEmailsByFilter() added here
-  services/
-    internalUser.service.js     ← getUserEmails()
-  controllers/
-    internalUser.controller.js  ← getUserEmails handler
-  routes/
-    internal.routes.js          ← GET /users/emails
-    index.js                    ← router.use('/internal/v1', internalRoutes)
-```
+Use one predictable **class-free** pattern for each resource that is added or fully migrated. Export named functions from stateless controllers, services, and models. Node's module boundary already groups related functions, and Express consumes handler functions. When a component needs configuration or injected dependencies, export a factory function that returns an object of functions and closes over those dependencies. Do not keep per-request actor, transaction, or mutable workflow state in a shared module or factory instance.
 
-### Environment Variables
+NetZero's existing controllers, models, and one chat service include classes. They may remain during incremental migration so existing imports and behavior keep working. The target after migration is function modules across all application-owned backend code; do not add new `class` declarations or convert a working class solely for style while its resource still needs substantive migration. This is a coding convention, not a claim that every function is pure: models and adapters necessarily perform I/O, while reusable business calculations should be pure where practical.
 
-| Service | Variable | Description |
-|---------|----------|-------------|
-| asem-server | `INTERNAL_API_KEY` | Secret key that internal clients must send in `X-API-Key` header |
-| asem-mailer | `ASEM_SERVER_INTERNAL_URL` | Base URL of asem-server (e.g. `http://asem-server:5001` in Docker) |
-| asem-mailer | `ASEM_SERVER_INTERNAL_KEY` | Must match asem-server's `INTERNAL_API_KEY` |
-
-### Adding New Internal Endpoints
-
-Follow this checklist:
-
-1. Add any new query/param validator to `src/validators/internalUser.validator.js` (or a new validator file for a different resource)
-2. Add a model function that returns **only the fields required** — never return passwords or tokens
-3. Add a service function with a descriptive log
-4. Add an `asyncHandler`-wrapped controller function
-5. Add the route to `src/routes/internal.routes.js` using `authenticateInternalApiKey` first
-6. No changes needed to `routes/index.js` — it already mounts `internalRoutes` at `/internal/v1`
-
----
-
-## Common Pitfalls
-
-### ❌ Pitfall 1: Extracting Fields in Controller
-
-**WRONG**:
-```javascript
-const createUser = asyncHandler(async (req, res) => {
-  const { firstName, lastName } = req.body;  // ❌ Don't extract
-  const user = await userService.createUser(firstName, lastName);  // ❌ Multiple params
-});
-```
-
-**CORRECT**:
-```javascript
-const createUser = asyncHandler(async (req, res) => {
-  const user = await userService.createUser(req.body);  // ✅ Pass entire object
-});
-```
-
-### ❌ Pitfall 2: Using snake_case in Services
-
-**WRONG**:
-```javascript
-const updateUser = async (id, updates) => {
-  const user = await userModel.findUserById(id);
-  if (!user.is_active) {  // ❌ snake_case in service
-    throw new Error('User inactive');
+```js
+// services/ProductService.js: injected dependencies without an application class
+function createProductService({ productModel, makeNotFoundError }) {
+  async function getProductById({ productId }) {
+    const product = await productModel.findById(productId);
+    if (!product) throw makeNotFoundError('Product not found');
+    return product;
   }
-};
+
+  return { getProductById };
+}
+module.exports = { createProductService };
 ```
 
-**CORRECT**:
-```javascript
-const updateUser = async (id, updates) => {
-  const user = await userModel.findUserById(id);
-  if (!user.isActive) {  // ✅ camelCase in service
-    throw new Error('User inactive');
-  }
-};
-```
+| File | Standard shape | Method-name examples |
+| --- | --- | --- |
+| `routes/productRoutes.js` | One router; compose middleware and bind a controller method | `router.post('/', ..., ProductController.createProduct)` |
+| `validators/productValidator.js` | Export named schemas for `body`, `params`, and `query` | `createProductSchema`, `updateProductSchema`, `productIdParamSchema` |
+| `controllers/ProductController.js` | Export named HTTP handler functions; one service call per action | `createProduct`, `getProductById`, `listProducts`, `updateProduct`, `deleteProduct` |
+| `services/ProductService.js` | Export named domain operation functions; inject dependencies only when useful | `createProduct`, `getProductById`, `listProducts`, `updateProduct`, `deleteProduct` |
+| `models/Product.js` | Export named database functions | `insert`, `findById`, `findAll`, `count`, `updateById`, `deleteById` |
 
-### ❌ Pitfall 3: Returning snake_case from Models
+For each operation, use this sequence:
 
-**WRONG**:
-```javascript
-const findUserById = async (id) => {
-  const result = await queryOne('SELECT * FROM users WHERE id = ?', [id]);
-  return result;  // ❌ Returns snake_case
-};
-```
+1. **Route:** apply authentication, role gate, parameter/body/query validation, then `asyncHandler(controllerMethod)` in that order. Keep specific paths before `/:id`.
+2. **Controller:** read validated inputs and actor, call the matching service operation with one named object, and format one success response. Do not repeat request validation or catch an error only to call `next(error)`.
+3. **Service:** check data-dependent permissions and domain state, coordinate model/adapter calls, own any transaction, and return a domain result. Throw a typed error for expected failures.
+4. **Model:** issue parameterized SQL and map rows to domain fields. Return `null` for a missing single record and a collection for a list; leave the not-found decision to the service.
+5. **Error middleware:** serialize failures once with the established `/api/v1` envelope. Preserve existing endpoint status and field names during migration.
 
-**CORRECT**:
-```javascript
-const findUserById = async (id) => {
-  const result = await queryOne('SELECT * FROM users WHERE id = ?', [id]);
-  return result ? toCamelCase(result) : null;  // ✅ Convert to camelCase
-};
-```
+| Operation | Service input | Service result |
+| --- | --- | --- |
+| Create | `{ actor, data }` | Created domain object |
+| Get one | `{ actor, productId }` (omit `actor` for a fully public read) | Domain object or typed not-found error |
+| List | `{ actor, filters, pagination }` | `{ items, total, limit, offset }` where pagination is supported |
+| Update | `{ actor, productId, updates }` | Updated domain object |
+| Delete | `{ actor, productId }` | Explicit deletion result; controller preserves the endpoint's current HTTP response |
+| Domain action | `{ actor, reservationId, actionData }` | Updated domain object or an explicit outcome |
 
-### ❌ Pitfall 4: Forgetting allowedFields in UPDATE
+Use the same public operation names across controller and service so a request is easy to trace. Keep database verbs (`find`, `insert`, `update`, `delete`, `count`) in models. Name business actions for the actual transition, such as `confirmReservation`, `cancelEvent`, or `verifyCheckin`, instead of forcing every workflow into CRUD. A list service should return a consistent object such as `{ items, total, limit, offset }` when pagination is supported; the controller maps it to the endpoint's existing response shape. Avoid duplicate parsing, alternate response envelopes, and different error-handling styles for the same kind of endpoint.
 
-**WRONG**:
-```javascript
-const updateResource = async (id, updates) => {
-  const snakeUpdates = toSnakeCase(updates);
-  // No filtering - accepts ANY field!
-  const sql = Object.keys(snakeUpdates).map(k => `${k} = ?`).join(', ');
-  await query(`UPDATE resources SET ${sql}`, Object.values(snakeUpdates));
-};
-```
+## 5. Layer rules in detail
 
-**CORRECT**:
-```javascript
-const updateResource = async (id, updates) => {
-  const snakeUpdates = toSnakeCase(updates);
-  const allowedFields = ['name', 'category_id', 'is_active'];  // ✅ Whitelist
-  
-  const fields = [];
-  const values = [];
-  for (const [key, value] of Object.entries(snakeUpdates)) {
-    if (allowedFields.includes(key)) {  // ✅ Filter allowed
-      fields.push(`${key} = ?`);
-      values.push(value);
-    }
-  }
-  
-  await query(`UPDATE resources SET ${fields.join(', ')}`, values);
-};
-```
+### Routes
 
-### ❌ Pitfall 5: Not Using asyncHandler
+Routes define endpoint paths, methods, middleware order, and controller handlers. They do not query MySQL, transform domain objects, or make policy decisions. Keep specific paths such as `/my`, `/recommended`, and `/statistics` before `/:id` routes. Put route registration in `server.js` until an intentional router-index change is made.
 
-**WRONG**:
-```javascript
-const getUser = async (req, res) => {  // ❌ Error not caught
-  const user = await userService.getUserById(req.params.id);
-  return successResponse(res, { user });
-};
-```
+### Middleware and validators
 
-**CORRECT**:
-```javascript
-const getUser = asyncHandler(async (req, res) => {  // ✅ Wrapped
-  const user = await userService.getUserById(req.params.id);
-  return successResponse(res, { user });
-});
-```
+Use middleware for transport-level concerns that apply before the controller. Prefer resource-specific validators in `src/validators/` for new/migrated endpoints. `express-validator` is already used in `netzero-server/src/middleware/validation.js`, and Joi is installed; choose one validation approach per migrated endpoint rather than duplicating rules in both middleware and controllers. A validator may check that `quantity` is a positive integer or `optionOfDelivery` is an allowed value. Whether a product exists, belongs to a seller, or has enough stock belongs in the service.
 
-### ❌ Pitfall 6: Wrong Middleware Order
+Authentication and validation failures may return immediately through centralized helpers. General exceptions go to the error handler. File size/type checks and webhook credential checks are middleware responsibilities. Do not place an external API request in a validator.
 
-**WRONG**:
-```javascript
-router.post(
-  '/',
-  validate(schema),        // ❌ Validate before auth
-  requireRole(['admin']),  // ❌ Check role before auth
-  authenticateToken,       // ❌ Auth runs last
-  controller.create
-);
-```
+### Controllers
 
-**CORRECT** (admin-only route):
-```javascript
-router.post(
-  '/',
-  authenticateToken,       // ✅ 1. Authenticate first
-  requireEmailVerified,    // ✅ 2. Check email verified
-  requireRole(['admin']),  // ✅ 3. Then check role
-  validate(schema),        // ✅ 4. Then validate
-  controller.create        // ✅ 5. Finally handle
-);
-```
+Controllers know HTTP and the API contract: `req.params`, `req.query`, `req.body`, `req.user`, status codes, headers, and response envelopes. They call services with a named object, then serialize the result. They do not import models, database utilities, filesystem APIs, or provider clients. Wrap asynchronous handlers once with `asyncHandler`; avoid repeated `try/catch` blocks whose only action is `next(error)`.
 
-**CORRECT** (owner-or-admin route — validate params before ownership check):
-```javascript
-router.put(
-  '/:id',
-  authenticateToken,            // ✅ 1. Authenticate
-  requireEmailVerified,         // ✅ 2. Check email verified
-  validate(idSchema, 'params'), // ✅ 3. Validate params first
-  validate(bodySchema, 'body'), // ✅ 4. Validate body
-  requireOwnerOrAdmin('id'),    // ✅ 5. Check ownership (needs parsed param)
-  controller.update             // ✅ 6. Handle
-);
-```
+A controller can map a service result to the existing `/api/v1` response shape. Use one response helper for the established `success`, `message`, `data`, and `timestamp` envelope, and preserve endpoint-specific fields such as `count` or `total` where clients depend on them.
 
-### ❌ Pitfall 7: Business Logic in Controllers
+### Services
 
-**WRONG**:
-```javascript
-const createUser = asyncHandler(async (req, res) => {
-  // ❌ Business logic in controller
-  const existingUser = await userModel.findUserByEmail(req.body.email);
-  if (existingUser) {
-    throw new Error('Email exists');
-  }
-  
-  const user = await userModel.createUser(req.body);
-  return successResponse(res, { user });
-});
-```
+Services accept ordinary JavaScript values, not Express objects. They own domain validation after request-shape validation, status transitions, ownership, cross-model operations, provider orchestration, and transaction boundaries. They return results or throw typed errors such as validation, forbidden, not found, conflict, or external dependency failure. A service should not assign HTTP status codes throughout its business logic; the error layer maps error types to HTTP.
 
-**CORRECT**:
-```javascript
-// Controller - only HTTP coordination
-const createUser = asyncHandler(async (req, res) => {
-  const user = await userService.createUser(req.body);  // ✅ Delegate to service
-  return successResponse(res, { user });
-});
+Examples of service ownership in NetZero:
 
-// Service - business logic
-const createUser = async (data) => {
-  const existingUser = await userModel.findUserByEmail(data.email);
-  if (existingUser) {
-    throw new Error('Email exists');
-  }
-  return await userModel.createUser(data);
-};
-```
+- `ReservationService`: prevent self-reservation, apply delivery/event rules, check and update stock, confirm/cancel reservations, enforce seller/customer permissions.
+- `EventService`: create an event and establish creator association as one consistent workflow.
+- `EventProductService`: assign stock to events and enforce ownership/available quantity.
+- `GlocalCheckinService`: normalize email, apply cache freshness policy, call SurveyMonkey, store/return verification state.
+- `SurveyService`: create/update surveys and questions, submit responses, compute analytics policy.
+- `AiProductSurveyService` in the chat server: coordinate evaluation and persistence; provider calls live behind an adapter and SQL in models.
 
-### ❌ Pitfall 8: SQL Injection
+### Models
 
-**WRONG**:
-```javascript
-const findByName = async (name) => {
-  const sql = `SELECT * FROM resources WHERE name = '${name}'`;  // ❌ Injection risk!
-  return await query(sql);
-};
-```
+Models own database access. Keep SQL parameterized; allow-list any dynamic column names or sort keys. Return predictable plain domain objects rather than raw driver tuples or record-class instances; use row-mapping functions for conversion. Queries used for public lists must support bounded pagination where the endpoint needs it. Models may expose atomic conditional operations such as `decrementStockIfAvailable`, which services compose into a business workflow. Models do not decide whether a user is allowed to reserve their own product or which HTTP status to send.
 
-**CORRECT**:
-```javascript
-const findByName = async (name) => {
-  const sql = `SELECT * FROM resources WHERE name = ?`;  // ✅ Parameterized
-  return await queryOne(sql, [name]);
-};
-```
+Avoid `SELECT *` when a query joins tables with overlapping column names; select/alias the fields needed by the domain result. Model methods that participate in a transaction must use the passed connection and must not silently fall back to the global pool.
 
----
+### Utilities and specialized helpers
 
-## Summary
+`src/utils/` is a **shared helper library**, not a place in the route → controller → service → model chain. A utility should take explicit values, return a value, and be safe to call without a database, network, filesystem, or Express request. Examples are date formatting, string normalization, ID parsing, and a pure case-conversion function. Any layer may import a suitable pure utility, but a utility must not import routes, controllers, services, or models. Keep a feature-specific policy next to its owning service rather than moving it to `utils/` merely to shorten a service file.
 
-### Key Architecture Principles
+Choose location by behavior, even when an existing file is named `*Util`:
 
-1. **Layered Architecture**: Routes → Middleware → Controllers → Services → Models → Database
-2. **Single Responsibility**: Each layer has ONE clear purpose
-3. **Object Passing**: Pass complete objects, not individual parameters
-4. **Case Convention**: camelCase in code, snake_case in database, automatic conversion at model boundary
-5. **Error Handling**: Throw errors, let middleware format responses
-6. **Consistent Patterns**: All resources follow identical structure
+| Behavior | Location and rule |
+| --- | --- |
+| Pure field/case conversion | `utils/` is acceptable; call it at the model boundary, with explicit mappings for legacy mixed-case columns |
+| HTTP response formatting or `asyncHandler` | HTTP/controller support, such as `middleware/errorHandler.js` or a response helper; usable by controllers, not services/models |
+| Database pool, transaction wrapper, SQL execution | `config/database.js` or database infrastructure; SQL remains in models and transaction ownership in services |
+| Logger and configuration | Cross-cutting infrastructure; may be imported where needed, with no feature decisions |
+| SurveyMonkey, OpenAI, web search, or file-storage I/O | `adapters/`; called by a service, with credentials kept server-side |
+| Reservation, event, check-in, or AI evaluation decisions | The owning service, even if implemented as a small helper function |
 
-### Quick Reference
+The main server currently has an empty `src/utils/` directory. In the chat server, `utils/openAiApiUtil.js`, `utils/simpleAiWebsearch.js`, and `utils/welcomeChat.js` perform provider calls or AI workflow work. During migration, classify their functions by the table above: provider transport belongs in an adapter and conversation/evaluation decisions belong in a service. Do not move files solely to satisfy a name; first separate any mixed responsibilities.
 
-| When you... | Do this... |
-|------------|-----------|
-| Add new table | Add entry to `tableSchemas.js`; `tableSync` auto-creates it at startup |
-| Add new endpoint | Create route → validator → controller → service → model |
-| Accept input | Validate with Joi in camelCase |
-| Call model | Pass object, receive camelCase back |
-| Write SQL | Use snake_case columns, parameterized queries |
-| Return data | Models convert to camelCase automatically |
-| Handle errors | Throw descriptive errors, middleware handles rest |
-| Check auth | Apply middleware: auth → role → validate → controller |
+### Database and schema changes
 
-### File Creation Order (New Resource)
+`netzero-server/src/config/database.js` currently provides a MySQL pool plus `executeQuery`, `executeCommand`, and an operation-list `executeTransaction`. Some models still use `pool.execute()` directly, and some manage their own transaction. The target is one transaction helper that accepts a callback and passes one connection to every model call in a workflow. Keep connection release in `finally` and rollback on failure.
 
-1. `tableSchemas.js` entry (snake_case columns, FK declarations)
-2. Model (with case conversion)
-3. Validator (camelCase schemas)
-4. Service (business logic)
-5. Controller (HTTP handling)
-6. Routes (endpoint + middleware)
-7. Register in `src/routes/index.js`
+Schema definitions currently appear in model `getSchema()` methods and SQL files under `netzero-server/sql/`; `server.js` does not run a `tableSchemas.js` synchronizer. Treat versioned, reviewable SQL migrations as the source of schema changes. Do not add startup table creation merely because the old ASEM document described it. Align model mappings with the actual deployed schema before changing a column name.
 
----
+## 6. Data contracts and naming
 
-## Questions for Future AI
+- **Internal JavaScript objects:** camelCase, for example `productId`, `stockQuantity`, `eventDate`, `firstName`.
+- **Database:** use the deployed column name in SQL. New columns should use snake_case; existing columns include mixed names such as `firstName` and `isRecommend`, so do not assume a generic converter always works.
+- **Model boundary:** explicitly map input and output fields for each resource, including JOIN aliases. The service must not know whether a column is named `product_id` or `isRecommend`.
+- **Public API:** preserve the existing `/api/v1` contract. It currently mixes snake_case and camelCase; the React client reads fields such as `event_date`, `stock_quantity`, and `firstName`. Use a controller/serializer compatibility map during migration. Introduce a consistent camelCase contract only through an intentional client-coordinated, versioned change.
+- **Object passing:** `service.create({ actor, data })`, `model.update(id, updates, { tx })`. IDs and transaction context may be separate where that makes the operation unambiguous; do not pass every field positionally.
 
-When working with this codebase, ask yourself:
+### Variable and symbol naming convention
 
-1. **Am I in the right layer?**
-   - Business logic → Service
-   - HTTP handling → Controller
-   - Data access → Model
+These rules apply to new code and to code moved during a resource migration. They describe **JavaScript names**, regardless of the physical database or legacy API field name.
 
-2. **Am I using the right case?**
-   - Code → camelCase
-   - SQL → snake_case
-   - Converting at model boundary? YES
+| Kind | Rule | NetZero example |
+| --- | --- | --- |
+| Local variables, parameters, object properties | `camelCase`; use a domain noun that says what the value contains | `productId`, `reservationInput`, `stockQuantity`, `surveyResponse` |
+| Booleans | Start with `is`, `has`, `can`, or `should`; name the condition, not a vague flag | `isRecommended`, `hasAvailableStock`, `canConfirmReservation` |
+| IDs and collections | Use `<entity>Id` for one ID and a plural noun for a collection | `eventId`, `productIds`, `reservations` |
+| Counts and amounts | Include the unit or subject when ambiguity is possible | `stockQuantity`, `reservedUnitPrice`, `timeoutMs`, `totalReservations` |
+| Functions and methods | `camelCase`, normally a verb followed by the thing acted on | `createReservation`, `findProductById`, `formatEventDate` |
+| Factory functions | `create` followed by the dependency being configured; return named operations | `createSurveyMonkeyClient`, `createReservationService` |
+| Module-level fixed constants | `UPPER_SNAKE_CASE` when the value is a true fixed configuration/limit; ordinary immutable locals still use `camelCase` | `MAX_PAGE_SIZE`, `SURVEY_SYNC_TTL_MS`; `const productId` |
+| Environment variables | `UPPER_SNAKE_CASE`; retain existing `DEV_`/`PROD_` prefixes | `DEV_DB_HOST`, `PROD_JWT_SECRET`, `MAX_FILE_SIZE` |
+| SQL tables and new columns | `snake_case`; use the deployed name for existing mixed-case columns | `product_reservations`, `product_id`, existing `isRecommend` |
+| Public JSON fields | Preserve each existing `/api/v1` spelling; use `camelCase` for a new versioned contract | existing `stock_quantity`, `event_date`, `firstName` |
 
-3. **Am I passing objects or individual params?**
-   - Should be: Objects
+Name a value for its meaning, not for its layer: prefer `productId` and `reservation` to `id`, `data`, or `result` when several entities are present. Avoid abbreviations such as `prod`, `resv`, or `qty` in public interfaces; established terms such as `id`, `url`, `api`, and `tx` are acceptable where clear. Use `actor` for the authenticated caller and `ownerId` or `customerId` for other roles; do not call every user `userId` when their roles differ. Functions do not need an `Async` suffix merely because they return a promise.
 
-4. **Am I following the standard pattern?**
-   - Look at existing user/institution implementations
+At each boundary, translate names once and keep the rest of that layer consistent. For example, a `/api/v1` controller may read `req.body.product_id`, pass `{ productId }` to a service, and receive a model object whose `productId` came from the SQL column `product_id`. Do not carry `product_id` through the service or return `productId` to a legacy client that expects `product_id`. A pure mapping helper may live in `utils/`, but the controller owns public-API mapping and the model owns database mapping.
 
-5. **Did I apply middleware in correct order?**
-   - Auth → Role → Validate → Controller
+Do not silently change JSON keys, response envelopes, routes, auth behavior, upload URLs, or status codes as a side effect of moving code between layers. Add contract tests at the boundary for migrated endpoints.
 
-6. **Am I handling errors correctly?**
-   - Throwing errors, not returning them
-   - Using asyncHandler wrapper
+## 7. Error handling and responses
 
----
+The target flow is `model/adapter throws -> service adds business context if useful -> async controller wrapper forwards -> one error handler serializes`. Use an application error with a stable code and safe message; a small error factory can attach that code to an `Error` without declaring a custom class. Retain the original cause for logs. Map known types to 400, 401, 403, 404, 409, 422, or 503 as appropriate. Return 500 for unexpected failures without leaking SQL, tokens, filesystem paths, or provider response bodies.
 
-**END OF GENERAL ARCHITECTURE DOCUMENTATION**
+The current `errorHandler.js` classifies some plain errors by message substrings and controllers also construct their own error responses. Replace that pattern endpoint by endpoint with typed errors and a shared response helper while preserving client-visible behavior where required. Log once with the request ID and enough context to investigate; avoid dumping credentials or full sensitive request bodies.
+
+## 8. Transactions and concurrency
+
+A transaction is required when a business operation must succeed or fail as a unit. The service starts it, calls models with the same `tx`, and commits only after all database conditions and writes succeed. The service chooses when to perform an external call; do not hold a database transaction open during a slow SurveyMonkey or AI request. For a required side effect after commit, use a durable handoff or explicit recovery strategy rather than assuming a second system can join the MySQL transaction.
+
+For reservations and event stock, a prior read followed by a later unconditional decrement can race under concurrent requests. Use a row lock or conditional `UPDATE ... WHERE stock_quantity >= ?` inside the same transaction, check affected rows, and keep reservation status changes in that transaction. `findById()` calls inside a transaction must use its connection if the read must be consistent with its writes. Add concurrent-request tests for this workflow when it is migrated.
+
+A transaction helper that takes a fixed list of SQL operations is useful for simple batches, but a callback on one connection is needed for workflows that branch, inspect results, or use generated IDs. Models remain the only place that issues those SQL statements.
+
+## 9. Uploads and external integrations
+
+### Product and event images
+
+The current API accepts images through Multer and stores files under `netzero-server/files/`; Docker mounts that directory. Routes apply authentication and upload parsing. The target service checks resource ownership, decides storage/metadata changes, and delegates file operations to a storage adapter and SQL to models. Handle a database failure after file upload by cleaning the staged file or recording a recoverable state. Preserve existing image URLs while migrating. If the API later runs on multiple hosts, move files to shared storage rather than relying on each host's local directory.
+
+### SurveyMonkey and webhooks
+
+`/api/v1/glocal/webhooks/surveymonkey` uses a dedicated webhook authentication middleware. Keep credential verification at the transport boundary. Move the current check-in freshness/normalization/provider orchestration from `GlocalController` into a service. The SurveyMonkey client is an adapter; it does not decide HTTP responses or persist check-ins on its own.
+
+### Chat and AI
+
+The chat server is a separate process with its own routes, controllers, models, and AI service. Apply the same layer rules there. A controller receives and returns HTTP data; a service decides how to build/evaluate the conversation or survey; a model stores and retrieves rows; an AI adapter handles provider-specific calls. Avoid having the chat server reach into main-server controllers or models through imports. If cross-service data is required, define an explicit, authenticated API contract and its failure behavior; no ASEM `/internal/v1` endpoint exists in NetZero today.
+
+## 10. Adding or migrating a resource
+
+1. Record the existing route, request and response fields, auth rules, database tables, and client callers.
+2. Add/adjust schema migrations under `sql/` only when persistence needs to change.
+3. Add a request validator for shape/types and a route middleware chain in the correct order.
+4. Add model methods for parameterized queries and explicit row mapping. Include pagination and transaction-context support where needed.
+5. Add a service for business rules, data-dependent authorization, cross-model operations, and transaction ownership.
+6. Reduce the controller to HTTP input/output and one service call per operation.
+7. Add shared response/error handling without changing the existing API contract unexpectedly.
+8. Verify the client contract, authorization cases, failure paths, and any concurrency-sensitive transaction. Update this document if the boundary changes.
+
+### Review checklist
+
+- [ ] Route contains only middleware composition and controller binding.
+- [ ] Migrated resource follows the standard route, validator, controller, service, and model pattern.
+- [ ] New resource files use one feature stem and the per-layer filename patterns; legacy filename exceptions are explicit.
+- [ ] New or fully migrated application code exports functions/factories without application `class` declarations.
+- [ ] Input shape validation runs before controller; domain validation runs in service.
+- [ ] Controller imports no model, DB helper, provider client, or filesystem module.
+- [ ] Service imports no Express `req`/`res` and contains no raw SQL.
+- [ ] Model contains parameterized SQL and explicit field mapping, not HTTP or business policy.
+- [ ] A shared utility is pure; effectful or domain-specific work stays with its adapter or service.
+- [ ] New JavaScript symbols use the variable naming convention; API and SQL names are mapped at their boundaries.
+- [ ] All operations in one transaction use the same connection.
+- [ ] Errors are typed and formatted once; responses retain the required `/api/v1` shape.
+- [ ] Existing client fields and routes still work, or a coordinated versioned migration is provided.
+
+## 11. Current migration status and priorities
+
+| Area | Current code | Target work |
+| --- | --- | --- |
+| Main API | Route → controller → model is common; `src/services/` and `src/validators/` do not yet exist; controllers/models mostly use static classes | Add service/validator layers and move migrated resources to function modules without changing route URLs |
+| Product and reservations | Controllers validate and apply business rules; reservation confirmation has a model-owned transaction | Move rules and transaction ownership to services; enforce stock atomically |
+| Events and event products | Controllers and models share workflow/ownership concerns | Move creator association, event ownership, and stock assignment workflows to services |
+| Glocal check-in | Controller handles cache policy and SurveyMonkey calls | Move orchestration to a service and keep provider access in an adapter |
+| Chat server | Has class-based `AiProductSurveyService`, but some service code calls database helpers directly | Move SQL into models, keep AI provider details in an adapter, and use function modules/factories after migration |
+| Utilities | Main-server `src/utils/` is empty; chat-server `src/utils/` contains provider and workflow code | Keep pure shared helpers in `utils/`; move I/O and policy to adapters/services |
+| Field casing | `/api/v1` and deployed schema mix snake_case and camelCase | Use explicit boundary mapping; change public casing only with a coordinated version |
+| Errors and responses | Central middleware exists alongside manual controller responses and message-based error classification | Adopt typed errors and shared serialization by endpoint |
+
+Start with **reservations and event stock**, because their rules span records and depend on transaction correctness. Follow with events/event products and Glocal check-ins. Preserve the working HTTP contract throughout. This document is complete as a design guide; the code migration is separate work and should be reviewed resource by resource.

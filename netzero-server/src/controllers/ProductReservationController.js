@@ -1,611 +1,251 @@
-const ProductReservation = require('../models/ProductReservation');
-const Product = require('../models/Product');
+const ReservationService = require('../services/ReservationService');
+const { sendSuccess } = require('../middleware/response');
 
-class ProductReservationController {
-  // GET /api/v1/reservations - Get all reservations (with filters)
-  static async getAllReservations(req, res, next) {
-    try {
-      const {
-        user_id,
-        product_id,
-        product_owner_id,
-        status,
-        limit,
-        offset
-      } = req.query;
-
-      const filters = {};
-      
-      if (user_id) filters.user_id = parseInt(user_id);
-      if (product_id) filters.product_id = parseInt(product_id);
-      if (product_owner_id) filters.product_owner_id = parseInt(product_owner_id);
-      if (status) filters.status = status;
-      if (limit) filters.limit = parseInt(limit);
-      if (offset) filters.offset = parseInt(offset);
-
-      const reservations = await ProductReservation.findAll(filters);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservations retrieved successfully',
-        data: reservations,
-        count: reservations.length,
-        filters: filters,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in getAllReservations:', error);
-      next(error);
+function serializeReservation(reservation) {
+  return {
+    reservation_id: reservation.reservationId,
+    user_id: reservation.customerId,
+    product_id: reservation.productId,
+    event_id: reservation.eventId,
+    quantity: reservation.quantity,
+    reserved_unit_price: reservation.reservedUnitPrice,
+    note: reservation.note,
+    shipping_address: reservation.shippingAddress,
+    option_of_delivery: reservation.optionOfDelivery,
+    user_note: reservation.userNote,
+    seller_note: reservation.sellerNote,
+    pickup_date: reservation.pickupDate,
+    status: reservation.status,
+    created_at: reservation.createdAt,
+    updated_at: reservation.updatedAt,
+    product: {
+      id: reservation.product.id,
+      title: reservation.product.title,
+      price: reservation.product.price,
+      type: reservation.product.type,
+      owner_id: reservation.product.ownerId
+    },
+    customer: reservation.customer,
+    owner: reservation.owner,
+    event: reservation.event && {
+      id: reservation.event.id,
+      title: reservation.event.title,
+      location: reservation.event.location,
+      event_date: reservation.event.eventDate
     }
-  }
-
-  // GET /api/v1/reservations/:id - Get reservation by ID
-  static async getReservationById(req, res, next) {
-    try {
-      const reservationId = req.params.id;
-      
-      if (!reservationId || isNaN(reservationId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid reservation ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const reservation = await ProductReservation.findById(reservationId);
-      
-      if (!reservation) {
-        return res.status(404).json({
-          success: false,
-          message: 'Reservation not found',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check permissions - user can see their own reservations or reservations for their products
-      const userId = req.user.userId;
-      if (reservation.user_id !== userId && 
-          reservation.product.owner_id !== userId && 
-          req.user.role !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied',
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation retrieved successfully',
-        data: reservation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in getReservationById:', error);
-      next(error);
-    }
-  }
-
-  // POST /api/v1/reservations - Create a new reservation
-  static async createReservation(req, res, next) {
-    try {
-      const {
-        product_id,
-        event_id,
-        quantity,
-        reserved_unit_price,
-        note,
-        shipping_address,
-        option_of_delivery,
-        user_note,
-        pickup_date
-      } = req.body;
-
-      // Validation
-      if (!product_id || !quantity) {
-        return res.status(400).json({
-          success: false,
-          message: 'Required fields: product_id, quantity',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Validate reserved_unit_price is required
-      if (!reserved_unit_price || isNaN(reserved_unit_price) || reserved_unit_price <= 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'reserved_unit_price is required and must be a valid positive number',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Validate option_of_delivery
-      if (option_of_delivery && !['pickup', 'delivery', 'event'].includes(option_of_delivery)) {
-        return res.status(400).json({
-          success: false,
-          message: 'option_of_delivery must be either "pickup", "delivery", or "event"',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Validate pickup_date if option is pickup
-      if (option_of_delivery === 'pickup' && !pickup_date) {
-        return res.status(400).json({
-          success: false,
-          message: 'pickup_date is required when option_of_delivery is "pickup"',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Validate event_id if option is event
-      if (option_of_delivery === 'event' && !event_id) {
-        return res.status(400).json({
-          success: false,
-          message: 'event_id is required when option_of_delivery is "event"',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (isNaN(product_id) || isNaN(quantity) || quantity <= 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'Product ID and quantity must be valid positive numbers',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check if product exists and has sufficient stock
-      const product = await Product.findById(product_id);
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: 'Product not found',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check if user is trying to reserve their own product
-      if (product.user_id === req.user.userId) {
-        return res.status(400).json({
-          success: false,
-          message: 'Cannot reserve your own product',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check stock availability based on delivery method
-      if (option_of_delivery === 'event' && event_id) {
-        // For event delivery, check event_product stock
-        const EventProduct = require('../models/EventProduct');
-        const eventProduct = await EventProduct.findByEventAndProduct(event_id, product_id);
-        
-        if (!eventProduct) {
-          return res.status(404).json({
-            success: false,
-            message: 'Product is not available for this event',
-            timestamp: new Date().toISOString()
-          });
-        }
-
-        if (eventProduct.stock_quantity < quantity) {
-          return res.status(400).json({
-            success: false,
-            message: `Insufficient event stock. Available: ${eventProduct.stock_quantity}`,
-            timestamp: new Date().toISOString()
-          });
-        }
-      } else {
-        // For pickup/delivery, check unassigned stock
-        const unassignedStock = product.unassigned_stock_quantity || 0;
-        if (unassignedStock < quantity) {
-          return res.status(400).json({
-            success: false,
-            message: `Insufficient unassigned stock. Available: ${unassignedStock}`,
-            timestamp: new Date().toISOString()
-          });
-        }
-      }
-
-      // Also check total stock as a safety measure
-      if (product.stock_quantity < quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock. Available: ${product.stock_quantity}`,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const reservationData = {
-        user_id: req.user.userId,
-        product_id: parseInt(product_id),
-        event_id: event_id ? parseInt(event_id) : null,
-        quantity: parseInt(quantity),
-        reserved_unit_price: parseFloat(reserved_unit_price),
-        note,
-        shipping_address,
-        option_of_delivery: option_of_delivery || 'delivery',
-        user_note,
-        pickup_date: pickup_date ? new Date(pickup_date) : null,
-        status: 'pending'
-      };
-
-      const reservationId = await ProductReservation.create(reservationData);
-      const newReservation = await ProductReservation.findById(reservationId);
-      
-      res.status(201).json({
-        success: true,
-        message: 'Reservation created successfully',
-        data: newReservation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in createReservation:', error);
-      next(error);
-    }
-  }
-
-  // PUT /api/v1/reservations/:id - Update reservation
-  static async updateReservation(req, res, next) {
-    try {
-      const reservationId = req.params.id;
-      const userId = req.user.userId;
-
-      if (!reservationId || isNaN(reservationId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid reservation ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const { 
-        quantity, 
-        note, 
-        shipping_address, 
-        option_of_delivery,
-        user_note,
-        seller_note,
-        pickup_date,
-        status 
-      } = req.body;
-
-      // Validate quantity if provided
-      if (quantity !== undefined && (isNaN(quantity) || quantity <= 0)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Quantity must be a valid positive number',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Validate status if provided
-      if (status && !['pending', 'confirmed', 'cancelled'].includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Status must be one of: pending, confirmed, cancelled',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Validate option_of_delivery if provided
-      if (option_of_delivery && !['pickup', 'delivery'].includes(option_of_delivery)) {
-        return res.status(400).json({
-          success: false,
-          message: 'option_of_delivery must be either "pickup" or "delivery"',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const updateData = {};
-      if (quantity !== undefined) updateData.quantity = parseInt(quantity);
-      if (note !== undefined) updateData.note = note;
-      if (shipping_address !== undefined) updateData.shipping_address = shipping_address;
-      if (option_of_delivery !== undefined) updateData.option_of_delivery = option_of_delivery;
-      if (user_note !== undefined) updateData.user_note = user_note;
-      if (seller_note !== undefined) updateData.seller_note = seller_note;
-      if (pickup_date !== undefined) updateData.pickup_date = pickup_date ? new Date(pickup_date) : null;
-      if (status) updateData.status = status;
-
-      const success = await ProductReservation.updateById(reservationId, updateData, userId);
-      
-      if (!success) {
-        return res.status(404).json({
-          success: false,
-          message: 'Reservation not found or access denied',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const updatedReservation = await ProductReservation.findById(reservationId);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation updated successfully',
-        data: updatedReservation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in updateReservation:', error);
-      next(error);
-    }
-  }
-
-  // DELETE /api/v1/reservations/:id - Delete reservation
-  static async deleteReservation(req, res, next) {
-    try {
-      const reservationId = req.params.id;
-      const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
-
-      if (!reservationId || isNaN(reservationId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid reservation ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const success = await ProductReservation.deleteById(reservationId, userId, isAdmin);
-      
-      if (!success) {
-        return res.status(404).json({
-          success: false,
-          message: 'Reservation not found or access denied',
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation deleted successfully',
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in deleteReservation:', error);
-      next(error);
-    }
-  }
-
-  // GET /api/v1/reservations/my - Get current user's reservations
-  static async getMyReservations(req, res, next) {
-    try {
-      const userId = req.user.userId;
-      const { status } = req.query;
-
-      const filters = { user_id: userId };
-      if (status) filters.status = status;
-
-      const reservations = await ProductReservation.findAll(filters);
-      
-      res.status(200).json({
-        success: true,
-        message: 'User reservations retrieved successfully',
-        data: reservations,
-        count: reservations.length,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in getMyReservations:', error);
-      next(error);
-    }
-  }
-
-  // GET /api/v1/reservations/my-products - Get reservations for current user's products
-  static async getMyProductReservations(req, res, next) {
-    try {
-      const userId = req.user.userId;
-      const { status } = req.query;
-
-      const filters = { product_owner_id: userId };
-      if (status) filters.status = status;
-
-      const reservations = await ProductReservation.findAll(filters);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Product reservations retrieved successfully',
-        data: reservations,
-        count: reservations.length,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in getMyProductReservations:', error);
-      next(error);
-    }
-  }
-
-  // POST /api/v1/reservations/:id/confirm - Confirm reservation and reduce stock
-  static async confirmReservation(req, res, next) {
-    try {
-      const reservationId = req.params.id;
-      const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
-
-      if (!reservationId || isNaN(reservationId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid reservation ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const success = await ProductReservation.confirmReservation(reservationId, userId, isAdmin);
-      
-      if (!success) {
-        return res.status(400).json({
-          success: false,
-          message: 'Failed to confirm reservation. Check permissions and stock availability.',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const confirmedReservation = await ProductReservation.findById(reservationId);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation confirmed successfully',
-        data: confirmedReservation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in confirmReservation:', error);
-      next(error);
-    }
-  }
-
-  // POST /api/v1/reservations/:id/cancel - Cancel reservation
-  static async cancelReservation(req, res, next) {
-    try {
-      const reservationId = req.params.id;
-      const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
-
-      if (!reservationId || isNaN(reservationId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid reservation ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const success = await ProductReservation.cancelReservation(reservationId, userId, isAdmin);
-      
-      if (!success) {
-        return res.status(400).json({
-          success: false,
-          message: 'Failed to cancel reservation. Check permissions or reservation status.',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const cancelledReservation = await ProductReservation.findById(reservationId);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation cancelled successfully',
-        data: cancelledReservation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in cancelReservation:', error);
-      next(error);
-    }
-  }
-
-  // PUT /api/v1/reservations/:id/status - Update reservation status (for product owners)
-  static async updateReservationStatus(req, res, next) {
-    try {
-      const reservationId = req.params.id;
-      const userId = req.user.userId;
-      const isAdmin = req.user.role === 'admin';
-      const { status } = req.body;
-
-      if (!reservationId || isNaN(reservationId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid reservation ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (!status || !['pending', 'confirmed', 'cancelled'].includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Status must be one of: pending, confirmed, cancelled',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const success = await ProductReservation.updateStatus(reservationId, status, userId, isAdmin);
-      
-      if (!success) {
-        return res.status(404).json({
-          success: false,
-          message: 'Reservation not found or access denied',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const updatedReservation = await ProductReservation.findById(reservationId);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation status updated successfully',
-        data: updatedReservation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in updateReservationStatus:', error);
-      next(error);
-    }
-  }
-
-  // GET /api/v1/reservations/stats - Get reservation statistics for current user (as product owner)
-  static async getReservationStats(req, res, next) {
-    try {
-      const userId = req.user.userId;
-
-      const stats = await ProductReservation.getOwnerStats(userId);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Reservation statistics retrieved successfully',
-        data: stats,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in getReservationStats:', error);
-      next(error);
-    }
-  }
-
-  // GET /api/v1/products/:productId/reservations - Get reservations for a specific product
-  static async getProductReservations(req, res, next) {
-    try {
-      const productId = req.params.productId;
-      const userId = req.user.userId;
-
-      if (!productId || isNaN(productId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid product ID provided',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check if user owns the product
-      const product = await Product.findById(productId);
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: 'Product not found',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (product.user_id !== userId && req.user.role !== 'admin') {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied. You can only view reservations for your own products.',
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const reservations = await ProductReservation.findByProductId(productId);
-      
-      res.status(200).json({
-        success: true,
-        message: 'Product reservations retrieved successfully',
-        data: reservations,
-        count: reservations.length,
-        product: product.toJSON(),
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error in getProductReservations:', error);
-      next(error);
-    }
-  }
+  };
 }
 
-module.exports = ProductReservationController;
+function serializeProduct(product) {
+  return {
+    id: product.productId,
+    project_id: product.projectId,
+    title: product.title,
+    description: product.description,
+    price: product.price,
+    category: product.category,
+    type: product.type,
+    address: product.address,
+    coordinate: product.coordinate,
+    stock_quantity: product.stockQuantity,
+    unassigned_stock_quantity: product.unassignedStockQuantity,
+    isRecommend: product.isRecommended,
+    created_at: product.createdAt,
+    updated_at: product.updatedAt,
+    user_id: product.ownerId,
+    owner: product.owner
+  };
+}
+
+function mapReservationInput(body) {
+  return {
+    productId: body.product_id,
+    eventId: body.event_id ?? null,
+    quantity: body.quantity,
+    reservedUnitPrice: body.reserved_unit_price,
+    note: body.note,
+    shippingAddress: body.shipping_address,
+    optionOfDelivery: body.option_of_delivery,
+    userNote: body.user_note,
+    pickupDate: body.pickup_date ?? null
+  };
+}
+
+function mapReservationUpdates(body) {
+  const fields = {
+    quantity: 'quantity',
+    note: 'note',
+    shipping_address: 'shippingAddress',
+    option_of_delivery: 'optionOfDelivery',
+    user_note: 'userNote',
+    seller_note: 'sellerNote',
+    pickup_date: 'pickupDate',
+    status: 'status'
+  };
+  return Object.fromEntries(
+    Object.entries(fields)
+      .filter(([apiName]) => body[apiName] !== undefined)
+      .map(([apiName, domainName]) => [domainName, body[apiName]])
+  );
+}
+
+async function getAllReservations(req, res) {
+  const query = req.validated.query;
+  const filters = {
+    customerId: query.user_id,
+    productId: query.product_id,
+    ownerId: query.product_owner_id,
+    status: query.status,
+    limit: query.limit,
+    offset: query.offset
+  };
+  const reservations = await ReservationService.listReservations({ actor: req.user, filters });
+  return sendSuccess(res, {
+    message: 'Reservations retrieved successfully',
+    data: reservations.map(serializeReservation),
+    count: reservations.length,
+    filters: Object.fromEntries(Object.entries(query).filter(([, value]) => value !== undefined))
+  });
+}
+
+async function getReservationById(req, res) {
+  const reservation = await ReservationService.getReservationById({
+    actor: req.user,
+    reservationId: req.validated.params.id
+  });
+  return sendSuccess(res, {
+    message: 'Reservation retrieved successfully',
+    data: serializeReservation(reservation)
+  });
+}
+
+async function createReservation(req, res) {
+  const reservation = await ReservationService.createReservation({
+    actor: req.user,
+    data: mapReservationInput(req.validated.body)
+  });
+  return sendSuccess(res, {
+    message: 'Reservation created successfully',
+    data: serializeReservation(reservation),
+    statusCode: 201
+  });
+}
+
+async function updateReservation(req, res) {
+  const reservation = await ReservationService.updateReservation({
+    actor: req.user,
+    reservationId: req.validated.params.id,
+    updates: mapReservationUpdates(req.validated.body)
+  });
+  return sendSuccess(res, {
+    message: 'Reservation updated successfully',
+    data: serializeReservation(reservation)
+  });
+}
+
+async function deleteReservation(req, res) {
+  await ReservationService.deleteReservation({
+    actor: req.user,
+    reservationId: req.validated.params.id
+  });
+  return sendSuccess(res, { message: 'Reservation deleted successfully' });
+}
+
+async function getMyReservations(req, res) {
+  const reservations = await ReservationService.getMyReservations({
+    actor: req.user,
+    status: req.validated.query.status
+  });
+  return sendSuccess(res, {
+    message: 'User reservations retrieved successfully',
+    data: reservations.map(serializeReservation),
+    count: reservations.length
+  });
+}
+
+async function getMyProductReservations(req, res) {
+  const reservations = await ReservationService.getMyProductReservations({
+    actor: req.user,
+    status: req.validated.query.status
+  });
+  return sendSuccess(res, {
+    message: 'Product reservations retrieved successfully',
+    data: reservations.map(serializeReservation),
+    count: reservations.length
+  });
+}
+
+async function confirmReservation(req, res) {
+  const reservation = await ReservationService.confirmReservation({
+    actor: req.user,
+    reservationId: req.validated.params.id
+  });
+  return sendSuccess(res, {
+    message: 'Reservation confirmed successfully',
+    data: serializeReservation(reservation)
+  });
+}
+
+async function cancelReservation(req, res) {
+  const reservation = await ReservationService.cancelReservation({
+    actor: req.user,
+    reservationId: req.validated.params.id
+  });
+  return sendSuccess(res, {
+    message: 'Reservation cancelled successfully',
+    data: serializeReservation(reservation)
+  });
+}
+
+async function updateReservationStatus(req, res) {
+  const reservation = await ReservationService.updateReservationStatus({
+    actor: req.user,
+    reservationId: req.validated.params.id,
+    status: req.validated.body.status
+  });
+  return sendSuccess(res, {
+    message: 'Reservation status updated successfully',
+    data: serializeReservation(reservation)
+  });
+}
+
+async function getReservationStats(req, res) {
+  const stats = await ReservationService.getReservationStats({ actor: req.user });
+  return sendSuccess(res, {
+    message: 'Reservation statistics retrieved successfully',
+    data: {
+      total_reservations: stats.totalReservations,
+      pending_count: stats.pendingCount,
+      confirmed_count: stats.confirmedCount,
+      cancelled_count: stats.cancelledCount
+    }
+  });
+}
+
+async function getProductReservations(req, res) {
+  const { product, reservations } = await ReservationService.getProductReservations({
+    actor: req.user,
+    productId: req.validated.params.productId
+  });
+  return sendSuccess(res, {
+    message: 'Product reservations retrieved successfully',
+    data: reservations.map(serializeReservation),
+    count: reservations.length,
+    product: serializeProduct(product)
+  });
+}
+
+module.exports = {
+  getAllReservations,
+  getReservationById,
+  createReservation,
+  updateReservation,
+  deleteReservation,
+  getMyReservations,
+  getMyProductReservations,
+  confirmReservation,
+  cancelReservation,
+  updateReservationStatus,
+  getReservationStats,
+  getProductReservations
+};

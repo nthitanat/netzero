@@ -4,7 +4,7 @@ import { storageService } from '../utils/storage';
 
 // Create a separate axios instance for chat server (where survey APIs are hosted)
 const chatServerInstance = axios.create({
-  baseURL: process.env.REACT_APP_CHAT_API_BASE_URL || 'http://localhost:3004/api/v1',
+  baseURL: process.env.REACT_APP_CHAT_API_BASE_URL,
   timeout: 90000, // 90 seconds for AI evaluation
   headers: {
     'Content-Type': 'application/json',

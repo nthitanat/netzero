@@ -696,3 +696,6 @@ The URL is baked in at build time via `ARG`. Check that the correct `PROD_REACT_
 ---
 
 *Last updated: May 2026*
+# Historical deployment guide
+
+The current Docker setup and commands are in [DOCKER.md](../DOCKER.md). The instructions below describe the previous combined `.env` and `docker-compose.yml` setup.

@@ -1,76 +1,54 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
-
-// Import environment configuration
 const config = require('./env');
 
-// Use database configuration from env helper
-const dbConfig = config.database;
+const pool = mysql.createPool(config.database);
 
-// Create connection pool
-const pool = mysql.createPool(dbConfig);
+// Database setup scripts use these single-statement helpers outside HTTP workflows.
+async function executeQuery(query, params = []) {
+  const [rows] = await pool.execute(query, params);
+  return rows;
+}
 
-// Test connection function
-const testConnection = async () => {
+async function executeCommand(command, params = []) {
+  const [result] = await pool.execute(command, params);
+  return [result];
+}
+
+async function testConnection() {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Chat Server - Database connected successfully');
     connection.release();
     return true;
   } catch (error) {
-    console.error('❌ Chat Server - Database connection failed:', error.message);
+    console.error('Chat Server database connection failed:', error.message);
     return false;
   }
-};
+}
 
-// Execute query function
-const executeQuery = async (query, params = []) => {
+async function withTransaction(operation) {
+  const connection = await pool.getConnection();
   try {
-    const [rows] = await pool.execute(query, params);
-    return rows;
+    await connection.beginTransaction();
+    const value = await operation(connection);
+    await connection.commit();
+    return value;
   } catch (error) {
-    console.error('Chat Server - Database query error:', error);
+    await connection.rollback();
     throw error;
+  } finally {
+    connection.release();
   }
-};
+}
 
-// Execute command function (for non-query commands like CREATE, ALTER, DROP)
-const executeCommand = async (command, params = []) => {
-  try {
-    const [result] = await pool.execute(command, params);
-    return [result];
-  } catch (error) {
-    console.error('Chat Server - Database command error:', error);
-    throw error;
-  }
-};
-
-// Get connection from pool
-const getConnection = async () => {
-  try {
-    return await pool.getConnection();
-  } catch (error) {
-    console.error('Chat Server - Error getting database connection:', error);
-    throw error;
-  }
-};
-
-// Close pool function
-const closePool = async () => {
-  try {
-    await pool.end();
-    console.log('📴 Chat Server - Database pool closed');
-  } catch (error) {
-    console.error('Chat Server - Error closing database pool:', error);
-  }
-};
+async function closePool() {
+  await pool.end();
+}
 
 module.exports = {
   pool,
-  testConnection,
   executeQuery,
   executeCommand,
-  getConnection,
-  closePool,
-  dbConfig
+  testConnection,
+  withTransaction,
+  closePool
 };

@@ -23,6 +23,7 @@ class EventsService {
       const params = {};
       if (options.page) params.page = options.page;
       if (options.limit) params.limit = options.limit;
+      if (options.offset !== undefined) params.offset = options.offset;
       if (options.sortBy) params.sortBy = options.sortBy;
       if (options.sortOrder) params.sortOrder = options.sortOrder;
 
@@ -299,8 +300,16 @@ class EventsService {
       } catch (error) {
         // Fallback: get all events and extract categories
         console.log('📋 Categories endpoint not available, extracting from events...');
-        const eventsResponse = await this.getEvents({ limit: 1000 });
-        const events = eventsResponse.data;
+        const events = [];
+        const pageSize = 100;
+        let offset = 0;
+        let page;
+        do {
+          const eventsResponse = await this.getEvents({ limit: pageSize, offset });
+          page = eventsResponse.data;
+          events.push(...page);
+          offset += page.length;
+        } while (page.length === pageSize);
         
         const categories = [...new Set(events
           .map(event => event.category)

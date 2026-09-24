@@ -1,21 +1,9 @@
 import axios from 'axios';
 import { storageService } from '../utils/storage';
 
-// Determine base URL based on environment
-const getBaseURL = () => {
-  // Environment variables are injected at build time by Docker
-  // They come from the .env file via docker-compose
-  if (process.env.REACT_APP_API_BASE_URL) {
-    return process.env.REACT_APP_API_BASE_URL;
-  }
-  
-  // Fallback to localhost for local development
-  return 'https://engagement.chula.ac.th/netzero-api/';
-};
-
 // Create axios instance with default configuration
 const axiosInstance = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: process.env.REACT_APP_API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

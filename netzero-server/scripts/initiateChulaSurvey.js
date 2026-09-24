@@ -5,7 +5,6 @@
  * This script creates a comprehensive survey for the Chulalongkorn NetZero project
  */
 
-require('dotenv').config();
 const https = require('https');
 const http = require('http');
 const { URL } = require('url');

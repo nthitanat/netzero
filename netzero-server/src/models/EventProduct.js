@@ -1,330 +1,190 @@
-const { executeQuery, executeCommand } = require('../config/database');
+const { pool } = require('../config/database');
 
-class EventProduct {
-  // Database schema definition
-  static getSchema() {
-    return {
-      tableName: 'event_products',
-      columns: {
-        id: 'INT AUTO_INCREMENT PRIMARY KEY',
-        event_id: 'INT NOT NULL',
-        product_id: 'INT NOT NULL',
-        event_price: 'DECIMAL(10, 2) NOT NULL',
-        stock_quantity: 'INT DEFAULT 0',
-        status: "ENUM('pending', 'confirmed') NOT NULL DEFAULT 'pending'",
-        created_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
-        updated_at: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
-      },
-      foreignKeys: [
-        'UNIQUE KEY unique_event_product (event_id, product_id)',
-        'FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE ON UPDATE CASCADE',
-        'FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE ON UPDATE CASCADE'
-      ],
-      indexes: [
-        'INDEX idx_event_products_event_id (event_id)',
-        'INDEX idx_event_products_product_id (product_id)',
-        'INDEX idx_event_products_status (status)'
-      ]
-    };
-  }
+const EVENT_PRODUCT_COLUMNS = `
+  ep.id, ep.event_id, ep.product_id, ep.event_price, ep.stock_quantity,
+  ep.status, ep.created_at, ep.updated_at,
+  e.title AS event_title, e.event_date, e.location AS event_location,
+  p.title AS product_title, p.stock_quantity AS product_stock_quantity,
+  p.unassigned_stock_quantity AS product_unassigned_stock_quantity
+`;
+const EVENT_PRODUCT_JOINS = `
+  FROM event_products ep
+  LEFT JOIN events e ON ep.event_id = e.id
+  LEFT JOIN products p ON ep.product_id = p.id
+`;
 
-  constructor(data) {
-    this.id = data.id;
-    this.event_id = data.event_id;
-    this.product_id = data.product_id;
-    this.event_price = data.event_price;
-    this.stock_quantity = data.stock_quantity;
-    this.status = data.status;
-    this.created_at = data.created_at;
-    this.updated_at = data.updated_at;
-  }
-
-  // Convert to JSON
-  toJSON() {
-    return {
-      id: this.id,
-      event_id: this.event_id,
-      product_id: this.product_id,
-      event_price: parseFloat(this.event_price),
-      stock_quantity: this.stock_quantity,
-      status: this.status,
-      created_at: this.created_at,
-      updated_at: this.updated_at
-    };
-  }
-
-  // Create a new event product
-  static async create(eventProductData) {
-    const {
-      event_id,
-      product_id,
-      event_price,
-      stock_quantity = 0,
-      status = 'pending'
-    } = eventProductData;
-
-    const query = `
-      INSERT INTO event_products (
-        event_id, product_id, event_price, stock_quantity, status
-      )
-      VALUES (?, ?, ?, ?, ?)
-    `;
-
-    const [result] = await executeCommand(query, [
-      event_id,
-      product_id,
-      event_price,
-      stock_quantity,
-      status
-    ]);
-
-    return result.insertId;
-  }
-
-  // Find event product by ID
-  static async findById(id) {
-    const query = `
-      SELECT ep.*, 
-             e.title AS event_title, e.event_date, e.location AS event_location, e.status AS event_status,
-             p.title AS product_title, p.description AS product_description, p.category AS product_category
-      FROM event_products ep
-      LEFT JOIN events e ON ep.event_id = e.id
-      LEFT JOIN products p ON ep.product_id = p.id
-      WHERE ep.id = ?
-    `;
-
-    const rows = await executeQuery(query, [id]);
-    
-    if (rows.length === 0) {
-      return null;
-    }
-
-    return new EventProduct(rows[0]);
-  }
-
-  // Find all event products with optional filters
-  static async findAll(filters = {}) {
-    let query = `
-      SELECT ep.*, 
-             e.title AS event_title, e.event_date, e.location AS event_location, e.status AS event_status,
-             p.title AS product_title, p.description AS product_description, p.category AS product_category
-      FROM event_products ep
-      LEFT JOIN events e ON ep.event_id = e.id
-      LEFT JOIN products p ON ep.product_id = p.id
-      WHERE 1=1
-    `;
-    const params = [];
-
-    if (filters.event_id) {
-      query += ' AND ep.event_id = ?';
-      params.push(filters.event_id);
-    }
-
-    if (filters.product_id) {
-      query += ' AND ep.product_id = ?';
-      params.push(filters.product_id);
-    }
-
-    if (filters.status) {
-      query += ' AND ep.status = ?';
-      params.push(filters.status);
-    }
-
-    query += ' ORDER BY ep.created_at DESC';
-
-    const rows = await executeQuery(query, params);
-    return rows.map(row => new EventProduct(row));
-  }
-
-  // Get all events for a specific product
-  static async getEventsByProductId(productId) {
-    const query = `
-      SELECT 
-        e.id AS event_id,
-        e.title AS event_title,
-        e.event_date,
-        e.location,
-        e.status,
-        ep.event_price,
-        ep.stock_quantity,
-        ep.status AS event_product_status,
-        ep.id AS event_product_id
-      FROM event_products ep
-      JOIN events e ON ep.event_id = e.id
-      WHERE ep.product_id = ?
-      ORDER BY e.event_date ASC
-    `;
-
-    const rows = await executeQuery(query, [productId]);
-    return rows;
-  }
-
-  // Get all products for a specific event
-  static async getProductsByEventId(eventId) {
-    const query = `
-      SELECT 
-        p.id AS product_id,
-        p.title AS product_title,
-        p.description,
-        p.category,
-        p.price AS original_price,
-        ep.event_price,
-        ep.stock_quantity,
-        ep.status AS event_product_status,
-        ep.id AS event_product_id
-      FROM event_products ep
-      JOIN products p ON ep.product_id = p.id
-      WHERE ep.event_id = ?
-      ORDER BY ep.created_at DESC
-    `;
-
-    const rows = await executeQuery(query, [eventId]);
-    return rows;
-  }
-
-  // Update event product
-  static async updateById(id, eventProductData) {
-    const {
-      event_price,
-      stock_quantity,
-      status
-    } = eventProductData;
-
-    const query = `
-      UPDATE event_products 
-      SET event_price = ?, stock_quantity = ?, status = ?, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `;
-
-    const [result] = await executeCommand(query, [
-      event_price,
-      stock_quantity,
-      status,
-      id
-    ]);
-
-    return result.affectedRows > 0;
-  }
-
-  // Update event product with stock calculation (updates both event_products and products tables)
-  static async updateEventProduct(id, updateData, userId) {
-    const pool = require('../config/database').pool;
-    const connection = await pool.getConnection();
-    
-    try {
-      await connection.beginTransaction();
-
-      // Get current event product details
-      const [eventProductRows] = await connection.execute(
-        'SELECT * FROM event_products WHERE id = ?',
-        [id]
-      );
-
-      if (eventProductRows.length === 0) {
-        throw new Error('Event product not found');
-      }
-
-      const currentEventProduct = eventProductRows[0];
-
-      // Get product details to verify ownership
-      const [productRows] = await connection.execute(
-        'SELECT user_id, unassigned_stock_quantity FROM products WHERE id = ?',
-        [currentEventProduct.product_id]
-      );
-
-      if (productRows.length === 0) {
-        throw new Error('Product not found');
-      }
-
-      const product = productRows[0];
-
-      // Verify ownership (only product owner can update)
-      if (product.user_id !== userId) {
-        throw new Error('Access denied. Only product owner can update event products');
-      }
-
-      const oldStockQuantity = currentEventProduct.stock_quantity;
-      const newEventPrice = updateData.event_price !== undefined ? updateData.event_price : currentEventProduct.event_price;
-      const newStockQuantity = updateData.stock_quantity !== undefined ? updateData.stock_quantity : currentEventProduct.stock_quantity;
-
-      // Calculate stock difference
-      const stockDifference = newStockQuantity - oldStockQuantity;
-
-      // Check if product has sufficient unassigned stock for increase
-      if (stockDifference > 0) {
-        const currentUnassignedStock = product.unassigned_stock_quantity || 0;
-        if (currentUnassignedStock < stockDifference) {
-          throw new Error(`Insufficient unassigned stock. Available: ${currentUnassignedStock}, Requested: ${stockDifference}`);
-        }
-      }
-
-      // Update event_products table
-      await connection.execute(
-        `UPDATE event_products 
-         SET event_price = ?, stock_quantity = ?, updated_at = CURRENT_TIMESTAMP 
-         WHERE id = ?`,
-        [newEventPrice, newStockQuantity, id]
-      );
-
-      // Update products table (adjust unassigned_stock_quantity by difference)
-      // If stockDifference is positive: reduce unassigned stock (moving to event)
-      // If stockDifference is negative: increase unassigned stock (returning from event)
-      await connection.execute(
-        `UPDATE products 
-         SET unassigned_stock_quantity = unassigned_stock_quantity - ?, updated_at = CURRENT_TIMESTAMP 
-         WHERE id = ?`,
-        [stockDifference, currentEventProduct.product_id]
-      );
-
-      await connection.commit();
-
-      // Fetch and return updated event product
-      const [updatedRows] = await connection.execute(
-        `SELECT ep.*, 
-                e.title AS event_title, e.event_date, e.location AS event_location, e.status AS event_status,
-                p.title AS product_title, p.description AS product_description, p.category AS product_category,
-                p.stock_quantity AS product_stock_quantity,
-                p.unassigned_stock_quantity AS product_unassigned_stock_quantity
-         FROM event_products ep
-         LEFT JOIN events e ON ep.event_id = e.id
-         LEFT JOIN products p ON ep.product_id = p.id
-         WHERE ep.id = ?`,
-        [id]
-      );
-
-      return updatedRows[0];
-
-    } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
-    }
-  }
-
-  // Delete event product
-  static async deleteById(id) {
-    const query = 'DELETE FROM event_products WHERE id = ?';
-    const [result] = await executeCommand(query, [id]);
-    
-    return result.affectedRows > 0;
-  }
-
-  // Check if event product already exists
-  static async findByEventAndProduct(eventId, productId) {
-    const query = `
-      SELECT * FROM event_products 
-      WHERE event_id = ? AND product_id = ?
-    `;
-
-    const rows = await executeQuery(query, [eventId, productId]);
-    
-    if (rows.length === 0) {
-      return null;
-    }
-
-    return new EventProduct(rows[0]);
-  }
+function mapEventProduct(row) {
+  return {
+    eventProductId: row.id,
+    eventId: row.event_id,
+    productId: row.product_id,
+    eventPrice: row.event_price,
+    stockQuantity: row.stock_quantity,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    eventTitle: row.event_title,
+    eventDate: row.event_date,
+    eventLocation: row.event_location,
+    productTitle: row.product_title,
+    productStockQuantity: row.product_stock_quantity,
+    productUnassignedStockQuantity: row.product_unassigned_stock_quantity
+  };
 }
 
-module.exports = EventProduct;
+async function findById(eventProductId, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(
+    `SELECT ${EVENT_PRODUCT_COLUMNS} ${EVENT_PRODUCT_JOINS} WHERE ep.id = ?`,
+    [eventProductId]
+  );
+  return rows[0] ? mapEventProduct(rows[0]) : null;
+}
+
+async function lockById(eventProductId, { tx }) {
+  const [rows] = await tx.execute(
+    'SELECT id FROM event_products WHERE id = ? FOR UPDATE',
+    [eventProductId]
+  );
+  return rows.length > 0;
+}
+
+async function findByEventAndProduct({ eventId, productId }, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(
+    `SELECT ${EVENT_PRODUCT_COLUMNS} ${EVENT_PRODUCT_JOINS}
+     WHERE ep.event_id = ? AND ep.product_id = ?`,
+    [eventId, productId]
+  );
+  return rows[0] ? mapEventProduct(rows[0]) : null;
+}
+
+async function findAll(filters = {}, { tx } = {}) {
+  const database = tx || pool;
+  let query = `SELECT ${EVENT_PRODUCT_COLUMNS} ${EVENT_PRODUCT_JOINS} WHERE 1 = 1`;
+  const values = [];
+  const filterColumns = {
+    eventId: 'ep.event_id',
+    productId: 'ep.product_id',
+    status: 'ep.status'
+  };
+  for (const [name, column] of Object.entries(filterColumns)) {
+    if (filters[name] === undefined) continue;
+    query += ` AND ${column} = ?`;
+    values.push(filters[name]);
+  }
+  query += ' ORDER BY ep.created_at DESC LIMIT ? OFFSET ?';
+  values.push(String(filters.limit), String(filters.offset));
+  const [rows] = await database.execute(query, values);
+  return rows.map(mapEventProduct);
+}
+
+async function getEventsByProductId(productId, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(`
+    SELECT e.id AS event_id, e.title AS event_title, e.event_date,
+      e.location, e.status, ep.event_price, ep.stock_quantity,
+      ep.status AS event_product_status, ep.id AS event_product_id
+    FROM event_products ep JOIN events e ON ep.event_id = e.id
+    WHERE ep.product_id = ? ORDER BY e.event_date ASC
+  `, [productId]);
+  return rows.map(row => ({
+    eventId: row.event_id,
+    eventTitle: row.event_title,
+    eventDate: row.event_date,
+    location: row.location,
+    status: row.status,
+    eventPrice: row.event_price,
+    stockQuantity: row.stock_quantity,
+    eventProductStatus: row.event_product_status,
+    eventProductId: row.event_product_id
+  }));
+}
+
+async function getProductsByEventId(eventId, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute(`
+    SELECT p.id AS product_id, p.title AS product_title, p.description,
+      p.category, p.price AS original_price, ep.event_price,
+      ep.stock_quantity, ep.status AS event_product_status,
+      ep.id AS event_product_id
+    FROM event_products ep JOIN products p ON ep.product_id = p.id
+    WHERE ep.event_id = ? ORDER BY ep.created_at DESC
+  `, [eventId]);
+  return rows.map(row => ({
+    productId: row.product_id,
+    productTitle: row.product_title,
+    description: row.description,
+    category: row.category,
+    originalPrice: row.original_price,
+    eventPrice: row.event_price,
+    stockQuantity: row.stock_quantity,
+    eventProductStatus: row.event_product_status,
+    eventProductId: row.event_product_id
+  }));
+}
+
+async function insert(eventProduct, { tx }) {
+  const [result] = await tx.execute(`
+    INSERT INTO event_products (event_id, product_id, event_price, stock_quantity, status)
+    VALUES (?, ?, ?, ?, ?)
+  `, [
+    eventProduct.eventId,
+    eventProduct.productId,
+    eventProduct.eventPrice,
+    eventProduct.stockQuantity,
+    eventProduct.status
+  ]);
+  return result.insertId;
+}
+
+async function updateById(eventProductId, updates, { tx }) {
+  const [result] = await tx.execute(`
+    UPDATE event_products SET event_price = ?, stock_quantity = ?, status = ?,
+      updated_at = CURRENT_TIMESTAMP WHERE id = ?
+  `, [updates.eventPrice, updates.stockQuantity, updates.status, eventProductId]);
+  return result.affectedRows > 0;
+}
+
+async function deleteById(eventProductId, { tx }) {
+  const [result] = await tx.execute('DELETE FROM event_products WHERE id = ?', [eventProductId]);
+  return result.affectedRows > 0;
+}
+
+async function adjustUnassignedStock({ productId, quantityChange }, { tx }) {
+  const [result] = await tx.execute(`
+    UPDATE products SET unassigned_stock_quantity = unassigned_stock_quantity + ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND unassigned_stock_quantity + ? >= 0
+  `, [quantityChange, productId, quantityChange]);
+  return result.affectedRows > 0;
+}
+
+async function countPendingReservations({ eventId, productId }, { tx }) {
+  const [rows] = await tx.execute(`
+    SELECT COUNT(*) AS reservation_count FROM product_reservations
+    WHERE event_id = ? AND product_id = ? AND status = 'pending'
+  `, [eventId, productId]);
+  return rows[0].reservation_count;
+}
+
+async function findEventById(eventId, { tx } = {}) {
+  const database = tx || pool;
+  const [rows] = await database.execute('SELECT id, title FROM events WHERE id = ?', [eventId]);
+  return rows[0] ? { eventId: rows[0].id, title: rows[0].title } : null;
+}
+
+module.exports = {
+  findById,
+  lockById,
+  findByEventAndProduct,
+  findAll,
+  getEventsByProductId,
+  getProductsByEventId,
+  insert,
+  updateById,
+  deleteById,
+  adjustUnassignedStock,
+  countPendingReservations,
+  findEventById
+};

@@ -4,8 +4,8 @@ import { eventsService } from '../api';
  * Event image utilities for working with API image endpoints
  */
 
-// Production base URL for static assets
-const PRODUCTION_BASE_URL = "https://engagement.chula.ac.th/netzero";
+// The deployed static asset path is supplied by the selected environment.
+const STATIC_ASSET_BASE_URL = process.env.REACT_APP_STATIC_ASSET_BASE_URL || '';
 
 /**
  * Get the appropriate static image URL based on the current environment
@@ -22,7 +22,7 @@ export const getStaticImageUrl = (imagePath) => {
   }
   
   // In production, prepend the production base URL
-  return `${PRODUCTION_BASE_URL}${normalizedPath}`;
+  return `${STATIC_ASSET_BASE_URL}${normalizedPath}`;
 };
 
 /**

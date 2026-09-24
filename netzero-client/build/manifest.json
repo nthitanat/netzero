@@ -1,0 +1,16 @@
+{
+  "short_name": "NetZero",
+  "name": "Green Events Showcase - NetZero",
+  "description": "Discover sustainable events, workshops, and conferences shaping our green future",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "/net-zero",
+  "display": "standalone",
+  "theme_color": "#45CE69",
+  "background_color": "#ffffff"
+}
