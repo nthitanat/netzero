@@ -10,6 +10,14 @@ if [ -f "$PROJECT_ROOT/.env.production" ]; then
     source "$PROJECT_ROOT/.env.production"
 fi
 
+local_sudo() {
+    if [ -z "${SUDO_PASSWORD:-}" ]; then
+        echo "❌ Set SUDO_PASSWORD in .env.production for local sudo" >&2
+        return 1
+    fi
+    printf '%s\n' "$SUDO_PASSWORD" | sudo -k -S -p '' "$@"
+}
+
 echo "🔌 Disconnecting from VPN..."
 
 # Check if openconnect is running
@@ -17,21 +25,12 @@ if pgrep -x "openconnect" > /dev/null; then
     # Check if PID file exists
     if [ -f /var/run/openconnect.pid ]; then
         echo "⚠️  This script requires sudo privileges"
-        if [ -n "$SUDO_PASSWORD" ]; then
-            echo "$SUDO_PASSWORD" | sudo -S kill $(cat /var/run/openconnect.pid)
-            echo "$SUDO_PASSWORD" | sudo -S rm -f /var/run/openconnect.pid
-        else
-            sudo kill $(cat /var/run/openconnect.pid)
-            sudo rm -f /var/run/openconnect.pid
-        fi
+        local_sudo kill "$(cat /var/run/openconnect.pid)"
+        local_sudo rm -f /var/run/openconnect.pid
         echo "✅ VPN disconnected successfully"
     else
         echo "⚠️  PID file not found, killing all openconnect processes"
-        if [ -n "$SUDO_PASSWORD" ]; then
-            echo "$SUDO_PASSWORD" | sudo -S killall openconnect
-        else
-            sudo killall openconnect
-        fi
+        local_sudo killall openconnect
         echo "✅ VPN disconnected"
     fi
 else

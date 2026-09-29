@@ -27,6 +27,14 @@ if [[ "$NODE_ENV" != "production" || -z "${CHAT_VECTOR_STORE_ID:-}" ]]; then
     exit 1
 fi
 
+local_sudo() {
+    if [[ -z "${SUDO_PASSWORD:-}" ]]; then
+        echo -e "${RED}❌ Set SUDO_PASSWORD in .env.production for local sudo${NC}" >&2
+        return 1
+    fi
+    printf '%s\n' "$SUDO_PASSWORD" | sudo -k -S -p '' "$@"
+}
+
 echo -e "${BLUE}🚀 Remote Server Management Script${NC}"
 echo ""
 
@@ -105,7 +113,7 @@ if ! command -v sshpass &> /dev/null; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
         brew install hudochenkov/sshpass/sshpass
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        sudo apt-get update && sudo apt-get install -y sshpass
+        local_sudo apt-get update && local_sudo apt-get install -y sshpass
     fi
 fi
 
@@ -115,13 +123,19 @@ echo -e "${GREEN}✅ SSH tools ready${NC}"
 echo ""
 echo -e "${BLUE}📤 Step 4: Uploading .env.production file to remote server...${NC}"
 
-# Upload the production configuration file
-sshpass -p "$REMOTE_PASSWORD" scp -p -P "$REMOTE_PORT" \
+# Keep local VPN and sudo credentials on the local machine.
+REMOTE_ENV_UPLOAD=$(mktemp)
+trap 'rm -f "$REMOTE_ENV_UPLOAD"' EXIT
+awk '!/^(VPN_HOST|VPN_USERNAME|VPN_PASSWORD|SUDO_PASSWORD|REMOTE_HOST|REMOTE_USER|REMOTE_PORT)=/' \
+    "$PROJECT_ROOT/.env.production" > "$REMOTE_ENV_UPLOAD"
+chmod 600 "$REMOTE_ENV_UPLOAD"
+
+SSHPASS="$REMOTE_PASSWORD" sshpass -e scp -p -P "$REMOTE_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
     -o PreferredAuthentications=password \
     -o PubkeyAuthentication=no \
-    "$PROJECT_ROOT/.env.production" \
+    "$REMOTE_ENV_UPLOAD" \
     "$REMOTE_USER@$REMOTE_HOST:/tmp/.env.production.netzero"
 
 echo -e "${GREEN}✅ .env.production file uploaded from project root${NC}"
@@ -130,15 +144,31 @@ echo -e "${GREEN}✅ .env.production file uploaded from project root${NC}"
 echo ""
 echo -e "${BLUE}🚀 Step 5: Executing action on remote server...${NC}"
 
-# Execute commands on remote server based on selected action
-# We'll set the remote env vars inline so the remote shell has GITHUB token and repo url
-sshpass -p "$REMOTE_PASSWORD" ssh -p "$REMOTE_PORT" \
+# Execute the selected action without putting credentials in the SSH command.
+SSHPASS="$REMOTE_PASSWORD" sshpass -e ssh -p "$REMOTE_PORT" \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
     -o PreferredAuthentications=password \
     -o PubkeyAuthentication=no \
-    "$REMOTE_USER@$REMOTE_HOST" "REMOTE_SUDO_PASS='$REMOTE_PASSWORD' GITHUB_TOKEN='$GITHUB_TOKEN' REPO_URL='$REPO_URL' ACTION='$ACTION' bash -s" << 'ENDSSH'
+    "$REMOTE_USER@$REMOTE_HOST" "bash -s -- $ACTION" << 'ENDSSH'
 set -e
+
+ACTION=$1
+if [ ! -f /tmp/.env.production.netzero ]; then
+    echo "❌ Production environment upload is missing" >&2
+    exit 1
+fi
+source /tmp/.env.production.netzero
+REMOTE_SUDO_PASS="${REMOTE_SUDO_PASSWORD:-$REMOTE_PASSWORD}"
+if [ -z "$REMOTE_SUDO_PASS" ]; then
+    echo "❌ Set REMOTE_SUDO_PASSWORD or REMOTE_PASSWORD in .env.production" >&2
+    exit 1
+fi
+
+remote_sudo() {
+    printf '%s\n' "$REMOTE_SUDO_PASS" | sudo -k -S -p '' "$@"
+}
+remote_sudo -v
 
 DEPLOY_PATH=/www/netzero-deploy
 
@@ -148,9 +178,9 @@ deploy_app() {
 
     # Create only the project deployment directory. Do not chown all of /www:
     # /www/server/data contains MySQL data files that must remain owned by mysql.
-    echo "$REMOTE_SUDO_PASS" | sudo -S mkdir -p /www
-    echo "$REMOTE_SUDO_PASS" | sudo -S mkdir -p "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S chown -R $USER:$USER "$DEPLOY_PATH" || true
+    remote_sudo mkdir -p /www
+    remote_sudo mkdir -p "$DEPLOY_PATH"
+    remote_sudo chown -R "$USER:$USER" "$DEPLOY_PATH" || true
 
     if [ ! -d "$DEPLOY_PATH/.git" ]; then
         echo "Cloning repository into $DEPLOY_PATH..."
@@ -196,15 +226,15 @@ deploy_app() {
     npm run build
 
     echo "📁 Deploying React build to /www/wwwroot/engagement.chula.ac.th/..."
-    echo "$REMOTE_SUDO_PASS" | sudo -S mkdir -p /www/wwwroot/engagement.chula.ac.th
-    echo "$REMOTE_SUDO_PASS" | sudo -S rm -rf /www/wwwroot/engagement.chula.ac.th/netzero || true
-    echo "$REMOTE_SUDO_PASS" | sudo -S mv "$DEPLOY_PATH/netzero-client/build" /www/wwwroot/engagement.chula.ac.th/netzero
-    echo "$REMOTE_SUDO_PASS" | sudo -S chown -R $USER:$USER /www/wwwroot/engagement.chula.ac.th 2>/dev/null || true
+    remote_sudo mkdir -p /www/wwwroot/engagement.chula.ac.th
+    remote_sudo rm -rf /www/wwwroot/engagement.chula.ac.th/netzero || true
+    remote_sudo mv "$DEPLOY_PATH/netzero-client/build" /www/wwwroot/engagement.chula.ac.th/netzero
+    remote_sudo chown -R $USER:$USER /www/wwwroot/engagement.chula.ac.th 2>/dev/null || true
     echo "✅ React app deployed to web server"
 
     echo "🐳 Building and starting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
 
     echo "🧹 Cleaning workspace (remote tmp)..."
     rm -f /tmp/.env.production.netzero
@@ -214,7 +244,7 @@ deploy_app() {
     echo ""
     echo "📊 Container status:"
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to update the APIs without rebuilding the separately served client
@@ -246,31 +276,31 @@ update_app() {
     echo "🔧 Setting up environment for production..."
     echo "🔄 Rebuilding Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
 
     echo "✅ Update complete!"
 
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to start containers
 start_containers() {
     echo "🚀 Starting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml up -d netzero-server netzero-chat-server
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml up -d netzero-server netzero-chat-server
     echo "✅ Containers started!"
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to stop containers
 stop_containers() {
     echo "🛑 Stopping Docker containers..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml down
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml down
     echo "✅ Containers stopped!"
 }
 
@@ -278,28 +308,28 @@ stop_containers() {
 restart_containers() {
     echo "🔄 Restarting Docker containers (server + chat only)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml restart netzero-server netzero-chat-server
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml restart netzero-server netzero-chat-server
     echo "✅ Containers restarted!"
     echo ""
     echo "📊 Container status:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
 }
 
 # Function to view logs
 view_logs() {
     echo "📋 Viewing container logs (Press Ctrl+C to exit)..."
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml logs -f --tail=100
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml logs -f --tail=100
 }
 
 # Function to show status
 show_status() {
     echo "📊 Container status:"
     cd "$DEPLOY_PATH"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker compose --env-file .env.production -f docker-compose.prod.yml ps
+    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
     echo ""
     echo "💾 Disk usage:"
-    echo "$REMOTE_SUDO_PASS" | sudo -S docker system df
+    remote_sudo docker system df
 }
 
 # Execute action based on choice

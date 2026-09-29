@@ -1,0 +1,1 @@
+-- No operator-managed preset rows for product_images.

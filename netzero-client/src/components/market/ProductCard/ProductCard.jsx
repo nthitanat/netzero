@@ -3,6 +3,7 @@ import styles from "./ProductCard.module.scss";
 import ProductCardHandler from "./ProductCardHandler";
 import { GoogleIcon, ImageSlideshow } from "../../common";
 import { productsService } from "../../../api";
+import { resolveImageUrl } from "../../../utils/imageUtils";
 
 export default function ProductCard({ 
     product, 
@@ -16,10 +17,11 @@ export default function ProductCard({
     const productHandlers = ProductCardHandler(product, onProductClick, onReserveClick);
     
     // Create a product object with proper image URLs
+    const thumbnailUrl = resolveImageUrl(product.thumbnail_url, () => productsService.getProductThumbnailUrl(product.id));
     const productWithImages = {
         ...product,
-        thumbnail: productsService.getProductThumbnailUrl(product.id),
-        images: [productsService.getProductThumbnailUrl(product.id)],
+        thumbnail: thumbnailUrl,
+        images: thumbnailUrl ? [thumbnailUrl] : [],
         inStock: product.stock_quantity > 0 // Convert stock_quantity to inStock boolean
     };
     

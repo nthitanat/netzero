@@ -41,6 +41,10 @@ const config = {
   cache: {
     imageMaxAgeSeconds: Number(getEnvVar('IMAGE_CACHE_SECONDS', '86400'))
   },
+
+  // Set false for the first image-metadata rollout, then true after backfill/audit.
+  imageMetadataReadsEnabled: getEnvVar('IMAGE_METADATA_READS_ENABLED', isProduction ? 'false' : 'true') !== 'false',
+  imageMetadataUploadsEnabled: getEnvVar('IMAGE_METADATA_UPLOADS_ENABLED', isProduction ? 'false' : 'true') !== 'false',
   
   // Database configuration
   database: {

@@ -4,9 +4,14 @@ const { sendSuccess } = require('../middleware/response');
 
 const IMAGE_CACHE_SECONDS = config.cache.imageMaxAgeSeconds;
 
-function serializeEvent(event) {
+function serializeEvent(event, req) {
+  const imageUrlBase = `${req.protocol}://${req.get('host')}${config.apiPrefix}/${config.apiVersion}/events/${event.eventId}`;
   return {
     id: event.eventId,
+    thumbnail_url: !config.imageMetadataReadsEnabled || event.images?.some(image => image.role === 'thumbnail')
+      ? `${imageUrlBase}/thumbnail` : null,
+    poster_url: !config.imageMetadataReadsEnabled || event.images?.some(image => image.role === 'poster')
+      ? `${imageUrlBase}/poster` : null,
     title: event.title,
     description: event.description,
     event_date: event.eventDate,
@@ -51,29 +56,29 @@ async function getAllEvents(req, res) {
   const events = await EventService.listEvents({ page: req.validated.query });
   return sendSuccess(res, {
     message: 'Events retrieved successfully',
-    data: events.map(serializeEvent),
+    data: events.map(event => serializeEvent(event, req)),
     count: events.length
   });
 }
 
 async function getEventById(req, res) {
   const event = await EventService.getEventById({ eventId: req.validated.params.id });
-  return sendSuccess(res, { message: 'Event retrieved successfully', data: serializeEvent(event) });
+  return sendSuccess(res, { message: 'Event retrieved successfully', data: serializeEvent(event, req) });
 }
 
 async function getEventImage(req, res, next, imageType) {
-  const imagePath = await EventService.getEventImagePath({
+  const image = await EventService.getEventImagePath({
     eventId: req.validated.params.id,
     imageType
   });
-  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Content-Type', image.mimetype);
   res.setHeader('Cache-Control', `public, max-age=${IMAGE_CACHE_SECONDS}`);
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.sendFile(imagePath, error => {
+  res.sendFile(image.filePath, error => {
     if (error && !res.headersSent) next(error);
   });
 }
@@ -94,7 +99,7 @@ async function getEventsByCategory(req, res) {
   });
   return sendSuccess(res, {
     message: `Events in category '${category}' retrieved successfully`,
-    data: events.map(serializeEvent),
+    data: events.map(event => serializeEvent(event, req)),
     count: events.length,
     category
   });
@@ -105,7 +110,7 @@ async function getEventByName(req, res) {
   const events = await EventService.searchEventsByName({ name, page: req.validated.query });
   return sendSuccess(res, {
     message: `Events matching '${name}' retrieved successfully`,
-    data: events.map(serializeEvent),
+    data: events.map(event => serializeEvent(event, req)),
     count: events.length,
     searchTerm: name
   });
@@ -115,7 +120,7 @@ async function getRecommendedEvents(req, res) {
   const events = await EventService.listRecommendedEvents({ page: req.validated.query });
   return sendSuccess(res, {
     message: 'Recommended events retrieved successfully',
-    data: events.map(serializeEvent),
+    data: events.map(event => serializeEvent(event, req)),
     count: events.length
   });
 }
@@ -127,7 +132,7 @@ async function createEvent(req, res) {
   });
   return sendSuccess(res, {
     message: 'Event created successfully',
-    data: serializeEvent(event),
+    data: serializeEvent(event, req),
     statusCode: 201
   });
 }
@@ -150,7 +155,7 @@ async function updateEvent(req, res) {
   });
   return sendSuccess(res, {
     message: 'Event updated successfully',
-    data: serializeEvent(event)
+    data: serializeEvent(event, req)
   });
 }
 

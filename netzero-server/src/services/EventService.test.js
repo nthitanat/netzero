@@ -3,6 +3,7 @@ jest.mock('../models/Event', () => ({
   findByName: jest.fn(), findRecommended: jest.fn(), insert: jest.fn(),
   updateByIdOwned: jest.fn(), cancelByIdOwned: jest.fn(), deleteByIdOwned: jest.fn()
 }));
+jest.mock('../models/EventImage', () => ({ findForEvents: jest.fn(), findOne: jest.fn() }));
 jest.mock('../models/UserEvent', () => ({
   insert: jest.fn(), hasAssociation: jest.fn()
 }));
@@ -10,6 +11,7 @@ jest.mock('../adapters/eventImageStorage', () => ({ findEventImage: jest.fn() })
 jest.mock('../config/database', () => ({ withTransaction: jest.fn() }));
 
 const Event = require('../models/Event');
+const EventImage = require('../models/EventImage');
 const UserEvent = require('../models/UserEvent');
 const { withTransaction } = require('../config/database');
 const Service = require('./EventService');
@@ -24,6 +26,16 @@ beforeEach(() => {
   Event.findById.mockResolvedValue({ eventId: 11, title: 'Event' });
   UserEvent.hasAssociation.mockResolvedValue(true);
   Event.updateByIdOwned.mockResolvedValue(true);
+  EventImage.findForEvents.mockResolvedValue([]);
+});
+
+test('event list fetches image metadata in one batch', async () => {
+  Event.findAll.mockResolvedValue([{ eventId: 11 }, { eventId: 12 }]);
+  EventImage.findForEvents.mockResolvedValue([{ eventId: 12, role: 'poster' }]);
+  const events = await Service.listEvents({ page: {} });
+  expect(EventImage.findForEvents).toHaveBeenCalledTimes(1);
+  expect(EventImage.findForEvents).toHaveBeenCalledWith([11, 12]);
+  expect(events.map(item => item.images.length)).toEqual([0, 1]);
 });
 
 test('event creation and creator association share the transaction', async () => {

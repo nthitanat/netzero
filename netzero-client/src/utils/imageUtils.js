@@ -34,6 +34,18 @@ export const getStaticImageUrls = (imagePaths) => {
   return imagePaths.map(path => getStaticImageUrl(path));
 };
 
+export const getImagePlaceholderUrl = () => getStaticImageUrl('/assets/images/placeholder-image.svg');
+
+// A missing field means an older API; an explicit null means no image exists.
+export const resolveImageUrl = (url, legacyUrl) => url === undefined ? legacyUrl() : url;
+
+export const handleImageError = (event) => {
+  const placeholderUrl = getImagePlaceholderUrl();
+  if (event.currentTarget.src === placeholderUrl) return;
+  event.currentTarget.onerror = null;
+  event.currentTarget.src = placeholderUrl;
+};
+
 /**
  * Process an object containing static image properties
  * @param {Object} obj - Object that may contain image properties
@@ -79,9 +91,8 @@ export const getEventPosterUrl = (eventId) => {
 };
 
 // Get fallback image for events
-export const getEventFallbackImage = (event) => {
-  const fallbackText = event?.title || event?.name || 'Event';
-  return `/api/placeholder/800/400?text=${encodeURIComponent(fallbackText)}`;
+export const getEventFallbackImage = () => {
+  return getImagePlaceholderUrl();
 };
 
 // Get event images array for slideshows (prioritize API images, fallback to existing)
@@ -91,19 +102,19 @@ export const getEventImages = (event) => {
   const images = [];
   
   // Add poster from API
-  const posterUrl = getEventPosterUrl(event.id);
+  const posterUrl = resolveImageUrl(event.poster_url, () => getEventPosterUrl(event.id));
   if (posterUrl) {
     images.push(posterUrl);
   }
   
   // Add thumbnail from API if different from poster
-  const thumbnailUrl = getEventThumbnailUrl(event.id);
+  const thumbnailUrl = resolveImageUrl(event.thumbnail_url, () => getEventThumbnailUrl(event.id));
   if (thumbnailUrl && thumbnailUrl !== posterUrl) {
     images.push(thumbnailUrl);
   }
   
   // Fallback to existing image properties if API images not available
-  if (images.length === 0) {
+  if (images.length === 0 && event.poster_url === undefined && event.thumbnail_url === undefined) {
     if (event.posterImage) images.push(event.posterImage);
     if (event.thumbnailImage && event.thumbnailImage !== event.posterImage) {
       images.push(event.thumbnailImage);
@@ -123,11 +134,6 @@ export const getEventImages = (event) => {
     }
   }
   
-  // If still no images, add fallback
-  if (images.length === 0) {
-    images.push(getEventFallbackImage(event));
-  }
-  
   return images;
 };
 
@@ -137,26 +143,28 @@ export const getEventPrimaryImage = (event) => {
   
   // Try poster from API first
   if (event.id) {
-    const posterUrl = getEventPosterUrl(event.id);
+    const posterUrl = resolveImageUrl(event.poster_url, () => getEventPosterUrl(event.id));
     if (posterUrl) return posterUrl;
   }
   
   // Try existing posterImage
-  if (event.posterImage) return event.posterImage;
+  if (event.poster_url === undefined && event.posterImage) return event.posterImage;
   
   // Try thumbnail from API
   if (event.id) {
-    const thumbnailUrl = getEventThumbnailUrl(event.id);
+    const thumbnailUrl = resolveImageUrl(event.thumbnail_url, () => getEventThumbnailUrl(event.id));
     if (thumbnailUrl) return thumbnailUrl;
   }
   
   // Try existing thumbnailImage
-  if (event.thumbnailImage) return event.thumbnailImage;
+  if (event.thumbnail_url === undefined && event.thumbnailImage) return event.thumbnailImage;
   
   // Try other image properties
-  if (event.image) return event.image;
-  if (event.images && event.images.length > 0) return event.images[0];
-  if (event.photos && event.photos.length > 0) return event.photos[0];
+  if (event.poster_url === undefined && event.thumbnail_url === undefined) {
+    if (event.image) return event.image;
+    if (event.images && event.images.length > 0) return event.images[0];
+    if (event.photos && event.photos.length > 0) return event.photos[0];
+  }
   
   // Fallback
   return getEventFallbackImage(event);
@@ -168,12 +176,12 @@ export const getEventThumbnailImage = (event) => {
   
   // Try thumbnail from API first
   if (event.id) {
-    const thumbnailUrl = getEventThumbnailUrl(event.id);
+    const thumbnailUrl = resolveImageUrl(event.thumbnail_url, () => getEventThumbnailUrl(event.id));
     if (thumbnailUrl) return thumbnailUrl;
   }
   
   // Try existing thumbnailImage
-  if (event.thumbnailImage) return event.thumbnailImage;
+  if (event.thumbnail_url === undefined && event.thumbnailImage) return event.thumbnailImage;
   
   // Fall back to poster
   return getEventPrimaryImage(event);
@@ -186,6 +194,9 @@ const imageUtils = {
   getEventImages,
   getEventPrimaryImage,
   getEventThumbnailImage,
+  getImagePlaceholderUrl,
+  resolveImageUrl,
+  handleImageError,
   getStaticImageUrl,
   getStaticImageUrls,
   processStaticImageObject,

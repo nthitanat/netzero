@@ -1,0 +1,25 @@
+-- Fresh schema: events. Apply CREATE files in numeric order.
+CREATE TABLE `events` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `event_date` datetime NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `organizer` varchar(255) DEFAULT NULL,
+  `contact_email` varchar(255) DEFAULT NULL,
+  `contact_phone` varchar(20) DEFAULT NULL,
+  `max_participants` int DEFAULT '0',
+  `current_participants` int DEFAULT '0',
+  `registration_deadline` datetime DEFAULT NULL,
+  `status` enum('active','cancelled','completed') DEFAULT 'active',
+  `isRecommended` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_events_event_date` (`event_date`),
+  KEY `idx_events_category` (`category`),
+  KEY `idx_events_status` (`status`),
+  KEY `idx_events_isRecommended` (`isRecommended`),
+  KEY `idx_events_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

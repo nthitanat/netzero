@@ -1,0 +1,26 @@
+-- Fresh schema: products. Apply CREATE files in numeric order.
+CREATE TABLE `products` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `price` decimal(10,2) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `type` enum('market','willing','barter') NOT NULL,
+  `address` text,
+  `coordinate` varchar(255) DEFAULT NULL COMMENT 'Stored as comma-separated lat,lng values',
+  `stock_quantity` int DEFAULT '0',
+  `isRecommend` tinyint(1) DEFAULT '0',
+  `user_id` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `unassigned_stock_quantity` int DEFAULT '0' COMMENT 'Stock available for assignment to events',
+  `next_gallery_image_number` int unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `idx_products_user_id` (`user_id`),
+  KEY `idx_products_category` (`category`),
+  KEY `idx_products_type` (`type`),
+  KEY `idx_products_isRecommend` (`isRecommend`),
+  KEY `idx_products_created_at` (`created_at`),
+  CONSTRAINT `products_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

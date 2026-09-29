@@ -1,0 +1,1 @@
+-- No operator-managed preset rows for user_events.

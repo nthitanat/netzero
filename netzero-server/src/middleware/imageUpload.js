@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
     }
   },
   filename(req, file, callback) {
-    callback(null, `${crypto.randomUUID()}${path.extname(file.originalname)}`);
+    callback(null, `${crypto.randomUUID()}.upload`);
   }
 });
 

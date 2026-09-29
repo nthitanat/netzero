@@ -19,7 +19,7 @@ Completed full-stack implementation of user registration with integrated survey 
 
 #### Database & Scripts
 7. **initDatabase.js** - Updated to include survey models
-8. **initiateChulaSurvey.js** - Script to populate Chula NetZero survey
+8. **Chula NetZero survey initializer** - Historical one-time script, now retired
 9. **server.js** - Registered survey routes
 
 **Survey Created:**
@@ -220,9 +220,7 @@ Completed full-stack implementation of user registration with integrated survey 
 ## Maintenance Notes
 
 ### To Update Survey Questions
-1. Modify `netzero-server/scripts/initiateChulaSurvey.js`
-2. Run `npm run survey:init` to recreate survey
-3. No frontend changes needed (dynamic loading)
+The 2025 survey initializer has been retired. The registration page still requests survey ID 1; a fresh database does not currently seed that survey. Provision a supported survey before using this registration flow with a new database.
 
 ### To Add New Question Types
 1. Update `Question.js` model ENUM

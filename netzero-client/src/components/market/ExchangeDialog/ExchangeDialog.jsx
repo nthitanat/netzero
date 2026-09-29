@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import styles from "./ExchangeDialog.module.scss";
 import { GoogleIcon } from "../../common";
 import { productsService } from "../../../api";
+import { getImagePlaceholderUrl, handleImageError, resolveImageUrl } from "../../../utils/imageUtils";
 
 export default function ExchangeDialog({ 
     product, 
@@ -80,9 +81,10 @@ export default function ExchangeDialog({
                     
                     <div className={styles.ProductInfo}>
                         <img 
-                            src={productsService.getProductThumbnailUrl(product.id)} 
+                            src={resolveImageUrl(product.thumbnail_url, () => productsService.getProductThumbnailUrl(product.id)) || getImagePlaceholderUrl()}
                             alt={product.title}
                             className={styles.ProductImage}
+                            onError={handleImageError}
                         />
                         
                         <div className={styles.ProductDetails}>

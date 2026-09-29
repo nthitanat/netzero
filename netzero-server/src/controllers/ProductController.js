@@ -4,14 +4,19 @@ const config = require('../config/env');
 
 const IMAGE_CACHE_SECONDS = config.cache.imageMaxAgeSeconds;
 
-function generateFileUrl(req, relativePath) {
+function generateFileUrl(req, productId, imageKind, imageId) {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
-  return `${baseUrl}${config.apiPrefix}/${config.apiVersion}/products/images/${relativePath}`;
+  const imagePath = imageKind === 'images' ? `images/${imageId}` : imageKind;
+  return `${baseUrl}${config.apiPrefix}/${config.apiVersion}/products/${productId}/${imagePath}`;
 }
 
-function serializeProduct(product) {
+function serializeProduct(product, req) {
   return {
     id: product.productId,
+    thumbnail_url: !config.imageMetadataReadsEnabled || product.images?.some(image => image.role === 'thumbnail')
+      ? generateFileUrl(req, product.productId, 'thumbnail') : null,
+    cover_url: !config.imageMetadataReadsEnabled || product.images?.some(image => image.role === 'cover')
+      ? generateFileUrl(req, product.productId, 'cover') : null,
     project_id: product.projectId,
     title: product.title,
     description: product.description,
@@ -65,7 +70,7 @@ async function getAllProducts(req, res) {
   const products = await ProductService.listProducts({ filters: mapProductFilters(req.validated.query) });
   return sendSuccess(res, {
     message: 'Products retrieved successfully',
-    data: products.map(serializeProduct),
+    data: products.map(product => serializeProduct(product, req)),
     count: products.length,
     filters: req.validated.query
   });
@@ -73,7 +78,7 @@ async function getAllProducts(req, res) {
 
 async function getProductById(req, res) {
   const product = await ProductService.getProductById({ productId: req.validated.params.id });
-  return sendSuccess(res, { message: 'Product retrieved successfully', data: serializeProduct(product) });
+  return sendSuccess(res, { message: 'Product retrieved successfully', data: serializeProduct(product, req) });
 }
 
 async function createProduct(req, res) {
@@ -83,7 +88,7 @@ async function createProduct(req, res) {
   });
   return sendSuccess(res, {
     message: 'Product created successfully',
-    data: serializeProduct(product),
+    data: serializeProduct(product, req),
     statusCode: 201
   });
 }
@@ -96,7 +101,7 @@ async function updateProduct(req, res) {
   });
   return sendSuccess(res, {
     message: 'Product updated successfully',
-    data: serializeProduct(product)
+    data: serializeProduct(product, req)
   });
 }
 
@@ -112,7 +117,7 @@ async function getMyProducts(req, res) {
   });
   return sendSuccess(res, {
     message: 'User products retrieved successfully',
-    data: products.map(serializeProduct),
+    data: products.map(product => serializeProduct(product, req)),
     count: products.length
   });
 }
@@ -125,7 +130,7 @@ async function searchProducts(req, res) {
   });
   return sendSuccess(res, {
     message: `Products matching '${searchTerm}' retrieved successfully`,
-    data: products.map(serializeProduct),
+    data: products.map(product => serializeProduct(product, req)),
     count: products.length,
     searchTerm
   });
@@ -135,7 +140,7 @@ async function getRecommendedProducts(req, res) {
   const products = await ProductService.getRecommendedProducts({ page: req.validated.query });
   return sendSuccess(res, {
     message: 'Recommended products retrieved successfully',
-    data: products.map(serializeProduct),
+    data: products.map(product => serializeProduct(product, req)),
     count: products.length
   });
 }
@@ -145,26 +150,26 @@ async function getProductsByType(req, res) {
   const products = await ProductService.getProductsByType({ type, page: req.validated.query });
   return sendSuccess(res, {
     message: `Products of type '${type}' retrieved successfully`,
-    data: products.map(serializeProduct),
+    data: products.map(product => serializeProduct(product, req)),
     count: products.length,
     type
   });
 }
 
 async function sendProductImage(req, res, next, imageKind) {
-  const filePath = await ProductService.getProductImagePath({
+  const image = await ProductService.getProductImagePath({
     productId: req.validated.params.id,
     imageKind,
     imageId: req.validated.params.imageId
   });
-  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Content-Type', image.mimetype);
   res.setHeader('Cache-Control', `public, max-age=${IMAGE_CACHE_SECONDS}`);
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.sendFile(filePath, error => {
+  res.sendFile(image.filePath, error => {
     if (error && !res.headersSent) next(error);
   });
 }
@@ -211,7 +216,7 @@ async function uploadProductImage(req, res, imageKind) {
   const responseFiles = uploadedFiles.map(file => ({
     filename: file.filename,
     path: file.relativePath,
-    url: generateFileUrl(req, file.relativePath),
+    url: generateFileUrl(req, productId, imageKind, file.index),
     size: file.size,
     mimetype: file.mimetype,
     ...(file.index !== undefined && { index: file.index })

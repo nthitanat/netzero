@@ -4,6 +4,7 @@ import useAdvertisementCarousel from "./useAdvertisementCarousel";
 import AdvertisementCarouselHandler from "./AdvertisementCarouselHandler";
 import { BaseSlideshow } from "../../common";
 import { productsService } from "../../../api";
+import { getImagePlaceholderUrl, handleImageError, resolveImageUrl } from "../../../utils/imageUtils";
 
 export default function AdvertisementCarousel({ advertisements, onAdClick, className = "", theme = "market" }) {
     const { stateAdvertisementCarousel, setAdvertisementCarousel } = useAdvertisementCarousel();
@@ -25,9 +26,10 @@ export default function AdvertisementCarousel({ advertisements, onAdClick, class
             <div className={styles.AdContainer}>
                 <div className={styles.AdImageContainer}>
                     <img 
-                        src={productsService.getProductCoverUrl(ad.id)} 
+                        src={resolveImageUrl(ad.cover_url, () => productsService.getProductCoverUrl(ad.id)) || getImagePlaceholderUrl()}
                         alt={ad.title}
                         className={styles.AdImage}
+                        onError={handleImageError}
                     />
                   
                 </div>

@@ -1,14 +1,16 @@
 import React from "react";
 import styles from "./ImageSlideshow.module.scss";
 import BaseSlideshow from "../BaseSlideshow/BaseSlideshow";
+import { getImagePlaceholderUrl, handleImageError } from "../../../utils/imageUtils";
 
 export default function ImageSlideshow({ images, alt, className = "" }) {
-    if (!images || images.length === 0) {
-        return null;
+    const availableImages = (images || []).filter(Boolean);
+    if (availableImages.length === 0) {
+        return <img src={getImagePlaceholderUrl()} alt={alt} className={`${styles.SlideImage} ${className}`} />;
     }
     
     // Transform images array to items with id for BaseSlideshow
-    const imageItems = images.map((image, index) => ({
+    const imageItems = availableImages.map((image, index) => ({
         id: `image-${index}`,
         url: image,
         alt: `${alt} ${index + 1}`
@@ -20,6 +22,7 @@ export default function ImageSlideshow({ images, alt, className = "" }) {
             src={imageItem.url} 
             alt={imageItem.alt}
             className={styles.SlideImage}
+            onError={handleImageError}
         />
     );
     
@@ -30,11 +33,11 @@ export default function ImageSlideshow({ images, alt, className = "" }) {
             onSlideClick={null} // Images don't typically need click handlers
             className={`${styles.ImageSlideshowContainer} ${className}`}
             config={{
-                autoPlay: images.length > 1,
+                autoPlay: availableImages.length > 1,
                 autoPlayInterval: 3000,
                 infinite: false, // Don't loop images infinitely
-                showControls: images.length > 1,
-                showIndicators: images.length > 1,
+                showControls: availableImages.length > 1,
+                showIndicators: availableImages.length > 1,
                 pauseOnHover: true
             }}
             controlsConfig={{

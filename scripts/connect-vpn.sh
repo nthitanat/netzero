@@ -14,6 +14,17 @@ else
     exit 1
 fi
 
+local_sudo() {
+    if [ -z "${SUDO_PASSWORD:-}" ]; then
+        echo "❌ Set SUDO_PASSWORD in .env.production for local sudo" >&2
+        return 1
+    fi
+    printf '%s\n' "$SUDO_PASSWORD" | sudo -k -S -p '' "$@"
+}
+
+# Validate the local sudo password before installing tools or connecting.
+local_sudo -v
+
 echo "🔐 Connecting to Chula VPN..."
 
 # Check if openconnect is installed
@@ -34,10 +45,10 @@ if ! command -v openconnect &> /dev/null; then
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # Linux
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y openconnect
+            local_sudo apt-get update
+            local_sudo apt-get install -y openconnect
         elif command -v yum &> /dev/null; then
-            sudo yum install -y openconnect
+            local_sudo yum install -y openconnect
         else
             echo "❌ Unable to install openconnect automatically. Please install it manually."
             exit 1
@@ -50,23 +61,14 @@ fi
 
 echo "📡 Establishing VPN connection to $VPN_HOST..."
 
-# Check if SUDO_PASSWORD is set
-if [ -z "$SUDO_PASSWORD" ]; then
-    echo "❌ Error: SUDO_PASSWORD not set in .env.production file"
-    exit 1
-fi
-
 # Connect to VPN (this will run in background)
-# Note: This requires sudo privileges
-echo "⚠️  This script requires sudo privileges to establish VPN connection"
-
-# Authenticate sudo first (this validates the password and caches credentials)
-echo "$SUDO_PASSWORD" | sudo -S -v
+# Note: local_sudo supplies the password to each sudo invocation.
 
 # Create a script that will be run with sudo
 SUDO_SCRIPT=$(mktemp)
 CRED_FILE=$(mktemp)
 trap "rm -f $SUDO_SCRIPT $CRED_FILE" EXIT
+chmod 600 "$SUDO_SCRIPT" "$CRED_FILE"
 
 # Write VPN credentials to file
 echo "$VPN_PASSWORD" > "$CRED_FILE"
@@ -83,8 +85,8 @@ EOFSCRIPT
 
 chmod +x "$SUDO_SCRIPT"
 
-# Run the script with sudo (credentials are already cached from sudo -v)
-sudo bash "$SUDO_SCRIPT"
+# Run the script with the configured local sudo password.
+local_sudo bash "$SUDO_SCRIPT"
 
 # Wait a moment for connection to establish
 sleep 5

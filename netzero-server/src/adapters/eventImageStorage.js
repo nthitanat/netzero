@@ -7,12 +7,23 @@ const IMAGE_FILES = Object.freeze({
   thumbnail: { directory: 'thumbnail', prefix: 'thumbnail' }
 });
 
+function getUploadRoot() {
+  return path.isAbsolute(config.upload.dir)
+    ? config.upload.dir
+    : path.resolve(__dirname, '../../', config.upload.dir);
+}
+
+function resolveStoragePath(relativePath) {
+  const root = path.resolve(getUploadRoot());
+  const absolutePath = path.resolve(root, relativePath);
+  if (!absolutePath.startsWith(`${root}${path.sep}`)) throw new Error('Invalid image storage path');
+  return absolutePath;
+}
+
 async function findEventImage({ eventId, imageType }) {
   const image = IMAGE_FILES[imageType];
   if (!image) return null;
-  const uploadRoot = path.isAbsolute(config.upload.dir)
-    ? config.upload.dir
-    : path.resolve(__dirname, '../../', config.upload.dir);
+  const uploadRoot = getUploadRoot();
   const imagePath = path.resolve(
     uploadRoot,
     'events',
@@ -29,4 +40,4 @@ async function findEventImage({ eventId, imageType }) {
   }
 }
 
-module.exports = { findEventImage };
+module.exports = { findEventImage, getUploadRoot, resolveStoragePath };

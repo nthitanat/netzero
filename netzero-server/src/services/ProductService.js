@@ -1,5 +1,6 @@
 const config = require('../config/env');
 const Product = require('../models/Product');
+const ProductImage = require('../models/ProductImage');
 const imageStorage = require('../adapters/productImageStorage');
 const { withTransaction } = require('../config/database');
 const { applicationError } = require('../errors/applicationError');
@@ -31,16 +32,31 @@ function assertCanEdit(actor, product) {
 }
 
 async function listProducts({ filters = {} }) {
-  return Product.findAll({ ...filters, ...pageOptions(filters) });
+  return attachImages(await Product.findAll({ ...filters, ...pageOptions(filters) }));
 }
 
 async function getProductById({ productId }) {
-  return requireProduct(productId);
+  return attachOne(await requireProduct(productId));
+}
+
+async function attachImages(products) {
+  if (!products.length) return products;
+  const rows = await ProductImage.findForProducts(products.map(product => product.productId));
+  const byProduct = new Map();
+  for (const row of rows) {
+    if (!byProduct.has(row.productId)) byProduct.set(row.productId, []);
+    byProduct.get(row.productId).push(row);
+  }
+  return products.map(product => ({ ...product, images: byProduct.get(product.productId) || [] }));
+}
+
+async function attachOne(product) {
+  return (await attachImages([product]))[0];
 }
 
 async function createProduct({ actor, data }) {
   const productId = await Product.insert({ ...data, ownerId: actorId(actor) });
-  return Product.findById(productId);
+  return attachOne(await Product.findById(productId));
 }
 
 async function updateProduct({ actor, productId, updates }) {
@@ -61,7 +77,7 @@ async function updateProduct({ actor, productId, updates }) {
     }
     await Product.updateById({ productId, ownerId: current.ownerId, updates: nextUpdates }, { tx });
   });
-  return Product.findById(productId);
+  return attachOne(await Product.findById(productId));
 }
 
 async function deleteProduct({ actor, productId }) {
@@ -72,62 +88,111 @@ async function deleteProduct({ actor, productId }) {
 }
 
 async function getMyProducts({ actor, filters = {} }) {
-  return Product.findAll({ ...filters, ownerId: actorId(actor), ...pageOptions(filters) });
+  return attachImages(await Product.findAll({ ...filters, ownerId: actorId(actor), ...pageOptions(filters) }));
 }
 
 async function searchProducts({ searchTerm, filters = {} }) {
-  return Product.findAll({ ...filters, searchTerm, ...pageOptions(filters) });
+  return attachImages(await Product.findAll({ ...filters, searchTerm, ...pageOptions(filters) }));
 }
 
 async function getRecommendedProducts({ page }) {
-  return Product.findAll({ isRecommended: true, ...pageOptions(page) });
+  return attachImages(await Product.findAll({ isRecommended: true, ...pageOptions(page) }));
 }
 
 async function getProductsByType({ type, page }) {
-  return Product.findAll({ type, ...pageOptions(page) });
+  return attachImages(await Product.findAll({ type, ...pageOptions(page) }));
 }
 
 async function getProductImagePath({ productId, imageKind, imageId }) {
-  const filePath = await imageStorage.findImage({ productId, imageKind, imageId });
-  if (!filePath) throw applicationError('NOT_FOUND', 'Product image file not found');
-  return filePath;
+  const role = imageKind === 'images' ? 'gallery' : imageKind;
+  const image = await ProductImage.findOne({ productId, role, imageId });
+  if (image) return { filePath: imageStorage.resolveStoragePath(image.relativePath),
+    mimetype: image.mimetype, version: image.version };
+  if (!config.imageMetadataReadsEnabled) {
+    const legacy = await imageStorage.findImage({ productId, imageKind, imageId });
+    if (legacy) return legacy;
+  }
+  throw applicationError('NOT_FOUND', 'Product image file not found');
 }
 
 async function listProductImages({ productId }) {
   await requireProduct(productId);
-  return imageStorage.listImages(productId);
+  const images = await ProductImage.listGallery(productId);
+  const responseImages = images.map(image => ({
+    imageId: image.imageId,
+    filename: image.relativePath.split('/').at(-1),
+    size: image.size,
+    exists: true,
+    lastModified: image.lastModified,
+    displayPosition: image.displayPosition
+  }));
+  if (!config.imageMetadataReadsEnabled) {
+    const legacy = await imageStorage.listImages(productId);
+    const indexed = new Set(responseImages.map(image => image.imageId));
+    responseImages.push(...legacy.filter(image => !indexed.has(image.imageId)));
+    responseImages.sort((left, right) => (left.displayPosition ?? left.imageId) -
+      (right.displayPosition ?? right.imageId));
+  }
+  return responseImages;
 }
 
 async function uploadProductImages({ actor, productId, files, imageKind }) {
   const uploadedFiles = [];
+  let oldPath = null;
   try {
+    if (!config.imageMetadataUploadsEnabled) {
+      throw applicationError('EXTERNAL', 'Product image uploads are paused for image metadata migration');
+    }
     const product = await requireProduct(productId);
     assertCanEdit(actor, product);
     if (!files.length) {
       throw applicationError('VALIDATION', imageKind === 'images' ? 'No files uploaded' : 'No file uploaded');
     }
-    const existingImages = imageKind === 'images' ? await imageStorage.listImages(productId) : [];
-    let nextImageId = existingImages.reduce((largestId, image) => Math.max(largestId, image.imageId), 0) + 1;
-    for (const file of files) {
+    const imageIds = imageKind === 'images'
+      ? await withTransaction(async tx => ProductImage.reserveGalleryNumbers(productId, files.length, { tx }))
+      : [];
+    if (imageKind === 'images' && !imageIds) throw applicationError('NOT_FOUND', 'Product not found');
+    for (const [position, file] of files.entries()) {
       const uploadedFile = await imageStorage.commitUpload({
         file,
         productId,
         imageKind,
-        ...(imageKind === 'images' && { imageId: nextImageId })
+        ...(imageKind === 'images' && { imageId: imageIds[position] })
       });
       uploadedFiles.push(uploadedFile);
-      if (imageKind === 'images') nextImageId = uploadedFile.index + 1;
     }
+    await withTransaction(async tx => {
+      // Serialize replacements for one product, including concurrent fixed-role uploads.
+      if (!await Product.lockById(productId, { tx })) throw applicationError('NOT_FOUND', 'Product not found');
+      if (imageKind === 'images') {
+        await ProductImage.insertGallery(uploadedFiles.map(file => ({
+          productId, imageId: file.index, displayPosition: file.index,
+          relativePath: file.storagePath, mimetype: file.mimetype, size: file.size,
+          fileModifiedMs: file.fileModifiedMs
+        })), { tx });
+      } else {
+        const file = uploadedFiles[0];
+        oldPath = await ProductImage.replaceFixed({ productId, role: imageKind,
+          relativePath: file.storagePath, mimetype: file.mimetype, size: file.size,
+          fileModifiedMs: file.fileModifiedMs }, { tx });
+      }
+    });
+    if (oldPath) await imageStorage.discardStoredImage(oldPath).catch(error => {
+      console.error('Failed to remove replaced product image:', error);
+    });
     return uploadedFiles;
   } catch (error) {
-    await Promise.all(uploadedFiles.filter(file => file.index !== undefined).map(file =>
-      imageStorage.discardCommittedImage({ productId, imageId: file.index })
+    await Promise.all(uploadedFiles.map(file =>
+      imageStorage.discardStoredImage(file.storagePath)
     )).catch(cleanupError => {
       console.error('Failed to remove committed product images:', cleanupError);
     });
     await imageStorage.discardUploads(files).catch(cleanupError => {
       console.error('Failed to remove staged product images:', cleanupError);
     });
+    if (error.code === 'INVALID_IMAGE') {
+      throw applicationError('VALIDATION', error.message);
+    }
     throw error;
   }
 }

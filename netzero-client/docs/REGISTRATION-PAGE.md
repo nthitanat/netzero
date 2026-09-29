@@ -262,7 +262,7 @@ Uses centralized SCSS design system:
 
 **Issue:** Survey not loading
 - **Solution:** Verify Survey ID 1 exists in database
-- **Solution:** Run `npm run survey:init` on backend to create survey
+- **Solution:** Provision a supported survey before using this flow with a fresh database; the retired 2025 initializer is no longer available
 - **Solution:** Check browser console for API errors
 
 **Issue:** Submission fails at survey step

@@ -4,6 +4,7 @@ import useReserveDialog from "./useReserveDialog";
 import ReserveDialogHandler from "./ReserveDialogHandler";
 import { GoogleIcon } from "../../common";
 import { productsService } from "../../../api";
+import { getImagePlaceholderUrl, handleImageError, resolveImageUrl } from "../../../utils/imageUtils";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ReserveDialog({ 
@@ -62,9 +63,10 @@ export default function ReserveDialog({
                     
                     <div className={styles.ProductInfo}>
                         <img 
-                            src={productsService.getProductThumbnailUrl(product.id)} 
+                            src={resolveImageUrl(product.thumbnail_url, () => productsService.getProductThumbnailUrl(product.id)) || getImagePlaceholderUrl()}
                             alt={product.title}
                             className={styles.ProductImage}
+                            onError={handleImageError}
                         />
                         
                         <div className={styles.ProductDetails}>

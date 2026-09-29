@@ -1,0 +1,28 @@
+-- Fresh schema: product_reservations. Apply CREATE files in numeric order.
+CREATE TABLE `product_reservations` (
+  `reservation_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL COMMENT 'Customer who made the reservation',
+  `product_id` int NOT NULL,
+  `quantity` int NOT NULL,
+  `note` text COMMENT 'Message to seller / pickup method',
+  `status` enum('pending','confirmed','cancelled') DEFAULT 'pending',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `shipping_address` text,
+  `option_of_delivery` enum('pickup','delivery','event') NOT NULL DEFAULT 'delivery',
+  `user_note` text,
+  `seller_note` text,
+  `pickup_date` datetime DEFAULT NULL,
+  `event_id` int DEFAULT NULL COMMENT 'Event where product was reserved, if applicable',
+  `reserved_unit_price` decimal(10,2) NOT NULL COMMENT 'Price per unit at time of reservation',
+  PRIMARY KEY (`reservation_id`),
+  KEY `idx_reservations_user_id` (`user_id`),
+  KEY `idx_reservations_product_id` (`product_id`),
+  KEY `idx_reservations_status` (`status`),
+  KEY `idx_reservations_created_at` (`created_at`),
+  KEY `idx_pickup_date` (`pickup_date`),
+  KEY `idx_option_of_delivery` (`option_of_delivery`),
+  KEY `idx_reservations_event_id` (`event_id`),
+  CONSTRAINT `product_reservations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `product_reservations_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

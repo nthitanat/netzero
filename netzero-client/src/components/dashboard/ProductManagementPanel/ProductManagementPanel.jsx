@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./ProductManagementPanel.module.scss";
 import { GoogleIcon } from "../../common";
 import { productsService } from "../../../api";
+import { getImagePlaceholderUrl, handleImageError, resolveImageUrl } from "../../../utils/imageUtils";
 import DeleteConfirmationDialog from "../DeleteConfirmationDialog/DeleteConfirmationDialog";
 
 export default function ProductManagementPanel({ 
@@ -74,11 +75,9 @@ export default function ProductManagementPanel({
                         <div key={product.id} className={styles.ProductCard}>
                             <div className={styles.ProductImage}>
                                 <img 
-                                    src={productsService.getProductThumbnailUrl(product.id)}
+                                    src={resolveImageUrl(product.thumbnail_url, () => productsService.getProductThumbnailUrl(product.id)) || getImagePlaceholderUrl()}
                                     alt={product.title}
-                                    onError={(e) => {
-                                        e.target.src = '/assets/images/placeholder-product.jpg';
-                                    }}
+                                    onError={handleImageError}
                                 />
                                 <div className={styles.ProductBadges}>
                                     <span className={`${styles.TypeBadge} ${styles[product.type]}`}>

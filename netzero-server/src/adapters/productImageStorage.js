@@ -1,6 +1,7 @@
 const fs = require('fs/promises');
-const { constants: fsConstants } = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const sharp = require('sharp');
 const config = require('../config/env');
 
 const IMAGE_KINDS = Object.freeze({
@@ -8,7 +9,14 @@ const IMAGE_KINDS = Object.freeze({
   cover: { directory: 'cover', prefix: 'cover' },
   images: { directory: 'images', prefix: 'image' }
 });
-const IMAGE_FILE_PATTERN = /^image_(\d+)\.png$/;
+const IMAGE_FORMATS = Object.freeze({
+  jpeg: { extension: 'jpg', mimetype: 'image/jpeg' },
+  png: { extension: 'png', mimetype: 'image/png' },
+  gif: { extension: 'gif', mimetype: 'image/gif' },
+  webp: { extension: 'webp', mimetype: 'image/webp' }
+});
+const IMAGE_FILE_PATTERN = /^image_(\d+)\.(jpg|png|gif|webp)$/;
+const MAX_IMAGE_PIXELS = 40_000_000;
 
 function getUploadRoot() {
   return path.isAbsolute(config.upload.dir)
@@ -16,29 +24,52 @@ function getUploadRoot() {
     : path.resolve(__dirname, '../../', config.upload.dir);
 }
 
-function imagePath({ productId, imageKind, imageId }) {
+function imageDirectory(productId, imageKind) {
+  return path.join(getUploadRoot(), 'products', IMAGE_KINDS[imageKind].directory, String(productId));
+}
+
+function imagePath({ productId, imageKind, imageId, extension }) {
   const kind = IMAGE_KINDS[imageKind];
   if (!kind) return null;
   const filename = imageKind === 'images'
-    ? `image_${imageId}.png`
-    : `${kind.prefix}_${productId}.png`;
-  return path.join(getUploadRoot(), 'products', kind.directory, String(productId), filename);
+    ? `image_${imageId}.${extension}`
+    : `${kind.prefix}_${productId}.${extension}`;
+  return path.join(imageDirectory(productId, imageKind), filename);
 }
 
 async function findImage({ productId, imageKind, imageId }) {
-  const filePath = imagePath({ productId, imageKind, imageId });
-  if (!filePath) return null;
+  if (!IMAGE_KINDS[imageKind]) return null;
+  const directory = imageDirectory(productId, imageKind);
+  const prefix = imageKind === 'images' ? `image_${imageId}.` : `${IMAGE_KINDS[imageKind].prefix}_${productId}.`;
+  let filenames;
   try {
-    await fs.access(filePath);
-    return filePath;
+    filenames = await fs.readdir(directory);
   } catch (error) {
     if (error.code === 'ENOENT') return null;
     throw error;
   }
+  const candidates = filenames.filter(filename => filename.startsWith(prefix) &&
+    Object.values(IMAGE_FORMATS).some(format => filename === `${prefix}${format.extension}`));
+  if (!candidates.length) return null;
+  const files = await Promise.all(candidates.map(async filename => ({
+    filename,
+    stats: await fs.stat(path.join(directory, filename))
+  })));
+  files.sort((left, right) => right.stats.mtimeMs - left.stats.mtimeMs);
+  const filename = files[0].filename;
+  const filePath = path.join(directory, filename);
+  try {
+    // Old uploads may have JPEG bytes in a .png file. Detect their real type on read.
+    const metadata = await sharp(filePath).metadata();
+    const format = IMAGE_FORMATS[metadata.format];
+    return format ? { filePath, mimetype: format.mimetype } : null;
+  } catch {
+    return null;
+  }
 }
 
 async function listImages(productId) {
-  const directory = path.join(getUploadRoot(), 'products', 'images', String(productId));
+  const directory = imageDirectory(productId, 'images');
   let filenames;
   try {
     filenames = await fs.readdir(directory);
@@ -51,50 +82,78 @@ async function listImages(productId) {
     const stats = await fs.stat(path.join(directory, filename));
     return { imageId, filename, size: stats.size, exists: true, lastModified: stats.mtime };
   }));
-  return images.sort((left, right) => left.imageId - right.imageId);
+  const byId = new Map();
+  for (const image of images) {
+    if (!byId.has(image.imageId) || image.lastModified > byId.get(image.imageId).lastModified) {
+      byId.set(image.imageId, image);
+    }
+  }
+  return [...byId.values()].sort((left, right) => left.imageId - right.imageId);
 }
 
 function getRelativePath(filePath) {
   return path.relative(getUploadRoot(), filePath).split(path.sep).join('/');
 }
 
-async function commitUpload({ file, productId, imageKind, imageId }) {
-  let committedImageId = imageId;
-  let destination = imagePath({ productId, imageKind, imageId: committedImageId });
-  await fs.mkdir(path.dirname(destination), { recursive: true });
-  if (imageKind === 'images') {
-    while (true) {
-      try {
-        await fs.copyFile(file.path, destination, fsConstants.COPYFILE_EXCL);
-        break;
-      } catch (error) {
-        if (error.code !== 'EEXIST') throw error;
-        committedImageId += 1;
-        destination = imagePath({ productId, imageKind, imageId: committedImageId });
-      }
-    }
-    try {
-      await fs.unlink(file.path);
-    } catch (error) {
-      await fs.unlink(destination).catch(() => {});
-      throw error;
-    }
-  } else {
-    await fs.rename(file.path, destination);
+async function prepareImage(file) {
+  let validatedPath;
+  try {
+    const metadata = await sharp(file.path, { animated: true, limitInputPixels: MAX_IMAGE_PIXELS }).metadata();
+    const format = IMAGE_FORMATS[metadata.format];
+    if (!format) throw new Error('Unsupported image format');
+    validatedPath = `${file.path}.validated-${crypto.randomUUID()}.${format.extension}`;
+    await sharp(file.path, { animated: true, limitInputPixels: MAX_IMAGE_PIXELS })
+      .toFormat(metadata.format)
+      .toFile(validatedPath);
+    const stats = await fs.stat(validatedPath);
+    if (stats.size > config.upload.maxSize) throw new Error('Processed image exceeds upload size limit');
+    return { validatedPath, format, size: stats.size, fileModifiedMs: Math.round(stats.mtimeMs) };
+  } catch (error) {
+    if (validatedPath) await fs.unlink(validatedPath).catch(() => {});
+    if (['ENOSPC', 'EACCES', 'EROFS', 'EMFILE'].includes(error.code)) throw error;
+    const invalidImage = new Error('Invalid or unsupported image file');
+    invalidImage.code = 'INVALID_IMAGE';
+    throw invalidImage;
   }
-  return {
-    filename: path.basename(destination),
-    relativePath: `files/${getRelativePath(destination)}`,
-    size: file.size,
-    mimetype: file.mimetype,
-    ...(committedImageId !== undefined && { index: committedImageId })
-  };
 }
 
-async function discardCommittedImage({ productId, imageId }) {
-  const filePath = imagePath({ productId, imageKind: 'images', imageId });
+async function commitUpload({ file, productId, imageKind, imageId }) {
+  const { validatedPath, format, size, fileModifiedMs } = await prepareImage(file);
+  let destination;
   try {
-    await fs.unlink(filePath);
+    await fs.mkdir(imageDirectory(productId, imageKind), { recursive: true });
+    await fs.unlink(file.path);
+    const prefix = imageKind === 'images' ? `image_${imageId}` : `${IMAGE_KINDS[imageKind].prefix}_${productId}`;
+    destination = path.join(imageDirectory(productId, imageKind),
+      `${prefix}_${crypto.randomUUID()}.${format.extension}`);
+    await fs.rename(validatedPath, destination);
+    return {
+      filename: path.basename(destination),
+      relativePath: `files/${getRelativePath(destination)}`,
+      storagePath: getRelativePath(destination),
+      size,
+      fileModifiedMs,
+      mimetype: format.mimetype,
+      ...(imageId !== undefined && { index: imageId })
+    };
+  } catch (error) {
+    if (destination) await fs.unlink(destination).catch(() => {});
+    throw error;
+  } finally {
+    await fs.unlink(validatedPath).catch(() => {});
+  }
+}
+
+function resolveStoragePath(relativePath) {
+  const root = path.resolve(getUploadRoot());
+  const absolutePath = path.resolve(root, relativePath);
+  if (!absolutePath.startsWith(`${root}${path.sep}`)) throw new Error('Invalid image storage path');
+  return absolutePath;
+}
+
+async function discardStoredImage(relativePath) {
+  try {
+    await fs.unlink(resolveStoragePath(relativePath));
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
@@ -110,4 +169,5 @@ async function discardUploads(files) {
   }));
 }
 
-module.exports = { findImage, listImages, commitUpload, discardUploads, discardCommittedImage };
+module.exports = { findImage, listImages, commitUpload, discardUploads, discardStoredImage, resolveStoragePath,
+  getUploadRoot };

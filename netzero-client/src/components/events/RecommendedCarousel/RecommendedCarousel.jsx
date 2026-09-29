@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./RecommendedCarousel.module.scss";
 import { BaseSlideshow, GoogleIcon } from "../../common";
-import { getEventPrimaryImage } from "../../../utils/imageUtils";
+import { getEventPrimaryImage, handleImageError } from "../../../utils/imageUtils";
 
 export default function RecommendedCarousel({ events, onEventClick }) {
     if (!events || events.length === 0) {
@@ -23,6 +23,7 @@ export default function RecommendedCarousel({ events, onEventClick }) {
                         src={getEventPrimaryImage(event)} 
                         alt={event.title}
                         className={styles.SlideImage}
+                        onError={handleImageError}
                     />
                 </div>
                 

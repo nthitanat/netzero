@@ -1,5 +1,6 @@
 const config = require('../config/env');
 const Event = require('../models/Event');
+const EventImage = require('../models/EventImage');
 const UserEvent = require('../models/UserEvent');
 const imageStorage = require('../adapters/eventImageStorage');
 const { withTransaction } = require('../config/database');
@@ -33,23 +34,38 @@ async function assertEventAccess(actor, eventId) {
 }
 
 async function listEvents({ page }) {
-  return Event.findAll(pageOptions(page));
+  return attachImages(await Event.findAll(pageOptions(page)));
 }
 
 async function getEventById({ eventId }) {
-  return requireEvent(eventId);
+  return attachOne(await requireEvent(eventId));
+}
+
+async function attachImages(events) {
+  if (!events.length) return events;
+  const rows = await EventImage.findForEvents(events.map(event => event.eventId));
+  const byEvent = new Map();
+  for (const row of rows) {
+    if (!byEvent.has(row.eventId)) byEvent.set(row.eventId, []);
+    byEvent.get(row.eventId).push(row);
+  }
+  return events.map(event => ({ ...event, images: byEvent.get(event.eventId) || [] }));
+}
+
+async function attachOne(event) {
+  return (await attachImages([event]))[0];
 }
 
 async function listEventsByCategory({ category, page }) {
-  return Event.findByCategory(category, pageOptions(page));
+  return attachImages(await Event.findByCategory(category, pageOptions(page)));
 }
 
 async function searchEventsByName({ name, page }) {
-  return Event.findByName(name, pageOptions(page));
+  return attachImages(await Event.findByName(name, pageOptions(page)));
 }
 
 async function listRecommendedEvents({ page }) {
-  return Event.findRecommended(pageOptions(page));
+  return attachImages(await Event.findRecommended(pageOptions(page)));
 }
 
 async function createEvent({ actor, data }) {
@@ -64,7 +80,7 @@ async function createEvent({ actor, data }) {
     await UserEvent.insert({ userId: actorId(actor), eventId: createdEventId }, { tx });
     return createdEventId;
   });
-  return Event.findById(eventId);
+  return attachOne(await Event.findById(eventId));
 }
 
 async function updateEvent({ actor, eventId, updates }) {
@@ -75,7 +91,7 @@ async function updateEvent({ actor, eventId, updates }) {
   }
   const didUpdate = await Event.updateByIdOwned({ eventId, actorId: actorId(actor), updates });
   if (!didUpdate) throw applicationError('NOT_FOUND', 'Event not found or no changes made');
-  return Event.findById(eventId);
+  return attachOne(await Event.findById(eventId));
 }
 
 async function cancelEvent({ actor, eventId }) {
@@ -93,11 +109,14 @@ async function deleteEvent({ actor, eventId }) {
 }
 
 async function getEventImagePath({ eventId, imageType }) {
-  const imagePath = await imageStorage.findEventImage({ eventId, imageType });
-  if (!imagePath) {
-    throw applicationError('NOT_FOUND', `${imageType === 'poster' ? 'Poster' : 'Thumbnail'} image file not found`);
+  const image = await EventImage.findOne({ eventId, role: imageType });
+  if (image) return { filePath: imageStorage.resolveStoragePath(image.relativePath),
+    mimetype: image.mimetype, version: image.version };
+  if (!config.imageMetadataReadsEnabled) {
+    const filePath = await imageStorage.findEventImage({ eventId, imageType });
+    if (filePath) return { filePath, mimetype: 'image/png' };
   }
-  return imagePath;
+  throw applicationError('NOT_FOUND', `${imageType === 'poster' ? 'Poster' : 'Thumbnail'} image file not found`);
 }
 
 module.exports = {

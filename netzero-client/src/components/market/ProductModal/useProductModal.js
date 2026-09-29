@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { productsService } from "../../../api";
+import { resolveImageUrl } from "../../../utils/imageUtils";
 
 const useProductModal = (product, isOpen = false) => {
   // State for dynamic images loading
@@ -23,10 +24,10 @@ const useProductModal = (product, isOpen = false) => {
         const allImages = [];
         
         // Always include thumbnail as the FIRST image
-        allImages.push(productsService.getProductThumbnailUrl(product.id));
+        allImages.push(resolveImageUrl(product.thumbnail_url, () => productsService.getProductThumbnailUrl(product.id)));
         
         // Include cover as the SECOND image
-        allImages.push(productsService.getProductCoverUrl(product.id));
+        allImages.push(resolveImageUrl(product.cover_url, () => productsService.getProductCoverUrl(product.id)));
         
         // Add additional images from the metadata (these will be images 3, 4, 5, etc.)
         if (imagesResponse.success && imagesResponse.data.images.length > 0) {
@@ -34,21 +35,21 @@ const useProductModal = (product, isOpen = false) => {
           allImages.push(...additionalImages);
         }
         
-        setProductImages(allImages);
+        setProductImages(allImages.filter(Boolean));
       } catch (error) {
         console.error('Error loading product images:', error);
         // Fallback to basic images - thumbnail FIRST, then cover
         setProductImages([
-          productsService.getProductThumbnailUrl(product.id),
-          productsService.getProductCoverUrl(product.id)
-        ]);
+          resolveImageUrl(product.thumbnail_url, () => productsService.getProductThumbnailUrl(product.id)),
+          resolveImageUrl(product.cover_url, () => productsService.getProductCoverUrl(product.id))
+        ].filter(Boolean));
       } finally {
         setImagesLoading(false);
       }
     };
 
     loadProductImages();
-  }, [product?.id, isOpen]);
+  }, [product?.id, product?.thumbnail_url, product?.cover_url, isOpen]);
 
   // Create a product object with dynamic image URLs and field mappings
   const productWithImages = product ? {
