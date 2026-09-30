@@ -1,0 +1,72 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../styles/mixins';
+@import '../../styles/organic-theme';
+
+// ─── Page Palette ────────────────────────────────────────────────
+$page-palette: $palette-cu-pink;
+
+.About {
+  @include organic-page-wrapper($page-palette);
+  padding: $spacing-3xl 0;
+  --pal-p1: #{p1($page-palette)};
+  --pal-p2: #{p2($page-palette)};
+  --pal-p3: #{p3($page-palette)};
+  --pal-p4: #{p4($page-palette)};
+}
+
+.Container {
+  @include container;
+  max-width: 900px;
+}
+
+.Header {
+  text-align: center;
+  margin-bottom: $spacing-3xl;
+}
+
+.Title {
+  @include headline-large;
+  color: var(--color-on-background);
+  margin-bottom: $spacing-md;
+}
+
+.Content {
+  @include flex-column;
+  gap: $spacing-xl;
+}
+
+.Section {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.SectionTitle {
+  @include headline-small;
+  color: p1($page-palette);
+}
+
+.Text {
+  @include body-large;
+  color: var(--color-on-surface);
+  line-height: $line-height-relaxed;
+}
+
+.List {
+  list-style: none;
+  padding: 0;
+  @include flex-column;
+  gap: $spacing-sm;
+}
+
+.ListItem {
+  @include flex-center;
+  gap: $spacing-sm;
+  align-items: flex-start;
+  @include body-large;
+  
+  .material-symbols-outlined {
+    color: p1($page-palette);
+    flex-shrink: 0;
+  }
+}

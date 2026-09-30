@@ -1,0 +1,195 @@
+@import '../../../styles/mixins';
+
+.curriculum {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.section {
+  background: $color-surface-container-low;
+  border-radius: $shape-large;
+  overflow: hidden;
+  box-shadow: $elevation-1;
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: $elevation-2;
+  }
+}
+
+.sectionHeader {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: $spacing-4 $spacing-5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: $color-surface-variant;
+  }
+
+  &[aria-expanded="true"] {
+    border-bottom: 1px solid $color-outline-variant;
+  }
+}
+
+.sectionInfo {
+  flex: 1;
+}
+
+.sectionTitle {
+  @include title-large;
+  color: $color-on-surface;
+  margin-bottom: $spacing-2;
+}
+
+.sectionMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  @include body-medium;
+  color: $color-on-surface-variant;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+
+    .material-symbols-outlined {
+      font-size: 18px;
+    }
+  }
+}
+
+.lessonCount,
+.duration {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+}
+
+.expandIcon {
+  font-size: 24px;
+  color: $color-on-surface-variant;
+  transition: transform 0.3s ease;
+}
+
+.lessonList {
+  padding: $spacing-2 $spacing-2 $spacing-4 $spacing-2;
+}
+
+.lesson {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-3;
+  border-radius: $shape-medium;
+  transition: background 0.2s ease;
+
+  &.accessible {
+    cursor: pointer;
+
+    &:hover {
+      background: $color-surface-variant;
+    }
+  }
+
+  &.locked {
+    opacity: 0.6;
+  }
+}
+
+.lessonIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: $color-primary-container;
+  flex-shrink: 0;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: $color-on-primary-container;
+  }
+
+  .lesson.locked & {
+    background: $color-surface-variant;
+
+    .material-symbols-outlined {
+      color: $color-outline;
+    }
+  }
+}
+
+.lessonInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.lessonTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lessonMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  flex-wrap: wrap;
+}
+
+.lessonType,
+.lessonDuration {
+  @include label-medium;
+  color: $color-on-surface-variant;
+}
+
+.previewBadge {
+  @include label-small;
+  background: $color-tertiary-container;
+  color: $color-on-tertiary-container;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $shape-extra-small;
+  font-weight: 600;
+}
+
+@media (max-width: $breakpoint-md) {
+  .sectionHeader {
+    padding: $spacing-3 $spacing-4;
+  }
+
+  .sectionMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-1;
+  }
+
+  .lessonList {
+    padding: $spacing-2;
+  }
+
+  .lesson {
+    padding: $spacing-2;
+  }
+
+  .lessonIcon {
+    width: 36px;
+    height: 36px;
+
+    .material-symbols-outlined {
+      font-size: 18px;
+    }
+  }
+}

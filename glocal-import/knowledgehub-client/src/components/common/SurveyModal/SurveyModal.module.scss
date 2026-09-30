@@ -1,0 +1,249 @@
+@use 'sass:color';
+@import '../../../styles/mixins';
+
+// ── Overlay ───────────────────────────────────────────────────────
+
+.Overlay {
+  position: fixed;
+  inset: 0;
+  background: $color-scrim;
+  z-index: $z-index-modal;
+  @include flex-center;
+  padding: $spacing-md;
+  animation: fadeIn $transition-fast ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Modal shell ───────────────────────────────────────────────────
+
+.Modal {
+  background: var(--color-surface);
+  border-radius: $shape-extra-large;
+  box-shadow: $elevation-3;
+  width: 100%;
+  overflow: hidden;
+  animation: slideUp $transition-base ease;
+
+  // Intro step is compact; survey step expands
+  &:has(.SurveyWrapper) {
+    max-width: 900px;
+    height: 88vh;
+    @include flex-column;
+  }
+
+  &:has(.Intro) {
+    max-width: 600px;
+  }
+}
+
+// ── Intro step ────────────────────────────────────────────────────
+
+.Intro {
+  position: relative;
+  @include flex-column;
+  align-items: center;
+  text-align: center;
+  padding: $spacing-2xl $spacing-xl $spacing-xl;
+  gap: $spacing-md;
+}
+
+.IntroIcon {
+  font-size: 56px;
+  color: var(--color-primary);
+  margin-bottom: $spacing-sm;
+}
+
+.Title {
+  font-size: $typescale-headline-small;
+  font-weight: $font-weight-bold;
+  color: var(--color-on-surface);
+  margin: 0;
+  line-height: $line-height-tight;
+}
+
+.Description {
+  font-size: $typescale-body-medium;
+  color: var(--color-on-surface-variant);
+  line-height: $line-height-relaxed;
+  margin: 0;
+  max-width: 520px;
+  text-align: left;
+}
+
+// ── Intro close button (red X, top-right) ────────────────────────
+
+.IntroCloseBtn {
+  @include button-reset;
+  @include flex-center;
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  width: 40px;
+  height: 40px;
+  border-radius: $shape-full;
+  color: var(--color-on-error);
+  background: var(--color-error);
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--color-on-error-container);
+  }
+}
+
+// ── Action buttons row ────────────────────────────────────────────
+
+.Actions {
+  @include flex-column;
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+  margin-top: $spacing-sm;
+}
+
+.AcceptBtn {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-8;
+  background: $color-success;
+  color: var(--color-on-success);
+  font-size: $typescale-label-large;
+  font-weight: $font-weight-medium;
+  border-radius: $shape-full;
+  box-shadow: $elevation-1;
+  transition: all $transition-fast;
+
+  &:hover {
+    box-shadow: $elevation-2;
+    background: color.adjust($color-success, $lightness: -6%);
+  }
+
+  &:active {
+    box-shadow: $elevation-0;
+  }
+}
+
+.AlreadyBtn {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2 $spacing-6;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-size: $typescale-label-large;
+  font-weight: $font-weight-regular;
+  border-radius: $shape-full;
+  border: 1px solid var(--color-outline-variant);
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--color-surface-container);
+    color: var(--color-on-surface);
+  }
+}
+
+// ── Survey step ───────────────────────────────────────────────────
+
+.SurveyWrapper {
+  @include flex-column;
+  height: 100%;
+}
+
+.SurveyHeader {
+  @include flex-between;
+  padding: $spacing-3 $spacing-lg;
+  border-bottom: 1px solid var(--color-outline-variant);
+  flex-shrink: 0;
+}
+
+.SurveyNote {
+  @include flex-center;
+  gap: $spacing-xs;
+  font-size: $typescale-body-small;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.NoteIcon {
+  font-size: 16px;
+  color: var(--color-primary);
+}
+
+.CloseBtn {
+  @include button-reset;
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $shape-full;
+  color: var(--color-on-surface-variant);
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+  }
+}
+
+.SurveyActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.DoneBtn {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-2 $spacing-4;
+  background: $color-success;
+  color: var(--color-on-success);
+  font-size: $typescale-label-large;
+  font-weight: $font-weight-medium;
+  border-radius: $shape-full;
+  box-shadow: $elevation-1;
+  transition: all $transition-fast;
+
+  &:hover {
+    box-shadow: $elevation-2;
+    background: color.adjust($color-success, $lightness: -6%);
+  }
+
+  &:active {
+    box-shadow: $elevation-0;
+  }
+}
+
+.SurveyCloseBtn {
+  @include button-reset;
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $shape-full;
+  background: var(--color-error);
+  color: var(--color-on-error);
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--color-on-error-container);
+  }
+}
+
+.SurveyFrame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  display: block;
+}

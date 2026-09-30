@@ -1,0 +1,295 @@
+@import '../../../styles/mixins';
+
+.Navbar {
+  position: sticky;
+  top: 0;
+  z-index: $z-index-sticky;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-outline-variant);
+  box-shadow: $elevation-1;
+}
+
+.Container {
+  @include container;
+  @include flex-between;
+  padding-top: $spacing-md;
+  padding-bottom: $spacing-md;
+}
+
+.Logo {
+  @include flex-center;
+  gap: $spacing-md;
+  text-decoration: none;
+  
+  img {
+    height: 40px;
+    width: auto;
+  }
+}
+
+.LogoText {
+  @include headline-small;
+  color: var(--color-primary);
+  font-weight: $font-weight-bold;
+  
+  @media (max-width: $breakpoint-sm) {
+    display: none;
+  }
+}
+
+.Nav {
+  @include flex-center;
+  gap: $spacing-lg;
+  
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.NavLink {
+  @include title-medium;
+  color: var(--color-on-surface);
+  text-decoration: none;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $shape-small;
+  transition: all $transition-fast;
+  font-weight: $font-weight-medium;
+  
+  &:hover {
+    background: var(--color-surface-container);
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+  
+  &.active {
+    color: var(--color-primary);
+    background: var(--color-primary-container);
+  }
+}
+
+.Actions {
+  @include flex-center;
+  gap: $spacing-md;
+}
+
+.LanguageToggle {
+  @include text-button;
+  @include flex-center;
+  gap: $spacing-xs;
+  padding: $spacing-2 $spacing-3;
+}
+
+.MenuButton {
+  @include button-reset;
+  @include flex-center;
+  padding: $spacing-2;
+  color: var(--color-on-surface);
+  display: none;
+  
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+  }
+  
+  &:hover {
+    background: var(--color-surface-container);
+    border-radius: $shape-small;
+  }
+}
+
+.MobileMenu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--color-surface);
+  box-shadow: $elevation-3;
+  padding: $spacing-lg;
+  transform: translateX(100%);
+  transition: transform $transition-base;
+  z-index: $z-index-modal;
+  
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.MobileMenuHeader {
+  @include flex-between;
+  margin-bottom: $spacing-xl;
+}
+
+.MobileMenuTitle {
+  @include title-large;
+  color: var(--color-on-surface);
+}
+
+.CloseButton {
+  @include button-reset;
+  @include flex-center;
+  padding: $spacing-2;
+  color: var(--color-on-surface);
+  
+  &:hover {
+    background: var(--color-surface-container);
+    border-radius: $shape-small;
+  }
+}
+
+.MobileNav {
+  @include flex-column;
+  gap: $spacing-xs;
+}
+
+.MobileNavLink {
+  @include title-medium;
+  color: var(--color-on-surface);
+  text-decoration: none;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $shape-small;
+  transition: all $transition-fast;
+  
+  &:hover {
+    background: var(--color-surface-container);
+    color: var(--color-primary);
+  }
+  
+  &.active {
+    color: var(--color-primary);
+    background: var(--color-primary-container);
+  }
+}
+
+.Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--color-scrim);
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-base;
+  z-index: $z-index-modal - 1;
+  
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// ── Auth Buttons (desktop) ─────────────────────────────────────
+
+.AuthButtons {
+  @include flex-center;
+  gap: $spacing-sm;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.LoginBtn {
+  @include outlined-button;
+  padding: $spacing-2 $spacing-5;
+}
+
+.RegisterBtn {
+  @include filled-button;
+  padding: $spacing-2 $spacing-5;
+}
+
+// ── User Menu (desktop) ────────────────────────────────────────
+
+.UserMenu {
+  @include flex-center;
+  gap: $spacing-sm;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.Avatar {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $shape-full;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: $typescale-label-large;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+}
+
+.UserName {
+  @include label-large;
+  color: var(--color-on-surface);
+  font-weight: $font-weight-medium;
+}
+
+.LogoutBtn {
+  @include button-reset;
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: $shape-full;
+  color: var(--color-on-surface-variant);
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--color-surface-container);
+    color: var(--color-error);
+  }
+}
+
+// ── Mobile Auth Section ────────────────────────────────────────
+
+.MobileAuthSection {
+  @include flex-column;
+  gap: $spacing-sm;
+  margin-top: $spacing-xl;
+  padding-top: $spacing-lg;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.MobileUserInfo {
+  @include flex-center;
+  gap: $spacing-md;
+  justify-content: flex-start;
+  padding: $spacing-3 $spacing-4;
+}
+
+.MobileUserName {
+  @include title-medium;
+  color: var(--color-on-surface);
+}
+
+.MobileLoginBtn {
+  @include outlined-button;
+  width: 100%;
+  justify-content: center;
+}
+
+.MobileRegisterBtn {
+  @include filled-button;
+  width: 100%;
+  justify-content: center;
+}
+
+.MobileLogoutBtn {
+  @include button-reset;
+  @include flex-center;
+  gap: $spacing-xs;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $shape-small;
+  color: var(--color-error);
+  font-size: $typescale-label-large;
+  font-weight: $font-weight-medium;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: var(--color-error-container);
+  }
+}

@@ -1,0 +1,87 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+// Palette colours from CSS custom properties — set by parent page or palette prop.
+
+// ========================================
+// Item Card
+// ========================================
+.itemCard {
+  background: $color-surface-container-low;
+  border-radius: $organic-card-small;
+  overflow: hidden;
+  box-shadow: $elevation-1;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 15%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 15%, transparent) 100%
+    );
+    border-radius: 50% 40% 55% 45%;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    // organic-product-card-hover expanded with CSS vars
+    box-shadow:
+      0 8px 24px color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 20%, transparent),
+      0 4px 12px color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 10%, transparent);
+    transform: translateY(-6px);
+
+    &::before { opacity: 1; }
+  }
+}
+
+.itemImage {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: $color-surface-container;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .itemCard:hover & img {
+    transform: scale(1.1);
+  }
+}
+
+.itemInfo {
+  padding: $spacing-4;
+}
+
+.itemTitle {
+  @include title-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-2;
+}
+
+.itemSubtitle {
+  @include title-small;
+  background: linear-gradient(135deg,
+    var(--pal-p1, #{p1($palette-orange)}) 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 85%, black) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}

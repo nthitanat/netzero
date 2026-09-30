@@ -1,0 +1,9 @@
+# Credentials — never commit
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Deploy artifacts
+scripts/*.pid

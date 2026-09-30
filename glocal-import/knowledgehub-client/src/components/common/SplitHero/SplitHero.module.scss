@@ -1,0 +1,254 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+// Palette colours come from CSS custom properties set by the parent page.
+// Fallbacks use $palette-orange so the component works standalone.
+// Pages set: --pal-p1, --pal-p2, --pal-p3, --pal-p4
+// JSX can also pass a `palette` prop which sets them as inline vars.
+
+// ========================================
+// Split Hero
+// ========================================
+.hero {
+  @include organic-hero($palette-orange);
+  // Override background + blobs with CSS vars
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 8%, transparent) 0%,
+    color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 6%, transparent) 50%,
+    color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 5%, transparent) 100%
+  );
+  &::before {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 15%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 10%, transparent) 40%,
+      transparent 70%
+    );
+  }
+  &::after {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 12%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 8%, transparent) 50%,
+      transparent 70%
+    );
+  }
+}
+
+.heroSplit {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 700px;
+  gap: 0;
+  z-index: 1;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}
+
+.heroImageSide {
+  @include organic-hero-image-side($palette-orange);
+  &::before {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 20%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 15%, transparent) 40%,
+      transparent 70%
+    );
+  }
+}
+
+@keyframes morphShapeRect {
+  0%, 100% { border-radius: 16px 32px 20px 28px / 28px 16px 32px 20px; }
+  25%       { border-radius: 28px 16px 32px 20px / 16px 28px 20px 32px; }
+  50%       { border-radius: 20px 28px 16px 32px / 32px 20px 28px 16px; }
+  75%       { border-radius: 32px 20px 28px 16px / 20px 32px 16px 28px; }
+}
+
+.heroImageContainer {
+  @include organic-image-frame($palette-orange);
+  aspect-ratio: var(--img-aspect, 1);
+  // Rectangular-organic overrides
+  border-radius: 16px 32px 20px 28px / 28px 16px 32px 20px;
+  animation: morphShapeRect 15s ease-in-out infinite;
+
+  img {
+    object-fit: contain;
+    height: auto;
+  }
+
+  box-shadow:
+    0 20px 60px color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 25%, transparent),
+    0 10px 30px color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 15%, transparent),
+    0 0 0 8px rgba(white, 0.5),
+    0 0 0 12px color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 20%, transparent);
+  &::before {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 30%, transparent) 0%,
+      transparent 60%
+    );
+  }
+}
+
+.heroTextSide {
+  @include organic-hero-text-side($palette-orange);
+  background: linear-gradient(135deg,
+    rgba(white, 0.95) 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 10%, transparent) 100%
+  );
+  &::before {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 15%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 10%, transparent) 50%,
+      transparent 70%
+    );
+  }
+  &::after {
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 18%, transparent) 0%,
+      transparent 70%
+    );
+  }
+}
+
+.heroTextContent {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+}
+
+.badge {
+  @include label-large;
+  // organic-badge expanded with CSS vars
+  display: inline-block;
+  background: linear-gradient(135deg,
+    var(--pal-p1, #{p1($palette-orange)}) 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 85%, black) 100%
+  );
+  color: white;
+  padding: $spacing-2 $spacing-4;
+  border-radius: $organic-badge;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 35%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 20%, transparent);
+  margin-bottom: $spacing-5;
+}
+
+.heroTitle {
+  @include display-large;
+  margin-bottom: $spacing-4;
+  line-height: 1.2;
+  font-weight: 900;
+
+  @media (max-width: $breakpoint-md) {
+    @include display-medium;
+  }
+}
+
+.titleWord1 {
+  background: linear-gradient(135deg,
+    var(--pal-p1, #{p1($palette-orange)}) 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 80%, black) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 30%, transparent));
+}
+
+.titleWord2 {
+  background: linear-gradient(135deg,
+    var(--pal-p4, #{p4($palette-orange)}) 0%,
+    color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 75%, black) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 30%, transparent));
+}
+
+.titleWord3 {
+  background: linear-gradient(135deg,
+    var(--pal-p3, #{p3($palette-orange)}) 0%,
+    color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 75%, black) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--pal-p3, #{p3($palette-orange)}) 30%, transparent));
+}
+
+.heroTagline {
+  @include headline-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-5;
+  line-height: 1.5;
+  font-weight: 500;
+  padding: $spacing-3 $spacing-4;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--pal-p2, #{p2($palette-orange)}) 15%, transparent) 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-orange)}) 8%, transparent) 100%
+  );
+  border-radius: 16px 4px 16px 4px;
+  border-left: 4px solid var(--pal-p1, #{p1($palette-orange)});
+
+  @media (max-width: $breakpoint-md) {
+    @include headline-small;
+  }
+}
+
+.heroExtra {
+  margin-bottom: $spacing-6;
+}
+
+.heroMeta {
+  display: flex;
+  gap: $spacing-6;
+  @include body-large;
+  color: $color-on-surface;
+  margin-bottom: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  span {
+    // organic-meta-chip expanded with CSS vars
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    background: color-mix(in srgb, var(--pal-p4, #{p4($palette-orange)}) 12%, transparent);
+    border-radius: $organic-tag;
+    font-weight: 600;
+    .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--pal-p4, #{p4($palette-orange)});
+    }
+  }
+}
+
+.heroActions {
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

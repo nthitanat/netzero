@@ -1,0 +1,476 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../../styles/mixins';
+@import '../../../styles/organic-theme';
+
+// ============================================================
+// FeaturedHero — Immersive full-bleed image hero
+// CU palette (--pal-p1 … --pal-p4), organic theme.
+//
+// Layout: 60 % image | 40 % text panel (1400 px max-width)
+// Image: full-bleed with wavy right-edge clip-path
+// Text panel: overlaps image via negative margin, glass-tinted
+// Badge: glass pill floating at the bottom-left of the image
+// ============================================================
+
+// Fallback palette = $palette-cu-pink so component works standalone.
+// Pages / JSX set --pal-p1 … --pal-p4 as CSS custom properties.
+
+// ── Section shell ────────────────────────────────────────────────
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 760px;
+  overflow: hidden;
+
+  // Warm blush background
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--pal-p2, #{p2($palette-cu-pink)}) 22%, white) 0%,
+    color-mix(in srgb, var(--pal-p3, #{p3($palette-cu-pink)}) 14%, white) 45%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 10%, white) 100%
+  );
+
+  @media (max-width: $breakpoint-lg) { min-height: 620px; }
+  @media (max-width: $breakpoint-md) { min-height: auto; }
+
+  // Large blob — top right (behind text panel)
+  &::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -180px;
+    width: 560px;
+    height: 560px;
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 20%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-cu-pink)}) 12%, transparent) 40%,
+      transparent 70%
+    );
+    border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+    z-index: 0;
+    pointer-events: none;
+    animation: float 22s ease-in-out infinite;
+  }
+
+  // Large blob — bottom center
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -140px;
+    left: 45%;
+    width: 620px;
+    height: 620px;
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p4, #{p4($palette-cu-pink)}) 12%, transparent) 0%,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-cu-pink)}) 8%, transparent) 50%,
+      transparent 70%
+    );
+    border-radius: 50% 50% 40% 60% / 60% 40% 60% 40%;
+    z-index: 0;
+    pointer-events: none;
+    animation: float 30s ease-in-out infinite reverse;
+  }
+}
+
+// ── Floating accent shapes (decorative only) ─────────────────────
+.accentRing1 {
+  position: absolute;
+  top: 12%;
+  right: 6%;
+  width: 100px;
+  height: 100px;
+  border: 2.5px solid
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 30%, transparent);
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  z-index: 1;
+  pointer-events: none;
+  animation: morphShape 14s ease-in-out infinite, float 20s ease-in-out infinite;
+
+  @media (max-width: $breakpoint-lg) { display: none; }
+}
+
+.accentRing2 {
+  position: absolute;
+  bottom: 18%;
+  right: 3%;
+  width: 60px;
+  height: 60px;
+  border: 2px solid
+    color-mix(in srgb, var(--pal-p4, #{p4($palette-cu-pink)}) 35%, transparent);
+  border-radius: 50% 50% 60% 40% / 45% 55% 45% 55%;
+  z-index: 1;
+  pointer-events: none;
+  animation: morphShape 18s ease-in-out infinite reverse, float 24s ease-in-out infinite reverse;
+
+  @media (max-width: $breakpoint-lg) { display: none; }
+}
+
+.accentDot1 {
+  position: absolute;
+  top: 22%;
+  right: 9%;
+  width: 14px;
+  height: 14px;
+  background: var(--pal-p1, #{p1($palette-cu-pink)});
+  border-radius: 50%;
+  opacity: 0.45;
+  z-index: 1;
+  pointer-events: none;
+  animation: float 16s ease-in-out infinite;
+
+  @media (max-width: $breakpoint-lg) { display: none; }
+}
+
+.accentDot2 {
+  position: absolute;
+  top: 58%;
+  right: 4%;
+  width: 8px;
+  height: 8px;
+  background: var(--pal-p4, #{p4($palette-cu-pink)});
+  border-radius: 50%;
+  opacity: 0.55;
+  z-index: 1;
+  pointer-events: none;
+  animation: float 22s ease-in-out infinite reverse;
+
+  @media (max-width: $breakpoint-lg) { display: none; }
+}
+
+.accentDot3 {
+  position: absolute;
+  bottom: 25%;
+  right: 7%;
+  width: 5px;
+  height: 5px;
+  background: var(--pal-p3, #{p3($palette-cu-pink)});
+  border-radius: 50%;
+  opacity: 0.6;
+  z-index: 1;
+  pointer-events: none;
+  animation: float 18s ease-in-out infinite;
+
+  @media (max-width: $breakpoint-lg) { display: none; }
+}
+
+// ── Main layout grid ─────────────────────────────────────────────
+.heroLayout {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 3fr 2fr;   // 60 % image, 40 % text
+  min-height: 760px;
+  align-items: stretch;
+  z-index: 1;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}
+
+// ── Image Side ───────────────────────────────────────────────────
+.heroImageSide {
+  position: relative;
+  overflow: hidden;
+  // Wavy organic cut on the right edge that blends into the text panel
+  clip-path: polygon(
+    0 0,
+    93% 0,
+    97% 6%,
+    99% 18%,
+    96% 32%,
+    100% 47%,
+    96% 62%,
+    99% 76%,
+    95% 88%,
+    100% 100%,
+    0 100%
+  );
+  z-index: 2;
+
+  @media (max-width: $breakpoint-lg) {
+    min-height: 55vw;
+    clip-path: none;
+    border-radius: 0 0 48px 48px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    min-height: 60vw;
+    border-radius: 0 0 32px 32px;
+  }
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.8s $motion-easing-standard;
+
+  &:hover {
+    transform: scale(1.04);
+  }
+}
+
+// Gradient vignette over the image (right + bottom)
+.imageGradientOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      100deg,
+      transparent 40%,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-cu-pink)}) 18%, white) 100%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 25%, black) 0%,
+      transparent 35%
+    );
+  z-index: 1;
+  pointer-events: none;
+}
+
+// Glass badge — bottom-left of image
+.glassBadge {
+  @include label-large;
+  position: absolute;
+  bottom: $spacing-8;
+  left: $spacing-8;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--pal-p1, #{p1($palette-cu-pink)});
+  padding: $spacing-3 $spacing-5;
+  border-radius: $organic-badge;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-left: 4px solid var(--pal-p1, #{p1($palette-cu-pink)});
+  box-shadow:
+    0 8px 28px color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 28%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--pal-p1, #{p1($palette-cu-pink)});
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    bottom: $spacing-5;
+    left: $spacing-5;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    bottom: $spacing-4;
+    left: $spacing-4;
+    @include label-medium;
+    padding: $spacing-2 $spacing-3;
+  }
+}
+
+// ── Text Panel ───────────────────────────────────────────────────
+.heroTextPanel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: $spacing-12 $spacing-10 $spacing-12 $spacing-12;
+
+  // Overlap image via negative margin, creating depth
+  margin-left: -56px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.97) 0%,
+    color-mix(in srgb, var(--pal-p2, #{p2($palette-cu-pink)}) 22%, white) 55%,
+    color-mix(in srgb, var(--pal-p3, #{p3($palette-cu-pink)}) 16%, white) 100%
+  );
+  border-radius: 48px 0 0 48px;
+  box-shadow:
+    -12px 0 40px rgba(0, 0, 0, 0.06),
+    -4px 0 12px rgba(0, 0, 0, 0.04);
+  z-index: 3;
+
+  // Decorative soft blob inside panel
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -40px;
+    right: 20px;
+    width: 280px;
+    height: 280px;
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p2, #{p2($palette-cu-pink)}) 30%, transparent) 0%,
+      transparent 60%
+    );
+    border-radius: 60% 40% 50% 50% / 55% 45% 55% 45%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(24px);
+    animation: float 18s ease-in-out infinite;
+  }
+
+  // Second blob — top left of panel
+  &::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 30px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle,
+      color-mix(in srgb, var(--pal-p3, #{p3($palette-cu-pink)}) 20%, transparent) 0%,
+      transparent 65%
+    );
+    border-radius: 50% 50% 60% 40%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(18px);
+    animation: float 24s ease-in-out infinite reverse;
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    margin-left: 0;
+    border-radius: 0;
+    padding: $spacing-10 $spacing-6;
+    box-shadow: none;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-8 $spacing-4;
+  }
+}
+
+.heroTextContent {
+  position: relative;
+  z-index: 1;
+  max-width: 540px;
+  width: 100%;
+}
+
+// ── Accent stripe above title ─────────────────────────────────────
+.accentStripe {
+  display: block;
+  width: 72px;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--pal-p1, #{p1($palette-cu-pink)}) 0%,
+    var(--pal-p4, #{p4($palette-cu-pink)}) 100%
+  );
+  border-radius: 3px;
+  margin-bottom: $spacing-5;
+}
+
+// ── Title ─────────────────────────────────────────────────────────
+.heroTitle {
+  @include display-large;
+  margin-bottom: $spacing-5;
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+
+  @media (max-width: $breakpoint-md) {
+    @include display-medium;
+  }
+}
+
+.titleWord1 {
+  background: linear-gradient(
+    135deg,
+    var(--pal-p1, #{p1($palette-cu-pink)}) 0%,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 72%, black) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(
+    0 3px 8px color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 28%, transparent)
+  );
+}
+
+.titleWord2 {
+  color: $color-on-surface;
+  display: inline-block;
+}
+
+.titleWord3 {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--pal-p1, #{p1($palette-cu-pink)}) 70%, var(--pal-p4, #{p4($palette-cu-pink)})) 0%,
+    color-mix(in srgb, var(--pal-p4, #{p4($palette-cu-pink)}) 80%, black) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  text-shadow: none;
+  filter: drop-shadow(
+    0 2px 5px color-mix(in srgb, var(--pal-p4, #{p4($palette-cu-pink)}) 25%, transparent)
+  );
+}
+
+// ── Tagline ───────────────────────────────────────────────────────
+.heroTagline {
+  @include headline-medium;
+  color: $color-on-surface-variant;
+  margin-bottom: $spacing-6;
+  line-height: 1.65;
+  font-weight: 400;
+  padding: $spacing-4 $spacing-5;
+  background: color-mix(in srgb, var(--pal-p2, #{p2($palette-cu-pink)}) 20%, transparent);
+  border-left: 3px solid var(--pal-p1, #{p1($palette-cu-pink)});
+  border-radius: 0 16px 16px 0;
+
+  @media (max-width: $breakpoint-md) {
+    @include body-large;
+    line-height: 1.7;
+  }
+}
+
+// ── Meta chips ────────────────────────────────────────────────────
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  margin-bottom: $spacing-6;
+}
+
+.metaChip {
+  @include body-large;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-4;
+  background: color-mix(in srgb, var(--pal-p4, #{p4($palette-cu-pink)}) 14%, transparent);
+  border-radius: $organic-tag;
+  font-weight: 600;
+  color: $color-on-surface;
+
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--pal-p1, #{p1($palette-cu-pink)});
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+.heroActions {
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

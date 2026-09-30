@@ -1,0 +1,272 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../styles/mixins';
+@import '../../styles/organic-theme';
+
+// ─── Page Palette ────────────────────────────────────────────────
+// Shared with Communities / CommunityDetail so the check-in page
+// feels visually connected to the Chula-Glocalized Market Community.
+$page-palette: $palette-orange;
+
+.CheckIn {
+  min-height: 100vh;
+  background: linear-gradient(180deg,
+    rgba(p1($page-palette), 0.04) 0%,
+    rgba($color-surface, 1) 20%,
+    rgba($color-surface-container-low, 1) 100%
+  );
+  padding-bottom: $spacing-3xl;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Hero Banner
+// ─────────────────────────────────────────────────────────────────
+
+.Hero {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  overflow: hidden;
+  background: linear-gradient(135deg, p1($page-palette), p3($page-palette));
+
+  @include media-down($breakpoint-md) {
+    min-height: 320px;
+  }
+}
+
+.HeroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.HeroOverlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--color-scrim) 45%, #{p1($page-palette)}) 0%,
+    color-mix(in srgb, var(--color-scrim) 70%, #{p1($page-palette)}) 55%,
+    color-mix(in srgb, var(--color-scrim) 96%, #{p3($page-palette)}) 100%
+  );
+}
+
+.HeroContent {
+  position: relative;
+  z-index: 1;
+  @include flex-column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-sm;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $spacing-2xl $spacing-md $spacing-xl;
+}
+
+.HeroBadge {
+  @include flex-center;
+  gap: $spacing-xs;
+  @include label-large;
+  font-weight: $font-weight-bold;
+  color: var(--color-on-primary);
+  background: color-mix(in srgb, var(--color-on-primary) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-on-primary) 35%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: $shape-full;
+  padding: $spacing-xs $spacing-4;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+    color: p3($page-palette);
+  }
+}
+
+.HeroTitle {
+  @include display-small;
+  font-weight: $font-weight-bold;
+  color: var(--color-on-primary);
+  margin: 0;
+}
+
+.HeroSubtitle {
+  @include body-large;
+  font-weight: $font-weight-medium;
+  color: color-mix(in srgb, var(--color-on-primary) 90%, transparent);
+  max-width: 560px;
+  margin: 0;
+}
+
+.HeroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-xs;
+}
+
+.MetaChip {
+  @include flex-center;
+  gap: $spacing-xs;
+  @include label-medium;
+  font-weight: $font-weight-bold;
+  color: var(--color-on-primary);
+  background: color-mix(in srgb, var(--color-on-primary) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-on-primary) 28%, transparent);
+  border-radius: $shape-full;
+  padding: $spacing-xs $spacing-3;
+
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Check-In Card
+// ─────────────────────────────────────────────────────────────────
+
+.Container {
+  @include container;
+  max-width: 480px;
+  position: relative;
+  z-index: 1;
+}
+
+.Card {
+  @include flex-column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-md;
+  background: var(--color-surface);
+  border-radius: $shape-large;
+  box-shadow: $elevation-3;
+  padding: $spacing-2xl $spacing-xl;
+  margin-top: -$spacing-16;
+
+  @include media-down($breakpoint-md) {
+    margin-top: -$spacing-10;
+  }
+}
+
+.HeaderIcon {
+  @include flex-center;
+  width: 72px;
+  height: 72px;
+  border-radius: $shape-full;
+  background: color-mix(in srgb, #{p1($page-palette)} 14%, transparent);
+  font-size: 40px;
+  color: p1($page-palette);
+}
+
+.Title {
+  @include headline-large;
+  font-weight: $font-weight-bold;
+  color: var(--color-on-background);
+  margin: 0;
+}
+
+.Subtitle {
+  @include body-large;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.Form {
+  @include flex-column;
+  width: 100%;
+  gap: $spacing-sm;
+  text-align: left;
+  margin-top: $spacing-sm;
+}
+
+.Label {
+  @include label-large;
+  color: var(--color-on-surface);
+}
+
+.Input {
+  @include input-field;
+}
+
+.ErrorText {
+  @include body-small;
+  color: var(--color-error);
+  margin: 0;
+}
+
+.SubmitBtn {
+  @include filled-button;
+  width: 100%;
+  font-weight: $font-weight-bold;
+  background: linear-gradient(135deg, #{p1($page-palette)}, #{color.adjust(p1($page-palette), $lightness: -10%)});
+  margin-top: $spacing-sm;
+}
+
+.OutlinedBtn {
+  @include outlined-button;
+  width: 100%;
+  margin-top: $spacing-sm;
+}
+
+.Result {
+  @include flex-column;
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+}
+
+.ResultIconSuccess {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  border-radius: $shape-full;
+  background: color-mix(in srgb, var(--color-success) 16%, transparent);
+  font-size: 48px;
+  color: var(--color-success);
+}
+
+.ResultIconWarning {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  border-radius: $shape-full;
+  background: color-mix(in srgb, #{p1($page-palette)} 16%, transparent);
+  font-size: 48px;
+  color: p1($page-palette);
+}
+
+.ResultTitle {
+  @include headline-small;
+  font-weight: $font-weight-bold;
+  color: var(--color-on-background);
+  margin: 0;
+}
+
+.ResultText {
+  @include body-large;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.LearnMoreLink {
+  @include flex-center;
+  gap: $spacing-xs;
+  @include label-large;
+  color: p1($page-palette);
+  text-decoration: none;
+  margin-top: $spacing-lg;
+  transition: gap $transition-fast;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  &:hover {
+    gap: $spacing-2;
+    text-decoration: underline;
+  }
+}
+

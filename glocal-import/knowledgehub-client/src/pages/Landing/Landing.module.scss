@@ -1,0 +1,259 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../styles/mixins';
+@import '../../styles/organic-theme';
+
+// ─── Page Palette ────────────────────────────────────────────────
+$page-palette: $palette-cu-pink;
+
+.Landing {
+  @include organic-page-wrapper($page-palette);
+  --pal-p1: #{p1($page-palette)};
+  --pal-p2: #{p2($page-palette)};
+  --pal-p3: #{p3($page-palette)};
+  --pal-p4: #{p4($page-palette)};
+}
+
+// Hero Section
+.Hero {
+  @include organic-hero($page-palette);
+  padding: $spacing-3xl 0;
+  
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-2xl 0;
+  }
+}
+
+.HeroContainer {
+  @include container;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-3xl;
+  align-items: center;
+  
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-xl;
+  }
+}
+
+.HeroContent {
+  @include flex-column;
+  gap: $spacing-lg;
+}
+
+.HeroTitle {
+  @include display-medium;
+  color: var(--color-on-background);
+  margin-bottom: $spacing-md;
+  
+  @media (max-width: $breakpoint-md) {
+    font-size: $typescale-headline-large;
+  }
+}
+
+.HeroSubtitle {
+  @include headline-small;
+  color: var(--color-on-surface-variant);
+  font-weight: $font-weight-regular;
+  line-height: $line-height-relaxed;
+}
+
+.HeroActions {
+  @include flex-center;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+  justify-content: flex-start;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    width: 100%;
+    
+    button, a {
+      width: 100%;
+    }
+  }
+}
+
+.HeroImage {
+  position: relative;
+  
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: $shape-large;
+    box-shadow: $elevation-3;
+  }
+  
+  @media (max-width: $breakpoint-md) {
+    order: -1;
+  }
+}
+
+// Stats Section
+.Stats {
+  padding: $spacing-2xl 0;
+  background: var(--color-surface);
+}
+
+.StatsContainer {
+  @include container;
+}
+
+.StatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-xl;
+}
+
+.StatCard {
+  @include flex-column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-sm;
+}
+
+.StatNumber {
+  @include display-small;
+  color: p1($page-palette);
+  font-weight: $font-weight-bold;
+}
+
+.StatLabel {
+  @include title-medium;
+  color: var(--color-on-surface-variant);
+}
+
+// Featured Section
+.Featured {
+  padding: $spacing-3xl 0;
+  background: var(--color-background);
+}
+
+.FeaturedContainer {
+  @include container;
+}
+
+.SectionHeader {
+  text-align: center;
+  margin-bottom: $spacing-3xl;
+}
+
+.SectionTitle {
+  @include headline-large;
+  color: var(--color-on-background);
+  margin-bottom: $spacing-md;
+}
+
+.SectionSubtitle {
+  @include title-large;
+  color: var(--color-on-surface-variant);
+  font-weight: $font-weight-regular;
+}
+
+.FeaturedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-xl;
+  
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.CommunityCard {
+  @include card;
+  padding: 0;
+  overflow: hidden;
+  transition: all $transition-base;
+  cursor: pointer;
+  text-decoration: none;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $elevation-3;
+  }
+}
+
+.CardImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: var(--color-surface-variant);
+}
+
+.CardContent {
+  padding: $spacing-lg;
+}
+
+.CardTitle {
+  @include title-large;
+  color: var(--color-on-surface);
+  margin-bottom: $spacing-sm;
+}
+
+.CardTagline {
+  @include body-medium;
+  color: var(--color-on-surface-variant);
+  margin-bottom: $spacing-md;
+}
+
+.CardMeta {
+  @include flex-center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.MetaItem {
+  @include flex-center;
+  gap: $spacing-xs;
+  @include body-small;
+  color: var(--color-on-surface-variant);
+  
+  .material-symbols-outlined {
+    font-size: 18px;
+    color: p1($page-palette);
+  }
+}
+
+// CTA Section
+.CTA {
+  padding: $spacing-3xl 0;
+  background: linear-gradient(135deg,
+    rgba(p1($page-palette), 0.12) 0%,
+    rgba(p2($page-palette), 0.20) 50%,
+    rgba(p3($page-palette), 0.10) 100%
+  );
+  border-top: 1px solid rgba(p1($page-palette), 0.15);
+}
+
+.CTAContainer {
+  @include container;
+  text-align: center;
+}
+
+.CTATitle {
+  @include headline-large;
+  color: color.adjust(p1($page-palette), $lightness: -20%);
+  margin-bottom: $spacing-md;
+}
+
+.CTAText {
+  @include title-large;
+  color: var(--color-on-surface-variant);
+  font-weight: $font-weight-regular;
+  margin-bottom: $spacing-xl;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.CTAActions {
+  @include flex-center;
+  gap: $spacing-md;
+  justify-content: center;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+  }
+}

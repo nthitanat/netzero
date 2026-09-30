@@ -1,0 +1,70 @@
+// ─────────────────────────────────────────────────────────────────
+// Organic Theme — Color Palettes
+//
+// Each palette is a SCSS map with four roles:
+//   p1 — dominant warm   (primary blobs, badges, borders, gradients)
+//   p2 — secondary warm  (softer warm highlight, stat card bg)
+//   p3 — earthy/nature   (tags, icons, course items)
+//   p4 — cool contrast   (meta chips, share button, cool accent)
+//
+// Usage:
+//   @import '../../styles/palettes';
+//   $page-palette: $palette-orange;
+// ─────────────────────────────────────────────────────────────────
+
+@use 'sass:color';
+
+// ─── Orange / Amber ───────────────────────────────────────────────
+// Used by: CommunityDetail
+$palette-orange: (
+  'p1': #f89d00,
+  'p2': #ffeb79,
+  'p3': #b5c57c,
+  'p4': #6df5d1,
+);
+
+// ─── Blue / Sky ───────────────────────────────────────────────────
+// Used by: (reserved — e.g. KnowledgeHub detail)
+$palette-blue: (
+  'p1': #3B82F6,
+  'p2': #93C5FD,
+  'p3': #6EE7B7,
+  'p4': #67E8F9,
+);
+
+// ─── Purple / Violet ─────────────────────────────────────────────
+// Used by: (reserved — e.g. Courses detail)
+$palette-purple: (
+  'p1': #8B5CF6,
+  'p2': #C4B5FD,
+  'p3': #86EFAC,
+  'p4': #7DD3FC,
+);
+
+// ─── Rose / Pink ─────────────────────────────────────────────────
+// Used by: Showroom
+$palette-rose: (
+  'p1': #F43F5E,
+  'p2': #FDA4AF,
+  'p3': #86EFAC,
+  'p4': #7DD3FC,
+);
+
+// ─── CU Pink ─────────────────────────────────────────────────────
+// Chulalongkorn University brand colours (PANTONE 7424U + MD3 tokens)
+// Used by: (reserved — e.g. KnowledgeHub, Communities listing)
+$palette-cu-pink: (
+  'p1': #DB5F8E,   // $cu-pink — PANTONE 7424U primary
+  'p2': #FFD9E3,   // $color-secondary-container — soft pink blush
+  'p3': #F7C5D8,   // $color-primary-container — lighter pink
+  'p4': #898989,   // $cu-silver — PANTONE 877C neutral contrast
+);
+
+// ─── Teal / Emerald ──────────────────────────────────────────────
+// Used by: (reserved — e.g. About)
+$palette-teal: (
+  'p1': #14B8A6,
+  'p2': #99F6E4,
+  'p3': #BEF264,
+  'p4': #93C5FD,
+);

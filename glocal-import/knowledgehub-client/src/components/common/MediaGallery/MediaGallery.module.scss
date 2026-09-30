@@ -1,0 +1,249 @@
+@import '../../../styles/mixins';
+
+.mediaGallery {
+  width: 100%;
+}
+
+.section {
+  margin-bottom: $spacing-12;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.sectionTitle {
+  @include headline-medium;
+  color: $color-on-surface;
+  margin-bottom: $spacing-6;
+}
+
+// Photo Grid
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-4;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: $spacing-2;
+  }
+}
+
+.photoItem {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: $shape-medium;
+  cursor: pointer;
+  background: $color-surface-variant;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+
+    .overlay {
+      opacity: 1;
+    }
+  }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  span {
+    color: white;
+    font-size: 48px;
+  }
+}
+
+// Video Grid
+.videoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
+  }
+}
+
+.videoItem {
+  cursor: pointer;
+}
+
+.thumbnail {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: $shape-medium;
+  background: $color-surface-variant;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    img {
+      transform: scale(1.05);
+    }
+
+    .playButton {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+  }
+}
+
+.playButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+
+  span {
+    color: white;
+    font-size: 48px;
+  }
+}
+
+.videoTitle {
+  @include body-large;
+  color: $color-on-surface;
+  margin-top: $spacing-2;
+  font-weight: 500;
+}
+
+// Lightbox
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  animation: fadeIn 0.3s ease;
+}
+
+.lightboxContent {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-width: 100%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: $shape-medium;
+    box-shadow: $elevation-5;
+  }
+}
+
+// Video Modal
+.videoModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  animation: fadeIn 0.3s ease;
+}
+
+.modalContent {
+  width: 90vw;
+  max-width: 1200px;
+  aspect-ratio: 16 / 9;
+  background: black;
+  border-radius: $shape-medium;
+  overflow: hidden;
+  box-shadow: $elevation-5;
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+.closeButton {
+  position: fixed;
+  top: $spacing-4;
+  right: $spacing-4;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: $color-surface;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: $elevation-2;
+  transition: background 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background: $color-surface-variant;
+    transform: scale(1.1);
+  }
+
+  span {
+    color: $color-on-surface;
+    font-size: 24px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

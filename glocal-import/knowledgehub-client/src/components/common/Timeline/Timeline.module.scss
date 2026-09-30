@@ -1,0 +1,145 @@
+@import '../../../styles/mixins';
+
+.timeline {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-8 0;
+
+  // Vertical line
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: $color-outline-variant;
+    transform: translateX(-50%);
+
+    @media (max-width: $breakpoint-md) {
+      left: $spacing-4;
+    }
+  }
+}
+
+.timelineItem {
+  position: relative;
+  margin-bottom: $spacing-12;
+  width: 100%;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding-left: $spacing-10;
+  }
+}
+
+.timelineContent {
+  position: relative;
+  width: 45%;
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+  }
+}
+
+// Left side items (even index)
+.timelineItem.left .timelineContent {
+  margin-left: 0;
+  margin-right: auto;
+  text-align: right;
+
+  @media (max-width: $breakpoint-md) {
+    text-align: left;
+  }
+}
+
+// Right side items (odd index)
+.timelineItem.right .timelineContent {
+  margin-left: auto;
+  margin-right: 0;
+  text-align: left;
+}
+
+.year {
+  @include headline-medium;
+  color: $color-primary;
+  font-weight: 700;
+  margin-bottom: $spacing-2;
+  
+  .timelineItem.left & {
+    @media (max-width: $breakpoint-md) {
+      text-align: left;
+    }
+  }
+}
+
+.card {
+  background: $color-surface-container-low;
+  border-radius: $shape-large;
+  overflow: hidden;
+  box-shadow: $elevation-2;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $elevation-3;
+  }
+}
+
+.imageWrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: $color-surface-variant;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.textContent {
+  padding: $spacing-4;
+}
+
+.title {
+  @include title-large;
+  color: $color-on-surface;
+  margin-bottom: $spacing-2;
+}
+
+.description {
+  @include body-medium;
+  color: $color-on-surface-variant;
+  line-height: 1.6;
+}
+
+.marker {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 2;
+  
+  @media (max-width: $breakpoint-md) {
+    left: $spacing-4;
+  }
+
+  span {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background: $color-surface;
+    border-radius: 50%;
+    color: $color-primary;
+    font-size: 24px;
+    line-height: 1;
+    border: 2px solid $color-primary;
+  }
+}

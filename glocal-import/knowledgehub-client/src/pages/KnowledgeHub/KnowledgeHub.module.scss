@@ -1,0 +1,84 @@
+@import '../../styles/mixins';
+
+.KnowledgeHub {
+  min-height: 100vh;
+  padding: $spacing-3xl 0;
+  background: var(--color-background);
+}
+
+.Container {
+  @include container;
+}
+
+.Header {
+  text-align: center;
+  margin-bottom: $spacing-3xl;
+}
+
+.Title {
+  @include headline-large;
+  color: var(--color-on-background);
+  margin-bottom: $spacing-md;
+}
+
+.Subtitle {
+  @include title-large;
+  color: var(--color-on-surface-variant);
+  font-weight: $font-weight-regular;
+}
+
+.Grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: $spacing-xl;
+  
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.Card {
+  @include card;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all $transition-base;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $elevation-3;
+  }
+}
+
+.CardImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: var(--color-surface-variant);
+}
+
+.CardContent {
+  padding: $spacing-lg;
+}
+
+.CardTitle {
+  @include title-large;
+  color: var(--color-on-surface);
+  margin-bottom: $spacing-sm;
+  @include line-clamp(2);
+}
+
+.CardExcerpt {
+  @include body-medium;
+  color: var(--color-on-surface-variant);
+  margin-bottom: $spacing-md;
+  @include line-clamp(3);
+}
+
+.CardMeta {
+  @include flex-center;
+  gap: $spacing-sm;
+  @include body-small;
+  color: var(--color-on-surface-variant);
+  justify-content: flex-start;
+}

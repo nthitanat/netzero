@@ -1,0 +1,195 @@
+@use 'sass:map';
+@use 'sass:color';
+@import '../../styles/mixins';
+@import '../../styles/organic-theme';
+
+// ─── Page Palette ────────────────────────────────────────────────
+$page-palette: $palette-orange;
+
+// ─────────────────────────────────────────────────────────────────
+// PAGE WRAPPER
+// ─────────────────────────────────────────────────────────────────
+
+.showroom {
+  @include organic-page-wrapper($page-palette);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PINNED BANNER CTA
+// ─────────────────────────────────────────────────────────────────
+
+.bannerCta {
+  @include label-large;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-6;
+  background: linear-gradient(135deg, p1($page-palette) 0%, color.adjust(p1($page-palette), $lightness: -10%) 100%);
+  color: #fff;
+  border-radius: $organic-card-small;
+  text-decoration: none;
+  font-weight: $font-weight-bold;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(p1($page-palette), 0.4);
+  }
+}
+
+.container {
+  @include container;
+  position: relative;
+  z-index: 1;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// HEADER
+// ─────────────────────────────────────────────────────────────────
+
+.header {
+  text-align: center;
+  padding: $spacing-3xl 0 $spacing-2xl;
+  position: relative;
+
+  // decorative blob — top left
+  &::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: -80px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(p1($page-palette), 0.12) 0%, transparent 70%);
+    border-radius: 60% 40% 55% 45% / 50% 60% 40% 55%;
+    animation: float 18s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  // decorative blob — bottom right
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(p2($page-palette), 0.15) 0%, transparent 70%);
+    border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%;
+    animation: float 22s ease-in-out infinite reverse;
+    pointer-events: none;
+  }
+}
+
+.badge {
+  @include label-large;
+  @include organic-badge($page-palette);
+  display: inline-block;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  @include display-medium;
+  margin-bottom: $spacing-md;
+  background: linear-gradient(
+    135deg,
+    p1($page-palette) 0%,
+    color.adjust(p1($page-palette), $lightness: -10%) 50%,
+    p4($page-palette) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  @media (max-width: $breakpoint-md) {
+    @include headline-large;
+  }
+}
+
+.subtitle {
+  @include title-large;
+  color: var(--color-on-surface-variant);
+  font-weight: $font-weight-regular;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PRODUCT GRID
+// ─────────────────────────────────────────────────────────────────
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-xl;
+  position: relative;
+
+  @include organic-content-grid-blobs($page-palette);
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PRODUCT CARD
+// ─────────────────────────────────────────────────────────────────
+
+.productCard {
+  @include organic-card-base($page-palette);
+  @include organic-product-card-hover($page-palette);
+  padding: 0;
+  text-decoration: none;
+  display: block;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.productImage {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  background: var(--color-surface-variant);
+}
+
+.productContent {
+  padding: $spacing-lg;
+}
+
+.productTitle {
+  @include title-medium;
+  color: var(--color-on-surface);
+  margin-bottom: $spacing-sm;
+  @include line-clamp(2);
+}
+
+.productDescription {
+  @include body-small;
+  color: var(--color-on-surface-variant);
+  margin-bottom: $spacing-md;
+  @include line-clamp(3);
+}
+
+.productFooter {
+  @include flex-between;
+  align-items: center;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.productPrice {
+  @include title-medium;
+  color: p1($page-palette);
+  font-weight: $font-weight-bold;
+}
+
+.productCommunity {
+  @include body-small;
+  background: rgba(p3($page-palette), 0.15);
+  color: color.adjust(p3($page-palette), $lightness: -25%);
+  border-radius: $organic-tag;
+  padding: 2px $spacing-sm;
+}

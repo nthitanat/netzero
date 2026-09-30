@@ -1,0 +1,83 @@
+@import '../../styles/mixins';
+
+.page {
+  min-height: 70vh;
+  padding: $spacing-8 0;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.container {
+  @include container;
+}
+
+.backLink,
+.community {
+  color: var(--color-primary);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: $spacing-6;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: $spacing-8;
+  @media (max-width: $breakpoint-md) { grid-template-columns: 1fr; }
+}
+
+.imageWrap {
+  overflow: hidden;
+  border-radius: $shape-large;
+  background: var(--color-surface-variant);
+  align-self: start;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  max-height: 540px;
+  object-fit: cover;
+}
+
+.content h1 {
+  @include display-small;
+  margin: $spacing-3 0;
+}
+
+.category {
+  @include label-large;
+  text-transform: capitalize;
+  color: var(--color-primary);
+}
+
+.community {
+  display: inline-block;
+  margin-bottom: $spacing-5;
+}
+
+.description {
+  @include body-large;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.price {
+  @include title-large;
+  margin: $spacing-5 0 $spacing-1;
+  font-weight: $font-weight-bold;
+}
+
+.meta { color: var(--color-on-surface-variant); }
+
+.section {
+  margin-top: $spacing-6;
+  padding-top: $spacing-5;
+  border-top: 1px solid var(--color-outline-variant);
+  h2 { @include title-medium; margin-bottom: $spacing-2; }
+  p { line-height: 1.6; white-space: pre-line; }
+}
