@@ -1,3 +1,5 @@
+> Migration note (2026-09-30): Glocal is now `glocal-client` in NetZero. Root environment files own public configuration; active deployment instructions are in [the shared guide](../../DOCKER-AND-DEPLOYMENT-GUIDE.md). Current auth endpoints use `/api/v1/auth/*`; the examples use the same v1 routes.
+
 # NetZero Auth Workflow — Implementation Guide for AI
 
 This document gives an AI agent everything it needs to implement the **exact** authentication workflow used in `netzero-client` from scratch in a new React project.
@@ -201,7 +203,7 @@ Creates a shared axios instance. The **request interceptor** attaches the JWT to
 import axios from 'axios';
 import { storageService } from '../utils/storage';
 
-const BASE_URL = 'https://engagement.chula.ac.th/netzero-api';
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,

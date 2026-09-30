@@ -90,6 +90,7 @@ services:
         condition: service_healthy
 
   netzero-client:
+    profiles: [netzero, both]
     build:
       context: ./netzero-client
       target: development
@@ -99,6 +100,7 @@ services:
       HOST: 0.0.0.0
       PORT: ${CLIENT_PORT:?Set CLIENT_PORT in .env.development}
       CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
       REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:?Set REACT_APP_API_BASE_URL in .env.development}
       REACT_APP_CHAT_API_BASE_URL: ${REACT_APP_CHAT_API_BASE_URL:?Set REACT_APP_CHAT_API_BASE_URL in .env.development}
       REACT_APP_USE_REAL_TREE_API: ${REACT_APP_USE_REAL_TREE_API:?Set REACT_APP_USE_REAL_TREE_API in .env.development}
@@ -112,9 +114,32 @@ services:
       - netzero-server
       - netzero-chat-server
 
+  glocal-client:
+    profiles: [glocal, both]
+    build:
+      context: ./glocal-client
+      target: development
+    init: true
+    environment:
+      NODE_ENV: ${NODE_ENV:?Set NODE_ENV in .env.development}
+      HOST: 0.0.0.0
+      PORT: ${GLOCAL_CLIENT_PORT:-3002}
+      PUBLIC_URL: /glocal
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:?Set REACT_APP_API_BASE_URL in .env.development}
+    ports:
+      - "${GLOCAL_CLIENT_PORT:-3002}:${GLOCAL_CLIENT_PORT:-3002}"
+    volumes:
+      - ./glocal-client:/app
+      - glocal_node_modules:/app/node_modules
+    depends_on:
+      - netzero-server
+
 volumes:
   mysql_data:
     name: netzero-dev-mysql-data
   server_node_modules:
   chat_node_modules:
   client_node_modules:
+  glocal_node_modules:

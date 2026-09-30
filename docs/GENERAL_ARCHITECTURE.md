@@ -6,7 +6,7 @@
 
 ## 1. Purpose and system map
 
-NetZero has a React client, a main Express API, a separate Express chat and product-survey API, and MySQL databases. The main API serves users, events, event participation, products, event products, reservations, surveys, chat applications, and Glocal check-ins. The chat API serves conversations and AI product-survey evaluation. The client calls both APIs.
+NetZero has two independent React clients (`netzero-client` and `glocal-client`), a main Express API, a separate Express chat and product-survey API, and MySQL databases. The main API serves users, events, event participation, products, event products, reservations, surveys, chat applications, and Glocal check-ins. The chat API serves conversations and AI product-survey evaluation. NetZero calls both APIs; Glocal authentication/check-in calls the main API and its catalogs remain local JSON. Both clients share root public environment inputs. Glocal retains its own [client architecture](client/glocal/client-react-architecture.md).
 
 ```
 netzero-client/src/api/*

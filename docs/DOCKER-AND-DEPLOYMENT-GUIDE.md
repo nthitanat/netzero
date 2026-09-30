@@ -1,65 +1,93 @@
 # Docker and deployment guide
 
-This guide owns the NetZero Docker and deployment workflow: Compose environments, deployment commands, host paths, backups, and operator checks. Keep application layer boundaries, API contracts, and database schema rules in [the general architecture guide](GENERAL_ARCHITECTURE.md). Run commands from the repository root unless a step says otherwise. The [architecture handoff](architecture-logs/CURRENT.md) records rollout work that is still pending.
+This guide owns Docker, shared frontend configuration, deployment selection, publication, and operator checks. [The general architecture guide](GENERAL_ARCHITECTURE.md) owns backend contracts and database boundaries. Commands run from the repository root.
 
 ## Environment layout
 
-| Environment | Compose file | Environment file | Services |
+| Environment | Compose file | Root environment file | Services |
 | --- | --- | --- | --- |
-| Development | `docker-compose.dev.yml` | `.env.development` | MySQL, main API, chat API, React development server |
+| Development | `docker-compose.dev.yml` | `.env.development` | MySQL, main API, chat API, selected React clients |
 | Production | `docker-compose.prod.yml` | `.env.production` | Main API and chat API |
 
-Production React is built on the remote host and served by its existing web server from `/www/wwwroot/engagement.chula.ac.th/netzero`. The production Compose file has no client or MySQL service. The API containers use the existing host MySQL through `host.docker.internal` and retain uploaded images in the bind-mounted `netzero-server/files` directory.
+`netzero-client` and `glocal-client` keep separate packages, lockfiles, dependencies, and UI architecture. Both consume the root `REACT_APP_API_BASE_URL`; their service paths include `/api/v1`, so the base must exclude that suffix. Development uses `http://localhost:3001`; production uses `https://engagement.chula.ac.th/netzero-api/`. Glocal retains `/glocal` public assets and hash routing. Its catalogs remain local JSON; authentication and check-in use NetZero APIs.
 
-Copy [`.env.development.example`](../.env.development.example) or [`.env.production.example`](../.env.production.example) to the matching untracked environment file on a new machine. Replace placeholders, keep the real files private, and use `NODE_ENV=development` or `NODE_ENV=production` as appropriate. The application reads unprefixed variables such as `DB_HOST` and `JWT_SECRET`. Production `REACT_APP_*` values are public build inputs; do not put secrets in them. The former combined `.env` and per-service environment files are not used by this pipeline.
+Copy `.env.development.example` or `.env.production.example` to its private matching file and fill in placeholders. API/provider/database credentials remain server inputs. Only explicit public build inputs reach the frontends. Client-local `.env` files are rejected by native build/start and deployment helpers; Compose supplies public inputs directly from its selected root file. Never place secrets in `REACT_APP_*` values.
 
 ## Development
 
-Set both API database hosts to `netzero-db`. Their credentials and database name must match the MySQL service settings. Set a separate `MYSQL_ROOT_PASSWORD`.
+Set both API database hosts to `netzero-db` and match the MySQL user, password, and database name. Set a separate `MYSQL_ROOT_PASSWORD`.
 
 ```sh
-cp .env.development.example .env.development
-# Fill in the placeholders in .env.development.
-bash scripts/start.sh
-docker compose --env-file .env.development -f docker-compose.dev.yml logs -f
+cp .env.development.example .env.development # new checkout only
+bash scripts/start.sh               # both clients
+bash scripts/start.sh netzero       # NetZero and shared backend
+bash scripts/start.sh glocal        # Glocal and shared backend
+bash scripts/start.sh none          # shared backend only
 bash scripts/stop.sh
 ```
 
-`scripts/start.sh` checks the environment file, builds the development images, starts the stack, and prints the local addresses. Defaults in the example are client `http://localhost:3000`, main API `http://localhost:3001/api/v1`, and chat API `http://localhost:3004/api/v1`. Source trees are bind mounted and the application services run with file polling. The MySQL container has no host port mapping; inspect it with `docker compose --env-file .env.development -f docker-compose.dev.yml exec netzero-db mysql -u netzeroadmin -p netzero`.
+The wrapper defaults to the `both` frontend profile. Direct Compose usage must specify `--profile both`, `--profile netzero`, or `--profile glocal`; without profiles, only the backend starts. Starting a selection does not stop already running clients. `scripts/stop.sh` enables all profiles to stop the complete development stack without removing volumes.
 
-The named `netzero-dev-mysql-data` volume persists database contents. On a new empty volume, [`scripts/init-dev-database.sh`](../scripts/init-dev-database.sh) applies all canonical CREATE files, all canonical preset INSERT files, then the development users fixture. Rebuilding or restarting with an existing volume does not rerun the seed. Other development fixtures are optional and are not loaded automatically; image fixtures require matching local image files. See the [seed README](../netzero-server/sql/seed/README.md).
+```sh
+docker compose --env-file .env.development -f docker-compose.dev.yml --profile both up -d --build
+docker compose --env-file .env.development -f docker-compose.dev.yml --profile both logs -f
+```
 
-To add only the development sign-in accounts to an existing volume, use the command in [`DOCKER.md`](../DOCKER.md). To discard and reseed only the development database, run `bash scripts/reset-dev-database.sh`, type the exact volume name when prompted, then run `bash scripts/start.sh`. The reset stops the development stack and deletes the database volume. It discards changes made since first initialization. Avoid `docker compose down -v` for a database-only reset because it also removes the named application dependency volumes.
+Default addresses are NetZero `http://localhost:3000`, Glocal `http://localhost:3002/glocal/`, main API `http://localhost:3001/api/v1`, and chat API `http://localhost:3004/api/v1`. `GLOCAL_CLIENT_PORT` changes Glocal's port; add that browser origin to `CORS_ORIGIN` when changing it. Source mounts, polling, and separate dependency volumes support live reload.
+
+For a native frontend, install dependencies in its own folder, then start it through the root helper:
+
+```sh
+(cd glocal-client && npm ci)
+bash scripts/client-command.sh development glocal start
+bash scripts/client-command.sh production glocal build
+bash scripts/client-command.sh development netzero start
+```
+
+Glocal's existing CRA lockfile resolves TypeScript 6, which conflicts with CRA's optional TypeScript peer constraint. A clean install without legacy peer resolution failed. `glocal-client/.npmrc` retains `legacy-peer-deps=true`, including inside its development Docker image; `npm ci` remains reproducible without modifying the imported lockfile. NetZero keeps its existing install mode.
+
+The development database persists in `netzero-dev-mysql-data`; first creation applies canonical CREATE/INSERT files and the development users fixture. Rebuild/restart does not replay seeds. [The seed README](../netzero-server/sql/seed/README.md) owns fixture details. `scripts/reset-dev-database.sh` discards only that development database after its exact-name prompt; avoid `down -v`, which also deletes dependency volumes. Production database and uploaded-image procedures are unchanged.
 
 ## Production preparation
 
-Fill in `.env.production`, including database and chat credentials, `CHAT_VECTOR_STORE_ID`, remote SSH and VPN settings, and the React API and asset URLs. The remote deploy script refuses to start unless `NODE_ENV=production` and `CHAT_VECTOR_STORE_ID` are set. The production Compose file requires the variables marked with `:?` in [`docker-compose.prod.yml`](../docker-compose.prod.yml). Check the Compose configuration locally before a deployment:
+Frontend-only deployment requires `NODE_ENV=production`, repository/SSH/sudo settings, and the selected frontend's public inputs. Glocal requires `REACT_APP_API_BASE_URL`; NetZero additionally requires its chat URL and tree mode. Backend deployment requires the full production Compose settings, including `OPENAI_API_KEY` and `CHAT_VECTOR_STORE_ID`. An omitted backend does not require its configuration or invoke Docker.
 
 ```sh
-docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
+docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet # backend configuration
+bash scripts/remote-deploy.sh --frontend both --backend skip --dry-run
 ```
 
-The production API images install runtime dependencies and do not mount source code. The main API mounts `./netzero-server/files:/app/files` for image persistence. Keep this host directory intact during deploys. Production uses the existing `netzero-deploy` Compose project and host MySQL; ordinary deploys do not create, reset, or seed the production database.
-
-Live schema changes follow a reviewed migration with a verified backup. Canonical seed files initialize new databases; they do not synchronize a live database. The proposed synchronization and explicit production reset are still unimplemented; see the [database seeding plan](implementation-plans/database-seeding-plan.md). For image metadata rollout, leave `IMAGE_METADATA_READS_ENABLED` and `IMAGE_METADATA_UPLOADS_ENABLED` false until the backfill, audit, backup, and rollout steps have been completed.
+Production Compose retains `netzero-deploy`, host MySQL, and `netzero-server/files`. It contains no frontend or database service. Ordinary deployment never seeds/resets a database. Keep image-metadata flags false until the existing backfill, audit, backup, and rollout requirements pass.
 
 ## Remote deployment
 
-Run `bash scripts/remote-deploy.sh` on the local machine and select an action from its menu. The script loads the local `.env.production`, connects to the VPN if needed, checks the remote host, uploads a filtered environment file over SCP, and runs one SSH session on the server. It uses `SUDO_PASSWORD` for local sudo and `REMOTE_SUDO_PASSWORD` for server sudo, falling back to `REMOTE_PASSWORD` when the latter is empty. The upload removes local VPN and local sudo keys; server SSH, sudo, repository, and application settings remain in the uploaded file. Compose explicitly maps application variables into its containers.
+`bash scripts/remote-deploy.sh` opens the menu. Option 1 asks independently for frontend (NetZero, Glocal, both, none) and backend (deploy, skip). Option 2 updates the backend only. Options 3–7 start, stop, restart, follow logs, or show API status. The same choices are available noninteractively:
 
-| Menu option | Current behavior |
-| --- | --- |
-| 1 Full Deploy | Clone or refresh `/www/netzero-deploy`, copy `.env.production` there, install and build React, replace the host web root's `netzero` directory, then build and start both API containers. |
-| 2 API Update | Refresh the repository and environment file, then rebuild and start both API containers; it does not rebuild the React client. |
-| 3 Start | Start the existing production API containers. |
-| 4 Stop | Stop the production Compose stack. |
-| 5 Restart | Restart the API containers without rebuilding their images. |
-| 6 View logs | Follow the production Compose logs. |
-| 7 Container status | Show Compose status and Docker disk usage. |
+```sh
+bash scripts/remote-deploy.sh --frontend netzero --backend skip
+bash scripts/remote-deploy.sh --frontend glocal --backend skip
+bash scripts/remote-deploy.sh --frontend both --backend deploy
+bash scripts/remote-deploy.sh --frontend none --backend deploy
+bash scripts/remote-deploy.sh --action status
+```
 
-The script refreshes an existing remote checkout with `git fetch` followed by `git reset --hard origin/main`, with a pull fallback. Keep remote-only changes outside that checkout. A full deploy replaces the existing React `netzero` web-root directory. The script checks HTTP responses from the APIs and web client after options 1 and 2, but reports a failed check as a warning, so review the resulting status and logs before treating a rollout as healthy.
+Every valid frontend/backend combination works; `none` + `skip` is rejected. `--dry-run` prints selections without reading credentials, connecting, or modifying anything. `--skip-vpn` uses an already available network route. `--env-file PATH` selects a private production root file, including for the VPN helper.
 
-The script currently uses password-based SSH through `sshpass` and disables SSH host-key verification. Follow the actual script when operating this deployment; do not copy the retired single-file Compose or generic nginx examples from the previous version of this guide.
+The shared pipeline connects once over SSH, refreshes one NetZero repository, and installs one filtered root `.env.production`. The default checkout is `/www/netzero-deploy`; `DEPLOY_PATH` can override it. Existing checkouts fetch `main` from `REPO_URL` and reset to that revision. Keep remote-only changes outside the checkout. Uploaded images remain in their existing bind mount; deployment does not recursively change their ownership. Git credentials use a temporary askpass helper rather than a token-bearing remote URL.
+
+| Target | Source | Default publication destination |
+| --- | --- | --- |
+| NetZero | `netzero-client` | `/www/wwwroot/engagement.chula.ac.th/netzero` |
+| Glocal | `glocal-client` | `/www/wwwroot/engagement.chula.ac.th/glocal` |
+| Backend | Existing server folders | Existing main/chat production Compose services |
+
+All selected frontends install and build successfully before any service update or publication. Backend selection builds and starts only the main/chat services and checks their local health URLs. Selected frontend builds then stage beside the web root, move existing builds to `.netzero-releases/<release>/`, and publish. Unselected frontend directories and backend services are untouched. The host must provide `flock`; a checkout-specific lock prevents concurrent deployments.
+
+`WEB_ROOT` overrides the static root and `PUBLIC_SITE_URL` overrides the public host. Each selected `/netzero/` or `/glocal/` URL is fetched with a release query and its HTML compared with the built index. A failed publication or URL/content check exits unsuccessfully and restores the previous selected frontends. Failed backend rollout does not automatically restore API images or data; inspect backend health/logs before retrying. Frontend build failures leave running APIs unchanged. Retained previous builds are never automatically pruned.
+
+For a manual frontend rollback, use the path printed by deployment, take the failed current target aside, move that release's previous target back to `WEB_ROOT/<target>`, then check its public URL. Keep the other frontend directory intact. For API management, the script uses the existing remote root configuration and does not replace it with the upload.
+
+The upload excludes local VPN and local sudo keys; remote sudo and repository/application settings remain private in a mode-600 file. The script retains the existing password SSH and host-key policy. Old Glocal scripts and sanitized examples are inert references under `archive/glocal-deployment/`; new releases must use this shared entry point. The old GitHub repository should be made read-only only after a verified live rollout and redirected to NetZero.
 
 ## On-premises backups
 
@@ -78,8 +106,8 @@ The architecture handoff still records the production backup destination and som
 
 - Validate Compose input with `docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet` or its development equivalent before starting containers.
 - Inspect containers with `docker compose --env-file .env.production -f docker-compose.prod.yml ps` and logs with the same prefix followed by `logs --tail=100`. The remote menu provides the same status and logs operations.
-- If a changed production API does not appear, use the API Update or Full Deploy option, which passes `up -d --build`. `restart` alone uses the existing image.
-- If a changed production React URL or asset base does not appear, use Full Deploy. React embeds `REACT_APP_*` values at build time; API Update does not rebuild the client.
+- If a changed production API does not appear, select backend deployment, which passes `up -d --build`. `restart` alone uses the existing image.
+- If a changed production React URL or asset base does not appear, select the affected frontend. React embeds `REACT_APP_*` values at build time; Backend-only deployment does not rebuild either frontend.
 - If a development dependency change is absent after rebuilding, inspect the service's persistent `node_modules` volume. Rebuilding an image does not replace an existing named dependency volume.
 - For database reset, seed replay, and live schema migration status, use the [database seeding plan](implementation-plans/database-seeding-plan.md) and [architecture handoff](architecture-logs/CURRENT.md).
 

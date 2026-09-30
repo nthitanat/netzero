@@ -7,8 +7,8 @@ set -e  # Exit on any error
 # Load environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-if [ -f "$PROJECT_ROOT/.env.production" ]; then
-    source "$PROJECT_ROOT/.env.production"
+if [ -f "${NETZERO_PRODUCTION_ENV_FILE:-$PROJECT_ROOT/.env.production}" ]; then
+    source "${NETZERO_PRODUCTION_ENV_FILE:-$PROJECT_ROOT/.env.production}"
 else
     echo "❌ Error: .env.production file not found in project root"
     exit 1

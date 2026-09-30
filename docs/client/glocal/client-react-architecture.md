@@ -4,7 +4,7 @@ Last reviewed: 2026-09-30
 
 Scope: `glocal-client/src`, client configuration, and related client documentation.
 
-This is the main guideline for the [client inconsistency index](INCONSISTENCY_INDEX.md). It describes the current Glocal platform React client and defines the constraints for new code and consistency fixes. The [SCSS architecture](scss-architecture.md) and [organic theme](organic-theme.md) guides support this document. `GENERAL_ARCHITECTURE.md` is outside this review's scope; this update does not adopt its requirements or relocate project documents.
+This is the main guideline for the [client inconsistency index](INCONSISTENCY_INDEX.md). It describes the current Glocal platform React client and defines the constraints for new code and consistency fixes. The [SCSS architecture](scss-architecture.md) and [organic theme](organic-theme.md) guides support this document. The shared backend guide is [../../GENERAL_ARCHITECTURE.md](../../GENERAL_ARCHITECTURE.md); this client retains its existing UI boundaries. Deployment and root environment ownership follow [../../DOCKER-AND-DEPLOYMENT-GUIDE.md](../../DOCKER-AND-DEPLOYMENT-GUIDE.md).
 
 **Required** means new or changed behavior must satisfy the rule. **Optional** means use it only when the responsibility warrants it. **Current** describes verified implementation, including defects; it does not make those defects acceptable patterns. Existing violations remain tracked in the index until implementation and verification are complete. A documentation update does not make the client compliant.
 
@@ -79,6 +79,8 @@ The package deployment prefix is `/glocal`; direct hash navigation is, for examp
 | SCSS Module | Scoped layout and component variants using shared foundations | Global resets or a second copy of shared design rules |
 
 ### Services and response shapes
+
+**Configuration:** `client.js` uses `REACT_APP_API_BASE_URL` from NetZero's root environment. Native commands use `scripts/client-command.sh`; Compose and shared deployment supply the same public value. Production base is `/netzero-api`; local base is `http://localhost:3001`. Service paths retain `/api/v1`.
 
 **Current:** [client.js](../../../glocal-client/src/api/client.js) exports `axiosInstance` by name. A 401 clears stored auth and emits `auth:unauthorized`; a 403 emits `auth:forbidden`. These events are consumed by `AuthContext`; the interceptor does not redirect to a login route.
 

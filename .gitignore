@@ -9,6 +9,10 @@ node_modules/
 **/.env
 .env.development
 .env.production
+**/.env.*
+!**/.env.*.example
+!**/.env.example
+.frontend-builds/
 
 # Logs
 logs

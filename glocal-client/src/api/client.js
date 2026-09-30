@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { storageService } from '../utils/storage';
 
-const BASE_URL = 'https://engagement.chula.ac.th/netzero-api';
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,

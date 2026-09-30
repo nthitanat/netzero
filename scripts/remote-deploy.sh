@@ -1,428 +1,101 @@
-#!/bin/bash
-# Remote Deployment Script for NetZero Project
-# This script connects to VPN, SSHs to remote server, and deploys the application
-
-set -e  # Exit on any error
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Load environment variables from project root
+#!/usr/bin/env bash
+# One deployment entry point for NetZero, Glocal, and their shared APIs.
+set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-if [ -f "$PROJECT_ROOT/.env.production" ]; then
-    source "$PROJECT_ROOT/.env.production"
-else
-    echo -e "${RED}❌ Error: .env.production file not found in project root${NC}"
-    exit 1
+source "$SCRIPT_DIR/deploy-targets.sh"
+ACTION=deploy FRONTEND=none BACKEND=skip DRY_RUN=false SKIP_VPN=false CLI=false
+ENV_FILE="$PROJECT_ROOT/.env.production"
+usage() {
+  echo 'Usage: bash scripts/remote-deploy.sh [--frontend netzero|glocal|both|none] [--backend deploy|skip] [--dry-run] [--skip-vpn]'
+  echo '       [--action deploy|start|stop|restart|logs|status] [--env-file PATH]'
+  echo 'With no target/action flags, the interactive menu opens.'
+}
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --frontend|--backend|--action|--env-file)
+      [[ $# -ge 2 ]] || { deployment_error "Missing value for $1"; exit 1; }
+      case "$1" in
+        --frontend) FRONTEND="$2"; CLI=true ;;
+        --backend) BACKEND="$2"; CLI=true ;;
+        --action) ACTION="$2"; CLI=true ;;
+        --env-file) ENV_FILE="$2" ;;
+      esac
+      shift 2 ;;
+    --dry-run) DRY_RUN=true; shift ;;
+    --skip-vpn) SKIP_VPN=true; shift ;;
+    --help|-h) usage; exit 0 ;;
+    *) deployment_error "Unknown option $1"; usage; exit 1 ;;
+  esac
+done
+if [[ "$CLI" == false ]]; then
+  echo '1) Deploy selected frontends and/or backend'
+  echo '2) Backend update only'
+  echo '3) Start APIs'
+  echo '4) Stop APIs'
+  echo '5) Restart APIs'
+  echo '6) View API logs'
+  echo '7) API status'
+  read -r -p 'Choose [1-7]: ' choice
+  case "$choice" in
+    1)
+      echo 'Frontend: 1) NetZero  2) Glocal  3) Both  4) None'
+      read -r -p 'Choose frontend [1-4]: ' choice
+      case "$choice" in 1) FRONTEND=netzero ;; 2) FRONTEND=glocal ;; 3) FRONTEND=both ;; 4) FRONTEND=none ;; *) deployment_error 'Invalid frontend choice'; exit 1 ;; esac
+      read -r -p 'Deploy shared backend (main and chat APIs)? [y/N]: ' choice
+      case "$choice" in y|Y|yes) BACKEND=deploy ;; n|N|no|'') BACKEND=skip ;; *) deployment_error 'Invalid backend choice'; exit 1 ;; esac ;;
+    2) BACKEND=deploy ;;
+    3) ACTION=start ;;
+    4) ACTION=stop ;;
+    5) ACTION=restart ;;
+    6) ACTION=logs ;;
+    7) ACTION=status ;;
+    *) deployment_error 'Invalid action'; exit 1 ;;
+  esac
 fi
-
-if [[ "$NODE_ENV" != "production" || -z "${CHAT_VECTOR_STORE_ID:-}" ]]; then
-    echo -e "${RED}❌ Set NODE_ENV=production and CHAT_VECTOR_STORE_ID in .env.production before deploying${NC}"
-    exit 1
+select_frontends "$FRONTEND" "$BACKEND"
+case "$ACTION" in deploy|start|stop|restart|logs|status) ;; *) deployment_error 'Invalid action'; exit 1 ;; esac
+if [[ "$ACTION" == deploy && "$FRONTEND" == none && "$BACKEND" == skip ]]; then
+  deployment_error 'Select at least one frontend or deploy the backend'; exit 1
 fi
-
-local_sudo() {
-    if [[ -z "${SUDO_PASSWORD:-}" ]]; then
-        echo -e "${RED}❌ Set SUDO_PASSWORD in .env.production for local sudo${NC}" >&2
-        return 1
-    fi
-    printf '%s\n' "$SUDO_PASSWORD" | sudo -k -S -p '' "$@"
-}
-
-echo -e "${BLUE}🚀 Remote Server Management Script${NC}"
-echo ""
-
-# Show menu for action selection
-echo -e "${YELLOW}Select an action:${NC}"
-echo "1) Full Deploy (git pull + client build + API build)"
-echo "2) API Update (git pull + API build, no client build)"
-echo "3) Start containers"
-echo "4) Stop containers"
-echo "5) Restart containers"
-echo "6) View logs"
-echo "7) Container status"
-echo ""
-read -p "Enter your choice [1-7]: " ACTION_CHOICE
-
-case $ACTION_CHOICE in
-    1) ACTION="deploy" ;;
-    2) ACTION="update" ;;
-    3) ACTION="start" ;;
-    4) ACTION="stop" ;;
-    5) ACTION="restart" ;;
-    6) ACTION="logs" ;;
-    7) ACTION="status" ;;
-    *)
-        echo -e "${RED}❌ Invalid choice. Exiting.${NC}"
-        exit 1
-        ;;
-esac
-
-echo ""
-echo -e "${GREEN}✅ Action selected: $ACTION${NC}"
-echo ""
-
-# Step 1: Check VPN connection
-echo -e "${BLUE}📡 Step 1: Checking VPN connection...${NC}"
-
-VPN_CONNECTED=false
-if pgrep -x "openconnect" > /dev/null; then
-    echo -e "${GREEN}✅ VPN is already connected${NC}"
-    VPN_CONNECTED=true
-else
-    echo -e "${YELLOW}⚠️  VPN is not connected. Connecting now...${NC}"
-    
-    # Run VPN connection script
-    if [ -f "$SCRIPT_DIR/connect-vpn.sh" ]; then
-        bash "$SCRIPT_DIR/connect-vpn.sh"
-        VPN_CONNECTED=true
-    else
-        echo -e "${RED}❌ Error: connect-vpn.sh not found${NC}"
-        exit 1
-    fi
+if [[ "$DRY_RUN" == true ]]; then
+  echo "Action: $ACTION; frontend: $FRONTEND; backend: $BACKEND"
+  for target in ${FRONTENDS[@]+"${FRONTENDS[@]}"}; do echo "Build/publish $target-client -> /$target/"; done
+  if [[ "$BACKEND" == deploy ]]; then echo 'Build/start netzero-server and netzero-chat-server'; fi
+  echo 'Dry run: no connection, repository refresh, build, or publication.'
+  exit 0
 fi
-
-# Wait a moment for VPN to stabilize
-sleep 3
-
-# Step 2: Test connection to remote server
-echo ""
-echo -e "${BLUE}🔌 Step 2: Testing connection to remote server...${NC}"
-
-# Test if server is reachable
-if ping -c 1 -W 5 "$REMOTE_HOST" &> /dev/null; then
-    echo -e "${GREEN}✅ Remote server is reachable${NC}"
-else
-    echo -e "${RED}❌ Cannot reach remote server at $REMOTE_HOST${NC}"
-    echo -e "${YELLOW}💡 Make sure VPN is connected and server is online${NC}"
-    exit 1
+[[ -f "$ENV_FILE" ]] || { deployment_error "Missing $ENV_FILE"; exit 1; }
+source "$ENV_FILE"
+if [[ "$ACTION" == deploy ]]; then validate_deploy_config "$FRONTEND" "$BACKEND"; fi
+require_settings REMOTE_HOST REMOTE_USER REMOTE_PASSWORD
+REMOTE_PORT="${REMOTE_PORT:-22}"
+for cmd in sshpass scp ssh tar; do
+  command -v "$cmd" >/dev/null || { deployment_error "Install $cmd before deployment"; exit 1; }
+done
+if [[ "$SKIP_VPN" == false ]] && ! pgrep -x openconnect >/dev/null; then
+  NETZERO_PRODUCTION_ENV_FILE="$ENV_FILE" bash "$SCRIPT_DIR/connect-vpn.sh"
 fi
-
-# Step 3: Ensure sshpass is installed for automated SSH
-echo ""
-echo -e "${BLUE}� Step 3: Checking SSH tools...${NC}"
-
-if ! command -v sshpass &> /dev/null; then
-    echo -e "${YELLOW}📦 Installing sshpass...${NC}"
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        brew install hudochenkov/sshpass/sshpass
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        local_sudo apt-get update && local_sudo apt-get install -y sshpass
-    fi
-fi
-
-echo -e "${GREEN}✅ SSH tools ready${NC}"
-
-# Step 4: Upload .env.production to the remote server
-echo ""
-echo -e "${BLUE}📤 Step 4: Uploading .env.production file to remote server...${NC}"
-
-# Keep local VPN and sudo credentials on the local machine.
-REMOTE_ENV_UPLOAD=$(mktemp)
-trap 'rm -f "$REMOTE_ENV_UPLOAD"' EXIT
-awk '!/^(VPN_HOST|VPN_USERNAME|VPN_PASSWORD|SUDO_PASSWORD|REMOTE_HOST|REMOTE_USER|REMOTE_PORT)=/' \
-    "$PROJECT_ROOT/.env.production" > "$REMOTE_ENV_UPLOAD"
-chmod 600 "$REMOTE_ENV_UPLOAD"
-
-SSHPASS="$REMOTE_PASSWORD" sshpass -e scp -p -P "$REMOTE_PORT" \
-    -o StrictHostKeyChecking=no \
-    -o UserKnownHostsFile=/dev/null \
-    -o PreferredAuthentications=password \
-    -o PubkeyAuthentication=no \
-    "$REMOTE_ENV_UPLOAD" \
-    "$REMOTE_USER@$REMOTE_HOST:/tmp/.env.production.netzero"
-
-echo -e "${GREEN}✅ .env.production file uploaded from project root${NC}"
-
-# Step 5: Execute action on remote server
-echo ""
-echo -e "${BLUE}🚀 Step 5: Executing action on remote server...${NC}"
-
-# Execute the selected action without putting credentials in the SSH command.
-SSHPASS="$REMOTE_PASSWORD" sshpass -e ssh -p "$REMOTE_PORT" \
-    -o StrictHostKeyChecking=no \
-    -o UserKnownHostsFile=/dev/null \
-    -o PreferredAuthentications=password \
-    -o PubkeyAuthentication=no \
-    "$REMOTE_USER@$REMOTE_HOST" "bash -s -- $ACTION" << 'ENDSSH'
-set -e
-
-ACTION=$1
-if [ ! -f /tmp/.env.production.netzero ]; then
-    echo "❌ Production environment upload is missing" >&2
-    exit 1
-fi
-source /tmp/.env.production.netzero
-REMOTE_SUDO_PASS="${REMOTE_SUDO_PASSWORD:-$REMOTE_PASSWORD}"
-if [ -z "$REMOTE_SUDO_PASS" ]; then
-    echo "❌ Set REMOTE_SUDO_PASSWORD or REMOTE_PASSWORD in .env.production" >&2
-    exit 1
-fi
-
-remote_sudo() {
-    printf '%s\n' "$REMOTE_SUDO_PASS" | sudo -k -S -p '' "$@"
-}
-remote_sudo -v
-
-DEPLOY_PATH=/www/netzero-deploy
-
-# Function to deploy (full build)
-deploy_app() {
-    echo "📂 Preparing repository on remote host..."
-
-    # Create only the project deployment directory. Do not chown all of /www:
-    # /www/server/data contains MySQL data files that must remain owned by mysql.
-    remote_sudo mkdir -p /www
-    remote_sudo mkdir -p "$DEPLOY_PATH"
-    remote_sudo chown -R "$USER:$USER" "$DEPLOY_PATH" || true
-
-    if [ ! -d "$DEPLOY_PATH/.git" ]; then
-        echo "Cloning repository into $DEPLOY_PATH..."
-        git clone "https://${GITHUB_TOKEN}@${REPO_URL#https://}" "$DEPLOY_PATH"
-    else
-        echo "Repository exists, pulling latest changes..."
-        cd "$DEPLOY_PATH"
-        git fetch --all --prune
-        git reset --hard origin/main || git pull origin main
-    fi
-
-    echo "📤 Deploying .env.production file to project root..."
-    if [ -f /tmp/.env.production.netzero ]; then
-        # Copy to project root only (single source of truth)
-        cp /tmp/.env.production.netzero "$DEPLOY_PATH/.env.production"
-        rm /tmp/.env.production.netzero
-        chmod 600 "$DEPLOY_PATH/.env.production"
-        rm -f "$DEPLOY_PATH/.env" "$DEPLOY_PATH/netzero-server/.env" "$DEPLOY_PATH/netzero-client/.env"
-        echo "✅ .env.production file deployed to project root"
-    else
-        echo "⚠️  Warning: .env.production file not found in /tmp"
-    fi
-
-    echo "🔧 Setting up environment for production..."
-    cd "$DEPLOY_PATH"
-
-    echo "🏗️ Building React client for production..."
-    cd "$DEPLOY_PATH/netzero-client"
-    # Use npm ci for reproducible installs
-    if [ -f package-lock.json ]; then
-        npm ci
-    else
-        npm install
-    fi
-    
-    # Build with production environment variables
-    echo "Setting production environment variables for React build..."
-    source "$DEPLOY_PATH/.env.production"
-    export REACT_APP_API_BASE_URL REACT_APP_CHAT_API_BASE_URL
-    export REACT_APP_USE_REAL_TREE_API
-    export REACT_APP_STATIC_ASSET_BASE_URL
-    
-    npm run build
-
-    echo "📁 Deploying React build to /www/wwwroot/engagement.chula.ac.th/..."
-    remote_sudo mkdir -p /www/wwwroot/engagement.chula.ac.th
-    remote_sudo rm -rf /www/wwwroot/engagement.chula.ac.th/netzero || true
-    remote_sudo mv "$DEPLOY_PATH/netzero-client/build" /www/wwwroot/engagement.chula.ac.th/netzero
-    remote_sudo chown -R $USER:$USER /www/wwwroot/engagement.chula.ac.th 2>/dev/null || true
-    echo "✅ React app deployed to web server"
-
-    echo "🐳 Building and starting Docker containers (server + chat only)..."
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
-
-    echo "🧹 Cleaning workspace (remote tmp)..."
-    rm -f /tmp/.env.production.netzero
-
-    echo "✅ Deployment complete!"
-
-    echo ""
-    echo "📊 Container status:"
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
-}
-
-# Function to update the APIs without rebuilding the separately served client
-update_app() {
-    echo "📥 Updating application from repository..."
-
-    if [ ! -d "$DEPLOY_PATH/.git" ]; then
-        echo "❌ Repository not found. Please run Full Deploy first."
-        exit 1
-    fi
-
-    echo "Pulling latest changes..."
-    cd "$DEPLOY_PATH"
-    git fetch --all --prune
-    git reset --hard origin/main || git pull origin main
-
-    echo "📤 Updating .env.production file in project root..."
-    if [ -f /tmp/.env.production.netzero ]; then
-        # Copy to project root only (single source of truth)
-        cp /tmp/.env.production.netzero "$DEPLOY_PATH/.env.production"
-        rm /tmp/.env.production.netzero
-        chmod 600 "$DEPLOY_PATH/.env.production"
-        rm -f "$DEPLOY_PATH/.env" "$DEPLOY_PATH/netzero-server/.env" "$DEPLOY_PATH/netzero-client/.env"
-        echo "✅ .env.production file updated in project root"
-    else
-        echo "⚠️  Warning: .env.production file not found in /tmp"
-    fi
-
-    echo "🔧 Setting up environment for production..."
-    echo "🔄 Rebuilding Docker containers (server + chat only)..."
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build netzero-server netzero-chat-server
-
-    echo "✅ Update complete!"
-
-    echo ""
-    echo "📊 Container status:"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
-}
-
-# Function to start containers
-start_containers() {
-    echo "🚀 Starting Docker containers (server + chat only)..."
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml up -d netzero-server netzero-chat-server
-    echo "✅ Containers started!"
-    echo ""
-    echo "📊 Container status:"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
-}
-
-# Function to stop containers
-stop_containers() {
-    echo "🛑 Stopping Docker containers..."
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml down
-    echo "✅ Containers stopped!"
-}
-
-# Function to restart containers
-restart_containers() {
-    echo "🔄 Restarting Docker containers (server + chat only)..."
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml restart netzero-server netzero-chat-server
-    echo "✅ Containers restarted!"
-    echo ""
-    echo "📊 Container status:"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
-}
-
-# Function to view logs
-view_logs() {
-    echo "📋 Viewing container logs (Press Ctrl+C to exit)..."
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml logs -f --tail=100
-}
-
-# Function to show status
-show_status() {
-    echo "📊 Container status:"
-    cd "$DEPLOY_PATH"
-    remote_sudo docker compose --env-file .env.production -f docker-compose.prod.yml ps
-    echo ""
-    echo "💾 Disk usage:"
-    remote_sudo docker system df
-}
-
-# Execute action based on choice
-case $ACTION in
-    deploy)
-        deploy_app
-        ;;
-    update)
-        update_app
-        ;;
-    start)
-        start_containers
-        ;;
-    stop)
-        stop_containers
-        ;;
-    restart)
-        restart_containers
-        ;;
-    logs)
-        view_logs
-        ;;
-    status)
-        show_status
-        ;;
-    *)
-        echo "❌ Unknown action: $ACTION"
-        exit 1
-        ;;
-esac
-
+upload_dir="$(mktemp -d /tmp/netzero-deploy-upload.XXXXXXXX)"
+archive="$upload_dir.tar"
+trap 'rm -rf "$upload_dir"; rm -f "$archive"' EXIT
+chmod 700 "$upload_dir"
+awk '!/^[[:space:]]*(export[[:space:]]+)?(VPN_HOST|VPN_USERNAME|VPN_PASSWORD|SUDO_PASSWORD|REMOTE_HOST|REMOTE_USER|REMOTE_PORT)=/' "$ENV_FILE" > "$upload_dir/.env.production"
+chmod 600 "$upload_dir/.env.production"
+cp "$SCRIPT_DIR/deploy-on-host.sh" "$SCRIPT_DIR/deploy-targets.sh" "$upload_dir/"
+tar -cf "$archive" -C "$upload_dir" .
+chmod 600 "$archive"
+remote_archive="/tmp/$(basename "$archive")"
+ssh_options=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PreferredAuthentications=password -o PubkeyAuthentication=no)
+SSHPASS="$REMOTE_PASSWORD" sshpass -e scp -p -P "$REMOTE_PORT" "${ssh_options[@]}" "$archive" "$REMOTE_USER@$REMOTE_HOST:$remote_archive"
+printf -v remote_command 'bash -s -- %q %q %q %q' "$remote_archive" "$ACTION" "$FRONTEND" "$BACKEND"
+SSHPASS="$REMOTE_PASSWORD" sshpass -e ssh -p "$REMOTE_PORT" "${ssh_options[@]}" "$REMOTE_USER@$REMOTE_HOST" "$remote_command" <<'ENDSSH'
+set -euo pipefail
+umask 077
+archive="$1" action="$2" frontend="$3" backend="$4"
+upload_dir="${archive%.tar}"
+trap 'rm -rf "$upload_dir"; rm -f "$archive"' EXIT
+mkdir -m 700 "$upload_dir"
+tar -xf "$archive" -C "$upload_dir"
+bash "$upload_dir/deploy-on-host.sh" "$action" "$frontend" "$backend" "$upload_dir/.env.production"
 ENDSSH
-
-# Step 6: Post-execution actions based on action type
-echo ""
-
-if [ "$ACTION" == "deploy" ] || [ "$ACTION" == "update" ]; then
-    echo -e "${BLUE}🔍 Step 6: Verifying deployment...${NC}"
-
-    sleep 5
-elif [ "$ACTION" == "logs" ]; then
-    echo -e "${GREEN}✅ Log viewing session ended${NC}"
-    exit 0
-else
-    echo -e "${GREEN}✅ Action '$ACTION' completed successfully!${NC}"
-    exit 0
-fi
-
-sleep 5
-
-# Check if services are responding
-echo -e "${YELLOW}Testing API endpoint...${NC}"
-if curl -f -s "http://$REMOTE_HOST:3001/health" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ API Server is responding${NC}"
-else
-    echo -e "${YELLOW}⚠️  API Server health check failed (may still be starting up)${NC}"
-fi
-
-echo -e "${YELLOW}Testing Chat Server endpoint...${NC}"
-if curl -f -s "http://$REMOTE_HOST:3004/health" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ Chat Server is responding${NC}"
-else
-    echo -e "${YELLOW}⚠️  Chat Server health check failed (may still be starting up)${NC}"
-fi
-
-echo -e "${YELLOW}Testing Web Client...${NC}"
-if curl -f -s "http://$REMOTE_HOST" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ Web Client is responding${NC}"
-else
-    echo -e "${YELLOW}⚠️  Web Client health check failed (may still be starting up)${NC}"
-fi
-
-# Summary
-echo ""
-echo -e "${GREEN}═══════════════════════════════════════════════${NC}"
-if [ "$ACTION" == "deploy" ]; then
-    echo -e "${GREEN}🎉 Deployment Completed Successfully!${NC}"
-else
-    echo -e "${GREEN}🎉 Update Completed Successfully!${NC}"
-fi
-echo -e "${GREEN}═══════════════════════════════════════════════${NC}"
-echo ""
-echo -e "${BLUE}🌐 Access your application at:${NC}"
-echo -e "   Web Client:  ${YELLOW}http://$REMOTE_HOST${NC}"
-echo -e "   API Server:  ${YELLOW}http://$REMOTE_HOST:3001/api/v1${NC}"
-echo -e "   Chat Server: ${YELLOW}http://$REMOTE_HOST:3004/api/v1${NC}"
-echo ""
-echo -e "${BLUE}���� Useful commands:${NC}"
-echo -e "   Full Deploy: ${YELLOW}./remote-deploy.sh${NC} (select option 1)"
-echo -e "   Quick Update:${YELLOW}./remote-deploy.sh${NC} (select option 2)"
-echo -e "   View logs:   ${YELLOW}./remote-deploy.sh${NC} (select option 6)"
-echo -e "   Status:      ${YELLOW}./remote-deploy.sh${NC} (select option 7)"
-echo ""
-echo -e "${BLUE}🔌 To disconnect VPN:${NC}"
-echo -e "   ${YELLOW}sudo kill \$(cat /var/run/openconnect.pid)${NC}"
-echo ""

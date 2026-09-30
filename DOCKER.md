@@ -6,7 +6,7 @@ The two stacks use separate Compose files and separate environment files. The ap
 
 | Environment | Compose file | Configuration file | Services |
 | --- | --- | --- | --- |
-| Development | `docker-compose.dev.yml` | `.env.development` | MySQL, API, chat API, React client |
+| Development | `docker-compose.dev.yml` | `.env.development` | MySQL, API, chat API, selected React clients |
 | Production | `docker-compose.prod.yml` | `.env.production` | API and chat API; the existing host web server serves the React build |
 
 The real environment files are ignored by Git and have local file mode `600`. The `.example` files contain placeholders and can be committed. Copy an example when setting up a new machine, then fill in its credentials. Keep `NODE_ENV=development` in the development file and `NODE_ENV=production` in the production file. The client reads its API URLs and production static asset base from `REACT_APP_*` variables in that environment's file.
@@ -16,12 +16,12 @@ The real environment files are ignored by Git and have local file mode `600`. Th
 ```sh
 cp .env.development.example .env.development # only on a new checkout
 # Edit .env.development with development database credentials and JWT secret.
-docker compose --env-file .env.development -f docker-compose.dev.yml up -d --build
-docker compose --env-file .env.development -f docker-compose.dev.yml logs -f
-docker compose --env-file .env.development -f docker-compose.dev.yml down
+docker compose --env-file .env.development -f docker-compose.dev.yml --profile both up -d --build
+docker compose --env-file .env.development -f docker-compose.dev.yml --profile both logs -f
+docker compose --env-file .env.development -f docker-compose.dev.yml --profile "*" down
 ```
 
-`scripts/start.sh` and `scripts/stop.sh` wrap the start and stop commands. The React client is at `http://localhost:3000`, the API at `http://localhost:3001`, and chat at `http://localhost:3004`. The APIs run `nodemon` with polling; the client runs the React development server with polling. Source code is mounted into all three application containers, and named volumes hold their installed dependencies. Development MySQL 8.0 runs as `netzero-db` inside this stack; both API database hosts must be `netzero-db`, and their user, password, and database name must match. Set a separate `MYSQL_ROOT_PASSWORD` in `.env.development`. MySQL has no host port mapping, so use `docker compose --env-file .env.development -f docker-compose.dev.yml exec netzero-db mysql -u netzeroadmin -p netzero` to inspect it from the container.
+`scripts/start.sh [netzero|glocal|both|none]` defaults to both clients; `scripts/stop.sh` stops all development profiles. Native clients use `scripts/client-command.sh <development|production> <netzero|glocal> <start|build>`. NetZero is at `http://localhost:3000`, Glocal at `http://localhost:3002/glocal/`, the API at `http://localhost:3001`, and chat at `http://localhost:3004`. The APIs run `nodemon` with polling; the client runs the React development server with polling. Source code is mounted into all four application containers, and named volumes hold their installed dependencies. Development MySQL 8.0 runs as `netzero-db` inside this stack; both API database hosts must be `netzero-db`, and their user, password, and database name must match. Set a separate `MYSQL_ROOT_PASSWORD` in `.env.development`. MySQL has no host port mapping, so use `docker compose --env-file .env.development -f docker-compose.dev.yml exec netzero-db mysql -u netzeroadmin -p netzero` to inspect it from the container.
 
 The `netzero-dev-mysql-data` named volume stores MySQL data. On its first creation, MySQL runs `scripts/init-dev-database.sh`, which applies every file in `netzero-server/sql/seed/create/`, then every file in `netzero-server/sql/seed/insert/`, then `dev/insert/01-users.sql`. The last file creates active example admin, user, and community head accounts; their email addresses and shared example password are in [the seed README](netzero-server/sql/seed/README.md). Restarting or rebuilding with the same volume keeps existing data and does not replay seed files. To add the example accounts to an existing development volume without resetting it, run:
 
@@ -39,12 +39,12 @@ If a dependency changes, rebuild the corresponding image and recreate that servi
 
 ```sh
 cp .env.production.example .env.production # only on a new host
-# Fill in every credential and CHAT_VECTOR_STORE_ID before starting.
+# Fill in backend credentials and CHAT_VECTOR_STORE_ID before starting the APIs.
 docker compose --env-file .env.production -f docker-compose.prod.yml config --quiet
 docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 ```
 
-Production images install only API runtime dependencies and do not mount source code. The API upload directory remains a bind mount. The production Compose project keeps the existing `netzero-deploy` project name so it can recreate its current API containers. `scripts/remote-deploy.sh` uploads `.env.production`, builds the React client using its `REACT_APP_*` values, installs that build in the existing host web root, and runs the production Compose stack for the APIs.
+Production images install only API runtime dependencies and do not mount source code. The API upload directory remains a bind mount. The production Compose project keeps the existing `netzero-deploy` project name so it can recreate its current API containers. `scripts/remote-deploy.sh` uploads `.env.production`, builds the selected NetZero/Glocal clients using the shared root public values, installs that build in the existing host web root, and runs the production Compose stack for the APIs.
 
 The production environment file also contains remote deployment and VPN credentials for the deployment scripts. Compose passes only explicitly listed application variables to the containers, so those deployment credentials are not injected into the APIs. React's `REACT_APP_*` values are embedded in its public build; never place secrets in them.
 

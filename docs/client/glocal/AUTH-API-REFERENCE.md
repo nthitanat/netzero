@@ -1,3 +1,5 @@
+> Migration note (2026-09-30): Glocal is now `glocal-client` in NetZero. Root environment files own public configuration; active deployment instructions are in [the shared guide](../../DOCKER-AND-DEPLOYMENT-GUIDE.md). Current auth endpoints use `/api/v1/auth/*`; the examples use the same v1 routes.
+
 # NetZero Auth API Reference
 
 > **Base URL (Production):** `https://engagement.chula.ac.th/netzero-api`  
@@ -10,15 +12,15 @@
 
 | Method | Path | Description | Auth Required |
 |--------|------|-------------|---------------|
-| `POST` | `/api/auth/register` | Create a new user account | No |
-| `POST` | `/api/auth/login` | Authenticate and get JWT token | No |
-| `GET` | `/api/auth/verify` | Verify token and get current user | Yes (Bearer) |
-| `POST` | `/api/auth/refresh` | Refresh an existing JWT token | Yes (Bearer) |
-| `POST` | `/api/auth/logout` | Invalidate session (client-side token removal) | Yes (Bearer) |
+| `POST` | `/api/v1/auth/register` | Create a new user account | No |
+| `POST` | `/api/v1/auth/login` | Authenticate and get JWT token | No |
+| `GET` | `/api/v1/auth/verify` | Verify token and get current user | Yes (Bearer) |
+| `POST` | `/api/v1/auth/refresh` | Refresh an existing JWT token | Yes (Bearer) |
+| `POST` | `/api/v1/auth/logout` | Invalidate session (client-side token removal) | Yes (Bearer) |
 
 ---
 
-## POST `/api/auth/register`
+## POST `/api/v1/auth/register`
 
 Registers a new user account and returns a JWT token on success.
 
@@ -38,7 +40,7 @@ Registers a new user account and returns a JWT token on success.
 ### Example Request
 
 ```http
-POST https://engagement.chula.ac.th/netzero-api/api/auth/register
+POST https://engagement.chula.ac.th/netzero-api/api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -91,7 +93,7 @@ Content-Type: application/json
 
 ---
 
-## POST `/api/auth/login`
+## POST `/api/v1/auth/login`
 
 Authenticates an existing user and returns a JWT token.
 
@@ -107,7 +109,7 @@ Authenticates an existing user and returns a JWT token.
 ### Example Request
 
 ```http
-POST https://engagement.chula.ac.th/netzero-api/api/auth/login
+POST https://engagement.chula.ac.th/netzero-api/api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -154,7 +156,7 @@ Content-Type: application/json
 
 ---
 
-## GET `/api/auth/verify`
+## GET `/api/v1/auth/verify`
 
 Verifies the current JWT token and returns the authenticated user's data.
 
@@ -219,18 +221,18 @@ Store the token returned by `/register` or `/login` and send it in the `Authoriz
 Authorization: Bearer <JWT>
 ```
 
-Token lifetime is **24 hours** in production. After expiry, the user must log in again or call `/api/auth/refresh`.
+Token lifetime is **24 hours** in production. After expiry, the user must log in again or call `/api/v1/auth/refresh`.
 
 ---
 
 ## Common Integration Pattern (fetch)
 
 ```javascript
-const BASE_URL = 'https://engagement.chula.ac.th/netzero-api';
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 // Register
 async function register(payload) {
-  const res = await fetch(`${BASE_URL}/api/auth/register`, {
+  const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -240,7 +242,7 @@ async function register(payload) {
 
 // Login
 async function login(email, password) {
-  const res = await fetch(`${BASE_URL}/api/auth/login`, {
+  const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -250,7 +252,7 @@ async function login(email, password) {
 
 // Authenticated request example
 async function getVerifiedUser(token) {
-  const res = await fetch(`${BASE_URL}/api/auth/verify`, {
+  const res = await fetch(`${BASE_URL}/api/v1/auth/verify`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.json();

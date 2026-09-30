@@ -13,9 +13,23 @@ if ! grep -qx 'NODE_ENV=development' .env.development; then
   exit 1
 fi
 
-docker compose --env-file .env.development -f docker-compose.dev.yml up -d --build
-docker compose --env-file .env.development -f docker-compose.dev.yml ps
+frontend="${1:-both}"
+case "$frontend" in
+  netzero|glocal|both) profiles=(--profile "$frontend") ;;
+  none) profiles=() ;;
+  *) echo 'Usage: bash scripts/start.sh [netzero|glocal|both|none]' >&2; exit 1 ;;
+esac
+docker compose --env-file .env.development -f docker-compose.dev.yml ${profiles[@]+"${profiles[@]}"} up -d --build
+docker compose --env-file .env.development -f docker-compose.dev.yml ${profiles[@]+"${profiles[@]}"} ps
 
-echo 'Client: http://localhost:3000'
-echo 'API: http://localhost:3001/api/v1'
-echo 'Chat API: http://localhost:3004/api/v1'
+set -a
+source .env.development
+set +a
+if [[ "$frontend" == netzero || "$frontend" == both ]]; then
+  echo "NetZero: http://localhost:${CLIENT_PORT:-3000}"
+fi
+if [[ "$frontend" == glocal || "$frontend" == both ]]; then
+  echo "Glocal: http://localhost:${GLOCAL_CLIENT_PORT:-3002}/glocal/"
+fi
+echo "API: http://localhost:${PORT:-3001}${API_PREFIX:-/api}/${API_VERSION:-v1}"
+echo "Chat API: http://localhost:${CHAT_PORT:-3004}${API_PREFIX:-/api}/${API_VERSION:-v1}"
