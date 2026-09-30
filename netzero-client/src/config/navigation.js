@@ -1,6 +1,7 @@
 export const navItems = [
     { path: "/", icon: "home", label: "showroom" },
     { path: "/events", icon: "event", label: "Events" },
+    { path: "/courses", icon: "school", label: "Courses" },
     { path: "/market", icon: "store", label: "Market" },
     { path: "/willing", icon: "volunteer_activism", label: "Willing" },
     { path: "/barther-trade", icon: "swap_horiz", label: "Barther Trade" },

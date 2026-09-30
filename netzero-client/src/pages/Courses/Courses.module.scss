@@ -1,0 +1,59 @@
+.page {
+  min-height: 100vh;
+  padding: 120px 24px 64px;
+  background: linear-gradient(155deg, #f2faf5, #f7f8f2 60%, #e9f2ea);
+  color: #183f32;
+}
+
+.content {
+  max-width: 760px;
+  margin: 5vh auto 0;
+  padding: clamp(32px, 6vw, 64px);
+  border: 1px solid #d4e4d8;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(19, 64, 47, 0.09);
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #e8f4ec;
+  color: #27614a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.content {
+  h1 {
+    margin: 20px 0 12px;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+  }
+
+  p {
+    max-width: 58ch;
+    margin: 0 0 28px;
+    line-height: 1.7;
+    font-size: 1.1rem;
+  }
+}
+
+.catalogLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  background: #176c4b;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: #0f5439;
+    transform: translateY(-2px);
+  }
+}

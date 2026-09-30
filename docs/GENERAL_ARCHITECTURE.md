@@ -1,7 +1,7 @@
 # NetZero General Architecture
 
 **Status:** Target architecture and migration guide. It is not a claim that every current endpoint already follows these rules.
-**Last reviewed:** September 29, 2026 (bounded skill-adoption review; not a full implementation audit)
+**Last reviewed:** September 30, 2026 (guide ownership updated; not a full implementation audit)
 **Scope:** `netzero-server` and the equivalent backend boundaries in `netzero-chat-server`. The React client has its own component architecture; its API contract is part of this guide.
 
 ## 1. Purpose and system map
@@ -52,7 +52,7 @@ An external API client or file-storage adapter is another dependency of a **serv
 
 ### Maintaining this guide
 
-This guide owns NetZero-specific boundaries, contracts, naming, and migration decisions. Shared defaults are maintained in the adopted `general-architecture` package; project instructions in `AGENTS.md` own routing, revision resolution, records, and rule-promotion authorization. The existing `docs/DOCKER-AND-DEPLOYMENT-GUIDE.md` owns Compose, deployment, backup, and operator procedures. Rewrite superseded guidance in place and keep rationale/history in the project records. Follow `AGENTS.md` for documentation locations.
+This guide owns shared NetZero architecture boundaries, contracts, naming, and migration decisions. [Glocal client architecture](client/glocal/client-react-architecture.md) owns its UI conventions, and the [server deployment guide](server/DOCKER-AND-DEPLOYMENT-GUIDE.md) owns Compose, deployment, backup, and operator procedures. Project instructions in `AGENTS.md` own task routing, records, and rule-promotion authorization. Keep client records under `docs/client/` and server records under `docs/server/`; use one primary owner with links from both sides for cross-stack work. Rewrite superseded guidance in place and keep rationale/history in the project records.
 
 ## 2. Responsibilities and allowed dependencies
 
@@ -287,7 +287,7 @@ The main server currently has an empty `src/utils/` directory. In the chat serve
 
 Use versioned, reviewable SQL migrations for live schema changes until the canonical seed, reset, and synchronization workflow is implemented and verified. Keep table creation out of application startup, align model mappings with the deployed schema, and retain unapplied migrations until their rollout is complete.
 
-Maintain the shared database's canonical seed in a dedicated SQL location with one `CREATE TABLE` file and one matching `INSERT` file for each table. Use a comment-only INSERT file when that table has no approved operator-managed preset rows. Name and order CREATE files so foreign-key parents precede dependents, and run every CREATE file before any INSERT file. Derive the seed from the effective schema and approved presets while preserving historical SQL files. Update the owning table's CREATE file for schema changes and its INSERT file for preset changes. Do not accumulate separate `ALTER` or `UPDATE` files as permanent definitions. Keep development sample users, products, and their image metadata in separate development fixture INSERT files, outside production presets. Static seed edits do not change a live database; use the reviewed live transition path. See `docs/implementation-plans/database-seeding-plan.md` and `docs/architecture-logs/CURRENT.md` for the workflow design and implementation status.
+Maintain the shared database's canonical seed in a dedicated SQL location with one `CREATE TABLE` file and one matching `INSERT` file for each table. Use a comment-only INSERT file when that table has no approved operator-managed preset rows. Name and order CREATE files so foreign-key parents precede dependents, and run every CREATE file before any INSERT file. Derive the seed from the effective schema and approved presets while preserving historical SQL files. Update the owning table's CREATE file for schema changes and its INSERT file for preset changes. Do not accumulate separate `ALTER` or `UPDATE` files as permanent definitions. Keep development sample users, products, and their image metadata in separate development fixture INSERT files, outside production presets. Static seed edits do not change a live database; use the reviewed live transition path. See the [database seeding plan](server/implementation-plans/database-seeding-plan.md) and [server architecture status](server/architecture-logs/CURRENT.md) for the workflow design and implementation status.
 
 Initialize the development MySQL database from the canonical seed only when its database storage is new and empty. Existing data persists across restarts. The deployment guide owns the Docker volume layout and reset procedure.
 

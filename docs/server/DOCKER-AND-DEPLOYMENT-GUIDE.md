@@ -1,6 +1,6 @@
 # Docker and deployment guide
 
-This guide owns Docker, shared frontend configuration, deployment selection, publication, and operator checks. [The general architecture guide](GENERAL_ARCHITECTURE.md) owns backend contracts and database boundaries. Commands run from the repository root.
+This guide owns Docker, shared frontend configuration, deployment selection, publication, and operator checks. [The general architecture guide](../GENERAL_ARCHITECTURE.md) owns backend contracts and database boundaries. Commands run from the repository root.
 
 ## Environment layout
 
@@ -46,7 +46,7 @@ bash scripts/client-command.sh development netzero start
 
 Glocal's existing CRA lockfile resolves TypeScript 6, which conflicts with CRA's optional TypeScript peer constraint. A clean install without legacy peer resolution failed. `glocal-client/.npmrc` retains `legacy-peer-deps=true`, including inside its development Docker image; `npm ci` remains reproducible without modifying the imported lockfile. NetZero keeps its existing install mode.
 
-The development database persists in `netzero-dev-mysql-data`; first creation applies canonical CREATE/INSERT files and the development users fixture. Rebuild/restart does not replay seeds. [The seed README](../netzero-server/sql/seed/README.md) owns fixture details. `scripts/reset-dev-database.sh` discards only that development database after its exact-name prompt; avoid `down -v`, which also deletes dependency volumes. Production database and uploaded-image procedures are unchanged.
+The development database persists in `netzero-dev-mysql-data`; first creation applies canonical CREATE/INSERT files and the development users fixture. Rebuild/restart does not replay seeds. [The seed README](../../netzero-server/sql/seed/README.md) owns fixture details. `scripts/reset-dev-database.sh` discards only that development database after its exact-name prompt; avoid `down -v`, which also deletes dependency volumes. Production database and uploaded-image procedures are unchanged.
 
 ## Production preparation
 
@@ -91,14 +91,14 @@ The upload excludes local VPN and local sudo keys; remote sudo and repository/ap
 
 ## On-premises backups
 
-Before a production image or schema cutover, configure `NETZERO_BACKUP_DIR` in `.env.production` to an existing mounted disk or NAS on a separate filesystem from `netzero-server/files`. [`scripts/backup-onprem.sh`](../scripts/backup-onprem.sh) refuses a same-filesystem destination by default. On the on-premises host, provide `mysqldump`, `mysql`, `tar`, `openssl`, and Docker; `NETZERO_BACKUP_DB_HOST` and `NETZERO_BACKUP_DB_PORT` can override the host-side connection target.
+Before a production image or schema cutover, configure `NETZERO_BACKUP_DIR` in `.env.production` to an existing mounted disk or NAS on a separate filesystem from `netzero-server/files`. [`scripts/backup-onprem.sh`](../../scripts/backup-onprem.sh) refuses a same-filesystem destination by default. On the on-premises host, provide `mysqldump`, `mysql`, `tar`, `openssl`, and Docker; `NETZERO_BACKUP_DB_HOST` and `NETZERO_BACKUP_DB_PORT` can override the host-side connection target.
 
 ```sh
 bash scripts/backup-onprem.sh backup
 bash scripts/backup-onprem.sh verify
 ```
 
-A completed backup contains `database.sql`, `files.tar.gz`, and `SHA256SUMS`. Verification checks the archive and checksum, extracts files, and restores the SQL into a disposable MySQL container. It does not write to the live database or image directory. [`scripts/install-backup-cron.sh`](../scripts/install-backup-cron.sh) first runs one backup and restore check, then installs a daily 02:00 backup and monthly 04:00 restore check in the current user's crontab. Review `netzero-backup.log` and available disk space; the scripts do not prune old backups.
+A completed backup contains `database.sql`, `files.tar.gz`, and `SHA256SUMS`. Verification checks the archive and checksum, extracts files, and restores the SQL into a disposable MySQL container. It does not write to the live database or image directory. [`scripts/install-backup-cron.sh`](../../scripts/install-backup-cron.sh) first runs one backup and restore check, then installs a daily 02:00 backup and monthly 04:00 restore check in the current user's crontab. Review `netzero-backup.log` and available disk space; the scripts do not prune old backups.
 
 The architecture handoff still records the production backup destination and some production migration steps as pending. A script existing in the repository does not establish that a backup has been configured or verified on the server.
 
@@ -111,4 +111,4 @@ The architecture handoff still records the production backup destination and som
 - If a development dependency change is absent after rebuilding, inspect the service's persistent `node_modules` volume. Rebuilding an image does not replace an existing named dependency volume.
 - For database reset, seed replay, and live schema migration status, use the [database seeding plan](implementation-plans/database-seeding-plan.md) and [architecture handoff](architecture-logs/CURRENT.md).
 
-Check both Compose files, the environment examples, and the scripts in `scripts/` when updating this guide. [`DOCKER.md`](../DOCKER.md) is the short command reference; update it too when its commands change.
+Check both Compose files, the environment examples, and the scripts in `scripts/` when updating this guide. This guide is the active operator reference.

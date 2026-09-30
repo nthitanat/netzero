@@ -58,6 +58,8 @@ export default function GoogleIcon({ iconType = "eco", size = "medium", classNam
             // Events & Calendar
             case "event":
                 return <span className={baseClass}>event</span>;
+            case "school":
+                return <span className={baseClass}>school</span>;
             case "calendar_today":
                 return <span className={baseClass}>calendar_today</span>;
             case "schedule":

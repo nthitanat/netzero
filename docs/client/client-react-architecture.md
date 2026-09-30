@@ -4,7 +4,7 @@ Last reviewed: 2026-09-30
 
 Scope: `glocal-client/src`, client configuration, and related client documentation.
 
-This is the main guideline for the [client inconsistency index](INCONSISTENCY_INDEX.md). It describes the current Glocal platform React client and defines the constraints for new code and consistency fixes. The [SCSS architecture](scss-architecture.md) and [organic theme](organic-theme.md) guides support this document. The shared backend guide is [../../GENERAL_ARCHITECTURE.md](../../GENERAL_ARCHITECTURE.md); this client retains its existing UI boundaries. Deployment and root environment ownership follow [../../DOCKER-AND-DEPLOYMENT-GUIDE.md](../../DOCKER-AND-DEPLOYMENT-GUIDE.md).
+This is the main guideline for the [client inconsistency index](INCONSISTENCY_INDEX.md). It describes the current Glocal platform React client and defines the constraints for new code and consistency fixes. The [SCSS architecture](scss-architecture.md) and [organic theme](organic-theme.md) guides support this document. The shared backend guide is [GENERAL_ARCHITECTURE.md](../../GENERAL_ARCHITECTURE.md); this client retains its existing UI boundaries. Deployment and root environment ownership follow the [server deployment guide](../../server/DOCKER-AND-DEPLOYMENT-GUIDE.md).
 
 **Required** means new or changed behavior must satisfy the rule. **Optional** means use it only when the responsibility warrants it. **Current** describes verified implementation, including defects; it does not make those defects acceptable patterns. Existing violations remain tracked in the index until implementation and verification are complete. A documentation update does not make the client compliant.
 

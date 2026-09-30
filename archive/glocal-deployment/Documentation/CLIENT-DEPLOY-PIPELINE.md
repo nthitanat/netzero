@@ -1,4 +1,4 @@
-> RETIRED: historical reference only. Use `scripts/remote-deploy.sh` in NetZero and `docs/DOCKER-AND-DEPLOYMENT-GUIDE.md`.
+> RETIRED: historical reference only. Use `scripts/remote-deploy.sh` in NetZero and `docs/server/DOCKER-AND-DEPLOYMENT-GUIDE.md`.
 
 # Client-Side Deploy Pipeline
 

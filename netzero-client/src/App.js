@@ -11,6 +11,7 @@ import Registration from './pages/Registration/Registration';
 import SellerDashboard from './pages/SellerDashboard/SellerDashboard';
 import EventDashboard from './pages/EventDashboard/EventDashboard';
 import MyOrders from './pages/MyOrders/MyOrders';
+import Courses from './pages/Courses/Courses';
 import './styles/main.scss';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/seller-dashboard" element={<SellerDashboard />} />
             <Route path="/event-dashboard" element={<EventDashboard />} />
             <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/courses" element={<Courses />} />
           </Routes>
         </div>
       </Router>
