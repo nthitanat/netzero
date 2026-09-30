@@ -132,4 +132,3 @@ class DeploymentTests(unittest.TestCase):
   self.assertEqual(result.returncode,0,result.stderr); self.assertIn('frontend: glocal; backend: skip',result.stdout)
 
 if __name__=='__main__': unittest.main()
-

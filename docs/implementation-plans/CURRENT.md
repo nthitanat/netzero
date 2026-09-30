@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-30 Asia/Bangkok
 
-- [Glocal monorepo migration](2026-09-30-glocal-monorepo-migration.md): implemented and locally tested; fresh-checkout check in progress, production rollout pending.
+- [Glocal monorepo migration](2026-09-30-glocal-monorepo-migration.md): local migration and fresh-checkout verification complete; production rollout pending.
 
 - [General architecture fixed documentation layout](2026-09-29-general-architecture-fixed-doc-layout.md): complete; shared release installed in both homes, with existing NetZero pin retained.
 

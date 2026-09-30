@@ -1,7 +1,7 @@
 # Glocal monorepo migration
 
 Date: 2026-09-30 Asia/Bangkok
-Status: Implementation complete; fresh-checkout verification in progress. Production rollout pending.
+Status: Local migration and verification complete. Production rollout pending.
 
 ## Changes
 
@@ -12,6 +12,8 @@ Status: Implementation complete; fresh-checkout verification in progress. Produc
 - Ignored local deploy files were explicitly captured as inert scripts/placeholders in `archive/glocal-deployment`. Old local checkout entry points are retired and its README points to NetZero. Its Git history, private configuration, and local guide edits remain available. Active guides moved and links/configuration reconciled.
 
 ## Verification
+
+- A fresh committed NetZero checkout retained the complete Glocal history, installed both clients from their independent lockfiles, and built both production frontends successfully. The 14 deployment regressions, Compose validation, and local HTTP/CORS checks also passed from that fresh checkout.
 
 - 14 disposable-host regression tests passed, including all seven valid frontend/backend combinations, invalid no-op, omitted backend credentials, second build/swap failures, failed/wrong-content URLs, retained backups, preserved uploaded files, lock contention, menu, and API management isolation. These exercise real Git checkouts and publication directories with simulated npm/Docker/network commands.
 - Both production frontend builds passed with existing warnings. Glocal's clean install without legacy peer resolution failed because its TypeScript 6 lock entry conflicts with CRA's optional peer requirement; `.npmrc` retains the prior compatibility mode. Clean install in that mode and the Glocal Docker image build passed.

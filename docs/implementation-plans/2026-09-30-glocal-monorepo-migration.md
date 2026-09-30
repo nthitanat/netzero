@@ -1,13 +1,15 @@
 # Glocal into NetZero migration
 
 Date: 2026-09-30 Asia/Bangkok
-Status: Implementation complete; fresh-checkout verification in progress. Production rollout pending.
+Status: Local migration and verification complete. Production rollout pending.
 
 ## Authorized scope
 
 Implement the supplied migration: preserve Glocal history and both dirty checkouts, import its React frontend as `glocal-client`, share NetZero root configuration and APIs, add development selection, unify deployment selection, and retire old Glocal deployment tooling. Catalog JSON and client UI architecture retain their owners. Live deployment and retiring the GitHub repository follow verified rollout.
 
 ## Steps
+
+All five implementation/verification steps completed. Tested results are in [the migration record](../architecture-logs/code-changes/2026-09-30-glocal-monorepo-migration.md).
 
 1. Preserve current changes and import local KnowledgeHub main history without squashing in an isolated checkout; move source and reconcile local documentation edits.
 2. Make both public frontend builds consume root environment inputs; add Glocal development port, mounts, dependency volume, and CORS origin.

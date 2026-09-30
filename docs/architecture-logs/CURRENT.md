@@ -2,7 +2,7 @@
 
 **Updated:** 2026-09-30 Asia/Bangkok
 
-- Glocal monorepo migration: implemented and locally tested; fresh-checkout check in progress, production rollout pending. [Result](code-changes/2026-09-30-glocal-monorepo-migration.md).
+- Glocal monorepo migration: local migration and fresh-checkout verification complete; production rollout pending. [Result](code-changes/2026-09-30-glocal-monorepo-migration.md).
 
 - Shared general-architecture fixed docs layout: standalone directory standard installed and both defaults verified; each consuming project owns its documents. NetZero retains its prior pin. [Result](code-changes/2026-09-29-general-architecture-fixed-doc-layout.md), [rule update](rule-updates/2026-09-29-general-architecture-fixed-doc-layout.md).
 
