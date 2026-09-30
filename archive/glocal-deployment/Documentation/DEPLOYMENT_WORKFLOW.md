@@ -1,3 +1,5 @@
+> RETIRED: historical reference only. Use `scripts/remote-deploy.sh` in NetZero and `docs/DOCKER-AND-DEPLOYMENT-GUIDE.md`.
+
 # Docker & Deploy Script Workflow Guide
 
 A reference guide for deploying Dockerized applications to a remote server using shell-based automation. Covers the patterns, SSH optimization, and GitHub authentication strategies used in our deploy scripts — applicable to both multi-service monorepos and single-container projects.
@@ -299,7 +301,7 @@ VPN_HOST="vpn.example.com"
 VPN_USERNAME="<vpn-user>"
 VPN_PASSWORD="<vpn-pass>"
 VPN_PROTOCOL="openconnect"       # or "openvpn"
-SUDO_PASSWORD="<macos-password>" # for running VPN with sudo
+SUDO_PASSWORD="REDACTED" # for running VPN with sudo
 
 # ── GitHub ──
 GITHUB_TOKEN="github_pat_..."    # Personal Access Token

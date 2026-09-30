@@ -1,3 +1,5 @@
+> RETIRED: historical reference only. Use `scripts/remote-deploy.sh` in NetZero and `docs/DOCKER-AND-DEPLOYMENT-GUIDE.md`.
+
 # Client-Side Deploy Pipeline
 
 > **Security note:** This document contains live credentials. Keep it out of version control (add to `.gitignore`) or store credentials in a separate secrets file.
@@ -29,17 +31,17 @@ Local machine
 | Variable | Value | Purpose |
 |---|---|---|
 | `VPN_HOST` | `vpn.chula.ac.th` | Chula VPN gateway |
-| `VPN_USERNAME` | `njaitip` | VPN login username |
-| `VPN_PASSWORD` | `Charlie04!` | VPN login password |
-| `SUDO_PASSWORD` | `oontoon24` | Local macOS sudo (needed by openconnect) |
+| `VPN_USERNAME` | `REDACTED` | VPN login username |
+| `VPN_PASSWORD` | `REDACTED` | VPN login password |
+| `SUDO_PASSWORD` | `REDACTED` | Local macOS sudo (needed by openconnect) |
 
 ### Remote Server SSH
 
 | Variable | Value | Purpose |
 |---|---|---|
 | `REMOTE_HOST` | `161.200.199.67` | Remote server IP (only reachable via VPN) |
-| `REMOTE_USER` | `adminroot` | SSH login user |
-| `REMOTE_PASSWORD` | `tZ#A,2]@KdGJ` | SSH / sudo password on remote |
+| `REMOTE_USER` | `REDACTED` | SSH login user |
+| `REMOTE_PASSWORD` | `REDACTED` | SSH / sudo password on remote |
 | `REMOTE_PORT` | `22` | SSH port |
 
 ### GitHub
@@ -47,7 +49,7 @@ Local machine
 | Variable | Value | Purpose |
 |---|---|---|
 | `REPO_URL` | `https://github.com/nthitanat/netzero.git` | Repository to clone/pull |
-| `GITHUB_TOKEN` | `github_pat_11AOMLYQQ0…` | PAT embedded in clone URL to bypass auth |
+| `GITHUB_TOKEN` | `REDACTED` | PAT embedded in clone URL to bypass auth |
 
 ### React Production Build Variables
 
@@ -197,8 +199,8 @@ To adapt this pipeline for a different project on the same host (`161.200.199.67
 ```
 # Remote is the same
 REMOTE_HOST=161.200.199.67
-REMOTE_USER=adminroot
-REMOTE_PASSWORD="tZ#A,2]@KdGJ"
+REMOTE_USER=REDACTED
+REMOTE_PASSWORD="REDACTED"
 REMOTE_PORT=22
 
 # Change these per project

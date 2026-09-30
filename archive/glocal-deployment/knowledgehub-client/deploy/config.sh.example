@@ -1,0 +1,17 @@
+# RETIRED configuration schema; placeholders only. Do not source for deployment.
+SERVER_HOST=replace-me
+SERVER_USER=replace-me
+SERVER_PASSWORD=replace-me
+SERVER_PORT=replace-me
+SERVER_DEPLOY_PATH=replace-me
+SERVER_WWW_PATH=replace-me
+VPN_SKIP=replace-me
+VPN_HOST=replace-me
+VPN_USERNAME=replace-me
+VPN_PASSWORD=replace-me
+VPN_PROTOCOL=replace-me
+SUDO_PASSWORD=replace-me
+GITHUB_TOKEN=replace-me
+GITHUB_REPO=replace-me
+GITHUB_BRANCH=replace-me
+CLIENT_SUBDIR=replace-me

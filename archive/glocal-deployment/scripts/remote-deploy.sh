@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# RETIRED: preserved for history only; use NetZero scripts/remote-deploy.sh.
+printf "%s\n" "Retired Glocal deployment script. Use NetZero scripts/remote-deploy.sh." >&2
+exit 1
+
 # scripts/remote-deploy.sh
 # Client-only deploy pipeline for knowledgehub-client.
 # No Docker/server steps — only builds and publishes the React app.

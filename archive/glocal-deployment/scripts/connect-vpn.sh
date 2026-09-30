@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# RETIRED: preserved for history only; use NetZero scripts/remote-deploy.sh.
+printf "%s\n" "Retired Glocal deployment script. Use NetZero scripts/remote-deploy.sh." >&2
+exit 1
+
 # scripts/connect-vpn.sh
 # Connect to Chula VPN using openconnect (fully scriptable).
 # Reads VPN_HOST, VPN_USERNAME, VPN_PASSWORD, SUDO_PASSWORD from .env
