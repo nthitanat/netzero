@@ -4,7 +4,9 @@ import styles from './CurriculumAccordion.module.scss';
 
 const CurriculumAccordion = ({ curriculum, enrolled = false }) => {
   const { language } = useLanguage();
-  const [expandedSections, setExpandedSections] = useState([]);
+  const [expandedSections, setExpandedSections] = useState(() =>
+    curriculum?.length ? [curriculum[0].sectionId] : []
+  );
 
   const t = (content) => {
     if (typeof content === 'object' && content !== null) {

@@ -11,6 +11,17 @@ $page-palette: $palette-cu-pink;
   padding-top: $spacing-xl;
 }
 
+.Branding {
+  margin-bottom: $spacing-lg;
+}
+
+.BrandLogo {
+  display: block;
+  width: min(360px, 100%);
+  height: auto;
+  margin-inline: auto;
+}
+
 // ─── Catalog Section ──────────────────────────────────────────────
 .CatalogSection {
   max-width: 1400px;
@@ -431,4 +442,3 @@ $page-palette: $palette-cu-pink;
     transform: translateY(-1px);
   }
 }
-

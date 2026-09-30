@@ -227,11 +227,13 @@ const CommunityDetailView = ({ slug }) => {
                         {products.map((product) => (
                           <ItemCard
                             key={product.id}
-                            to={`/showroom/${product.slug}`}
-                            image={product.image}
+                            to={`/showroom/${product.id}`}
+                            image={product.images?.[0]}
                             imageAlt={t(product.name)}
                             title={t(product.name)}
-                            subtitle={`${product.price} THB`}
+                            subtitle={product.price?.amount != null
+                              ? `${product.price.amount.toLocaleString()} ${product.price.currency || 'THB'}`
+                              : t(product.price?.note)}
                           />
                         ))}
                       </div>

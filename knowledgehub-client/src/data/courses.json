@@ -12,7 +12,7 @@
       "en": "A learning unit to build understanding of supply chain systems and efficient logistics management for creating positive social impact."
     },
     "video": {
-      "url": "https://www.youtube.com/watch?v=TTDop4Fzrf8",
+      "url": "https://youtu.be/Y0N3P0KxNyQ",
       "duration": "57 min"
     },
     "level": "beginner",
@@ -307,5 +307,69 @@
     "featured": false,
     "rating": 5,
     "studentsEnrolled": 0
+  },
+  {
+    "id": "chulaxl-CXLHUB00003",
+    "communityId": null,
+    "sourceUrl": "https://chulaxlhub.com/courses/CXLHUB00003",
+    "title": {
+      "th": "Thai on Campus",
+      "en": "Thai on Campus"
+    },
+    "description": {
+      "th": "ฝึกภาษาไทยที่ใช้จริงในชีวิตประจำวันในมหาวิทยาลัย ตั้งแต่การทักทายและพูดคุยกับเพื่อน ไปจนถึงการสั่งอาหาร การใช้โรงอาหาร การเดินทางในจุฬาฯ และเรื่องเครื่องแบบนิสิต เพื่อให้สื่อสารในรั้วมหาวิทยาลัยได้มั่นใจขึ้น",
+      "en": "Practical Thai for everyday campus life: greet and chat with classmates, order food, use campus cafeterias, find your way around Chula, and talk about student uniforms. Build confidence in common conversations on campus."
+    },
+    "fullDescription": {
+      "th": "หลักสูตรภาษาไทยสำหรับนิสิตและผู้มาเยือนจากต่างประเทศที่ใช้ชีวิตในมหาวิทยาลัย เน้นคำศัพท์และบทสนทนาที่พบได้จริงในชีวิตประจำวัน เช่น การทักทาย การสั่งอาหาร และการพูดคุยในบริบทของจุฬาลงกรณ์มหาวิทยาลัย",
+      "en": "A Thai language course for international students and visitors on campus. It focuses on vocabulary and conversations used in daily life, including greetings, ordering food, and navigating Chulalongkorn University."
+    },
+    "introVideo": {
+      "url": "https://chulaxlhub.com/courses/CXLHUB00003",
+      "duration": "4:45",
+      "external": true
+    },
+    "curriculum": [
+      {
+        "sectionId": 1,
+        "title": { "th": "Thai on Campus", "en": "Thai on Campus" },
+        "duration": "51 min",
+        "lessons": [
+          { "lessonId": 1, "title": { "th": "Pre-Test Quiz", "en": "Pre-Test Quiz" }, "type": "quiz", "duration": "10 questions", "isPreview": false },
+          { "lessonId": 2, "title": { "th": "Thai Greetings 1", "en": "Thai Greetings 1" }, "type": "video", "duration": "4:45", "isPreview": false },
+          { "lessonId": 3, "title": { "th": "Thai Greeting 2", "en": "Thai Greeting 2" }, "type": "video", "duration": "5:46", "isPreview": false },
+          { "lessonId": 4, "title": { "th": "In Cafeteria 1", "en": "In Cafeteria 1" }, "type": "video", "duration": "5:20", "isPreview": false },
+          { "lessonId": 5, "title": { "th": "In Cafeteria 2", "en": "In Cafeteria 2" }, "type": "video", "duration": "5:48", "isPreview": false },
+          { "lessonId": 6, "title": { "th": "Chula Cafeterias 1", "en": "Chula Cafeterias 1" }, "type": "video", "duration": "4:44", "isPreview": false },
+          { "lessonId": 7, "title": { "th": "Chula Cafeterias 2", "en": "Chula Cafeterias 2" }, "type": "video", "duration": "5:33", "isPreview": false },
+          { "lessonId": 8, "title": { "th": "Getting Around in Chula 1", "en": "Getting Around in Chula 1" }, "type": "video", "duration": "5:38", "isPreview": false },
+          { "lessonId": 9, "title": { "th": "Getting Around in Chula 2", "en": "Getting Around in Chula 2" }, "type": "video", "duration": "4:23", "isPreview": false },
+          { "lessonId": 10, "title": { "th": "Chula Uniform 1", "en": "Chula Uniform 1" }, "type": "video", "duration": "4:22", "isPreview": false },
+          { "lessonId": 11, "title": { "th": "Chula Uniform 2", "en": "Chula Uniform 2" }, "type": "video", "duration": "4:54", "isPreview": false },
+          { "lessonId": 12, "title": { "th": "Post-Test Quiz (วัดผล)", "en": "Post-Test Quiz" }, "type": "quiz", "duration": "10 questions", "isPreview": false }
+        ]
+      }
+    ],
+    "instructor": {
+      "name": {
+        "th": "คณาจารย์ศูนย์ภาษาไทยในฐานะภาษาต่างประเทศ",
+        "en": "Academic Staffs from Centre for Thai as a Foreign Language"
+      },
+      "title": {
+        "th": "คณะอักษรศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย",
+        "en": "Faculty of Arts, Chulalongkorn University"
+      },
+      "affiliation": "Chulalongkorn University"
+    },
+    "duration": { "minutes": 51, "sessions": 10 },
+    "level": "beginner",
+    "language": ["en"],
+    "price": { "amount": 0, "currency": "THB" },
+    "certificate": false,
+    "thumbnail": "images/courses/thai-on-campus.png",
+    "banner": "images/branding/asem-lifelong-learning.png",
+    "featured": false,
+    "rating": null,
+    "studentsEnrolled": null
   }
 ]

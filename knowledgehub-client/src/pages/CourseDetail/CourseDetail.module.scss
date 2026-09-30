@@ -5,6 +5,28 @@
   background: $color-surface;
 }
 
+.bannerWrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-6;
+  text-align: center;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-4;
+  }
+}
+
+.banner {
+  display: block;
+  width: min(360px, 100%);
+  height: auto;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: $spacing-4;
+  border-radius: $shape-large;
+  mix-blend-mode: multiply;
+}
+
 // Header
 .header {
   background: $color-surface-container-low;
@@ -24,6 +46,49 @@
   @media (max-width: $breakpoint-md) {
     padding: 0 $spacing-4;
   }
+}
+
+.headerMain {
+  min-width: 0;
+}
+
+.headerWithThumbnail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  align-items: stretch;
+  gap: $spacing-6;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
+  }
+}
+
+.headerThumbnailWrap {
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+  background: $color-surface;
+  border-radius: $shape-medium;
+  box-shadow: $elevation-1;
+
+  @media (max-width: $breakpoint-md) {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.headerThumbnail {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.headerDetails {
+  min-width: 0;
 }
 
 .breadcrumb {
@@ -175,6 +240,15 @@
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.previewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: $color-primary;
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 // Tabs

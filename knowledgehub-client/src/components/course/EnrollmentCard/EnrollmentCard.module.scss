@@ -53,6 +53,8 @@
   box-shadow: $elevation-1;
   transition: all 0.3s ease;
   margin-bottom: $spacing-5;
+  text-align: center;
+  text-decoration: none;
 
   &:hover:not(:disabled) {
     box-shadow: $elevation-3;

@@ -63,6 +63,13 @@ export default function Courses() {
     <div className={styles.Courses}>
       {/* ── Catalog ── */}
       <div className={styles.CatalogSection}>
+        <div className={styles.Branding}>
+          <img
+            src={`${process.env.PUBLIC_URL}/images/branding/asem-lifelong-learning.png`}
+            alt="ASEM Asia-Europe Meeting Lifelong Learning"
+            className={styles.BrandLogo}
+          />
+        </div>
         <CollapsibleCatalog
           title={language === 'th' ? 'คอร์สทั้งหมด' : 'All Courses'}
           titleIcon="school"
@@ -107,7 +114,9 @@ export default function Courses() {
                         <span className="material-symbols-outlined">schedule</span>
                         {course.format === 'mini'
                           ? (course.video?.duration || '—')
-                          : `${course.duration?.hours || '—'} ${language === 'th' ? 'ชม.' : 'hrs'}`}
+                          : course.duration?.minutes
+                            ? `${course.duration.minutes} ${language === 'th' ? 'นาที' : 'min'}`
+                            : `${course.duration?.hours || '—'} ${language === 'th' ? 'ชม.' : 'hrs'}`}
                       </span>
                       <span className={styles.CardLevel}>{levelLabel(course.level)}</span>
                     </div>
@@ -161,9 +170,11 @@ export default function Courses() {
                   <span className="material-symbols-outlined">schedule</span>
                   {activeCourse.format === 'mini'
                     ? <span>{activeCourse.video?.duration}</span>
-                    : <span>{activeCourse.duration?.hours} {language === 'th' ? 'ชั่วโมง' : 'hours'}</span>}
+                    : <span>{activeCourse.duration?.minutes
+                      ? `${activeCourse.duration.minutes} ${language === 'th' ? 'นาที' : 'minutes'}`
+                      : `${activeCourse.duration?.hours} ${language === 'th' ? 'ชั่วโมง' : 'hours'}`}</span>}
                 </div>
-                {activeCourse.format !== 'mini' && (
+                {activeCourse.format !== 'mini' && activeCourse.studentsEnrolled != null && (
                   <div className={styles.StatItem}>
                     <span className="material-symbols-outlined">group</span>
                     <span>{activeCourse.studentsEnrolled?.toLocaleString()} {language === 'th' ? 'ผู้เรียน' : 'students'}</span>

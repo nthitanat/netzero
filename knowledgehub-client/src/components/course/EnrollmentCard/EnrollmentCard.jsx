@@ -55,27 +55,43 @@ const EnrollmentCard = ({ course }) => {
       </div>
 
       {/* Enroll Button */}
-      <button
-        className={`${styles.enrollButton} ${enrolled ? styles.enrolled : ''}`}
-        onClick={handleEnroll}
-        disabled={enrolled}
-      >
-        <span className="material-symbols-outlined">
-          {enrolled ? 'check_circle' : 'play_lesson'}
-        </span>
-        {enrolled
-          ? (language === 'th' ? 'ลงทะเบียนแล้ว' : 'Enrolled')
-          : (language === 'th' ? 'ลงทะเบียนเรียน' : 'Enroll Now')
-        }
-      </button>
+      {course.sourceUrl ? (
+        <a
+          className={styles.enrollButton}
+          href={course.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="material-symbols-outlined">open_in_new</span>
+          {language === 'th' ? 'เปิดหลักสูตรที่ Chula XL Hub' : 'Open course at Chula XL Hub'}
+        </a>
+      ) : (
+        <button
+          className={`${styles.enrollButton} ${enrolled ? styles.enrolled : ''}`}
+          onClick={handleEnroll}
+          disabled={enrolled}
+        >
+          <span className="material-symbols-outlined">
+            {enrolled ? 'check_circle' : 'play_lesson'}
+          </span>
+          {enrolled
+            ? (language === 'th' ? 'ลงทะเบียนแล้ว' : 'Enrolled')
+            : (language === 'th' ? 'ลงทะเบียนเรียน' : 'Enroll Now')
+          }
+        </button>
+      )}
 
       {/* Course Details */}
       <div className={styles.details}>
         <div className={styles.detailItem}>
           <span className="material-symbols-outlined">schedule</span>
           <span>
-            {course.duration?.hours} {language === 'th' ? 'ชั่วโมง' : 'hours'} 
-            ({course.duration?.sessions} {language === 'th' ? 'เซสชั่น' : 'sessions'})
+            {course.duration?.minutes
+              ? `${course.duration.minutes} ${language === 'th' ? 'นาที' : 'minutes'}`
+              : `${course.duration?.hours} ${language === 'th' ? 'ชั่วโมง' : 'hours'}`}
+            {' '}({course.duration?.sessions} {course.duration?.minutes
+              ? (language === 'th' ? 'บทเรียน' : 'lessons')
+              : (language === 'th' ? 'เซสชั่น' : 'sessions')})
           </span>
         </div>
 
@@ -95,17 +111,19 @@ const EnrollmentCard = ({ course }) => {
           </span>
         </div>
 
-        <div className={styles.detailItem}>
-          <span className="material-symbols-outlined">group</span>
-          <span>
-            {currentEnrollment}/{maxStudents} {language === 'th' ? 'นักเรียน' : 'students'}
-            {spotsLeft > 0 && spotsLeft <= 10 && (
-              <span className={styles.warning}>
-                ({spotsLeft} {language === 'th' ? 'ที่ว่างเหลือ' : 'spots left'})
-              </span>
-            )}
-          </span>
-        </div>
+        {maxStudents > 0 && (
+          <div className={styles.detailItem}>
+            <span className="material-symbols-outlined">group</span>
+            <span>
+              {currentEnrollment}/{maxStudents} {language === 'th' ? 'นักเรียน' : 'students'}
+              {spotsLeft > 0 && spotsLeft <= 10 && (
+                <span className={styles.warning}>
+                  ({spotsLeft} {language === 'th' ? 'ที่ว่างเหลือ' : 'spots left'})
+                </span>
+              )}
+            </span>
+          </div>
+        )}
 
         {course.certificate && (
           <div className={styles.detailItem}>

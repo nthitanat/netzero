@@ -13,7 +13,7 @@ const CourseDetail = () => {
   const { language } = useLanguage();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = useState('curriculum');
 
   const t = (content) => {
     if (typeof content === 'object' && content !== null) {
@@ -23,6 +23,7 @@ const CourseDetail = () => {
   };
 
   useEffect(() => {
+    setActiveTab('curriculum');
     const fetchCourse = async () => {
       try {
         setLoading(true);
@@ -50,28 +51,48 @@ const CourseDetail = () => {
     );
   }
 
+  const banner = course.banner && (
+    <div className={styles.bannerWrap}>
+      <img
+        className={styles.banner}
+        src={`/${course.banner}`}
+        alt={`${t(course.title)} — ASEM Asia-Europe Meeting Lifelong Learning`}
+      />
+    </div>
+  );
+
   if (course.format === 'mini') {
     return (
       <div className={styles.courseDetail}>
+        {banner}
         <section className={styles.header}>
           <div className={styles.headerContent}>
-            <div className={styles.breadcrumb}>
-              <span>{language === 'th' ? 'หลักสูตร' : 'Courses'}</span>
-              <span className="material-symbols-outlined">chevron_right</span>
-              <span>{t(course.title)}</span>
-            </div>
-            <h1 className={styles.courseTitle}>{t(course.title)}</h1>
-            <p className={styles.courseDescription}>{t(course.description)}</p>
+            <div className={`${styles.headerMain} ${course.thumbnail ? styles.headerWithThumbnail : ''}`}>
+              {course.thumbnail && (
+                <div className={styles.headerThumbnailWrap}>
+                  <img className={styles.headerThumbnail} src={`/${course.thumbnail}`} alt={t(course.title)} />
+                </div>
+              )}
+              <div className={styles.headerDetails}>
+                <div className={styles.breadcrumb}>
+                  <span>{language === 'th' ? 'หลักสูตร' : 'Courses'}</span>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                  <span>{t(course.title)}</span>
+                </div>
+                <h1 className={styles.courseTitle}>{t(course.title)}</h1>
+                <p className={styles.courseDescription}>{t(course.description)}</p>
 
-            <div className={styles.courseMeta}>
-              <span>
-                <span className="material-symbols-outlined">schedule</span>
-                {course.video?.duration}
-              </span>
-              <span>
-                <span className="material-symbols-outlined">translate</span>
-                {course.language?.map(lang => lang.toUpperCase()).join(', ')}
-              </span>
+                <div className={styles.courseMeta}>
+                  <span>
+                    <span className="material-symbols-outlined">schedule</span>
+                    {course.video?.duration}
+                  </span>
+                  <span>
+                    <span className="material-symbols-outlined">translate</span>
+                    {course.language?.map(lang => lang.toUpperCase()).join(', ')}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -104,46 +125,60 @@ const CourseDetail = () => {
 
   return (
     <div className={styles.courseDetail}>
+      {banner}
       {/* Course Header */}
       <section className={styles.header}>
         <div className={styles.headerContent}>
-          <div className={styles.breadcrumb}>
-            <span>{language === 'th' ? 'หลักสูตร' : 'Courses'}</span>
-            <span className="material-symbols-outlined">chevron_right</span>
-            <span>{t(course.title)}</span>
-          </div>
-          <h1 className={styles.courseTitle}>{t(course.title)}</h1>
-          <p className={styles.courseDescription}>{t(course.description)}</p>
-          
-          <div className={styles.instructorRow}>
-            <img 
-              src={course.instructor.avatar} 
-              alt={t(course.instructor.name)}
-              className={styles.instructorAvatar}
-            />
-            <div className={styles.instructorInfo}>
-              <p className={styles.instructorLabel}>
-                {language === 'th' ? 'สอนโดย' : 'Instructor'}
-              </p>
-              <p className={styles.instructorName}>{t(course.instructor.name)}</p>
-            </div>
-          </div>
-
-          <div className={styles.courseMeta}>
-            <span className={styles.rating}>
-              <span className="material-symbols-outlined">star</span>
-              {course.rating} ({course.studentsEnrolled} {language === 'th' ? 'นักเรียน' : 'students'})
-            </span>
-            <span>
-              <span className="material-symbols-outlined">translate</span>
-              {course.language?.map(lang => lang.toUpperCase()).join(', ')}
-            </span>
-            {course.certificate && (
-              <span>
-                <span className="material-symbols-outlined">workspace_premium</span>
-                {language === 'th' ? 'มีประกาศนียบัตร' : 'Certificate'}
-              </span>
+          <div className={`${styles.headerMain} ${course.thumbnail ? styles.headerWithThumbnail : ''}`}>
+            {course.thumbnail && (
+              <div className={styles.headerThumbnailWrap}>
+                <img className={styles.headerThumbnail} src={`/${course.thumbnail}`} alt={t(course.title)} />
+              </div>
             )}
+            <div className={styles.headerDetails}>
+              <div className={styles.breadcrumb}>
+                <span>{language === 'th' ? 'หลักสูตร' : 'Courses'}</span>
+                <span className="material-symbols-outlined">chevron_right</span>
+                <span>{t(course.title)}</span>
+              </div>
+              <h1 className={styles.courseTitle}>{t(course.title)}</h1>
+              <p className={styles.courseDescription}>{t(course.description)}</p>
+
+              <div className={styles.instructorRow}>
+                {course.instructor.avatar && (
+                  <img
+                    src={course.instructor.avatar}
+                    alt={t(course.instructor.name)}
+                    className={styles.instructorAvatar}
+                  />
+                )}
+                <div className={styles.instructorInfo}>
+                  <p className={styles.instructorLabel}>
+                    {language === 'th' ? 'สอนโดย' : 'Instructor'}
+                  </p>
+                  <p className={styles.instructorName}>{t(course.instructor.name)}</p>
+                </div>
+              </div>
+
+              <div className={styles.courseMeta}>
+                {course.rating && (
+                  <span className={styles.rating}>
+                    <span className="material-symbols-outlined">star</span>
+                    {course.rating} ({course.studentsEnrolled} {language === 'th' ? 'นักเรียน' : 'students'})
+                  </span>
+                )}
+                <span>
+                  <span className="material-symbols-outlined">translate</span>
+                  {course.language?.map(lang => lang.toUpperCase()).join(', ')}
+                </span>
+                {course.certificate && (
+                  <span>
+                    <span className="material-symbols-outlined">workspace_premium</span>
+                    {language === 'th' ? 'มีประกาศนียบัตร' : 'Certificate'}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -190,6 +225,24 @@ const CourseDetail = () => {
                     </div>
                   )}
                 </section>
+
+                {course.introVideo?.url && (
+                  <section className={styles.section}>
+                    <h2 className={styles.sectionTitle}>
+                      {language === 'th' ? 'วิดีโอตัวอย่าง' : 'Course Preview'}
+                    </h2>
+                    <a
+                      className={styles.previewLink}
+                      href={course.introVideo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <span className="material-symbols-outlined">play_circle</span>
+                      {language === 'th' ? 'ดูวิดีโอตัวอย่างที่ Chula XL Hub' : 'Watch preview at Chula XL Hub'}
+                      {' · '}{course.introVideo.duration}
+                    </a>
+                  </section>
+                )}
 
                 {course.learningObjectives && course.learningObjectives.length > 0 && (
                   <section className={styles.section}>
@@ -249,11 +302,13 @@ const CourseDetail = () => {
                     {language === 'th' ? 'เกี่ยวกับผู้สอน' : 'About the Instructor'}
                   </h2>
                   <div className={styles.instructorProfile}>
-                    <img 
-                      src={course.instructor.avatar} 
-                      alt={t(course.instructor.name)}
-                      className={styles.instructorImage}
-                    />
+                    {course.instructor.avatar && (
+                      <img
+                        src={course.instructor.avatar}
+                        alt={t(course.instructor.name)}
+                        className={styles.instructorImage}
+                      />
+                    )}
                     <div className={styles.instructorDetails}>
                       <h3 className={styles.instructorFullName}>{t(course.instructor.name)}</h3>
                       <p className={styles.instructorTitle}>{t(course.instructor.title)}</p>
