@@ -5,6 +5,7 @@ import { getAllCourses } from '../../api/dataService';
 import Loading from '../../components/common/Loading/Loading';
 import CollapsibleCatalog from '../../components/common/CollapsibleCatalog/CollapsibleCatalog';
 import { getYouTubeThumbnail } from '../../utils/youtube';
+import { publicAssetUrl } from '../../utils/publicAssetUrl';
 import styles from './Courses.module.scss';
 
 export default function Courses() {
@@ -54,7 +55,7 @@ export default function Courses() {
     if (course.format === 'mini') {
       return getYouTubeThumbnail(course.video?.url) || fallback;
     }
-    return (course.thumbnail && !course.thumbnail.startsWith('/')) ? course.thumbnail : fallback;
+    return course.thumbnail ? publicAssetUrl(course.thumbnail) : fallback;
   };
 
   if (loading) return <Loading />;
@@ -65,7 +66,7 @@ export default function Courses() {
       <div className={styles.CatalogSection}>
         <div className={styles.Branding}>
           <img
-            src={`${process.env.PUBLIC_URL}/images/branding/asem-lifelong-learning.png`}
+            src={publicAssetUrl('images/branding/asem-lifelong-learning.png')}
             alt="ASEM Asia-Europe Meeting Lifelong Learning"
             className={styles.BrandLogo}
           />

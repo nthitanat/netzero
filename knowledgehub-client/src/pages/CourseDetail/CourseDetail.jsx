@@ -6,6 +6,7 @@ import Loading from '../../components/common/Loading/Loading';
 import CurriculumAccordion from '../../components/course/CurriculumAccordion/CurriculumAccordion';
 import EnrollmentCard from '../../components/course/EnrollmentCard/EnrollmentCard';
 import { getYouTubeEmbedUrl } from '../../utils/youtube';
+import { publicAssetUrl } from '../../utils/publicAssetUrl';
 import styles from './CourseDetail.module.scss';
 
 const CourseDetail = () => {
@@ -55,7 +56,7 @@ const CourseDetail = () => {
     <div className={styles.bannerWrap}>
       <img
         className={styles.banner}
-        src={`/${course.banner}`}
+        src={publicAssetUrl(course.banner)}
         alt={`${t(course.title)} — ASEM Asia-Europe Meeting Lifelong Learning`}
       />
     </div>
@@ -70,7 +71,7 @@ const CourseDetail = () => {
             <div className={`${styles.headerMain} ${course.thumbnail ? styles.headerWithThumbnail : ''}`}>
               {course.thumbnail && (
                 <div className={styles.headerThumbnailWrap}>
-                  <img className={styles.headerThumbnail} src={`/${course.thumbnail}`} alt={t(course.title)} />
+                  <img className={styles.headerThumbnail} src={publicAssetUrl(course.thumbnail)} alt={t(course.title)} />
                 </div>
               )}
               <div className={styles.headerDetails}>
@@ -132,7 +133,7 @@ const CourseDetail = () => {
           <div className={`${styles.headerMain} ${course.thumbnail ? styles.headerWithThumbnail : ''}`}>
             {course.thumbnail && (
               <div className={styles.headerThumbnailWrap}>
-                <img className={styles.headerThumbnail} src={`/${course.thumbnail}`} alt={t(course.title)} />
+                <img className={styles.headerThumbnail} src={publicAssetUrl(course.thumbnail)} alt={t(course.title)} />
               </div>
             )}
             <div className={styles.headerDetails}>
@@ -147,7 +148,7 @@ const CourseDetail = () => {
               <div className={styles.instructorRow}>
                 {course.instructor.avatar && (
                   <img
-                    src={course.instructor.avatar}
+                    src={publicAssetUrl(course.instructor.avatar)}
                     alt={t(course.instructor.name)}
                     className={styles.instructorAvatar}
                   />
@@ -304,7 +305,7 @@ const CourseDetail = () => {
                   <div className={styles.instructorProfile}>
                     {course.instructor.avatar && (
                       <img
-                        src={course.instructor.avatar}
+                        src={publicAssetUrl(course.instructor.avatar)}
                         alt={t(course.instructor.name)}
                         className={styles.instructorImage}
                       />
