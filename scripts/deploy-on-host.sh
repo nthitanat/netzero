@@ -110,6 +110,8 @@ if [[ "$ACTION" == deploy ]]; then
     remote_sudo mkdir -p "$stage_dir" "$backup_dir"
     for target in ${FRONTENDS[@]+"${FRONTENDS[@]}"}; do
       remote_sudo cp -R -- "$build_dir/$target" "$stage_dir/$target"
+      # The SSH wrapper's private umask also reaches npm; these copied assets are public.
+      remote_sudo chmod -R a+rX "$stage_dir/$target"
     done
     for target in ${FRONTENDS[@]+"${FRONTENDS[@]}"}; do
       if [[ -e "$WEB_ROOT/$target" ]]; then remote_sudo mv -- "$WEB_ROOT/$target" "$backup_dir/$target"; fi

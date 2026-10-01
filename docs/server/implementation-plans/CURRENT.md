@@ -1,7 +1,9 @@
 # NetZero server implementation plans
 
-**Updated:** 2026-09-30 Asia/Bangkok
+**Updated:** 2026-10-01 Asia/Bangkok
 
+- [Public frontend permissions](2026-10-01-deployment-public-permissions.md): complete; the 403 permission fix passed the deployment suite and a live frontend-only rollout.
+- [Production image table recovery](2026-09-30-production-image-table-recovery.md): complete; two missing image tables created from the canonical seed, existing parent schemas unchanged, affected API routes verified.
 - [Client/server docs layout](2026-09-30-client-server-doc-layout.md): complete; server owns the canonical cross-stack migration record.
 
 - [Retire repository architecture skill](2026-09-30-retire-general-architecture-skill.md): complete; the docs guide is NetZero's architecture authority.

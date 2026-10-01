@@ -1,7 +1,9 @@
 # NetZero server architecture handoff
 
-**Updated:** 2026-09-30 Asia/Bangkok
+**Updated:** 2026-10-01 Asia/Bangkok
 
+- Frontend deploy 403: private build-file permissions were corrected in the staged public builds. Both frontends deployed successfully; public pages/assets and backend health returned 200. [Result](code-changes/2026-10-01-deployment-public-permissions.md).
+- Production image table recovery: `product_images` and `event_images` were created from the canonical seed; existing parent schemas stayed unchanged and affected event/product reads returned 200. The user waived a backup for this limited operation. [Result](code-changes/2026-09-30-production-image-table-recovery.md).
 - Client/server documentation split completed; root workflow folders retired. [Result](code-changes/2026-09-30-client-server-doc-layout.md), [rule update](rule-updates/2026-09-30-client-server-doc-layout.md).
 
 - Repository architecture skill retired at the user's request; `docs/GENERAL_ARCHITECTURE.md` is now the sole NetZero architecture guide. [Result](code-changes/2026-09-30-retire-general-architecture-skill.md), [rule update](rule-updates/2026-09-30-retire-general-architecture-skill.md).

@@ -29,6 +29,8 @@ if name=='npm' and args[0]=='run':
  if target=='glocal': assert os.environ['PUBLIC_URL']=='/glocal'
  path=pathlib.Path(os.environ['BUILD_PATH']); path.mkdir(parents=True)
  (path/'index.html').write_text('new-'+target)
+ asset=path/'static/js/main.js'; asset.parent.mkdir(parents=True)
+ asset.write_text('new-'+target)
 if name=='curl':
  url=next(a for a in args if a.startswith('http'))
  output=pathlib.Path(args[args.index('-o')+1])
@@ -36,7 +38,13 @@ if name=='curl':
  else:
   target=url.split('/')[3]
   if os.environ.get('FAIL_URL')==target: sys.exit(22)
-  text='wrong' if os.environ.get('WRONG_URL')==target else (pathlib.Path(os.environ['TEST_WEB'])/target/'index.html').read_text()
+  published=pathlib.Path(os.environ['TEST_WEB'])/target
+  if os.environ.get('CHECK_WEB_PERMS')=='1':
+   index=published/'index.html'
+   asset=published/'static/js/main.js'
+   if not all(path.stat().st_mode & 0o005 == 0o005 for path in (published,asset.parent.parent,asset.parent)): sys.exit(22)
+   if not all(path.stat().st_mode & 0o004 for path in (index,asset)): sys.exit(22)
+  text='wrong' if os.environ.get('WRONG_URL')==target else (published/'index.html').read_text()
   output.write_text(text)
 if name=='mv':
  if os.environ.get('FAIL_SWAP') and '.netzero-stage-' in args[-2] and args[-2].endswith('/'+os.environ['FAIL_SWAP']): sys.exit(39)
@@ -70,8 +78,8 @@ class DeploymentTests(unittest.TestCase):
   self.write_config()
  def git(self,*args,cwd=None): return subprocess.run(['git',*args],cwd=cwd,check=True,capture_output=True)
  def write_config(self): self.config.write_text(''.join(key+'='+shlex.quote(value)+'\n' for key,value in self.values.items()))
- def run_deploy(self,frontend='both',backend='skip',action='deploy',**env):
-  return subprocess.run(['bash',str(ROOT/'scripts/deploy-on-host.sh'),action,frontend,backend,str(self.config)],env=dict(self.env,**env),capture_output=True,text=True)
+ def run_deploy(self,frontend='both',backend='skip',action='deploy',private_umask=False,**env):
+  return subprocess.run(['bash',str(ROOT/'scripts/deploy-on-host.sh'),action,frontend,backend,str(self.config)],env=dict(self.env,**env),capture_output=True,text=True,preexec_fn=(lambda: os.umask(0o077)) if private_umask else None)
  def assert_old(self):
   for target in ('netzero','glocal','other'): self.assertEqual((self.web/target/'index.html').read_text(),'old-'+target)
  def test_every_target_combination(self):
@@ -112,6 +120,11 @@ class DeploymentTests(unittest.TestCase):
   for target in ('netzero','glocal'):
    copies=list((self.web/'.netzero-releases').glob('*/'+target+'/index.html'))
    self.assertEqual(len(copies),1); self.assertEqual(copies[0].read_text(),'old-'+target)
+ def test_public_builds_readable_under_private_umask(self):
+  result=self.run_deploy(private_umask=True,CHECK_WEB_PERMS='1')
+  self.assertEqual(result.returncode,0,result.stderr+result.stdout)
+  for target in ('netzero','glocal'):
+   self.assertEqual((self.web/target/'index.html').read_text(),'new-'+target)
  def test_uploads_survive_repository_refresh(self):
   self.git('clone',str(self.source),str(self.checkout)); uploads=self.checkout/'netzero-server/files'; uploads.mkdir(parents=True)
   (uploads/'sentinel').write_text('keep'); result=self.run_deploy('glocal')

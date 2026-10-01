@@ -1,7 +1,8 @@
 # NetZero client architecture handoff
 
-**Updated:** 2026-09-30 Asia/Bangkok
+**Updated:** 2026-10-01 Asia/Bangkok
 
+- NetZero and Glocal production frontend publication: both public pages and main assets returned 200 after the server-owned staging-permission fix. [Canonical deployment result](../../server/architecture-logs/code-changes/2026-10-01-deployment-public-permissions.md).
 - Glocal course entry point: NetZero client `/courses` route and navigation bridge added; client build passed. [Result](code-changes/2026-09-30-glocal-courses-link.md).
 - Glocal monorepo migration: both React clients build locally; production rollout pending. [Canonical cross-stack result](../../server/architecture-logs/code-changes/2026-09-30-glocal-monorepo-migration.md).
 - Pagination contract: client collection paging and server decimal-string bindings tested. [Canonical cross-stack result](../../server/architecture-logs/code-changes/2026-09-24-pagination-fix.md), [rule](../../server/architecture-logs/rule-updates/2026-09-24-pagination-contract.md).
